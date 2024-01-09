@@ -2,6 +2,7 @@ from structures.module_params import Parametr
 from analyzer import SystemVerilogFind
 import os
 
+
 class Program():
     def __init__(self) -> None:
         self.moduleIdentifier = ''
@@ -10,7 +11,10 @@ class Program():
         self.moduleOutputs = []
         self.internalSignals = []
         self.assignments = []
+        self.behaviour = ''
+        self.actions = ''
         self.identifier = ''
+        self.changeCounter = 0
 
         self.inputsFlag = False
         self.outputFlag = False
@@ -34,6 +38,10 @@ class Program():
         self.internalSignals = input[4]
         self.assignments = input[5]
         self.identifier = input[6]
+        self.actions = input[7]
+        self.behaviour = input[8]
+        self.changeCounter = input[9]
+
         if (len(self.moduleInputs) > 0):
             self.inputsFlag = True
 
@@ -87,7 +95,7 @@ class Program():
         if (self.inputsFlag):
             env += '\t\tinputSignals : ('
             for elem in self.moduleInputs:
-                env += '{0},'.format(elem)
+                env += '_{0},'.format(elem)
             env += ')\n'
         if (self.internalFlag):
             env += '\t\tinternalSignals : ('
@@ -158,17 +166,9 @@ class Program():
 
     def createAction(self):
         # ----------------------------------
-        # Assing
+        # Actions
         # ----------------------------------
         act = ''
-        if (self.assignmentsFlag):
-            for i in range(len(self.assignments)):
-                act += 'assign{0} = (\n\t\t(1)->\n'.format(i+1)
-                act += '\t\t("CODE#code:action \'{0} = {1}\';")\n\t\t(code.{0} = {1})'.format(self.assignments[i][0], self.assignments[i][1])
-                if (i+1 < len(self.assignments)):
-                    act += '),\n\n'
-                else:
-                    act += ')\n\n'
         identifierUpper = self.identifier.upper()
         act += '''receive(x,y,z) = (Exist (p:Bits  64)(
         (1)->
@@ -186,13 +186,36 @@ reset_sensetive = (Forall (e:inputSignals)(
         (1)->
         ("{0}#{1}:action 'show=0';")
         ({1}.sensitive(e) = 0)
-    ))'''.format(identifierUpper, identifierUpper.lower())
+    )),\n\n'''.format(identifierUpper, identifierUpper.lower())
+        act += self.actions
+        remove_index = act.rfind(',')
+        act = act[:remove_index] + act[remove_index+1:]
         self.writeToFile('results/project.act', act)
+
+    def createBeh(self):
+        # ----------------------------------
+        # Behaviour
+        # ----------------------------------
+        beh = ''
+
+        inp = 'INP = '
+        for i in range(len(self.moduleInputs)):
+            inp += 'receive(_{0}, {0}, s_{0})'.format(self.moduleInputs[i])
+            if (i+1 == len(self.moduleInputs)):
+                inp += ',\n'
+            else:
+                inp += ' +\n\t\t'
+        beh += inp
+
+        
+        #B0 = (assign1.INP; {B1 ||  B2}; reset_sensetive; reset_change; B0),
+        self.writeToFile('results/project.beh', beh)
 
     def createAplan(self):
         self.createEVT()
         self.createENV()
         self.createAction()
+        self.createBeh()
 
     def __str__(self):
         return "Identifier: {0}\nParametrs:\n{1}\nInput ports: \n {2}\nOutput ports: \n {3}\nAssignments: \n {4}".format(self.moduleIdentifier,

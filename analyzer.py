@@ -6,21 +6,21 @@ from io import StringIO
 
 
 class SV2aplan():
-    def __init__(self, inputPortIdent, outputPortIdent, internalSignals, identifier, assignment_counter, change_counter):
+    def __init__(self, inputPortIdent, outputPortIdent, internalSignals, identifier, assignment_counter, change_counter, if_counter):
         self.identifier = identifier
         self.inputPortIdent = inputPortIdent
         self.outputPortIdent = outputPortIdent
         self.internalSignals = internalSignals
         self.assignment_counter = assignment_counter
         self.change_counter = change_counter
+        self.if_counter = if_counter
         self.identifierUpper = self.identifier.upper()
         self.identifierLower = self.identifier.lower()
+        self.subsiquence = []
 
     def addCommaAndNeLines(self, input):
         if (len(input) > 0):
-            input += ',\n\n'
-        else:
-            input += '\n\n'
+            input = ',\n\n' + input
         return input
 
     def findAndChangeNamesToAplanNames(self, input: str):
@@ -45,40 +45,96 @@ class SV2aplan():
                 sens_list.append(elem)
         identifierUpper = self.identifier.upper()
         params = ''
+        params2 = ''
         condition = ''
+        sens_str = ''
         for i in range(len(sens_list)):
             params += 'x{0}'.format(i)
+            params2 += '_' + sens_list[i]
             condition += '{0}.sensitive(x{1}) == 1'.format(
                 self.identifierLower, i)
             if (i < len(sens_list) - 1):
                 params += ', '
+                params2 += ', '
                 condition += ' || '
-        change = '''change_{0}({3}) = (
-		({4})->
+        change_call = 'change_{0}({1})'.format(self.change_counter, params)
+        change = '''{0} = (
+		({3})->
 		("{1}#{2}:action 'show=0';")
-		(1)),'''.format(self.change_counter, self.identifierUpper, self.identifierLower, params, condition)
-        return [sens_list, change]
+		(1)),\n\n'''.format(change_call, self.identifierUpper, self.identifierLower, condition)
+        self.subsiquence.append(
+            'change_{0}'.format(self.change_counter))
+        change_call = 'change_{0}({1})'.format(self.change_counter, params2)
+        self.change_counter += 1
+        return [change_call, change]
 
     def sv2aplan(self, ctx):
-        result = ''
+        subsiquence = []
+        action = ''
+        beh = ''
         if ctx.getChildCount() == 0:
-            return ''
+            return ['', '', []]
         for child in ctx.getChildren():
             if (type(child) is SystemVerilogParser.Variable_decl_assignmentContext):
                 assign = child.getText()
                 assignWithReplacedNames = self.findAndChangeNamesToAplanNames(
                     assign)
-                result = self.addCommaAndNeLines(result)
                 act = ''
                 act += 'assign{0} = (\n\t\t(1)->\n'.format(self.assignment_counter)
                 act += '\t\t("{2}#{3}:action \'{0}\';")\n\t\t({1})'.format(assign,
                                                                            assignWithReplacedNames, self.identifierUpper, self.identifierLower)
-                act += ')'
-                result += act
+                act += '),\n\n'
+                action += act
                 self.assignment_counter += 1
+                subsiquence.append(
+                    'assign{0}'.format(self.assignment_counter))
+                beh += '.assign{0}'.format(self.assignment_counter)
+            elif (type(child) is SystemVerilogParser.Conditional_statementContext):
+                predicate = child.cond_predicate()
+                for elem in predicate:
+                    predicateString = elem.getText()
+                    if (len(predicateString) > 0):
+                        predicateWithReplacedNames = self.findAndChangeNamesToAplanNames(
+                            predicateString)
+                        action += '''if{0} = (
+        ({1})->
+        ("{2}#{3}:action 'if ({4})';")
+        (1)),\n\n'''.format(self.if_counter, predicateWithReplacedNames, self.identifierUpper, self.identifierLower, predicateString)
+
+                statements = child.statement_or_null()
+                subsiquence = []
+                for elemid in range(len(statements)):
+                    res = self.sv2aplan(statements[elemid])
+                    action += res[0]
+                    reverseSubs = res[2][::-1]
+                    subsLen = len(res[2])
+                    if (subsLen > 0):
+                        if (elemid > 0):
+                            beh += 'BODY_else_if{0} = '.format(self.if_counter)
+                            subsiquence.append(
+                                'BODY_else_if{0}'.format(self.if_counter))
+                        else:
+                            beh += 'BODY_if{0} = '.format(self.if_counter)
+                            subsiquence.append(
+                                'BODY_if{0}'.format(self.if_counter))
+                        for subsIndex in range(subsLen):
+                            beh += reverseSubs[subsIndex]
+                            if (subsIndex + 1 == subsLen):
+                                beh += ',\n'
+                            else:
+                                beh += '.'
+                if (len(subsiquence) > 0):
+                    beh = 'if{0}.{1} + !if{0}.{2},\n'.format(
+                        self.if_counter, subsiquence[0], subsiquence[1]) + beh
+                    subsiquence = []
+                self.if_counter += 1
             else:
-                result += self.sv2aplan(child)
-        return result
+                res = self.sv2aplan(child)
+                beh += res[1]
+                action += res[0]
+                subsiquence = res[2] + subsiquence
+
+        return [action, beh, subsiquence]
 
 
 class ModuleAnalyzeListener(SystemVerilogParserListener):
@@ -91,6 +147,10 @@ class ModuleAnalyzeListener(SystemVerilogParserListener):
         self.assignments = []
         self.assignment_counter = 1
         self.change_counter = 1
+        self.if_counter = 1
+        self.actions = ''
+        self.behaviour = ''
+        self.alwaysCounter = 1
 
     def enterModule_declaration(self, ctx):
         self.identifier = ctx.module_ansi_header().module_identifier().getText()
@@ -124,11 +184,35 @@ class ModuleAnalyzeListener(SystemVerilogParserListener):
     def enterAlways_construct(self, ctx):
         print("------------------")
         sv2aplan = SV2aplan(self.inputPortIdent, self.outputPortIdent,
-                            self.internalSignals, self.identifier, self.assignment_counter, self.change_counter)
-        print(sv2aplan.sv2aplan(ctx))
-        print(sv2aplan.Sensetive2Aplan(ctx.getText()))
+                            self.internalSignals, self.identifier, self.assignment_counter, self.change_counter, self.if_counter)
+        sv2aplanResult = sv2aplan.sv2aplan(ctx)
+
+        self.actions += sv2aplanResult[0]
+
+        if (sv2aplanResult[1].find('.') == 0):
+            sv2aplanResult[1] = sv2aplanResult[1][1:]
+        changes = sv2aplan.Sensetive2Aplan(ctx.getText())
+        if (len(changes[0]) > 0):
+            if (len(self.behaviour) > 0):
+                self.behaviour += ',\n'
+            changeBeh = 'B{0} = {1}.ALWAYS_{0} + !{1}'.format(
+                self.alwaysCounter, changes[0])
+            self.behaviour += changeBeh
+
+        if (len(self.behaviour) > 0):
+            self.behaviour += ',\n'
+            self.behaviour += 'ALWAYS_{0} = '.format(
+                self.alwaysCounter) + sv2aplanResult[1]
+        else:
+            self.behaviour = 'ALWAYS_{0} = '.format(
+                self.alwaysCounter) + sv2aplanResult[1]
+
+        self.actions += changes[1]
+
         self.assignment_counter = sv2aplan.assignment_counter
         self.change_counter = sv2aplan.change_counter
+        self.if_counter = sv2aplan.if_counter
+        self.alwaysCounter += 1
        # print(ctx.start.line)
 
     def enterConditional_statement(self, ctx):
@@ -174,7 +258,7 @@ class SystemVerilogFind():
         listener = ModuleAnalyzeListener()
         self.walker.walk(listener, self.tree)
         print('Analyze finished')
-        return [listener.identifier, listener.params, listener.inputPortIdent, listener.outputPortIdent, listener.internalSignals, listener.assignments, listener.identifier]
+        return [listener.identifier, listener.params, listener.inputPortIdent, listener.outputPortIdent, listener.internalSignals, listener.assignments, listener.identifier, listener.actions, listener.behaviour, listener.change_counter]
 
     def test_module_inputs(self):
         class ModuleInputListener(SystemVerilogParserListener):

@@ -14,6 +14,7 @@ module example
     wire    patch_match = 1;
 
     always_comb begin
+            mi_addr_o = si_addr_i;
             mi_addr_o = si_addr_i; 
     end
  
