@@ -10,16 +10,17 @@ class Program():
         self.moduleInputs = []
         self.moduleOutputs = []
         self.internalSignals = []
-        self.assignments = []
+        self.notBlockedProt = []
         self.behaviour = ''
         self.actions = ''
         self.identifier = ''
         self.changeCounter = 0
+        self.behCounter = 0
+        self.parameters = []
 
         self.inputsFlag = False
         self.outputFlag = False
         self.internalFlag = False
-        self.assignmentsFlag = False
         self.finder = SystemVerilogFind()
 
     def setUp(self, path):
@@ -36,11 +37,13 @@ class Program():
         self.moduleInputs = input[2]
         self.moduleOutputs = input[3]
         self.internalSignals = input[4]
-        self.assignments = input[5]
+        self.notBlockedProt = input[5]
         self.identifier = input[6]
         self.actions = input[7]
         self.behaviour = input[8]
         self.changeCounter = input[9]
+        self.behCounter = input[10]
+        self.parameters = input[11]
 
         if (len(self.moduleInputs) > 0):
             self.inputsFlag = True
@@ -50,9 +53,6 @@ class Program():
 
         if (len(self.internalSignals) > 0):
             self.internalFlag = True
-
-        if (len(self.assignments) > 0):
-            self.assignmentsFlag = True
 
     def paramsPrint(self):
         result = ''
@@ -196,8 +196,7 @@ reset_sensetive = (Forall (e:inputSignals)(
         # ----------------------------------
         # Behaviour
         # ----------------------------------
-        beh = ''
-
+        beh = self.behaviour
         inp = 'INP = '
         for i in range(len(self.moduleInputs)):
             inp += 'receive(_{0}, {0}, s_{0})'.format(self.moduleInputs[i])
@@ -205,11 +204,34 @@ reset_sensetive = (Forall (e:inputSignals)(
                 inp += ',\n'
             else:
                 inp += ' +\n\t\t'
-        beh += inp
+        beh = inp + beh
+        beh_part2 = ''
+        for i in range(self.behCounter - 1):
+            beh_part2 += 'B{0}'.format(i+1)
+            if (i+1 < self.behCounter - 1):
+                beh_part2 += ' || '
 
-        
-        #B0 = (assign1.INP; {B1 ||  B2}; reset_sensetive; reset_change; B0),
-        self.writeToFile('results/project.beh', beh)
+        if (len(beh_part2) > 0):
+            beh_part2 = '{ ' + beh_part2 + ' }'
+
+        beh_part1 = ''
+        self.notBlockedProt = self.notBlockedProt[::-1]
+        for i in range(len(self.notBlockedProt)):
+            beh_part1 += self.notBlockedProt[i]
+            if (i+1 != len(self.notBlockedProt)):
+                beh_part2 += '.'
+        beh = 'B0 = ({0}.INP; {1}; reset_sensetive; reset_change; B0),\n'.format(
+            beh_part1, beh_part2) + beh
+        remove_index = beh.rfind(',')
+        beh = beh[:remove_index] + beh[remove_index+1:]
+        self.parameters = list(dict.fromkeys(self.parameters))
+        params_str = ''
+        for i in range(len(self.parameters)):
+            params_str += self.parameters[i]
+            if (i+1 != len(self.parameters)):
+                params_str += ', '
+        beh = 'rs({0}) (\n'.format(params_str) + beh + ')'
+        self.writeToFile('results/project.behp', beh)
 
     def createAplan(self):
         self.createEVT()
@@ -217,21 +239,9 @@ reset_sensetive = (Forall (e:inputSignals)(
         self.createAction()
         self.createBeh()
 
-    def __str__(self):
-        return "Identifier: {0}\nParametrs:\n{1}\nInput ports: \n {2}\nOutput ports: \n {3}\nAssignments: \n {4}".format(self.moduleIdentifier,
-                                                                                                                         self.paramsPrint(),
-                                                                                                                         self.printArray(
-                                                                                                                             self.moduleInputs, False),
-                                                                                                                         self.printArray(
-                                                                                                                             self.moduleOutputs, False),
-                                                                                                                         self.printArray(
-                                                                                                                             self.assignments, True)
-                                                                                                                         )
-
 
 program = Program()
 program.setUp("example.sv")
 analyze_result = program.finder.start_analyze()
 program.setData(analyze_result)
-print(program)
 program.createAplan()

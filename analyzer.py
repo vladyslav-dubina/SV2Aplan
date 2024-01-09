@@ -48,6 +48,7 @@ class SV2aplan():
         params2 = ''
         condition = ''
         sens_str = ''
+        paramsArr = []
         for i in range(len(sens_list)):
             params += 'x{0}'.format(i)
             params2 += '_' + sens_list[i]
@@ -57,6 +58,7 @@ class SV2aplan():
                 params += ', '
                 params2 += ', '
                 condition += ' || '
+            paramsArr.append('x{0}'.format(i))
         change_call = 'change_{0}({1})'.format(self.change_counter, params)
         change = '''{0} = (
 		({3})->
@@ -66,7 +68,7 @@ class SV2aplan():
             'change_{0}'.format(self.change_counter))
         change_call = 'change_{0}({1})'.format(self.change_counter, params2)
         self.change_counter += 1
-        return [change_call, change]
+        return [change_call, change, paramsArr]
 
     def sv2aplan(self, ctx):
         subsiquence = []
@@ -151,16 +153,12 @@ class ModuleAnalyzeListener(SystemVerilogParserListener):
         self.actions = ''
         self.behaviour = ''
         self.alwaysCounter = 1
+        self.notBlockedProt = []
+        self.parameters = []
 
     def enterModule_declaration(self, ctx):
         self.identifier = ctx.module_ansi_header().module_identifier().getText()
 
-    # def exitParameter_port_declaration(self, ctx):
-    #    assignList = ctx.parameter_declaration(
-    #    ).list_of_param_assignments().param_assignment()
-    #    for elem in assignList:
-    #        self.params.append(Parametr(elem.parameter_identifier(
-    #       ).getText(), elem.constant_param_expression().getText()))
     def exitNet_declaration(self, ctx):
         if (ctx.net_type().getText() == 'wire'):
             for elem in ctx.list_of_net_decl_assignments().net_decl_assignment():
@@ -169,6 +167,18 @@ class ModuleAnalyzeListener(SystemVerilogParserListener):
                 expression = elem.expression().getText()
                 if (expression):
                     self.assignments.append([identifier, expression])
+                    assign = elem.getText()
+                    sv2aplan = SV2aplan(self.inputPortIdent, self.outputPortIdent,
+                            self.internalSignals, self.identifier, self.assignment_counter, self.change_counter, self.if_counter)
+                    assignWithReplacedNames = sv2aplan.findAndChangeNamesToAplanNames(
+                        assign)
+                    act = 'assign{0} = (\n\t\t(1)->\n'.format(self.assignment_counter)
+                    act += '\t\t("{2}#{3}:action \'{0}\';")\n\t\t({1})'.format(assign,
+                                                                            assignWithReplacedNames, sv2aplan.identifierUpper, sv2aplan.identifierLower)
+                    act += '),\n\n'
+                    self.actions += act
+                    self.notBlockedProt.append('assign{0}'.format(self.assignment_counter))
+                    self.assignment_counter +=1
 
     def exitAnsi_port_declaration(self, ctx):
         if (ctx.net_port_header().getText() == 'input'):
@@ -182,7 +192,6 @@ class ModuleAnalyzeListener(SystemVerilogParserListener):
         ).getText(), ctx.constant_param_expression().getText()))
 
     def enterAlways_construct(self, ctx):
-        print("------------------")
         sv2aplan = SV2aplan(self.inputPortIdent, self.outputPortIdent,
                             self.internalSignals, self.identifier, self.assignment_counter, self.change_counter, self.if_counter)
         sv2aplanResult = sv2aplan.sv2aplan(ctx)
@@ -208,33 +217,11 @@ class ModuleAnalyzeListener(SystemVerilogParserListener):
                 self.alwaysCounter) + sv2aplanResult[1]
 
         self.actions += changes[1]
-
+        self.parameters += changes[2]
         self.assignment_counter = sv2aplan.assignment_counter
         self.change_counter = sv2aplan.change_counter
         self.if_counter = sv2aplan.if_counter
         self.alwaysCounter += 1
-       # print(ctx.start.line)
-
-    def enterConditional_statement(self, ctx):
-        print("++++++++++++++++++")
-        print(ctx.getText())
-        print(ctx.start.line)
-
-    def exitVariable_decl_assignment(self, ctx):
-        # dimention = ctx.variable_dimension()
-        # if (len(dimention) > 0):
-        #   dimention = dimention[0].getText()
-       # print('===========')
-       # print(ctx.start.line)
-        identifier = ctx.variable_identifier().getText()
-        if (ctx.expression()):
-            expression = ctx.expression().getText()
-            self.assignments.append([identifier, expression])
-
-    # body of module
-    # def exitModule_common_item(self, ctx):
-      #  print('++++++++++')
-       # print(ctx.getText())
 
 
 class SystemVerilogFind():
@@ -258,48 +245,6 @@ class SystemVerilogFind():
         listener = ModuleAnalyzeListener()
         self.walker.walk(listener, self.tree)
         print('Analyze finished')
-        return [listener.identifier, listener.params, listener.inputPortIdent, listener.outputPortIdent, listener.internalSignals, listener.assignments, listener.identifier, listener.actions, listener.behaviour, listener.change_counter]
-
-    def test_module_inputs(self):
-        class ModuleInputListener(SystemVerilogParserListener):
-            def __init__(self):
-                self.declarations = []
-
-            def exitInput_declaration(self, ctx):
-                print(ctx)
-
-            def exitInput_identifier(self, ctx):
-                print("tetra")
-                print(ctx)
-
-        listener = ModuleInputListener()
-        self.walker.walk(listener, self.tree)
-        print(listener.declarations)
-
-    def test_variable_assignment(self):
-        class VariableAssignmentListener(SystemVerilogParserListener):
-            def __init__(self):
-                self.vars = []
-                self.opVars = []
-                self.decl = []
-
-            def exitVariable_decl_assignment(self, ctx):
-                print(ctx.depth())
-                dimention = ctx.variable_dimension()
-                if (len(dimention) > 0):
-                    dimention = dimention[0].getText()
-                self.identifier = ctx.variable_identifier().getText()
-                if (ctx.expression()):
-                    self.expression = ctx.expression().getText()
-                    self.vars.append(
-                        [self.identifier, dimention, self.expression])
-                else:
-                    self.decl.append(self.identifier)
-
-        listener = VariableAssignmentListener()
-        self.walker.walk(listener, self.tree)
-        print(listener.vars)
-        print("---------------")
-        print(listener.opVars)
-        print("---------------")
-        print(listener.decl)
+        beh_counter = 0
+        beh_counter += listener.alwaysCounter
+        return [listener.identifier, listener.params, listener.inputPortIdent, listener.outputPortIdent, listener.internalSignals, listener.notBlockedProt, listener.identifier, listener.actions, listener.behaviour, listener.change_counter, beh_counter, listener.parameters]

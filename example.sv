@@ -15,7 +15,6 @@ module example
 
     always_comb begin
             mi_addr_o = si_addr_i;
-            mi_addr_o = si_addr_i; 
     end
  
     always_comb begin
