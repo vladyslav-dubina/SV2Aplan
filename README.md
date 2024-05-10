@@ -4,7 +4,9 @@
 <details><summary>Click to expand</summary>
   
 1. Install Python on your system
-2. Install the necessary libraries: ```pip install -r requirements.txt```
+2. Install the necessary libraries:
+
+       pip install -r requirements.txt
 
 </details>
 
@@ -31,3 +33,10 @@
       
 </details>
 
+## Console log example
+
+<details><summary>Click to expand</summary>
+
+![image](https://github.com/vladyslav-dubina/SV2Aplan/assets/82110791/5b8bf515-4038-412a-9457-df555dcaea3a)
+
+</details>
