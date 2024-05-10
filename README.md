@@ -40,3 +40,10 @@
 ![image](https://github.com/vladyslav-dubina/SV2Aplan/assets/82110791/5b8bf515-4038-412a-9457-df555dcaea3a)
 
 </details>
+
+
+## Authors
+
+- [Vlad Dubina](https://github.com/vladyslav-dubina)
+
+- [Volodymyr Peschanenko](https://github.com/VolodymyrPeschanenkoLitSoft)
