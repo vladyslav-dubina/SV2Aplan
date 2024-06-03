@@ -19,7 +19,7 @@ module example
  
     always_comb begin
 		if (patch_match) begin
-	        mi_addr_o = ctl_pat_addr_i;
+	        mi_addr_o = ctl_pat_addr_i; //якщо ровно то не треба Sensetive
 			patch_match = 0;
 		end else begin
             mi_addr_o = ctl_pat_data_i;
@@ -28,9 +28,3 @@ module example
 	end
 
 endmodule
-
-
-
-
-
-

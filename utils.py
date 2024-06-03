@@ -1,3 +1,6 @@
+import re
+
+
 class Color:
     PURPLE = '\033[95m'
     CYAN = '\033[96m'
@@ -12,6 +15,21 @@ class Color:
     END = '\033[0m'
 
 
+def add_spaces_around_operators(expression):
+    operators = [
+        r'\+', r'-', r'\*', r'/', r'%', r'\^',
+        r'==', r'!=', r'>=', r'<=', r'>', r'<',
+        r'&&', r'\|\|', r'!', r'&', r'\|',
+        r'\(', r'\)',
+    ]
+    pattern = '|'.join(operators)
+
+    spaced_expression = re.sub(f'({pattern})', r' \1 ', expression)
+    spaced_expression = re.sub(r'\s+', ' ', spaced_expression).strip()
+
+    return spaced_expression
+
+
 def format_time(seconds):
     minutes = seconds // 60
     seconds %= 60
@@ -24,3 +42,17 @@ def format_time(seconds):
 
 def printWithColor(text, color_start: Color, color_end: Color = Color.END):
     print(color_start + text + color_end)
+
+
+MODULE_COUNTER = 1
+
+
+def generate_module_names():
+    global MODULE_COUNTER
+    module_name = 'module' + str(MODULE_COUNTER)
+    MODULE_COUNTER += 1
+    return module_name
+
+
+def removeTrailingComma(s: str) -> str:
+    return s.rstrip(',')

@@ -1,27 +1,13 @@
 from translator.translator import SystemVerilogFind
-from utils import printWithColor, Color
+from utils import printWithColor, Color, removeTrailingComma
+from structures.aplan import Module
 import os
 
 
 class Program():
     def __init__(self, path_to_result: str = None) -> None:
         self.path_to_result = path_to_result
-        self.module_identifier = ''
-        self.module_parametrs = []
-        self.module_inputs = []
-        self.module_outputs = []
-        self.internal_signals = []
-        self.not_blocked_prot = []
-        self.behaviour = ''
-        self.actions = ''
-        self.identifier = ''
-        self.inp_sensetive_list = []
-        self.beh_counter = 0
-        self.parameters = []
-
-        self.inputs_flag = False
-        self.output_flag = False
-        self.internal_flag = False
+        self.module: Module
         self.finder = SystemVerilogFind()
 
     def setUp(self, path):
@@ -31,45 +17,9 @@ class Program():
         f.close()
         self.finder.setUp(data)
         self.createResDir()
-        
 
     def setData(self, input):
-        self.module_identifier = input[0]
-        self.module_parametrs = input[1]
-        self.module_inputs = input[2]
-        self.module_outputs = input[3]
-        self.internal_signals = input[4]
-        self.not_blocked_prot = input[5]
-        self.identifier = input[6]
-        self.actions = input[7]
-        self.behaviour = input[8]
-        self.inp_sensetive_list = input[9]
-        self.beh_counter = input[10]
-        self.parameters = input[11]
-
-        if (len(self.module_inputs) > 0):
-            self.inputs_flag = True
-
-        if (len(self.module_outputs) > 0):
-            self.output_flag = True
-
-        if (len(self.internal_signals) > 0):
-            self.internal_flag = True
-
-    def paramsPrint(self):
-        result = ''
-        for elem in self.module_parametrs:
-            result += '\t' + elem.__str__() + '\n'
-        return result
-
-    def printArray(self, array, assignmentFlag):
-        result = ''
-        for elem in array:
-            if (assignmentFlag):
-                result += '\t{0} = {1}\n'.format(elem[0], elem[1])
-            else:
-                result += '\t{0}\n'.format(elem)
-        return result
+        self.module = input
 
     def createResDir(self):
         if (self.path_to_result is not None):
@@ -92,8 +42,9 @@ class Program():
 
     def createEVT(self):
         evt = 'events(\n'
-        for elem in self.module_inputs:
-            evt += '\ts_{0}:obj(x1:Bits 64);\n'.format(elem)
+        for elem in self.module.getInputPorts():
+            evt += '\ts_{0}:obj(x1:{1});\n'.format(elem.identifier,
+                                                   elem.getAplanDecltype())
         evt += ');'
         self.writeToFile(self.path_to_result + 'project.evt_descript', evt)
         printWithColor('.evt_descript file created \n', Color.PURPLE)
@@ -118,35 +69,53 @@ class Program():
 
         env += '\tagent_types : obj (\n'
 
-        if (self.inputs_flag or self.output_flag or self.internal_flag):
+        if (self.module.isIncludeInputPorts() or self.module.isIncludeOutputPorts() or self.module.isIncludeWires() or self.module.isIncludeRegs()):
 
-            env += '\t\t{0} : obj (\n'.format(self.identifier.upper())
+            env += '\t\t{0} : obj (\n'.format(self.module.identifier)
 
-            for index, elem in enumerate(self.internal_signals):
+            regs = self.module.getRegs()
+            for index, elem in enumerate(regs):
                 if (index > 0):
                     env += ',\n'
-                env += '\t\t\t{0}:bool'.format(elem)
-                if (index + 1 == len(self.internal_signals)):
-                    if (len(self.module_inputs) > 0):
+                env += '\t\t\t{0}:{1}'.format(elem.identifier,
+                                              elem.getAplanDecltype())
+                if (index + 1 == len(regs)):
+                    if (self.module.isIncludeWires()):
                         env += ',\n'
                     else:
                         env += '\n'
 
-            for index, elem in enumerate(self.module_inputs):
+            wires = self.module.getWires()
+            for index, elem in enumerate(wires):
                 if (index > 0):
                     env += ',\n'
-                env += '\t\t\t{0}:Bits 64'.format(elem)
-                if (index + 1 == len(self.module_inputs)):
-                    if (len(self.module_outputs) > 0):
+                env += '\t\t\t{0}:{1}'.format(elem.identifier,
+                                              elem.getAplanDecltype())
+                if (index + 1 == len(wires)):
+                    if (self.module.isIncludeInputPorts()):
                         env += ',\n'
                     else:
                         env += '\n'
 
-            for index, elem in enumerate(self.module_outputs):
+            include_ports = self.module.getInputPorts()
+            for index, elem in enumerate(include_ports):
                 if (index > 0):
                     env += ',\n'
-                env += '\t\t\t{0}:Bits 64'.format(elem)
-                if (index + 1 == len(self.module_outputs)):
+                env += '\t\t\t{0}:{1}'.format(elem.identifier,
+                                              elem.getAplanDecltype())
+                if (index + 1 == len(include_ports)):
+                    if (self.module.isIncludeOutputPorts()):
+                        env += ',\n'
+                    else:
+                        env += '\n'
+
+            output_ports = self.module.getOutputPorts()
+            for index, elem in enumerate(output_ports):
+                if (index > 0):
+                    env += ',\n'
+                env += '\t\t\t{0}:{1}'.format(elem.identifier,
+                                              elem.getAplanDecltype())
+                if (index + 1 == len(output_ports)):
                     env += '\n'
 
             env += '\t\t)\n'
@@ -157,8 +126,9 @@ class Program():
         # Agents
         # ----------------------------------
         env += '\tagents : obj (\n'
-        if (self.inputs_flag or self.output_flag or self.internal_flag):
-            env += '\t\t{0} : obj (code),\n'.format(self.identifier.upper())
+        if (self.module.isIncludeInputPorts or self.module.isIncludeOutputPorts() or self.module.isIncludeWires() or self.module.isIncludeRegs()):
+            env += '\t\t{0} : obj ({1}),\n'.format(self.module.identifier,
+                                                   self.module.ident_uniq_name)
         env += '\t\tENVIRONMENT : obj (env)\n'
         env += '\t);\n'
 
@@ -180,46 +150,21 @@ class Program():
         # ----------------------------------
         # Actions
         # ----------------------------------
-        act = ''
-        act += self.actions
-        remove_index = act.rfind(',')
-        act = act[:remove_index] + act[remove_index+1:]
-        self.writeToFile(self.path_to_result + 'project.act', act)
+
+        actions = self.module.getActionsInStrFormat()
+        self.writeToFile(self.path_to_result + 'project.act', actions)
         printWithColor('.act file created \n', Color.PURPLE)
 
     def createBeh(self):
         # ----------------------------------
         # Behaviour
         # ----------------------------------
-        beh = self.behaviour
-        beh_part2 = ''
-        for i in range(self.beh_counter - 1):
-            beh_part2 += '\n\t\t\t\tSensetive({0}'.format(
-                self.inp_sensetive_list[i])
-            beh_part2 += ')'
-            if (i+1 < self.beh_counter - 1):
-                beh_part2 += ' ||'
+        behaviour = ''
 
-        if (len(beh_part2) > 0):
-            beh_part2 = '{ ' + beh_part2 + '\n\t}'
+        behaviour += 'B = ({})'.format(self.module.getBehInitProtocols())
+        behaviour += ',' + self.module.getStructuresInStrFormat()
 
-        beh_part1 = ''
-        self.not_blocked_prot = self.not_blocked_prot[::-1]
-        for i in range(len(self.not_blocked_prot)):
-            beh_part1 += self.not_blocked_prot[i]
-            if (i+1 != len(self.not_blocked_prot)):
-                beh_part2 += '.'
-        beh = 'B0 = ({0}.{1}),\n'.format(
-            beh_part1, beh_part2) + beh
-        remove_index = beh.rfind(',')
-        beh = beh[:remove_index] + beh[remove_index+1:]
-        self.parameters = list(dict.fromkeys(self.parameters))
-        params_str = ''
-        for i in range(len(self.parameters)):
-            params_str += self.parameters[i]
-            if (i+1 != len(self.parameters)):
-                params_str += ', '
-        self.writeToFile(self.path_to_result + 'project.behp', beh)
+        self.writeToFile(self.path_to_result + 'project.behp', behaviour)
         printWithColor('.beh file created \n', Color.PURPLE)
 
     def createAplanFiles(self):
@@ -227,4 +172,5 @@ class Program():
         self.createENV()
         self.createAction()
         self.createBeh()
-        printWithColor('The translation was successfully completed! \n', Color.ORANGE)
+        printWithColor(
+            'The translation was successfully completed! \n', Color.ORANGE)
