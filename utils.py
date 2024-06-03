@@ -49,7 +49,7 @@ MODULE_COUNTER = 1
 
 def generate_module_names():
     global MODULE_COUNTER
-    module_name = 'module' + str(MODULE_COUNTER)
+    module_name = 'module_' + str(MODULE_COUNTER)
     MODULE_COUNTER += 1
     return module_name
 

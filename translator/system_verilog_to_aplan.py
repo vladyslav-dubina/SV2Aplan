@@ -64,6 +64,28 @@ class SV2aplan():
         if ctx.getChildCount() == 0:
             return
         for child in ctx.getChildren():
+
+            if (type(child) is SystemVerilogParser.Simple_immediate_assert_statementContext):
+                self.module.incrieseCounter(CounterTypes.ASSERT)
+                expression = add_spaces_around_operators(
+                    child.expression().getText())
+                expression_with_replaced_names = self.findAndChangeNamesToAplanNames(
+                    expression)
+                assert_name = 'assert_{0}'.format(
+                    self.module.assert_counter)
+                action = assert_name + ' = (\n\t\t(1)->\n'
+                action += '\t\t("{2}#{3}:action \'{0}\';")\n\t\t({1})'.format(expression,
+                                                                              expression_with_replaced_names, self.module.identifier, self.module.ident_uniq_name)
+                action += ')'
+                self.module.actions.append(
+                    Action('assert', self.module.assert_counter, action))
+                assert_b = 'assert_B{}'.format(self.module.assert_counter)
+                beh_index = sv_structure.addProtocol(assert_b)
+                sv_structure.behavior[beh_index].addBody(
+                    '{0}.Delta + !{0}'.format(assert_name))
+                if (beh_index != 0):
+                    sv_structure.behavior[beh_index-1].addBody(assert_b)
+
             if (type(child) is SystemVerilogParser.Variable_decl_assignmentContext or type(child) is SystemVerilogParser.Nonblocking_assignmentContext):
                 self.module.incrieseCounter(CounterTypes.ASSIGNMENT_COUNTER)
                 assign = add_spaces_around_operators(child.getText())
@@ -78,14 +100,17 @@ class SV2aplan():
                 self.module.actions.append(
                     Action('assign', self.module.assignment_counter, action))
                 beh_index = sv_structure.getLastBehaviorIndex()
+
+                if (type(child) is SystemVerilogParser.Nonblocking_assignmentContext):
+                    action_name = 'Sensetive(' + action_name + ')'
+
                 if (beh_index is not None):
                     sv_structure.behavior[beh_index].addBody(action_name)
                 else:
-                    b_index = sv_structure.addProtocol(
-                        'B{}'.format(self.module.b_counter))
-                    sv_structure.behavior[b_index].addBody(action_name)
                     self.module.incrieseCounter(CounterTypes.B_COUNTER)
-
+                    b_index = sv_structure.addProtocol(
+                        'B_{}'.format(self.module.b_counter))
+                    sv_structure.behavior[b_index].addBody(action_name)
 
             elif (type(child) is SystemVerilogParser.Conditional_statementContext):
 
@@ -108,21 +133,19 @@ class SV2aplan():
                             Action('if', self.module.if_counter, action))
                 statements = child.statement_or_null()
                 for index, element in enumerate(statements):
-
-                    sv_structure.addProtocol(
-                        'B{0}'.format(self.module.b_counter))
-
                     self.module.incrieseCounter(CounterTypes.B_COUNTER)
+                    sv_structure.addProtocol(
+                        'B_{0}'.format(self.module.b_counter))
                     beh_index = sv_structure.getLastBehaviorIndex()
                     if (beh_index is not None):
-                        body = 'if{0}.body{0} + !if{0}.B{1}'.format(
+                        body = 'if_{0}.body_{0} + !if_{0}.B_{1}'.format(
                             if_index_list[index], self.module.b_counter)
                         if (index == len(statements) - 1):
-                            body = 'if{0}.body{0} + !if{0}'.format(
+                            body = 'if_{0}.body_{0} + !if_{0}'.format(
                                 if_index_list[index])
                         sv_structure.behavior[beh_index].addBody(body)
                     sv_structure.addProtocol(
-                        'body{0}'.format(if_index_list[index]))
+                        'body_{0}'.format(if_index_list[index]))
                     subsiquence.append(0)
                     self.body2Aplan(element, sv_structure)
 

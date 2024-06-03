@@ -15,6 +15,7 @@ class CounterTypes(Enum):
     IF_COUNTER = auto()
     ALWAYS_COUNTER = auto()
     B_COUNTER = auto()
+    ASSERT = auto()
 
 
 class B0():
@@ -158,7 +159,8 @@ class Module():
         self.assignment_counter = 0
         self.if_counter = 0
         self.always_counter = 0
-        self.b_counter = 1
+        self.assert_counter = 0
+        self.b_counter = 0
 
     def isIncludeInputPorts(self):
         for element in self.declarations:
@@ -234,6 +236,8 @@ class Module():
             self.always_counter += 1
         if (counter_type is CounterTypes.B_COUNTER):
             self.b_counter += 1
+        if (counter_type is CounterTypes.ASSERT):
+            self.assert_counter += 1
 
     def getActionsInStrFormat(self):
         result = ''
@@ -275,7 +279,7 @@ class Module():
         if (self.isIncludeAlways()):
             always_list = self.getAlwaysList()
             for index, element in enumerate(always_list):
-                result += 'Sensetive( {0} || {1} )'.format(element.identifier,element.sensetive)
-                if (index != len(regs) - 1):
-                    result += '||'
+                result += 'Sensetive( {0} || ( {1} ) )'.format(element.identifier,element.sensetive)
+                if (index != len(always_list) - 1 and len(always_list) > 1):
+                    result += ' || '
         return result
