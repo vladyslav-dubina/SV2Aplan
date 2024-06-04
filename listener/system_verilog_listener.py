@@ -79,9 +79,4 @@ class SVListener(SystemVerilogParserListener):
 
     def enterAlways_construct(self, ctx):
         sv2aplan = SV2aplan(self.module)
-        always_to_aplan_result = sv2aplan.always2Aplan(ctx)
-#        self.actions += always_to_aplan_result[0]
-#        self.behaviour += always_to_aplan_result[1]
-#        self.assignment_counter = always_to_aplan_result[2]
-#        self.if_counter = always_to_aplan_result[3]
-#        self.always_counter += 1
+        sv2aplan.always2Aplan(ctx)
