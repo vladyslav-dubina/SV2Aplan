@@ -1,7 +1,6 @@
 
 module example
     (
-        //slave interface signals (wishbone or other)
         
         input            si_addr_i,
   
@@ -28,9 +27,3 @@ module example
 	end
 
 endmodule
-
-
-
-
-
-

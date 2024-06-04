@@ -1,19 +1,33 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
+from antlr4.tree import Tree
+from antlr4_verilog.systemverilog import SystemVerilogParser
+from structures.aplan import Module, Action, CounterTypes, Always, Protocol, Structure
+from utils import addSpacesAroundOperators, valuesToAplanStandart
+import re
 
-#
+
+def extractVectorSize(s):
+    matches = re.findall(r'\[(\d+):(\d+)\]', s)
+    if matches:
+        return matches[0]
+
+
+def vectorSize2Aplan(left, right):
+    if right == '0':
+        # Якщо праве значення дорівнює 0, додаємо 1 до лівого значення
+        left = int(left) + 1
+        return [left, 0]
+    else:
+        # Інакше віднімаємо ліве значення від правого
+        right = int(right)
+        left = int(left)
+        return [left - right, right]
 
 
 class SV2aplan():
-    def __init__(self, input_port_ident, output_port_ident, internal_signals, identifier, assignment_counter, if_counter):
-        self.identifier = identifier
-        self.input_port_ident = input_port_ident
-        self.output_port_ident = output_port_ident
-        self.internal_signals = internal_signals
-        self.assignment_counter = assignment_counter
-        self.if_counter = if_counter
-        self.identifierUpper = self.identifier.upper()
-        self.identifierLower = self.identifier.lower()
-        self.subsiquence = []
+    def __init__(self, module: Module):
+        self.module = module
+        self.actionList = []
 
     def addCommaAndNeLines(self, input):
         if (len(input) > 0):
@@ -21,145 +35,168 @@ class SV2aplan():
         return input
 
     def findAndChangeNamesToAplanNames(self, input: str):
-        for elem in self.internal_signals:
+        for elem in self.module.declarations:
             input = input.replace(
-                elem, '{0}.{1}'.format(self.identifier, elem))
-
-        for elem in self.input_port_ident:
-            input = input.replace(
-                elem, '{0}.{1}'.format(self.identifier, elem))
-
-        for elem in self.output_port_ident:
-            input = input.replace(
-                elem, '{0}.{1}'.format(self.identifier, elem))
+                elem.identifier, '{0}.{1}'.format(self.module.ident_uniq_name, elem.identifier))
         return input
 
-    def sensetive2Aplan(self, alwaysStrBody):
-        sens_list = []
-        for elem in self.input_port_ident:
-            if (alwaysStrBody.find(elem) != -1):
-                sens_list.append(elem)
-        change_call = 'Sensitive'
-        self.subsiquence.append(
-            'Sensitive')
-        return [change_call, sens_list]
-
-    def body2Aplan(self, ctx):
-        subsiquence = []
-        action = ''
-        beh = ''
-        if ctx.getChildCount() == 0:
-            return ['', '', []]
+    def extractSensetive(self, ctx):
+        res = ''
         for child in ctx.getChildren():
-            if (type(child) is SystemVerilogParser.Variable_decl_assignmentContext):
-                assign = child.getText()
+            if (type(child) is SystemVerilogParser.Edge_identifierContext):
+                index = child.getText().find('negedge')
+                if index != -1:
+                    res += '!'
+            elif (type(child) is Tree.TerminalNodeImpl):
+                index = child.getText().find('or')
+                if index != -1:
+                    res += ' || '
+                index = child.getText().find('and')
+                if index != -1:
+                    res += ' && '
+            elif (type(child) is SystemVerilogParser.IdentifierContext):
+                res += self.findAndChangeNamesToAplanNames(child.getText())
+            else:
+                res += self.extractSensetive(child)
+        return res
+
+    def body2Aplan(self, ctx, sv_structure: Structure):
+        if ctx.getChildCount() == 0:
+            return
+        for child in ctx.getChildren():
+
+            if (type(child) is SystemVerilogParser.Simple_immediate_assert_statementContext):
+                self.module.incrieseCounter(CounterTypes.ASSERT)
+                expression = addSpacesAroundOperators(
+                    child.expression().getText())
+                expression_with_replaced_names = self.findAndChangeNamesToAplanNames(
+                    expression)
+                expression_with_replaced_names = valuesToAplanStandart(
+                    expression_with_replaced_names)
+                assert_name = 'assert_{0}'.format(
+                    self.module.assert_counter)
+                action = assert_name + ' = (\n\t\t(1)->\n'
+                action += '\t\t("{2}#{3}:action \'{0}\';")\n\t\t({1})'.format(expression,
+                                                                              expression_with_replaced_names, self.module.identifier, self.module.ident_uniq_name)
+                action += ')'
+                self.module.actions.append(
+                    Action('assert', self.module.assert_counter, action))
+                assert_b = 'assert_B{}'.format(self.module.assert_counter)
+                beh_index = sv_structure.addProtocol(assert_b)
+                sv_structure.behavior[beh_index].addBody(
+                    '{0}.Delta + !{0}'.format(assert_name))
+                if (beh_index != 0):
+                    sv_structure.behavior[beh_index-1].addBody(assert_b)
+
+            if (type(child) is SystemVerilogParser.Variable_decl_assignmentContext or type(child) is SystemVerilogParser.Nonblocking_assignmentContext):
+                self.module.incrieseCounter(CounterTypes.ASSIGNMENT_COUNTER)
+                assign = addSpacesAroundOperators(child.getText())
                 assign_with_replaced_names = self.findAndChangeNamesToAplanNames(
                     assign)
-                act = ''
-                act += 'assign{0} = (\n\t\t(1)->\n'.format(self.assignment_counter)
-                act += '\t\t("{2}#{3}:action \'{0}\';")\n\t\t({1})'.format(assign,
-                                                                           assign_with_replaced_names, self.identifierUpper, self.identifierLower)
-                act += '),\n\n'
-                action += act
-                subsiquence.append(
-                    'assign{0}'.format(self.assignment_counter))
-                beh += '.assign{0}'.format(self.assignment_counter)
-                self.assignment_counter += 1
+                assign_with_replaced_names = valuesToAplanStandart(
+                    assign_with_replaced_names)
+                action_name = 'assign_{0}'.format(
+                    self.module.assignment_counter)
+                action = action_name + ' = (\n\t\t(1)->\n'
+                action += '\t\t("{2}#{3}:action \'{0}\';")\n\t\t({1})'.format(assign,
+                                                                              assign_with_replaced_names, self.module.identifier, self.module.ident_uniq_name)
+                action += ')'
+                self.module.actions.append(
+                    Action('assign', self.module.assignment_counter, action))
+                beh_index = sv_structure.getLastBehaviorIndex()
+
+                if (type(child) is SystemVerilogParser.Nonblocking_assignmentContext):
+                    action_name = 'Sensetive(' + action_name + ')'
+
+                if (beh_index is not None):
+                    sv_structure.behavior[beh_index].addBody(action_name)
+                else:
+                    self.module.incrieseCounter(CounterTypes.B_COUNTER)
+                    b_index = sv_structure.addProtocol(
+                        'B_{}'.format(self.module.b_counter))
+                    sv_structure.behavior[b_index].addBody(action_name)
+
             elif (type(child) is SystemVerilogParser.Conditional_statementContext):
+
+                if_index_list = []
+                subsiquence = []
                 predicate = child.cond_predicate()
                 for elem in predicate:
-                    predicateString = elem.getText()
+                    predicateString = addSpacesAroundOperators(
+                        elem.getText())
                     if (len(predicateString) > 0):
+                        self.module.incrieseCounter(CounterTypes.IF_COUNTER)
+                        if_index_list.append(self.module.if_counter)
                         predicateWithReplacedNames = self.findAndChangeNamesToAplanNames(
                             predicateString)
-                        action += '''if{0} = (
-        ({1})->
-        ("{2}#{3}:action 'if ({4})';")
-        (1)),\n\n'''.format(self.if_counter, predicateWithReplacedNames, self.identifierUpper, self.identifierLower, predicateString)
-
+                        predicateWithReplacedNames = valuesToAplanStandart(
+                            predicateWithReplacedNames)
+                        action = ''
+                        action_name = 'if_{0}'.format(self.module.if_counter)
+                        action += '''{0} = (\n\t\t({1})->\n\t\t("{2}#{3}:action 'if ({4})';")\n\t\t(1))'''.format(
+                            action_name, predicateWithReplacedNames, self.module.identifier, self.module.ident_uniq_name, predicateString)
+                        self.module.actions.append(
+                            Action('if', self.module.if_counter, action))
                 statements = child.statement_or_null()
-                subsiquence = []
-                for elemid in range(len(statements)):
-                    res = self.body2Aplan(statements[elemid])
-                    action += res[0]
-                    reverseSubs = res[2][::-1]
-                    subsLen = len(res[2])
-                    if (subsLen > 0):
-                        if (elemid > 0):
-                            beh += 'BODY_ELSE_IF{0} = '.format(self.if_counter)
-                            subsiquence.append(
-                                'BODY_ELSE_IF{0}'.format(self.if_counter))
-                        else:
-                            beh += 'BODY_IF{0} = '.format(self.if_counter)
-                            subsiquence.append(
-                                'BODY_IF{0}'.format(self.if_counter))
-                        for subsIndex in range(subsLen):
-                            if (subsIndex == 0):
-                                beh += 'Sensitive(' + \
-                                    reverseSubs[subsIndex] + ')'
-                            else:
-                                beh += reverseSubs[subsIndex]
-                            if (subsIndex + 1 == subsLen):
-                                beh += ',\n'
-                            else:
-                                beh += '.'
-                if (len(subsiquence) > 0):
-                    beh = 'if{0}.{1} + !if{0}.{2},\n'.format(
-                        self.if_counter, subsiquence[0], subsiquence[1]) + beh
-                    subsiquence = []
-                self.if_counter += 1
+                for index, element in enumerate(statements):
+                    self.module.incrieseCounter(CounterTypes.B_COUNTER)
+                    sv_structure.addProtocol(
+                        'B_{0}'.format(self.module.b_counter))
+                    beh_index = sv_structure.getLastBehaviorIndex()
+                    if (beh_index is not None):
+                        body = 'if_{0}.body_{0} + !if_{0}.B_{1}'.format(
+                            if_index_list[index], self.module.b_counter)
+                        if (index == len(statements) - 1):
+                            body = 'if_{0}.body_{0} + !if_{0}'.format(
+                                if_index_list[index])
+                        sv_structure.behavior[beh_index].addBody(body)
+                    sv_structure.addProtocol(
+                        'body_{0}'.format(if_index_list[index]))
+                    subsiquence.append(0)
+                    self.body2Aplan(element, sv_structure)
+
             else:
-                res = self.body2Aplan(child)
-                if (len(res[1]) > 1):
-                    tmp = res[1].split('.')
-                    if (len(tmp) == 2):
-                        res[1] = 'Sensetive(' + tmp[1] + ')'
-                    beh += res[1]
-                    action += res[0]
-                    subsiquence = res[2] + subsiquence
+                self.body2Aplan(child, sv_structure)
 
-        return [action, beh, subsiquence]
+    def always2Aplan(self, ctx):
+        sensetive = None
+        always_keyword = ctx.always_keyword().getText()
+        index = always_keyword.find('always_comb')
+        if index != -1:
+            print("always_comb")
 
-    def always2Aplan(self, ctx, always_counter):
-        behaviour = ''
+        index = always_keyword.find('always')
+        if index != -1:
+            self.module.incrieseCounter(CounterTypes.ALWAYS_COUNTER)
+            event_expression = ctx.statement().statement_item().procedural_timing_control_statement(
+            ).procedural_timing_control().event_control().event_expression()
+            always_name = 'always_' + str(self.module.always_counter)
+            always = Always(
+                always_name, self.extractSensetive(event_expression))
+            always_body = ctx.statement().statement_item().procedural_timing_control_statement(
+            ).statement_or_null()
+            # always.addProtocol(always_name)
+            self.body2Aplan(always_body, always)
+            if (always.getBehLen() > 0):
+                last_b_name = always.behavior[0].identifier
+                always.behavior.insert(0, Protocol(always_name))
+                always.behavior[0].body.append(last_b_name)
+            self.module.structures.append(always)
 
-        sv_to_aplan_result = self.body2Aplan(ctx)
-        actions = sv_to_aplan_result[0]
-
-        if (sv_to_aplan_result[1].find('.') == 0):
-            sv_to_aplan_result[1] = sv_to_aplan_result[1][1:]
-
-        sensetive = self.sensetive2Aplan(ctx.getText())
-        if (len(sensetive[0]) > 0):
-            if (len(behaviour) > 0):
-                behaviour += ',\n'
-            sensetive_beh = 'B{0} = ALWAYS_{0}'.format(
-                always_counter)
-            behaviour += sensetive_beh
-
-        if (len(behaviour) > 0):
-            behaviour += ',\n'
-            behaviour += 'ALWAYS_{0} = '.format(
-                always_counter) + sv_to_aplan_result[1]
-        else:
-            behaviour = 'ALWAYS_{0} = '.format(
-                always_counter) + sv_to_aplan_result[1]
-
-        beh_sensetive = 'B{0}, '.format(always_counter)
-        for index, element in enumerate(sensetive[1]):
-            beh_sensetive += 'code.' + element
-            if (index + 1 < len(sensetive[1])):
-                beh_sensetive += ' || '
-
-        return [actions, behaviour, beh_sensetive, self.assignment_counter, self.if_counter]
+        return
 
     def declaration2Aplan(self, ctx):
+        self.module.incrieseCounter(CounterTypes.ASSIGNMENT_COUNTER)
         assign_sv = ctx.getText()
         assign_with_replaced_names = self.findAndChangeNamesToAplanNames(
             assign_sv)
-        action = 'assign{0} = (\n\t\t(1)->\n'.format(self.assignment_counter)
+        action = 'assign{0} = (\n\t\t(1)->\n'.format(
+            self.module.assignment_counter)
         action += '\t\t("{2}#{3}:action \'{0}\';")\n\t\t({1})'.format(assign_sv,
-                                                                      assign_with_replaced_names, self.identifierUpper, self.identifierLower)
-        action += '),\n\n'
-        not_blocked_prot = 'assign{0}'.format(self.assignment_counter)
-        return [action, not_blocked_prot]
+                                                                      assign_with_replaced_names, self.module.identifier, self.module.ident_uniq_name)
+        action += ')'
+
+        self.module.actions.append(
+            Action('assign', self.module.assignment_counter, action))
+        expression = 'assign{0}'.format(self.module.assignment_counter)
+        return expression
