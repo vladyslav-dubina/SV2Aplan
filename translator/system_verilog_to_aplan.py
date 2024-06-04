@@ -2,7 +2,7 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from structures.aplan import Module, Action, CounterTypes, Always, Protocol, Structure
-from utils import add_spaces_around_operators
+from utils import addSpacesAroundOperators, valuesToAplanStandart
 import re
 
 
@@ -67,10 +67,11 @@ class SV2aplan():
 
             if (type(child) is SystemVerilogParser.Simple_immediate_assert_statementContext):
                 self.module.incrieseCounter(CounterTypes.ASSERT)
-                expression = add_spaces_around_operators(
+                expression = addSpacesAroundOperators(
                     child.expression().getText())
                 expression_with_replaced_names = self.findAndChangeNamesToAplanNames(
                     expression)
+                expression_with_replaced_names = valuesToAplanStandart(expression_with_replaced_names)
                 assert_name = 'assert_{0}'.format(
                     self.module.assert_counter)
                 action = assert_name + ' = (\n\t\t(1)->\n'
@@ -88,9 +89,10 @@ class SV2aplan():
 
             if (type(child) is SystemVerilogParser.Variable_decl_assignmentContext or type(child) is SystemVerilogParser.Nonblocking_assignmentContext):
                 self.module.incrieseCounter(CounterTypes.ASSIGNMENT_COUNTER)
-                assign = add_spaces_around_operators(child.getText())
+                assign = addSpacesAroundOperators(child.getText())
                 assign_with_replaced_names = self.findAndChangeNamesToAplanNames(
                     assign)
+                assign_with_replaced_names = valuesToAplanStandart(assign_with_replaced_names)
                 action_name = 'assign_{0}'.format(
                     self.module.assignment_counter)
                 action = action_name + ' = (\n\t\t(1)->\n'
@@ -118,13 +120,14 @@ class SV2aplan():
                 subsiquence = []
                 predicate = child.cond_predicate()
                 for elem in predicate:
-                    predicateString = add_spaces_around_operators(
+                    predicateString = addSpacesAroundOperators(
                         elem.getText())
                     if (len(predicateString) > 0):
                         self.module.incrieseCounter(CounterTypes.IF_COUNTER)
                         if_index_list.append(self.module.if_counter)
                         predicateWithReplacedNames = self.findAndChangeNamesToAplanNames(
                             predicateString)
+                        predicateWithReplacedNames = valuesToAplanStandart(predicateWithReplacedNames)
                         action = ''
                         action_name = 'if_{0}'.format(self.module.if_counter)
                         action += '''{0} = (\n\t\t({1})->\n\t\t("{2}#{3}:action 'if ({4})';")\n\t\t(1))'''.format(
