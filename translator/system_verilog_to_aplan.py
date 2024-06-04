@@ -71,7 +71,8 @@ class SV2aplan():
                     child.expression().getText())
                 expression_with_replaced_names = self.findAndChangeNamesToAplanNames(
                     expression)
-                expression_with_replaced_names = valuesToAplanStandart(expression_with_replaced_names)
+                expression_with_replaced_names = valuesToAplanStandart(
+                    expression_with_replaced_names)
                 assert_name = 'assert_{0}'.format(
                     self.module.assert_counter)
                 action = assert_name + ' = (\n\t\t(1)->\n'
@@ -92,7 +93,8 @@ class SV2aplan():
                 assign = addSpacesAroundOperators(child.getText())
                 assign_with_replaced_names = self.findAndChangeNamesToAplanNames(
                     assign)
-                assign_with_replaced_names = valuesToAplanStandart(assign_with_replaced_names)
+                assign_with_replaced_names = valuesToAplanStandart(
+                    assign_with_replaced_names)
                 action_name = 'assign_{0}'.format(
                     self.module.assignment_counter)
                 action = action_name + ' = (\n\t\t(1)->\n'
@@ -127,7 +129,8 @@ class SV2aplan():
                         if_index_list.append(self.module.if_counter)
                         predicateWithReplacedNames = self.findAndChangeNamesToAplanNames(
                             predicateString)
-                        predicateWithReplacedNames = valuesToAplanStandart(predicateWithReplacedNames)
+                        predicateWithReplacedNames = valuesToAplanStandart(
+                            predicateWithReplacedNames)
                         action = ''
                         action_name = 'if_{0}'.format(self.module.if_counter)
                         action += '''{0} = (\n\t\t({1})->\n\t\t("{2}#{3}:action 'if ({4})';")\n\t\t(1))'''.format(

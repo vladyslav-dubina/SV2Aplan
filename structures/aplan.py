@@ -279,7 +279,8 @@ class Module():
         if (self.isIncludeAlways()):
             always_list = self.getAlwaysList()
             for index, element in enumerate(always_list):
-                result += 'Sensetive( {0} || ( {1} ) )'.format(element.identifier,element.sensetive)
+                result += 'Sensetive( {0} || ( {1} ) )'.format(
+                    element.identifier, element.sensetive)
                 if (index != len(always_list) - 1 and len(always_list) > 1):
                     result += ' || '
         return result

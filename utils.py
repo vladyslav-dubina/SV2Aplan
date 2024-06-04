@@ -68,7 +68,7 @@ def valuesToAplanStandart(expression: str):
         base, value_type, hex_string = expression_search.group(
             1), expression_search.group(2), expression_search.group(3)
         if (base is None or value_type is None or hex_string is None):
-            base,value_type, hex_string = expression_search.group(
+            base, value_type, hex_string = expression_search.group(
                 4), expression_search.group(5), expression_search.group(6)
         if (value_type == 'h'):
             hex_string = '0x' + hex_string
