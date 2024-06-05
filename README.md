@@ -1,5 +1,7 @@
 # Translator from the System verilog language to the AVM algebraic model
 
+## Version 1.0
+
 ## Instalation
 <details><summary>Click to expand</summary>
   
@@ -41,6 +43,27 @@
 
 </details>
 
+
+## Completed elements
+
+- [x] module
+
+**DECLARATIONS**
+- [x] reg
+- [x] wire
+
+**STATEMENTS**
+- [x] always @ ()
+- [x] if ()
+
+**ASSERT**
+- [x] assert ()
+- [x] assert property ()
+> with an empty property 
+
+**OPERATIONS**
+
+- All types of logical and arithmetic operations
 
 ## Authors
 
