@@ -60,28 +60,31 @@ class SV2aplan():
                 res += self.extractSensetive(child)
         return res
 
+    def assert2Aplan(self, input: str):
+        self.module.incrieseCounter(CounterTypes.ASSERT)
+        expression = addSpacesAroundOperators(input)
+        expression_with_replaced_names = self.findAndChangeNamesToAplanNames(
+            expression)
+        expression_with_replaced_names = valuesToAplanStandart(
+            expression_with_replaced_names)
+        assert_name = 'assert_{0}'.format(
+            self.module.assert_counter)
+        action = assert_name + ' = (\n\t\t(1)->\n'
+        action += '\t\t("{2}#{3}:action \'{0}\';")\n\t\t({1})'.format(expression,
+                                                                      expression_with_replaced_names, self.module.identifier, self.module.ident_uniq_name)
+        action += ')'
+        self.module.actions.append(
+            Action('assert', self.module.assert_counter, action))
+        return assert_name
+
     def body2Aplan(self, ctx, sv_structure: Structure):
         if ctx.getChildCount() == 0:
             return
         for child in ctx.getChildren():
 
             if (type(child) is SystemVerilogParser.Simple_immediate_assert_statementContext):
-                self.module.incrieseCounter(CounterTypes.ASSERT)
-                expression = addSpacesAroundOperators(
-                    child.expression().getText())
-                expression_with_replaced_names = self.findAndChangeNamesToAplanNames(
-                    expression)
-                expression_with_replaced_names = valuesToAplanStandart(
-                    expression_with_replaced_names)
-                assert_name = 'assert_{0}'.format(
-                    self.module.assert_counter)
-                action = assert_name + ' = (\n\t\t(1)->\n'
-                action += '\t\t("{2}#{3}:action \'{0}\';")\n\t\t({1})'.format(expression,
-                                                                              expression_with_replaced_names, self.module.identifier, self.module.ident_uniq_name)
-                action += ')'
-                self.module.actions.append(
-                    Action('assert', self.module.assert_counter, action))
-                assert_b = 'assert_B{}'.format(self.module.assert_counter)
+                assert_name = self.assert2Aplan(child.expression().getText())
+                assert_b = 'assert_B_{}'.format(self.module.assert_counter)
                 beh_index = sv_structure.addProtocol(assert_b)
                 sv_structure.behavior[beh_index].addBody(
                     '{0}.Delta + !{0}'.format(assert_name))

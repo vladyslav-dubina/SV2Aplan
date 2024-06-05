@@ -1,7 +1,7 @@
 from antlr4_verilog.systemverilog import SystemVerilogParserListener
 
 from translator.system_verilog_to_aplan import SV2aplan, extractVectorSize, vectorSize2Aplan
-from structures.aplan import Declaration, DeclTypes, Module, CounterTypes
+from structures.aplan import Declaration, DeclTypes, Module, CounterTypes, Protocol
 
 
 class SVListener(SystemVerilogParserListener):
@@ -80,3 +80,13 @@ class SVListener(SystemVerilogParserListener):
     def enterAlways_construct(self, ctx):
         sv2aplan = SV2aplan(self.module)
         sv2aplan.always2Aplan(ctx)
+
+    def exitAssert_property_statement(self, ctx):
+        expression = ctx.property_spec()
+        if (expression is not None):
+            sv2aplan = SV2aplan(self.module)
+            assert_name = sv2aplan.assert2Aplan(expression.getText())
+            assert_b = 'assert_B_{}'.format(self.module.assert_counter)
+            struct_assert = Protocol(assert_b)
+            struct_assert.addBody('{0}.Delta + !{0}'.format(assert_name))
+            self.module.notBlockElements.append(struct_assert)

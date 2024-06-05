@@ -96,8 +96,9 @@ class Structure():
             return None  # Повертаємо None, якщо список порожній
         return len(self.behavior) - 1
 
-    def addProtocol(self):
-        pass
+    def addProtocol(self, protocol_identifier: str):
+        self.behavior.append(Protocol(protocol_identifier))
+        return len(self.behavior) - 1
 
     def getBehInStrFormat(self):
         pass
@@ -106,17 +107,13 @@ class Structure():
         return len(self.behavior)
 
     def __str__(self):
-        return self.identifier
+        return ''
 
 
 class Always(Structure):
     def __init__(self, identifier: str, sensetive: str):
         super().__init__(identifier)
         self.sensetive = sensetive
-
-    def addProtocol(self, protocol_identifier: str):
-        self.behavior.append(Protocol(protocol_identifier))
-        return len(self.behavior) - 1
 
     def getBehInStrFormat(self):
         result = ''
@@ -155,6 +152,8 @@ class Module():
 
         self.structures: List[Structure] = []
 
+        self.notBlockElements: List[Protocol] = []
+
         # counters
         self.assignment_counter = 0
         self.if_counter = 0
@@ -187,6 +186,11 @@ class Module():
             if (element.data_type == DeclTypes.OUTPORT):
                 result.append(element)
         return result
+
+    def isIncludeNonBlockElements(self):
+        if (len(self.notBlockElements) > 0):
+            return True
+        return False
 
     def isIncludeWires(self):
         for element in self.declarations:
@@ -252,12 +256,27 @@ class Module():
         result = ''
         for element in self.structures:
             result += str(element)
+        result = removeTrailingComma(result)
+        return result
 
+    def getNotBlockElementsInStrFormat(self):
+        result = ''
+        for element in self.notBlockElements:
+            result += '\n'
+            result += str(element)
         result = removeTrailingComma(result)
         return result
 
     def getBehInitProtocols(self):
         result = ''
+
+        if (self.isIncludeNonBlockElements()):
+            for index, element in enumerate(self.notBlockElements):
+                if (index != 0):
+                    result += '.'
+                result += element.identifier
+                if (index == len(self.notBlockElements) - 1) and (self.isIncludeWires() or self.isIncludeRegs() or self.isIncludeAlways()):
+                    result += '.'
         if (self.isIncludeWires()):
             wires = self.getWires()
             for index, element in enumerate(wires):
@@ -265,7 +284,7 @@ class Module():
                     if (index != 0):
                         result += '.'
                     result += element.identifier
-                    if (index == len(wires) - 1) and self.isIncludeRegs() and self.isIncludeAlways():
+                    if (index == len(wires) - 1) and (self.isIncludeRegs() or self.isIncludeAlways()):
                         result += '.'
         if (self.isIncludeRegs()):
             regs = self.getRegs()

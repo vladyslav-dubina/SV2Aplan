@@ -11,7 +11,7 @@ output reg [15:0] Data_out
 reg Write_once_status;
 
 always @(posedge Clk or negedge ip_resetn)
-    if (~ip_resetn)
+    if (~ip_resetn) 
         begin
             Data_out <= 16'h0000;
             Write_once_status <= 1'b0;
@@ -19,12 +19,13 @@ always @(posedge Clk or negedge ip_resetn)
     else if (write & ~Write_once_status)
         begin
             Data_out <= Data_in & 16'hFFFE;
-            Write_once_status <= 1'b1;
-        end
+            Write_once_status <= Data_in[0];
+        end 
     else if (~write)
-    begin
-        Data_out[15:1] <= Data_out[15:1];
-        Data_out[0] <= Write_once_status; 
-    end
+        begin
+            Data_out[15:1] <= Data_out[15:1];
+            Data_out[0] <= Write_once_status;
+        end
 
+assert property (write & ~Write_once_status && ip_resetn);
 endmodule
