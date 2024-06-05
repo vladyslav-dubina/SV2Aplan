@@ -60,7 +60,7 @@ class SV2aplan():
                 res += self.extractSensetive(child)
         return res
 
-    def assert2Aplan(self, input:str):
+    def assert2Aplan(self, input: str):
         self.module.incrieseCounter(CounterTypes.ASSERT)
         expression = addSpacesAroundOperators(input)
         expression_with_replaced_names = self.findAndChangeNamesToAplanNames(

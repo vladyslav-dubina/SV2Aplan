@@ -90,4 +90,3 @@ class SVListener(SystemVerilogParserListener):
             struct_assert = Protocol(assert_b)
             struct_assert.addBody('{0}.Delta + !{0}'.format(assert_name))
             self.module.notBlockElements.append(struct_assert)
-
