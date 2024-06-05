@@ -46,6 +46,8 @@
 
 ## Completed elements
 
+<details><summary>Click to expand</summary>
+
 - [x] module
 
 **DECLARATIONS**
@@ -64,6 +66,8 @@
 **OPERATIONS**
 
 - All types of logical and arithmetic operations
+
+</details>
 
 ## Authors
 
