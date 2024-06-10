@@ -2,7 +2,7 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from structures.aplan import Module, Action, CounterTypes, Always, Protocol, Structure
-from utils import addSpacesAroundOperators, valuesToAplanStandart
+from utils import addSpacesAroundOperators, valuesToAplanStandart, isInStrList
 import re
 
 
@@ -163,28 +163,31 @@ class SV2aplan():
 
     def always2Aplan(self, ctx):
         sensetive = None
-        always_keyword = ctx.always_keyword().getText()
-        index = always_keyword.find('always_comb')
-        if index != -1:
-            print("always_comb")
 
-        index = always_keyword.find('always')
-        if index != -1:
-            self.module.incrieseCounter(CounterTypes.ALWAYS_COUNTER)
-            event_expression = ctx.statement().statement_item().procedural_timing_control_statement(
+        always_keyword = ctx.always_keyword().getText()
+        statement_item = ctx.statement().statement_item()
+        if (statement_item.procedural_timing_control_statement() is not None):
+            event_expression = statement_item.procedural_timing_control_statement(
             ).procedural_timing_control().event_control().event_expression()
-            always_name = 'always_' + str(self.module.always_counter)
-            always = Always(
-                always_name, self.extractSensetive(event_expression))
-            always_body = ctx.statement().statement_item().procedural_timing_control_statement(
+            if (event_expression is not None):
+                sensetive = self.extractSensetive(event_expression)
+            always_body = statement_item.procedural_timing_control_statement(
             ).statement_or_null()
-            # always.addProtocol(always_name)
-            self.body2Aplan(always_body, always)
-            if (always.getBehLen() > 0):
-                last_b_name = always.behavior[0].identifier
-                always.behavior.insert(0, Protocol(always_name))
-                always.behavior[0].body.append(last_b_name)
-            self.module.structures.append(always)
+        else:
+            always_body = statement_item
+
+        self.module.incrieseCounter(CounterTypes.ALWAYS_COUNTER)
+        always_name = always_keyword + '_' + str(self.module.always_counter)
+        always = Always(
+            always_name, sensetive)
+
+        # always.addProtocol(always_name)
+        self.body2Aplan(always_body, always)
+        if (always.getBehLen() > 0):
+            last_b_name = always.behavior[0].identifier
+            always.behavior.insert(0, Protocol(always_name))
+            always.behavior[0].body.append(last_b_name)
+        self.module.structures.append(always)
 
         return
 

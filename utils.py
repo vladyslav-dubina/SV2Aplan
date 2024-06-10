@@ -1,5 +1,6 @@
 import re
 from ast import literal_eval
+from typing import List
 
 
 class Color:
@@ -75,3 +76,10 @@ def valuesToAplanStandart(expression: str):
         value = literal_eval(hex_string)
         expression = re.sub(f'({pattern})', str(value), expression)
     return expression
+
+
+def isInStrList(array: List[str], search_word: str):
+    for element in array:
+        if element == search_word:
+            return True
+    return False

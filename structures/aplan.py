@@ -34,7 +34,7 @@ class Action():
         return '{0}_{1}'.format(self.name, self.number)
 
     def __str__(self):
-        return '{0},\n\n'.format(self.body)
+        return '{0},'.format(self.body)
 
 
 class Declaration():
@@ -111,7 +111,7 @@ class Structure():
 
 
 class Always(Structure):
-    def __init__(self, identifier: str, sensetive: str):
+    def __init__(self, identifier: str, sensetive: str | None):
         super().__init__(identifier)
         self.sensetive = sensetive
 
@@ -127,9 +127,12 @@ class Always(Structure):
 
     def getSensetiveForB0(self):
         result = ''
-        if (len(self.sensetive) > 0):
+        if (self.sensetive is not None):
             result = 'Sensetive({0}, {1})'.format(
                 self.identifier, self.sensetive)
+        else:
+            result = 'Sensetive({0})'.format(
+                self.identifier)
         return result
 
     def __str__(self) -> str:
@@ -246,6 +249,7 @@ class Module():
     def getActionsInStrFormat(self):
         result = ''
         for element in self.actions:
+            result += '\n'
             result += str(element)
 
         result = removeTrailingComma(result)
@@ -298,8 +302,7 @@ class Module():
         if (self.isIncludeAlways()):
             always_list = self.getAlwaysList()
             for index, element in enumerate(always_list):
-                result += 'Sensetive( {0} || ( {1} ) )'.format(
-                    element.identifier, element.sensetive)
+                result += element.getSensetiveForB0()
                 if (index != len(always_list) - 1 and len(always_list) > 1):
                     result += ' || '
         return result
