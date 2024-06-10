@@ -159,14 +159,16 @@ class Program():
         # ----------------------------------
         # Behaviour
         # ----------------------------------
-        behaviour = ''
+        behaviour = 'rs () (\n'
 
         behaviour += 'B = ({})'.format(self.module.getBehInitProtocols())
         behaviour += ',' + self.module.getStructuresInStrFormat()
 
         if (self.module.isIncludeNonBlockElements()):
-            behaviour += ',' + self.module.getNotBlockElementsInStrFormat()
-
+            behaviour += ',' + self.module.getNotBlockElementsInStrFormat() + '\n'
+        else:
+            behaviour += '\n'
+        behaviour += ')'
         self.writeToFile(self.path_to_result + 'project.behp', behaviour)
         printWithColor('.beh file created \n', Color.PURPLE)
 
