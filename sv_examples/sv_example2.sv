@@ -10,8 +10,7 @@ input debug_unlocked,
 output reg [15:0] Data_out
 );
 
-reg lock_status = 10;
-
+reg lock_status;
 
 always @(posedge Clk or negedge resetn)
     if (~resetn)

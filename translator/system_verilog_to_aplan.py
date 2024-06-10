@@ -69,9 +69,10 @@ class SV2aplan():
             expression_with_replaced_names)
         assert_name = 'assert_{0}'.format(
             self.module.assert_counter)
-        action = assert_name + ' = (\n\t\t(1)->\n'
-        action += '\t\t("{2}#{3}:action \'{0}\';")\n\t\t({1})'.format(expression,
-                                                                      expression_with_replaced_names, self.module.identifier, self.module.ident_uniq_name)
+        action = assert_name + \
+            ' = (\n\t\t({0})->\n'.format(expression_with_replaced_names)
+        action += '\t\t("{1}#{2}:action \'assert ({0})\';")\n\t\t(1)'.format(expression,
+                                                                             self.module.identifier, self.module.ident_uniq_name)
         action += ')'
         self.module.actions.append(
             Action('assert', self.module.assert_counter, action))
