@@ -84,7 +84,6 @@ def valuesToAplanStandart(expression: str) -> str:
     pattern = "|".join(values_patterns)
 
     def replace_match(match):
-        print("----")
         for i in range(len(values_patterns)):
             multiplier = 0
             if i > 0:
