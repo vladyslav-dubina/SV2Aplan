@@ -68,7 +68,9 @@ class Program():
         # ----------------------------------
 
         env += '\tagent_types : obj (\n'
-
+        
+        env += '\t\tENVIRONMENT:obj(Nil),'
+        
         if (self.module.isIncludeInputPorts() or self.module.isIncludeOutputPorts() or self.module.isIncludeWires() or self.module.isIncludeRegs()):
 
             env += '\t\t{0} : obj (\n'.format(self.module.identifier)
@@ -80,7 +82,7 @@ class Program():
                 env += '\t\t\t{0}:{1}'.format(elem.identifier,
                                               elem.getAplanDecltype())
                 if (index + 1 == len(regs)):
-                    if (self.module.isIncludeWires()):
+                    if (self.module.isIncludeWires() or self.module.isIncludeInputPorts() or self.module.isIncludeOutputPorts()):
                         env += ',\n'
                     else:
                         env += '\n'
@@ -92,7 +94,7 @@ class Program():
                 env += '\t\t\t{0}:{1}'.format(elem.identifier,
                                               elem.getAplanDecltype())
                 if (index + 1 == len(wires)):
-                    if (self.module.isIncludeInputPorts()):
+                    if (self.module.isIncludeInputPorts() or self.module.isIncludeOutputPorts()):
                         env += ',\n'
                     else:
                         env += '\n'
@@ -159,8 +161,7 @@ class Program():
         # ----------------------------------
         # Behaviour
         # ----------------------------------
-        behaviour = 'rs () (\n'
-
+        behaviour = ''
         behaviour += 'B = ({})'.format(self.module.getBehInitProtocols())
         behaviour += ',' + self.module.getStructuresInStrFormat()
 
@@ -168,7 +169,6 @@ class Program():
             behaviour += ',' + self.module.getNotBlockElementsInStrFormat() + '\n'
         else:
             behaviour += '\n'
-        behaviour += ')'
         self.writeToFile(self.path_to_result + 'project.behp', behaviour)
         printWithColor('.beh file created \n', Color.PURPLE)
 
