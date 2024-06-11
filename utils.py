@@ -77,6 +77,10 @@ def valuesToAplanStandart(expression: str):
         expression = re.sub(f'({pattern})', str(value), expression)
     return expression
 
+def addBracketsAfterTilda(expression: str):
+   pattern = r'~([^\s]*)'
+   result = re.sub(pattern, r'~(\1)', expression)
+   return result 
 
 def isInStrList(array: List[str], search_word: str):
     for element in array:

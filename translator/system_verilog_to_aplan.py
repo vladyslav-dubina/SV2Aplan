@@ -2,7 +2,7 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from structures.aplan import Module, Action, CounterTypes, Always, Protocol, Structure
-from utils import addSpacesAroundOperators, valuesToAplanStandart, isInStrList
+from utils import addSpacesAroundOperators, valuesToAplanStandart, addBracketsAfterTilda
 import re
 
 
@@ -64,17 +64,16 @@ class SV2aplan:
 
     def assert2Aplan(self, input: str):
         self.module.incrieseCounter(CounterTypes.ASSERT)
-        expression = addSpacesAroundOperators(input)
-        expression_with_replaced_names = self.findAndChangeNamesToAplanNames(expression)
-        expression_with_replaced_names = valuesToAplanStandart(
-            expression_with_replaced_names
-        )
+        condition = valuesToAplanStandart(input)
+        condition = addSpacesAroundOperators(condition)
+        condition_with_replaced_names = self.findAndChangeNamesToAplanNames(condition)
+        condition_with_replaced_names = addBracketsAfterTilda(condition_with_replaced_names)
         assert_name = "assert_{0}".format(self.module.assert_counter)
         action = assert_name + " = (\n\t\t({0})->\n".format(
-            expression_with_replaced_names
+            condition_with_replaced_names
         )
         action += "\t\t(\"{1}#{2}:action 'assert ({0})';\")\n\t\t(1)".format(
-            expression, self.module.identifier, self.module.ident_uniq_name
+            condition, self.module.identifier, self.module.ident_uniq_name
         )
         action += ")"
         self.module.actions.append(Action("assert", self.module.assert_counter, action))
@@ -103,11 +102,9 @@ class SV2aplan:
                 or type(child) is SystemVerilogParser.Nonblocking_assignmentContext
             ):
                 self.module.incrieseCounter(CounterTypes.ASSIGNMENT_COUNTER)
-                assign = addSpacesAroundOperators(child.getText())
+                assign = valuesToAplanStandart(child.getText())
+                assign = addSpacesAroundOperators(assign)
                 assign_with_replaced_names = self.findAndChangeNamesToAplanNames(assign)
-                assign_with_replaced_names = valuesToAplanStandart(
-                    assign_with_replaced_names
-                )
                 action_name = "assign_{0}".format(self.module.assignment_counter)
                 action = action_name + " = (\n\t\t(1)->\n"
                 action += "\t\t(\"{2}#{3}:action '{0}';\")\n\t\t({1})".format(
@@ -140,7 +137,8 @@ class SV2aplan:
                 subsiquence = []
                 predicate = child.cond_predicate()
                 for elem in predicate:
-                    predicateString = addSpacesAroundOperators(elem.getText())
+                    predicateString = valuesToAplanStandart(elem.getText())
+                    predicateString = addSpacesAroundOperators(predicateString)
                     if len(predicateString) > 0:
                         self.module.incrieseCounter(CounterTypes.IF_COUNTER)
                         if_index_list.append(self.module.if_counter)
@@ -150,6 +148,7 @@ class SV2aplan:
                         predicateWithReplacedNames = valuesToAplanStandart(
                             predicateWithReplacedNames
                         )
+                        predicateWithReplacedNames = addBracketsAfterTilda(predicateWithReplacedNames)
                         action = ""
                         action_name = "if_{0}".format(self.module.if_counter)
                         action += """{0} = (\n\t\t({1})->\n\t\t("{2}#{3}:action 'if ({4})';")\n\t\t(1))""".format(
