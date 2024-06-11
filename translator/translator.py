@@ -4,7 +4,7 @@ from antlr4_verilog.systemverilog import SystemVerilogLexer, SystemVerilogParser
 from utils import printWithColor, Color
 
 
-class SystemVerilogFind():
+class SystemVerilogFind:
     def setUp(self, data):
         lexer = SystemVerilogLexer(InputStream(data))
         stream = CommonTokenStream(lexer)
@@ -13,8 +13,8 @@ class SystemVerilogFind():
         self.walker = ParseTreeWalker()
 
     def startTranslate(self):
-        printWithColor('Tranlation process start... \n', Color.ORANGE)
+        printWithColor("Tranlation process start... \n", Color.ORANGE)
         listener = SVListener()
         self.walker.walk(listener, self.tree)
-        printWithColor('Tranlation process finished! \n', Color.ORANGE)
+        printWithColor("Tranlation process finished! \n", Color.ORANGE)
         return listener.module

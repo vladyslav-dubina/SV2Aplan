@@ -2,7 +2,12 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from structures.aplan import Module, Action, CounterTypes, Always, Protocol, Structure
-from utils import addSpacesAroundOperators, valuesToAplanStandart, addBracketsAfterTilda, parallelAssignment2Assignment
+from utils import (
+    addSpacesAroundOperators,
+    valuesToAplanStandart,
+    addBracketsAfterTilda,
+    parallelAssignment2Assignment,
+)
 import re
 
 
@@ -67,7 +72,9 @@ class SV2aplan:
         condition = valuesToAplanStandart(input)
         condition = addSpacesAroundOperators(condition)
         condition_with_replaced_names = self.findAndChangeNamesToAplanNames(condition)
-        condition_with_replaced_names = addBracketsAfterTilda(condition_with_replaced_names)
+        condition_with_replaced_names = addBracketsAfterTilda(
+            condition_with_replaced_names
+        )
         assert_name = "assert_{0}".format(self.module.assert_counter)
         action = assert_name + " = (\n\t\t({0})->\n".format(
             condition_with_replaced_names
@@ -105,7 +112,9 @@ class SV2aplan:
                 assign = valuesToAplanStandart(child.getText())
                 assign = addSpacesAroundOperators(assign)
                 assign_with_replaced_names = self.findAndChangeNamesToAplanNames(assign)
-                assign_with_replaced_names = parallelAssignment2Assignment(assign_with_replaced_names)
+                assign_with_replaced_names = parallelAssignment2Assignment(
+                    assign_with_replaced_names
+                )
                 action_name = "assign_{0}".format(self.module.assignment_counter)
                 action = action_name + " = (\n\t\t(1)->\n"
                 action += "\t\t(\"{2}#{3}:action '{0}';\")\n\t\t({1})".format(
@@ -149,7 +158,9 @@ class SV2aplan:
                         predicateWithReplacedNames = valuesToAplanStandart(
                             predicateWithReplacedNames
                         )
-                        predicateWithReplacedNames = addBracketsAfterTilda(predicateWithReplacedNames)
+                        predicateWithReplacedNames = addBracketsAfterTilda(
+                            predicateWithReplacedNames
+                        )
                         action = ""
                         action_name = "if_{0}".format(self.module.if_counter)
                         action += """{0} = (\n\t\t({1})->\n\t\t("{2}#{3}:action 'if ({4})';")\n\t\t(1))""".format(
