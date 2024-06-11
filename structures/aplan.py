@@ -48,12 +48,12 @@ class Declaration:
 
     def getAplanDecltype(self):
         if self.data_type == DeclTypes.WIRE:
-            return "Boolean"
+            return "bool"
         if self.data_type == DeclTypes.REG:
-            return "Boolean"
+            return "bool"
         if self.data_type == DeclTypes.INPORT or self.data_type == DeclTypes.OUTPORT:
             if self.size == 0:
-                return "Boolean"
+                return "bool"
             if self.size > 0:
                 return "Bits " + str(self.size)
 
