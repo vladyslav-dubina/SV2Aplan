@@ -88,7 +88,7 @@ class SV2aplan():
                 assert_b = 'assert_B_{}'.format(self.module.assert_counter)
                 beh_index = sv_structure.addProtocol(assert_b)
                 sv_structure.behavior[beh_index].addBody(
-                    '{0}.Delta + !{0}'.format(assert_name))
+                    '{0}.Delta + !{0}.0'.format(assert_name))
                 if (beh_index != 0):
                     sv_structure.behavior[beh_index-1].addBody(assert_b)
 
