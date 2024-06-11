@@ -56,6 +56,10 @@
 
 **STATEMENTS**
 - [x] always @ ()
+- [x] always @ *
+- [x] always_comb
+- [x] always_ff
+- [x] always_latch
 - [x] if ()
 
 **ASSERT**
