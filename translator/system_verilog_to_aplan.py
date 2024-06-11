@@ -2,7 +2,7 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from structures.aplan import Module, Action, CounterTypes, Always, Protocol, Structure
-from utils import addSpacesAroundOperators, valuesToAplanStandart, addBracketsAfterTilda
+from utils import addSpacesAroundOperators, valuesToAplanStandart, addBracketsAfterTilda, parallelAssignment2Assignment
 import re
 
 
@@ -105,6 +105,7 @@ class SV2aplan:
                 assign = valuesToAplanStandart(child.getText())
                 assign = addSpacesAroundOperators(assign)
                 assign_with_replaced_names = self.findAndChangeNamesToAplanNames(assign)
+                assign_with_replaced_names = parallelAssignment2Assignment(assign_with_replaced_names)
                 action_name = "assign_{0}".format(self.module.assignment_counter)
                 action = action_name + " = (\n\t\t(1)->\n"
                 action += "\t\t(\"{2}#{3}:action '{0}';\")\n\t\t({1})".format(

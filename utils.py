@@ -105,6 +105,12 @@ def addBracketsAfterTilda(expression: str):
     return result
 
 
+def parallelAssignment2Assignment(expression: str):
+    pattern = r"<="
+    result = re.sub(pattern, "=", expression)
+    return result
+
+
 def isInStrList(array: List[str], search_word: str):
     for element in array:
         if element == search_word:
