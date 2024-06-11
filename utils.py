@@ -75,27 +75,36 @@ def removeTrailingComma(s: str) -> str:
     return s.rstrip(",")
 
 
-def valuesToAplanStandart(expression: str):
-    values_paterns = [r"([0-9]+)\'(b)([0-9]+)", r"([0-9]+)\'(h)([a-zA-Z0-9]+)"]
+def valuesToAplanStandart(expression: str) -> str:
+    values_patterns = [
+        r"([0-9]+)\'(b)([01]+)",  # for binary
+        r"([0-9]+)\'(h)([a-fA-F0-9]+)",  # for hex
+    ]
 
-    pattern = "|".join(values_paterns)
-    expression_search = re.search(pattern, expression)
-    if expression_search is not None:
-        base, value_type, hex_string = (
-            expression_search.group(1),
-            expression_search.group(2),
-            expression_search.group(3),
-        )
-        if base is None or value_type is None or hex_string is None:
-            base, value_type, hex_string = (
-                expression_search.group(4),
-                expression_search.group(5),
-                expression_search.group(6),
+    pattern = "|".join(values_patterns)
+
+    def replace_match(match):
+        print("----")
+        for i in range(len(values_patterns)):
+            multiplier = 0
+            if i > 0:
+                multiplier = 3 * (i)
+            base, value_type, value_string = (
+                match.group(1 + multiplier),
+                match.group(2 + multiplier),
+                match.group(3 + multiplier),
             )
+            if base is not None:
+                break
         if value_type == "h":
-            hex_string = "0x" + hex_string
-        value = literal_eval(hex_string)
-        expression = re.sub(f"({pattern})", str(value), expression)
+            value_string = "0x" + value_string
+        elif value_type == "b":
+            value_string = "0b" + value_string
+        value = literal_eval(value_string)
+        return str(value)
+
+    expression = re.sub(pattern, lambda match: replace_match(match), expression)
+
     return expression
 
 
