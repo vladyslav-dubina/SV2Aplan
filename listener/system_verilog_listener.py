@@ -88,5 +88,5 @@ class SVListener(SystemVerilogParserListener):
             assert_name = sv2aplan.assert2Aplan(expression.getText())
             assert_b = 'assert_B_{}'.format(self.module.assert_counter)
             struct_assert = Protocol(assert_b)
-            struct_assert.addBody('{0}.Delta + !{0}'.format(assert_name))
+            struct_assert.addBody('{0}.Delta + !{0}.0'.format(assert_name))
             self.module.notBlockElements.append(struct_assert)
