@@ -169,7 +169,7 @@ class SV2aplan:
                     beh_index = sv_structure.getLastBehaviorIndex()
                     if beh_index is not None:
                         body = "if_{0}.body_{0} + !if_{0}.B_{1}".format(
-                            if_index_list[index], self.module.b_counter
+                            if_index_list[index], self.module.b_counter + 1
                         )
                         if index == len(statements) - 1:
                             body = "if_{0}.body_{0} + !if_{0}".format(
