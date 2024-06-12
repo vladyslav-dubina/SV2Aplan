@@ -5,7 +5,7 @@
 ## Instalation
 <details><summary>Click to expand</summary>
   
-1. Install Python on your system
+1. Install Python>=3.10.12 on your system
 2. Install the necessary libraries:
 
        pip install -r requirements.txt
