@@ -177,12 +177,11 @@ class Program:
         # ----------------------------------
         # Behaviour
         # ----------------------------------
-        behaviour = ""
-        behaviour += "B = ({})".format(self.module.getBehInitProtocols())
-        behaviour += "," + self.module.getStructuresInStrFormat()
+        behaviour = f"{self.module.getBehInitProtocols()}"
+        behaviour += self.module.getStructuresInStrFormat()
 
         if self.module.isIncludeNonBlockElements():
-            behaviour += "," + self.module.getNotBlockElementsInStrFormat() + "\n"
+            behaviour += "," + self.module.getnot_block_elementsInStrFormat() + "\n"
         else:
             behaviour += "\n"
         self.writeToFile(self.path_to_result + "project.behp", behaviour)

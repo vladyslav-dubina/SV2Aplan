@@ -4,7 +4,6 @@ from utils import (
     format_time,
     printWithColor,
     moduleCounterDeinit,
-    sequenceDeinit,
 )
 from program.program import Program
 import time
@@ -53,7 +52,6 @@ def start(path_to_sv, path_to_aplan_result):
         Color.CYAN,
     )
     moduleCounterDeinit()
-    sequenceDeinit()
 
 
 if __name__ == "__main__":

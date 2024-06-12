@@ -6,7 +6,6 @@ from translator.system_verilog_to_aplan import (
     vectorSize2Aplan,
 )
 from structures.aplan import Declaration, DeclTypes, Module, CounterTypes, Protocol
-from utils import getSequence
 
 
 class SVListener(SystemVerilogParserListener):
@@ -40,7 +39,6 @@ class SVListener(SystemVerilogParserListener):
                             identifier,
                             assign_name,
                             0,
-                            getSequence(),
                         )
                     )
 
@@ -72,7 +70,6 @@ class SVListener(SystemVerilogParserListener):
                     ctx.port_identifier().getText(),
                     "",
                     0,
-                    getSequence(),
                 )
                 self.module.declarations.append(port)
             else:
@@ -82,7 +79,6 @@ class SVListener(SystemVerilogParserListener):
                     ctx.port_identifier().getText(),
                     "",
                     aplan_vector_size[0],
-                    getSequence(),
                 )
                 self.module.declarations.append(port)
 
@@ -95,7 +91,6 @@ class SVListener(SystemVerilogParserListener):
                     ctx.port_identifier().getText(),
                     "",
                     0,
-                    getSequence(),
                 )
                 self.module.declarations.append(port)
             else:
@@ -105,7 +100,6 @@ class SVListener(SystemVerilogParserListener):
                     ctx.port_identifier().getText(),
                     "",
                     aplan_vector_size[0],
-                    getSequence(),
                 )
                 self.module.declarations.append(port)
 
@@ -119,6 +113,6 @@ class SVListener(SystemVerilogParserListener):
             sv2aplan = SV2aplan(self.module)
             assert_name = sv2aplan.assert2Aplan(expression.getText())
             assert_b = "assert_B_{}".format(self.module.assert_counter)
-            struct_assert = Protocol(assert_b, getSequence())
+            struct_assert = Protocol(assert_b)
             struct_assert.addBody("{0}.Delta + !{0}.0".format(assert_name))
-            self.module.notBlockElements.append(struct_assert)
+            self.module.not_block_elements.append(struct_assert)

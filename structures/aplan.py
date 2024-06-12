@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from utils import generate_module_names, removeTrailingComma, increaseSequence
+from utils import generate_module_names, removeTrailingComma
 from typing import List, Optional
 
 
@@ -44,13 +44,11 @@ class Declaration:
         identifier: str,
         expression: str,
         size: int,
-        sequence: int,
     ):
         self.data_type = data_type
         self.identifier = identifier
         self.expression = expression
         self.size = size
-        self.sequence = sequence
 
     def getAplanDecltype(self):
         if self.data_type == DeclTypes.WIRE:
@@ -65,8 +63,7 @@ class Declaration:
 
 
 class Protocol:
-    def __init__(self, identifier: str, sequence: int):
-        self.sequence = sequence
+    def __init__(self, identifier: str):
         self.identifier = identifier
         self.body: List[str] = []
 
@@ -96,8 +93,7 @@ class Protocol:
 
 
 class Structure:
-    def __init__(self, identifier: str, sequence: int):
-        self.sequence = sequence
+    def __init__(self, identifier: str):
         self.identifier = identifier
         self.behavior: List[Protocol] = []
 
@@ -107,7 +103,7 @@ class Structure:
         return len(self.behavior) - 1
 
     def addProtocol(self, protocol_identifier: str):
-        self.behavior.append(Protocol(protocol_identifier, self.sequence))
+        self.behavior.append(Protocol(protocol_identifier))
         return len(self.behavior) - 1
 
     def getBehInStrFormat(self):
@@ -121,8 +117,8 @@ class Structure:
 
 
 class Always(Structure):
-    def __init__(self, identifier: str, sensetive: str | None, sequence: int):
-        super().__init__(identifier, sequence)
+    def __init__(self, identifier: str, sensetive: str | None):
+        super().__init__(identifier)
         self.sensetive = sensetive
 
     def getBehInStrFormat(self):
@@ -163,7 +159,7 @@ class Module:
 
         self.structures: List[Structure] = []
 
-        self.notBlockElements: List[Protocol] = []
+        self.not_block_elements: List[Protocol] = []
 
         # counters
         self.assignment_counter = 0
@@ -199,7 +195,7 @@ class Module:
         return result
 
     def isIncludeNonBlockElements(self):
-        if len(self.notBlockElements) > 0:
+        if len(self.not_block_elements) > 0:
             return True
         return False
 
@@ -279,9 +275,9 @@ class Module:
         result = removeTrailingComma(result)
         return result
 
-    def getNotBlockElementsInStrFormat(self):
+    def getnot_block_elementsInStrFormat(self):
         result = ""
-        for element in self.notBlockElements:
+        for element in self.not_block_elements:
             result += "\n"
             result += str(element)
         result = removeTrailingComma(result)
@@ -290,25 +286,64 @@ class Module:
     def getBehInitProtocols(self):
         result = ""
 
+        # MAIN PROTOCOL
+        main_protocol = ""
+        main_protocol_part = ""
+        main_flag = False
+
+        for index, element in enumerate(self.not_block_elements):
+            if index != 0:
+                main_protocol += "."
+            main_protocol += element.identifier
+
+        if len(main_protocol) > 0:
+            main_flag = True
+            main_protocol = "MAIN = " + main_protocol + ","
+            main_protocol_part = "MAIN"
+            result += main_protocol
+
+        # ALWAYS PART
+        always_list = self.getAlwaysList()
+        always_part = ""
+        always_flag = False
+
+        for index, element in enumerate(always_list):
+            if index != 0:
+                always_part += " || "
+            always_part += element.getSensetiveForB0()
+
+        if len(always_part) > 0:
+            always_flag = True
+            if len(always_list) > 1:
+                always_part = "{" + always_part + "}"
+            if main_flag:
+                always_part += ";"
+
+        # INIT PROTOCOL
         wires = self.getWires(True)
         regs = self.getRegs(True)
-        always_list = self.getAlwaysList()
-        combined_array = wires + regs + always_list + self.notBlockElements
-        combined_array.sort(key=lambda obj: obj.sequence)
 
-        for index, element in enumerate(combined_array):
-            if type(element) is Declaration:
-                if len(element.expression) > 0:
-                    if index != 0:
-                        result += "."
-                    result += element.expression
-            elif type(element) is Always:
-                if index != 0:
-                    result += "."
-                result += element.getSensetiveForB0()
-            elif type(element) is Protocol:
-                if index != 0:
-                    result += "."
-                result += element.identifier
+        init_protocol = ""
+        init_protocol_part = ""
+        init_protocols_array = wires + regs
+        init_flag = False
 
+        for index, element in enumerate(init_protocols_array):
+            if len(element.expression) > 0:
+                if index != 0:
+                    init_protocol += "."
+                init_protocol += element.expression
+
+        if len(init_protocol) > 0:
+            init_flag = True
+            init_protocol = "INIT = " + init_protocol + ",\n"
+            init_protocol_part = "INIT"
+            if main_flag or always_flag:
+                init_protocol_part += ";"
+            result = init_protocol + result
+
+        b0 = f"B = ({init_protocol_part}{always_part}{main_protocol_part}),"
+        if main_flag or init_flag:
+            b0 += "\n"
+        result = b0 + result
         return result

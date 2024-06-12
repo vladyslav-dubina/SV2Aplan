@@ -8,7 +8,6 @@ from utils import (
     addBracketsAfterTilda,
     parallelAssignment2Assignment,
     vectorSizes2AplanStandart,
-    getSequence,
 )
 import re
 
@@ -225,13 +224,13 @@ class SV2aplan:
 
         self.module.incrieseCounter(CounterTypes.ALWAYS_COUNTER)
         always_name = always_keyword + "_" + str(self.module.always_counter)
-        always = Always(always_name, sensetive, getSequence())
+        always = Always(always_name, sensetive)
 
         # always.addProtocol(always_name)
         self.body2Aplan(always_body, always)
         if always.getBehLen() > 0:
             last_b_name = always.behavior[0].identifier
-            always.behavior.insert(0, Protocol(always_name, getSequence()))
+            always.behavior.insert(0, Protocol(always_name))
             always.behavior[0].body.append(last_b_name)
         self.module.structures.append(always)
 
