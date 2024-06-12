@@ -1,0 +1,9 @@
+events(
+	s_Data_in:obj(x1:Bits 16);
+	s_Clk:obj(x1:bool);
+	s_resetn:obj(x1:bool);
+	s_write:obj(x1:bool);
+	s_Lock:obj(x1:bool);
+	s_scan_mode:obj(x1:bool);
+	s_debug_unlocked:obj(x1:bool);
+);

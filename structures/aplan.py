@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from utils import generate_module_names, removeTrailingComma
+from utils import generate_module_names, removeTrailingComma, increaseSequence
 from typing import List, Optional
 
 
@@ -39,12 +39,18 @@ class Action:
 
 class Declaration:
     def __init__(
-        self, data_type: DeclTypes, identifier: str, expression: str, size: int
+        self,
+        data_type: DeclTypes,
+        identifier: str,
+        expression: str,
+        size: int,
+        sequence: int,
     ):
         self.data_type = data_type
         self.identifier = identifier
         self.expression = expression
         self.size = size
+        self.sequence = sequence
 
     def getAplanDecltype(self):
         if self.data_type == DeclTypes.WIRE:
@@ -59,7 +65,8 @@ class Declaration:
 
 
 class Protocol:
-    def __init__(self, identifier: str):
+    def __init__(self, identifier: str, sequence: int):
+        self.sequence = sequence
         self.identifier = identifier
         self.body: List[str] = []
 
@@ -89,7 +96,8 @@ class Protocol:
 
 
 class Structure:
-    def __init__(self, identifier: str):
+    def __init__(self, identifier: str, sequence: int):
+        self.sequence = sequence
         self.identifier = identifier
         self.behavior: List[Protocol] = []
 
@@ -99,7 +107,7 @@ class Structure:
         return len(self.behavior) - 1
 
     def addProtocol(self, protocol_identifier: str):
-        self.behavior.append(Protocol(protocol_identifier))
+        self.behavior.append(Protocol(protocol_identifier, self.sequence))
         return len(self.behavior) - 1
 
     def getBehInStrFormat(self):
@@ -113,8 +121,8 @@ class Structure:
 
 
 class Always(Structure):
-    def __init__(self, identifier: str, sensetive: str | None):
-        super().__init__(identifier)
+    def __init__(self, identifier: str, sensetive: str | None, sequence: int):
+        super().__init__(identifier, sequence)
         self.sensetive = sensetive
 
     def getBehInStrFormat(self):
@@ -201,11 +209,15 @@ class Module:
                 return True
         return False
 
-    def getWires(self):
+    def getWires(self, assignment: bool):
         result: List[Declaration] = []
         for element in self.declarations:
             if element.data_type == DeclTypes.WIRE:
-                result.append(element)
+                if assignment:
+                    if len(element.expression) > 0:
+                        result.append(element)
+                else:
+                    result.append(element)
         return result
 
     def isIncludeRegs(self):
@@ -214,11 +226,15 @@ class Module:
                 return True
         return False
 
-    def getRegs(self):
+    def getRegs(self, assignment: bool):
         result: List[Declaration] = []
         for element in self.declarations:
             if element.data_type == DeclTypes.REG:
-                result.append(element)
+                if assignment:
+                    if len(element.expression) > 0:
+                        result.append(element)
+                else:
+                    result.append(element)
         return result
 
     def isIncludeAlways(self):
@@ -274,41 +290,25 @@ class Module:
     def getBehInitProtocols(self):
         result = ""
 
-        if self.isIncludeNonBlockElements():
-            for index, element in enumerate(self.notBlockElements):
+        wires = self.getWires(True)
+        regs = self.getRegs(True)
+        always_list = self.getAlwaysList()
+        combined_array = wires + regs + always_list + self.notBlockElements
+        combined_array.sort(key=lambda obj: obj.sequence)
+
+        for index, element in enumerate(combined_array):
+            if type(element) is Declaration:
+                if len(element.expression) > 0:
+                    if index != 0:
+                        result += "."
+                    result += element.expression
+            elif type(element) is Always:
+                if index != 0:
+                    result += "."
+                result += element.getSensetiveForB0()
+            elif type(element) is Protocol:
                 if index != 0:
                     result += "."
                 result += element.identifier
-                if (index == len(self.notBlockElements) - 1) and (
-                    self.isIncludeWires()
-                    or self.isIncludeRegs()
-                    or self.isIncludeAlways()
-                ):
-                    result += "."
-        if self.isIncludeWires():
-            wires = self.getWires()
-            for index, element in enumerate(wires):
-                if len(element.expression) > 0:
-                    if index != 0:
-                        result += "."
-                    result += element.expression
-                    if (index == len(wires) - 1) and (
-                        self.isIncludeRegs() or self.isIncludeAlways()
-                    ):
-                        result += "."
-        if self.isIncludeRegs():
-            regs = self.getRegs()
-            for index, element in enumerate(regs):
-                if len(element.expression) > 0:
-                    if index != 0:
-                        result += "."
-                    result += element.expression
-                    if (index == len(regs) - 1) and self.isIncludeAlways():
-                        result += "."
-        if self.isIncludeAlways():
-            always_list = self.getAlwaysList()
-            for index, element in enumerate(always_list):
-                result += element.getSensetiveForB0()
-                if index != len(always_list) - 1 and len(always_list) > 1:
-                    result += " || "
+
         return result

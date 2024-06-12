@@ -38,7 +38,7 @@ def addSpacesAroundOperators(expression: str):
         r"\|",
         r"\(",
         r"\)",
-        r"="
+        r"=",
     ]
     pattern = "|".join(operators)
 
@@ -69,6 +69,25 @@ def switchRemovePrints(flag: bool):
 def printWithColor(text, color_start: Color, color_end: Color = Color.END):
     if REMOVE_PRINTS == False:
         print(color_start + text + color_end)
+
+
+SEQUENCE = 0
+
+
+def sequenceDeinit():
+    global SEQUENCE
+    SEQUENCE = 0
+
+
+def increaseSequence():
+    global SEQUENCE
+    SEQUENCE += 1
+
+
+def getSequence():
+    increaseSequence()
+    global SEQUENCE
+    return SEQUENCE
 
 
 MODULE_COUNTER = 1

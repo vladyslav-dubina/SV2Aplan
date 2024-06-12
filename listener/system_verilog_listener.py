@@ -6,6 +6,7 @@ from translator.system_verilog_to_aplan import (
     vectorSize2Aplan,
 )
 from structures.aplan import Declaration, DeclTypes, Module, CounterTypes, Protocol
+from utils import getSequence
 
 
 class SVListener(SystemVerilogParserListener):
@@ -34,7 +35,13 @@ class SVListener(SystemVerilogParserListener):
                     if not assign_name:
                         assign_name = ""
                     self.module.declarations.append(
-                        Declaration(DeclTypes.REG, identifier, assign_name, 0)
+                        Declaration(
+                            DeclTypes.REG,
+                            identifier,
+                            assign_name,
+                            0,
+                            getSequence(),
+                        )
                     )
 
     def exitNet_declaration(self, ctx):
@@ -61,7 +68,11 @@ class SVListener(SystemVerilogParserListener):
             vector_size = extractVectorSize(header)
             if vector_size is None:
                 port = Declaration(
-                    DeclTypes.INPORT, ctx.port_identifier().getText(), "", 0
+                    DeclTypes.INPORT,
+                    ctx.port_identifier().getText(),
+                    "",
+                    0,
+                    getSequence(),
                 )
                 self.module.declarations.append(port)
             else:
@@ -71,6 +82,7 @@ class SVListener(SystemVerilogParserListener):
                     ctx.port_identifier().getText(),
                     "",
                     aplan_vector_size[0],
+                    getSequence(),
                 )
                 self.module.declarations.append(port)
 
@@ -79,7 +91,11 @@ class SVListener(SystemVerilogParserListener):
             vector_size = extractVectorSize(header)
             if vector_size is None:
                 port = Declaration(
-                    DeclTypes.OUTPORT, ctx.port_identifier().getText(), "", 0
+                    DeclTypes.OUTPORT,
+                    ctx.port_identifier().getText(),
+                    "",
+                    0,
+                    getSequence(),
                 )
                 self.module.declarations.append(port)
             else:
@@ -89,6 +105,7 @@ class SVListener(SystemVerilogParserListener):
                     ctx.port_identifier().getText(),
                     "",
                     aplan_vector_size[0],
+                    getSequence(),
                 )
                 self.module.declarations.append(port)
 
@@ -102,6 +119,6 @@ class SVListener(SystemVerilogParserListener):
             sv2aplan = SV2aplan(self.module)
             assert_name = sv2aplan.assert2Aplan(expression.getText())
             assert_b = "assert_B_{}".format(self.module.assert_counter)
-            struct_assert = Protocol(assert_b)
+            struct_assert = Protocol(assert_b, getSequence())
             struct_assert.addBody("{0}.Delta + !{0}.0".format(assert_name))
             self.module.notBlockElements.append(struct_assert)

@@ -1,4 +1,4 @@
-B = (assert_B_1.assign1.Sensetive(always_1, module_1.Clk || !module_1.ip_resetn)),
+B = (assign1.Sensetive(always_1, module_1.Clk || !module_1.ip_resetn).assert_B_1),
 always_1 = B_1,
 B_1 = if_1.body_1 + !if_1.B_2,
 body_1 = Sensetive(assign_2).Sensetive(assign_3),

@@ -1,5 +1,11 @@
 import argparse
-from utils import Color, format_time, printWithColor, moduleCounterDeinit
+from utils import (
+    Color,
+    format_time,
+    printWithColor,
+    moduleCounterDeinit,
+    sequenceDeinit,
+)
 from program.program import Program
 import time
 import traceback
@@ -47,6 +53,7 @@ def start(path_to_sv, path_to_aplan_result):
         Color.CYAN,
     )
     moduleCounterDeinit()
+    sequenceDeinit()
 
 
 if __name__ == "__main__":

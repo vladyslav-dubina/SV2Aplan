@@ -82,7 +82,7 @@ class Program:
 
             env += "\t\t{0} : obj (\n".format(self.module.identifier)
 
-            regs = self.module.getRegs()
+            regs = self.module.getRegs(False)
             for index, elem in enumerate(regs):
                 if index > 0:
                     env += ",\n"
@@ -97,7 +97,7 @@ class Program:
                     else:
                         env += "\n"
 
-            wires = self.module.getWires()
+            wires = self.module.getWires(False)
             for index, elem in enumerate(wires):
                 if index > 0:
                     env += ",\n"
