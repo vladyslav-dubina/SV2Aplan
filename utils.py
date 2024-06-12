@@ -57,11 +57,25 @@ def format_time(seconds):
         return f"{int(seconds)} s"
 
 
+REMOVE_PRINTS = False
+
+
+def switchRemovePrints(flag: bool):
+    global REMOVE_PRINTS
+    REMOVE_PRINTS = flag
+
+
 def printWithColor(text, color_start: Color, color_end: Color = Color.END):
-    print(color_start + text + color_end)
+    if REMOVE_PRINTS == False:
+        print(color_start + text + color_end)
 
 
 MODULE_COUNTER = 1
+
+
+def moduleCounterDeinit():
+    global MODULE_COUNTER
+    MODULE_COUNTER = 1
 
 
 def generate_module_names():

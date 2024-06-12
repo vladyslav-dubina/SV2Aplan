@@ -1,12 +1,12 @@
 import argparse
-from utils import Color, format_time, printWithColor
+from utils import Color, format_time, printWithColor, moduleCounterDeinit
 from program.program import Program
 import time
 import traceback
 import sys
 
 
-def main(path_to_sv, path_to_aplan_result):
+def start(path_to_sv, path_to_aplan_result):
     printWithColor(
         "\n-------------------------SV TO APLAN TRANSLATOR START-------------------------\n",
         Color.CYAN,
@@ -46,6 +46,7 @@ def main(path_to_sv, path_to_aplan_result):
         "\n--------------------------SV TO APLAN TRANSLATOR END---------------------------\n",
         Color.CYAN,
     )
+    moduleCounterDeinit()
 
 
 if __name__ == "__main__":
@@ -62,7 +63,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     try:
-        main(args.path_to_sv, args.rpath)
+        start(args.path_to_sv, args.rpath)
     except Exception as e:
         printWithColor("Program finished with error: \n", Color.RED)
         traceback.print_exception(type(e), e, e.__traceback__, file=sys.stderr)
