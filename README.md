@@ -50,13 +50,13 @@
 
 - [x] module
 
-| SV CODE | APLAN CODE | EXAMPLE LINK |
-| :------ | :--------: | -----------: |
-|  ![image](https://github.com/vladyslav-dubina/SV2Aplan/assets/82110791/a7dec8f0-b922-4ea4-bbcd-8f501f91d6d1) | ![image](https://github.com/vladyslav-dubina/SV2Aplan/assets/82110791/8579a72d-6b31-4ace-aa43-0dd5dc907711) | [sv_example.sv](examples/sv_example/sv_example.sv) [project.env_descript](examples/sv_example/aplan/project.env_descript) |
+| SV CODE                                                                                                     |                                                 APLAN CODE                                                  |                                                                                                              EXAMPLE LINK |
+| :---------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------: | ------------------------------------------------------------------------------------------------------------------------: |
+| ![image](https://github.com/vladyslav-dubina/SV2Aplan/assets/82110791/a7dec8f0-b922-4ea4-bbcd-8f501f91d6d1) | ![image](https://github.com/vladyslav-dubina/SV2Aplan/assets/82110791/8579a72d-6b31-4ace-aa43-0dd5dc907711) | [sv_example.sv](examples/sv_example/sv_example.sv) [project.env_descript](examples/sv_example/aplan/project.env_descript) |
 
-|DESCRIPTION | 
-|:---------: | 
-| As you can see, module is converted to agent_type, the attributes of which are all module arguments from SV. After that we declare the agent (in the picture module_1) the index in the name of the agent depends on the order of the module in the SV code, the type of the agent is agent_type what is this module. | 
+|                                                                                                                                                      DESCRIPTION                                                                                                                                                      |
+| :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| As you can see, module is converted to agent_type, the attributes of which are all module arguments from SV. After that we declare the agent (in the picture module_1) the index in the name of the agent depends on the order of the module in the SV code, the type of the agent is agent_type what is this module. |
 
 **DECLARATIONS**
 - [x] reg
