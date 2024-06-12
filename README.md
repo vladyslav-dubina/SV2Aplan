@@ -52,7 +52,8 @@
 
 | SV CODE | APLAN CODE | DESCRIPTION | EXAMPLE LINK |
 | :------ | :--------: | :---------: | -----------: |
-|  ![image](https://github.com/vladyslav-dubina/SV2Aplan/assets/82110791/a7dec8f0-b922-4ea4-bbcd-8f501f91d6d1) | ![image](https://github.com/vladyslav-dubina/SV2Aplan/assets/82110791/a2465266-a017-419c-85de-2826b315f1d3) |             |              |
+|  ![image](https://github.com/vladyslav-dubina/SV2Aplan/assets/82110791/a7dec8f0-b922-4ea4-bbcd-8f501f91d6d1) | ![image](https://github.com/vladyslav-dubina/SV2Aplan/assets/82110791/8579a72d-6b31-4ace-aa43-0dd5dc907711)
+ |             |              |
 
 
 **DECLARATIONS**
