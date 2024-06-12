@@ -7,6 +7,7 @@ from utils import (
     valuesToAplanStandart,
     addBracketsAfterTilda,
     parallelAssignment2Assignment,
+    vectorSizes2AplanStandart,
 )
 import re
 
@@ -19,11 +20,9 @@ def extractVectorSize(s):
 
 def vectorSize2Aplan(left, right):
     if right == "0":
-        # Якщо праве значення дорівнює 0, додаємо 1 до лівого значення
         left = int(left) + 1
         return [left, 0]
     else:
-        # Інакше віднімаємо ліве значення від правого
         right = int(right)
         left = int(left)
         return [left - right, right]
@@ -75,6 +74,9 @@ class SV2aplan:
         condition_with_replaced_names = addBracketsAfterTilda(
             condition_with_replaced_names
         )
+        condition_with_replaced_names = vectorSizes2AplanStandart(
+            condition_with_replaced_names
+        )
         assert_name = "assert_{0}".format(self.module.assert_counter)
         action = assert_name + " = (\n\t\t({0})->\n".format(
             condition_with_replaced_names
@@ -112,6 +114,9 @@ class SV2aplan:
                 assign = valuesToAplanStandart(child.getText())
                 assign = addSpacesAroundOperators(assign)
                 assign_with_replaced_names = self.findAndChangeNamesToAplanNames(assign)
+                assign_with_replaced_names = vectorSizes2AplanStandart(
+                    assign_with_replaced_names
+                )
                 assign_with_replaced_names = parallelAssignment2Assignment(
                     assign_with_replaced_names
                 )
@@ -154,6 +159,9 @@ class SV2aplan:
                         if_index_list.append(self.module.if_counter)
                         predicateWithReplacedNames = (
                             self.findAndChangeNamesToAplanNames(predicateString)
+                        )
+                        predicateWithReplacedNames = vectorSizes2AplanStandart(
+                            predicateWithReplacedNames
                         )
                         predicateWithReplacedNames = valuesToAplanStandart(
                             predicateWithReplacedNames

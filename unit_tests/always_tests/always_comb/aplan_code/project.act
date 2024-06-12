@@ -26,12 +26,12 @@ assign_3 = (
 assign_4 = (
 		(1)->
 		("register_write_once_example#module_1:action 'Write_once_status <= Data_in[0]';")
-		(module_1.Write_once_status = module_1.Data_in[0])),
+		(module_1.Write_once_status = module_1.Data_in(0,1))),
 assign_5 = (
 		(1)->
 		("register_write_once_example#module_1:action 'Data_out[15:1] <= Data_out[15:1]';")
-		(module_1.Data_out[15:1] = module_1.Data_out[15:1])),
+		(module_1.Data_out(1,15) = module_1.Data_out(1,15))),
 assign_6 = (
 		(1)->
 		("register_write_once_example#module_1:action 'Data_out[0] <= Write_once_status';")
-		(module_1.Data_out[0] = module_1.Write_once_status))
+		(module_1.Data_out(0,1) = module_1.Write_once_status))

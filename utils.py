@@ -133,6 +133,31 @@ def parallelAssignment2Assignment(expression: str):
     return result
 
 
+def vectorSizes2AplanStandart(expression: str):
+    patterns = [r"\[([0-9]+)\]", r"\[([0-9]+):([0-9]+)\]"]
+
+    pattern = "|".join(patterns)
+
+    def replace_match(match):
+
+        for i in range(len(patterns)):
+            value_1, value_2 = (
+                match.group(1 + i),
+                match.group(2 + i),
+            )
+            if value_1 is not None:
+                break
+        if value_2 is None:
+            value = f"({value_1},1)"
+        else:
+            value = f"({value_2},{value_1})"
+        return value
+
+    expression = re.sub(pattern, lambda match: replace_match(match), expression)
+
+    return expression
+
+
 def isInStrList(array: List[str], search_word: str):
     for element in array:
         if element == search_word:
