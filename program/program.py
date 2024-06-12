@@ -71,7 +71,7 @@ class Program:
 
         env += "\tagent_types : obj (\n"
 
-        env += "\t\tENVIRONMENT:obj(Nil),"
+        env += "\t\tENVIRONMENT:obj(Nil),\n"
 
         if (
             self.module.isIncludeInputPorts()

@@ -44,7 +44,7 @@
 </details>
 
 
-## Completed elements
+## Elements tranlation
 
 <details><summary>Click to expand</summary>
 
