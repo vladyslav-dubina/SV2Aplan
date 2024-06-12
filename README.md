@@ -71,7 +71,11 @@
 
 | SV CODE | APLAN CODE | EXAMPLE LINKS |
 | ------- | ---------- | ------------ |
-| ![image](https://github.com/vladyslav-dubina/SV2Aplan/assets/82110791/4ecbc152-7a63-4333-9ee1-7d722c4e2fa8) | ![image](https://github.com/vladyslav-dubina/SV2Aplan/assets/82110791/c34afd77-98d8-4d4e-abab-20cb2d3db698) | [sv_example.sv](examples/sv_example_1/sv_example_1.sv) - [project.env_descript](examples/sv_example_1/aplan/project.env_descript)|
+| <img src="https://github.com/vladyslav-dubina/SV2Aplan/assets/82110791/865a0e2e-4e25-4e86-826c-f84818367d2d" width="450"> | ![image](https://github.com/vladyslav-dubina/SV2Aplan/assets/82110791/c34afd77-98d8-4d4e-abab-20cb2d3db698) ![image](https://github.com/vladyslav-dubina/SV2Aplan/assets/82110791/514d90a0-ddb3-4e8e-af48-c932b6dcac11) ![image](https://github.com/vladyslav-dubina/SV2Aplan/assets/82110791/e9990ab0-8caf-4718-bf36-7bdb71e6e00a) | [sv_example.sv](examples/sv_example_3/sv_example_3.sv) - [project.env_descript](examples/sv_example_3/aplan/project.env_descript) - [project.behp](examples/sv_example_3/aplan/project.behp) - [project.act](examples/sv_example_3/aplan/project.act)|
+
+| DESCRIPTION |
+| ----------- |
+|As you can see in the picture with the SV code example, the out-of-block declaration (in the reg example, the same translation behavior for wire) will be converted into an attribute in the middle of agent_type from module. The assignment of a value is converted into an action, which is given the name assign_n (where n is the assignment number), and this action is added to the behavior in the B0 protocol depending on the position|
 
 **STATEMENTS**
 - [x] always @ ()
