@@ -239,7 +239,15 @@ class SV2aplan:
     def declaration2Aplan(self, ctx):
         self.module.incrieseCounter(CounterTypes.ASSIGNMENT_COUNTER)
         assign_sv = ctx.getText()
+        assign_sv = valuesToAplanStandart(assign_sv)
+        assign_sv = addSpacesAroundOperators(assign_sv)
         assign_with_replaced_names = self.findAndChangeNamesToAplanNames(assign_sv)
+        assign_with_replaced_names = vectorSizes2AplanStandart(
+            assign_with_replaced_names
+        )
+        assign_with_replaced_names = parallelAssignment2Assignment(
+            assign_with_replaced_names
+        )
         action = "assign{0} = (\n\t\t(1)->\n".format(self.module.assignment_counter)
         action += "\t\t(\"{2}#{3}:action '{0}';\")\n\t\t({1})".format(
             assign_sv,
