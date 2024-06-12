@@ -61,6 +61,10 @@
 **DECLARATIONS**
 - [x] reg
 - [x] wire
+  
+| SV CODE | APLAN CODE | EXAMPLE LINK |
+| ------- | ---------- | ------------ |
+|         |            |              |
 
 **STATEMENTS**
 - [x] always @ ()
