@@ -291,7 +291,7 @@ class Module:
                 if len(element.expression) > 0:
                     if index != 0:
                         result += "."
-                    result += element.identifier
+                    result += element.expression
                     if (index == len(wires) - 1) and (
                         self.isIncludeRegs() or self.isIncludeAlways()
                     ):
@@ -302,7 +302,7 @@ class Module:
                 if len(element.expression) > 0:
                     if index != 0:
                         result += "."
-                    result += element.identifier
+                    result += element.expression
                     if (index == len(regs) - 1) and self.isIncludeAlways():
                         result += "."
         if self.isIncludeAlways():
