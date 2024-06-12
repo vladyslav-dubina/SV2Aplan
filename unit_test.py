@@ -111,21 +111,15 @@ def start_unit_test():
     test_definitions = [
         (
             1,
-            "unit_tests/always_tests/always_@/always_@.sv",
-            "unit_tests/always_tests/always_@/test_result",
-            "unit_tests/always_tests/always_@/aplan_code",
+            "examples/sv_example_1/sv_example_1.sv",
+            "examples/sv_example_1/test_result",
+            "examples/sv_example_1/aplan",
         ),
         (
             2,
-            "unit_tests/always_tests/always_@_*/always_@_*.sv",
-            "unit_tests/always_tests/always_@_*/test_result",
-            "unit_tests/always_tests/always_@_*/aplan_code",
-        ),
-        (
-            3,
-            "unit_tests/always_tests/always_comb/always_comb.sv",
-            "unit_tests/always_tests/always_comb/test_result",
-            "unit_tests/always_tests/always_comb/aplan_code",
+            "examples/sv_example_2/sv_example_2.sv",
+            "examples/sv_example_2/test_result",
+            "examples/sv_example_2/aplan",
         ),
     ]
 
