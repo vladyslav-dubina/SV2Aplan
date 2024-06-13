@@ -1,13 +1,15 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from structures.aplan import Module, Action, CounterTypes, Always, Protocol, Structure
+from structures.aplan import Module, Action, Always, Protocol, Structure, DeclTypes
+from structures.counters import CounterTypes
 from utils import (
     addSpacesAroundOperators,
     valuesToAplanStandart,
     addBracketsAfterTilda,
     parallelAssignment2Assignment,
     vectorSizes2AplanStandart,
+    Counters_Object,
 )
 import re
 
@@ -29,6 +31,8 @@ def vectorSize2Aplan(left, right):
 
 
 class SV2aplan:
+    global Counters_Object
+
     def __init__(self, module: Module):
         self.module = module
         self.actionList = []
@@ -67,7 +71,7 @@ class SV2aplan:
         return res
 
     def assert2Aplan(self, input: str):
-        self.module.incrieseCounter(CounterTypes.ASSERT)
+        Counters_Object.incrieseCounter(CounterTypes.ASSERT_COUNTER)
         condition = valuesToAplanStandart(input)
         condition = addSpacesAroundOperators(condition)
         condition_with_replaced_names = self.findAndChangeNamesToAplanNames(condition)
@@ -77,7 +81,9 @@ class SV2aplan:
         condition_with_replaced_names = vectorSizes2AplanStandart(
             condition_with_replaced_names
         )
-        assert_name = "assert_{0}".format(self.module.assert_counter)
+        assert_name = "assert_{0}".format(
+            Counters_Object.getCounter(CounterTypes.ASSERT_COUNTER)
+        )
         action = assert_name + " = (\n\t\t({0})->\n".format(
             condition_with_replaced_names
         )
@@ -85,7 +91,13 @@ class SV2aplan:
             condition, self.module.identifier, self.module.ident_uniq_name
         )
         action += ")"
-        self.module.actions.append(Action("assert", self.module.assert_counter, action))
+        self.module.actions.append(
+            Action(
+                "assert",
+                Counters_Object.getCounter(CounterTypes.ASSERT_COUNTER),
+                action,
+            )
+        )
         return assert_name
 
     def body2Aplan(self, ctx, sv_structure: Structure):
@@ -98,7 +110,10 @@ class SV2aplan:
                 is SystemVerilogParser.Simple_immediate_assert_statementContext
             ):
                 assert_name = self.assert2Aplan(child.expression().getText())
-                assert_b = "assert_B_{}".format(self.module.assert_counter)
+                Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+                assert_b = "assert_B_{}".format(
+                    Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                )
                 beh_index = sv_structure.addProtocol(assert_b)
                 sv_structure.behavior[beh_index].addBody(
                     "{0}.Delta + !{0}.0".format(assert_name)
@@ -110,7 +125,7 @@ class SV2aplan:
                 type(child) is SystemVerilogParser.Variable_decl_assignmentContext
                 or type(child) is SystemVerilogParser.Nonblocking_assignmentContext
             ):
-                self.module.incrieseCounter(CounterTypes.ASSIGNMENT_COUNTER)
+                Counters_Object.incrieseCounter(CounterTypes.ASSIGNMENT_COUNTER)
                 assign = valuesToAplanStandart(child.getText())
                 assign = addSpacesAroundOperators(assign)
                 assign_with_replaced_names = self.findAndChangeNamesToAplanNames(assign)
@@ -120,7 +135,9 @@ class SV2aplan:
                 assign_with_replaced_names = parallelAssignment2Assignment(
                     assign_with_replaced_names
                 )
-                action_name = "assign_{0}".format(self.module.assignment_counter)
+                action_name = "assign_{0}".format(
+                    Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER)
+                )
                 action = action_name + " = (\n\t\t(1)->\n"
                 action += "\t\t(\"{2}#{3}:action '{0}';\")\n\t\t({1})".format(
                     assign,
@@ -130,7 +147,11 @@ class SV2aplan:
                 )
                 action += ")"
                 self.module.actions.append(
-                    Action("assign", self.module.assignment_counter, action)
+                    Action(
+                        "assign",
+                        Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER),
+                        action,
+                    )
                 )
                 beh_index = sv_structure.getLastBehaviorIndex()
 
@@ -140,64 +161,133 @@ class SV2aplan:
                 if beh_index is not None:
                     sv_structure.behavior[beh_index].addBody(action_name)
                 else:
-                    self.module.incrieseCounter(CounterTypes.B_COUNTER)
+                    Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
                     b_index = sv_structure.addProtocol(
-                        "B_{}".format(self.module.b_counter)
+                        "B_{}".format(
+                            Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                        )
                     )
                     sv_structure.behavior[b_index].addBody(action_name)
 
             elif type(child) is SystemVerilogParser.Conditional_statementContext:
 
                 if_index_list = []
-                subsiquence = []
                 predicate = child.cond_predicate()
-                for elem in predicate:
-                    predicateString = valuesToAplanStandart(elem.getText())
-                    predicateString = addSpacesAroundOperators(predicateString)
-                    if len(predicateString) > 0:
-                        self.module.incrieseCounter(CounterTypes.IF_COUNTER)
-                        if_index_list.append(self.module.if_counter)
-                        predicateWithReplacedNames = (
-                            self.findAndChangeNamesToAplanNames(predicateString)
-                        )
-                        predicateWithReplacedNames = vectorSizes2AplanStandart(
-                            predicateWithReplacedNames
-                        )
-                        predicateWithReplacedNames = valuesToAplanStandart(
-                            predicateWithReplacedNames
-                        )
-                        predicateWithReplacedNames = addBracketsAfterTilda(
-                            predicateWithReplacedNames
-                        )
-                        action = ""
-                        action_name = "if_{0}".format(self.module.if_counter)
-                        action += """{0} = (\n\t\t({1})->\n\t\t("{2}#{3}:action 'if ({4})';")\n\t\t(1))""".format(
-                            action_name,
-                            predicateWithReplacedNames,
-                            self.module.identifier,
-                            self.module.ident_uniq_name,
-                            predicateString,
-                        )
-                        self.module.actions.append(
-                            Action("if", self.module.if_counter, action)
-                        )
                 statements = child.statement_or_null()
-                for index, element in enumerate(statements):
-                    self.module.incrieseCounter(CounterTypes.B_COUNTER)
-                    sv_structure.addProtocol("B_{0}".format(self.module.b_counter))
+
+                predicate_statements_list = []
+                for i in range(len(statements)):
+                    if i <= len(predicate) - 1:
+                        predicate_statements_list.append(
+                            {"predicate": predicate[i], "statement": statements[i]}
+                        )
+                    else:
+                        predicate_statements_list.append(
+                            {"predicate": None, "statement": statements[i]}
+                        )
+
+                for index, element in enumerate(predicate_statements_list):
+
+                    if element["predicate"] is not None:
+                        Counters_Object.incrieseCounter(CounterTypes.IF_COUNTER)
+                        predicateString = valuesToAplanStandart(
+                            element["predicate"].getText()
+                        )
+                        predicateString = addSpacesAroundOperators(predicateString)
+                        if len(predicateString) > 0:
+                            if_index_list.append(
+                                Counters_Object.getCounter(CounterTypes.IF_COUNTER)
+                            )
+                            predicateWithReplacedNames = (
+                                self.findAndChangeNamesToAplanNames(predicateString)
+                            )
+                            predicateWithReplacedNames = vectorSizes2AplanStandart(
+                                predicateWithReplacedNames
+                            )
+                            predicateWithReplacedNames = valuesToAplanStandart(
+                                predicateWithReplacedNames
+                            )
+                            predicateWithReplacedNames = addBracketsAfterTilda(
+                                predicateWithReplacedNames
+                            )
+                            action = ""
+                            action_name = "if_{0}".format(
+                                Counters_Object.getCounter(CounterTypes.IF_COUNTER)
+                            )
+                            action += """{0} = (\n\t\t({1})->\n\t\t("{2}#{3}:action 'if ({4})';")\n\t\t(1))""".format(
+                                action_name,
+                                predicateWithReplacedNames,
+                                self.module.identifier,
+                                self.module.ident_uniq_name,
+                                predicateString,
+                            )
+                            self.module.actions.append(
+                                Action(
+                                    "if",
+                                    Counters_Object.getCounter(CounterTypes.IF_COUNTER),
+                                    action,
+                                )
+                            )
+
+                    local_if_counter = Counters_Object.getCounter(
+                        CounterTypes.IF_COUNTER
+                    )
+                    if element["predicate"] is None:
+                        local_if_counter -= 1
+                    if index == 0:
+                        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+                        beh_index = sv_structure.getLastBehaviorIndex()
+                        if beh_index is not None:
+                            sv_structure.behavior[beh_index].addBody(
+                                "B_{0}".format(
+                                    Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                                )
+                            )
+                        sv_structure.addProtocol(
+                            "B_{0}".format(
+                                Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                            )
+                        )
+                    else:
+                        sv_structure.addProtocol(
+                            "else_body_{0}".format(
+                                Counters_Object.getCounter(
+                                    CounterTypes.ELSE_BODY_COUNTER
+                                )
+                            )
+                        )
+                        Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
+
                     beh_index = sv_structure.getLastBehaviorIndex()
                     if beh_index is not None:
-                        body = "if_{0}.body_{0} + !if_{0}.B_{1}".format(
-                            if_index_list[index], self.module.b_counter + 1
-                        )
-                        if index == len(statements) - 1:
-                            body = "if_{0}.body_{0} + !if_{0}".format(
-                                if_index_list[index]
+                        if element["predicate"] is None:
+                            body = "body_{0}".format(
+                                Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
                             )
+                        elif index == len(predicate_statements_list) - 1:
+                            body = "if_{0}.body_{1} + !if_{0}".format(
+                                Counters_Object.getCounter(CounterTypes.IF_COUNTER),
+                                Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
+                            )
+                        else:
+
+                            body = "if_{0}.body_{1} + !if_{0}.else_body_{2}".format(
+                                Counters_Object.getCounter(CounterTypes.IF_COUNTER),
+                                Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
+                                Counters_Object.getCounter(
+                                    CounterTypes.ELSE_BODY_COUNTER
+                                ),
+                            )
+
                         sv_structure.behavior[beh_index].addBody(body)
-                    sv_structure.addProtocol("body_{0}".format(if_index_list[index]))
-                    subsiquence.append(0)
-                    self.body2Aplan(element, sv_structure)
+
+                    sv_structure.addProtocol(
+                        "body_{0}".format(
+                            Counters_Object.getCounter(CounterTypes.BODY_COUNTER)
+                        )
+                    )
+                    Counters_Object.incrieseCounter(CounterTypes.BODY_COUNTER)
+                    self.body2Aplan(element["statement"], sv_structure)
 
             else:
                 self.body2Aplan(child, sv_structure)
@@ -222,22 +312,22 @@ class SV2aplan:
         else:
             always_body = statement_item
 
-        self.module.incrieseCounter(CounterTypes.ALWAYS_COUNTER)
-        always_name = always_keyword + "_" + str(self.module.always_counter)
+        Counters_Object.incrieseCounter(CounterTypes.ALWAYS_COUNTER)
+        always_name = (
+            always_keyword
+            + "_"
+            + str(Counters_Object.getCounter(CounterTypes.ALWAYS_COUNTER))
+        )
         always = Always(always_name, sensetive)
-
+        always.addProtocol(always_name)
         # always.addProtocol(always_name)
         self.body2Aplan(always_body, always)
-        if always.getBehLen() > 0:
-            last_b_name = always.behavior[0].identifier
-            always.behavior.insert(0, Protocol(always_name))
-            always.behavior[0].body.append(last_b_name)
         self.module.structures.append(always)
 
         return
 
     def declaration2Aplan(self, ctx):
-        self.module.incrieseCounter(CounterTypes.ASSIGNMENT_COUNTER)
+        Counters_Object.incrieseCounter(CounterTypes.ASSIGNMENT_COUNTER)
         assign_sv = ctx.getText()
         assign_sv = valuesToAplanStandart(assign_sv)
         assign_sv = addSpacesAroundOperators(assign_sv)
@@ -248,7 +338,9 @@ class SV2aplan:
         assign_with_replaced_names = parallelAssignment2Assignment(
             assign_with_replaced_names
         )
-        action = "assign{0} = (\n\t\t(1)->\n".format(self.module.assignment_counter)
+        action = "assign{0} = (\n\t\t(1)->\n".format(
+            Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER)
+        )
         action += "\t\t(\"{2}#{3}:action '{0}';\")\n\t\t({1})".format(
             assign_sv,
             assign_with_replaced_names,
@@ -258,7 +350,13 @@ class SV2aplan:
         action += ")"
 
         self.module.actions.append(
-            Action("assign", self.module.assignment_counter, action)
+            Action(
+                "assign",
+                Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER),
+                action,
+            )
         )
-        expression = "assign{0}".format(self.module.assignment_counter)
+        expression = "assign{0}".format(
+            Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER)
+        )
         return expression

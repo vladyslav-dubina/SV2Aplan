@@ -8,7 +8,7 @@ input write,
 output reg [15:0] Data_out
 );
 
-reg Write_once_status;
+reg Write_once_status, df;
 
 always @(posedge Clk or negedge ip_resetn)
     if (~ip_resetn) 

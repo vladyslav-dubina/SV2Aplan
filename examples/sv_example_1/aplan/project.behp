@@ -1,10 +1,10 @@
 B = (Sensetive(always_1, module_1.Clk || !module_1.ip_resetn);MAIN),
-MAIN = assert_B_1,
+MAIN = assert_B_2,
 always_1 = B_1,
-B_1 = if_1.body_1 + !if_1.B_2,
+B_1 = if_1.body_1 + !if_1.else_body_1,
 body_1 = Sensetive(assign_1).Sensetive(assign_2),
-B_2 = if_2.body_2 + !if_2.B_3,
+else_body_1 = if_2.body_2 + !if_2.else_body_2,
 body_2 = Sensetive(assign_3).Sensetive(assign_4),
-B_3 = if_3.body_3 + !if_3,
+else_body_2 = body_3,
 body_3 = Sensetive(assign_5).Sensetive(assign_6),
-assert_B_1 = assert_1.Delta + !assert_1.0
+assert_B_2 = assert_1.Delta + !assert_1.0

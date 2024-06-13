@@ -5,16 +5,33 @@ from translator.system_verilog_to_aplan import (
     extractVectorSize,
     vectorSize2Aplan,
 )
-from structures.aplan import Declaration, DeclTypes, Module, CounterTypes, Protocol
+from structures.aplan import Declaration, DeclTypes, Module, Protocol
+from structures.counters import CounterTypes
+from utils import Counters_Object
 
 
 class SVListener(SystemVerilogParserListener):
+    global Counters_Object
+
     def __init__(self):
         self.module = None
 
     def enterModule_declaration(self, ctx):
         if ctx.module_ansi_header() is not None:
             self.module = Module(ctx.module_ansi_header().module_identifier().getText())
+
+    def exitGenvar_declaration(self, ctx):
+        assign_name = ""
+        for element in ctx.list_of_genvar_identifiers().genvar_identifier():
+            identifier = element.identifier().getText()
+            self.module.declarations.append(
+                Declaration(
+                    DeclTypes.REG,
+                    identifier,
+                    assign_name,
+                    0,
+                )
+            )
 
     def exitData_declaration(self, ctx):
         assign_name = ""
@@ -47,7 +64,6 @@ class SVListener(SystemVerilogParserListener):
         if ctx.net_type().getText() == "wire":
             for elem in ctx.list_of_net_decl_assignments().net_decl_assignment():
                 identifier = elem.net_identifier().identifier().getText()
-                self.module.internal_signals.append(identifier)
                 if elem.expression():
                     expression = elem.expression().getText()
                     if expression:
@@ -112,7 +128,10 @@ class SVListener(SystemVerilogParserListener):
         if expression is not None:
             sv2aplan = SV2aplan(self.module)
             assert_name = sv2aplan.assert2Aplan(expression.getText())
-            assert_b = "assert_B_{}".format(self.module.assert_counter)
+            Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+            assert_b = "assert_B_{}".format(
+                Counters_Object.getCounter(CounterTypes.B_COUNTER)
+            )
             struct_assert = Protocol(assert_b)
             struct_assert.addBody("{0}.Delta + !{0}.0".format(assert_name))
             self.module.not_block_elements.append(struct_assert)

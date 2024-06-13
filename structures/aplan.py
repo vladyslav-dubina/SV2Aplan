@@ -8,14 +8,7 @@ class DeclTypes(Enum):
     REG = auto()
     INPORT = auto()
     OUTPORT = auto()
-
-
-class CounterTypes(Enum):
-    ASSIGNMENT_COUNTER = auto()
-    IF_COUNTER = auto()
-    ALWAYS_COUNTER = auto()
-    B_COUNTER = auto()
-    ASSERT = auto()
+    IF_STATEMENT = auto()
 
 
 class B0:
@@ -66,6 +59,10 @@ class Protocol:
     def __init__(self, identifier: str):
         self.identifier = identifier
         self.body: List[str] = []
+        self.type: DeclTypes | None = None
+
+    def setType(self, type: DeclTypes | None):
+        self.type = type
 
     def identifierToBody(self):
         self.body.insert(0, self.identifier)
@@ -161,13 +158,6 @@ class Module:
 
         self.not_block_elements: List[Protocol] = []
 
-        # counters
-        self.assignment_counter = 0
-        self.if_counter = 0
-        self.always_counter = 0
-        self.assert_counter = 0
-        self.b_counter = 0
-
     def isIncludeInputPorts(self):
         for element in self.declarations:
             if element.data_type == DeclTypes.INPORT:
@@ -245,18 +235,6 @@ class Module:
             if isinstance(element, Always):
                 result.append(element)
         return result
-
-    def incrieseCounter(self, counter_type: CounterTypes):
-        if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
-            self.assignment_counter += 1
-        if counter_type is CounterTypes.IF_COUNTER:
-            self.if_counter += 1
-        if counter_type is CounterTypes.ALWAYS_COUNTER:
-            self.always_counter += 1
-        if counter_type is CounterTypes.B_COUNTER:
-            self.b_counter += 1
-        if counter_type is CounterTypes.ASSERT:
-            self.assert_counter += 1
 
     def getActionsInStrFormat(self):
         result = ""

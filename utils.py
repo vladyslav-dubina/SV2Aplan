@@ -1,6 +1,7 @@
 import re
 from ast import literal_eval
 from typing import List
+from structures.counters import Counters, CounterTypes
 
 
 class Color:
@@ -71,18 +72,17 @@ def printWithColor(text, color_start: Color, color_end: Color = Color.END):
         print(color_start + text + color_end)
 
 
-MODULE_COUNTER = 1
-
+Counters_Object = Counters()
 
 def moduleCounterDeinit():
-    global MODULE_COUNTER
-    MODULE_COUNTER = 1
+    global Counters_Object
+    Counters_Object.countersDeinit()
 
 
 def generate_module_names():
-    global MODULE_COUNTER
-    module_name = "module_" + str(MODULE_COUNTER)
-    MODULE_COUNTER += 1
+    global Counters_Object
+    module_name = "module_" + str(Counters_Object.module_counter)
+    Counters_Object.incrieseCounter(CounterTypes.MODULE_COUNTER)
     return module_name
 
 
