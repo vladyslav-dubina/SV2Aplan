@@ -74,6 +74,7 @@ def printWithColor(text, color_start: Color, color_end: Color = Color.END):
 
 Counters_Object = Counters()
 
+
 def moduleCounterDeinit():
     global Counters_Object
     Counters_Object.countersDeinit()
@@ -94,6 +95,7 @@ def valuesToAplanStandart(expression: str) -> str:
     values_patterns = [
         r"([0-9]+)\'(b)([01]+)",  # for binary
         r"([0-9]+)\'(h)([a-fA-F0-9]+)",  # for hex
+        r"()(\')([0-9]+)",  # for '0
     ]
 
     pattern = "|".join(values_patterns)
