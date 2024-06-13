@@ -146,7 +146,7 @@ class SV2aplan:
         if ctx.getChildCount() == 0:
             return
         for child in ctx.getChildren():
-
+            # Assert handler
             if (
                 type(child)
                 is SystemVerilogParser.Simple_immediate_assert_statementContext
@@ -162,8 +162,8 @@ class SV2aplan:
                 )
                 if beh_index != 0:
                     sv_structure.behavior[beh_index - 1].addBody(assert_b)
-
-            if (
+            # Assign handler
+            elif (
                 type(child) is SystemVerilogParser.Variable_decl_assignmentContext
                 or type(child) is SystemVerilogParser.Nonblocking_assignmentContext
             ):
@@ -183,7 +183,7 @@ class SV2aplan:
                         )
                     )
                     sv_structure.behavior[b_index].addBody(action_name)
-
+            # If statement handler
             elif type(child) is SystemVerilogParser.Conditional_statementContext:
 
                 if_index_list = []

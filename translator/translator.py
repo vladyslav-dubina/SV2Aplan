@@ -4,7 +4,7 @@ from antlr4_verilog.systemverilog import SystemVerilogLexer, SystemVerilogParser
 from utils import printWithColor, Color
 
 
-class SystemVerilogFind:
+class SystemVerilogFinder:
     def setUp(self, data):
         lexer = SystemVerilogLexer(InputStream(data))
         stream = CommonTokenStream(lexer)

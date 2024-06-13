@@ -1,4 +1,4 @@
-from translator.translator import SystemVerilogFind
+from translator.translator import SystemVerilogFinder
 from utils import printWithColor, Color, removeTrailingComma
 from structures.aplan import Module
 from typing import List
@@ -9,7 +9,7 @@ class Program:
     def __init__(self, path_to_result: str = None) -> None:
         self.path_to_result = path_to_result
         self.modules: List[Module]
-        self.finder = SystemVerilogFind()
+        self.finder = SystemVerilogFinder()
 
     def setUp(self, path):
         printWithColor("Set up tranlator environment \n", Color.ORANGE)
