@@ -192,7 +192,7 @@ class Program:
             behaviour += module.getStructuresInStrFormat()
 
             if module.isIncludeNonBlockElements():
-                behaviour += "," + module.getnot_block_elementsInStrFormat() + "\n"
+                behaviour += "," + module.getOutOfBlockInStrFormat() + "\n"
             else:
                 behaviour += "\n"
         self.writeToFile(self.path_to_result + "project.behp", behaviour)

@@ -156,7 +156,7 @@ class Module:
 
         self.structures: List[Structure] = []
 
-        self.not_block_elements: List[Protocol] = []
+        self.out_of_block_elements: List[Protocol] = []
 
     def addDeclaration(self, decl: Declaration):
         self.declarations.append(decl)
@@ -200,7 +200,7 @@ class Module:
         return result
 
     def isIncludeNonBlockElements(self):
-        if len(self.not_block_elements) > 0:
+        if len(self.out_of_block_elements) > 0:
             return True
         return False
 
@@ -268,9 +268,9 @@ class Module:
         result = removeTrailingComma(result)
         return result
 
-    def getnot_block_elementsInStrFormat(self):
+    def getOutOfBlockInStrFormat(self):
         result = ""
-        for element in self.not_block_elements:
+        for element in self.out_of_block_elements:
             result += "\n"
             result += str(element)
         result = removeTrailingComma(result)
@@ -284,7 +284,7 @@ class Module:
         main_protocol_part = ""
         main_flag = False
 
-        for index, element in enumerate(self.not_block_elements):
+        for index, element in enumerate(self.out_of_block_elements):
             if index != 0:
                 main_protocol += "."
             main_protocol += element.identifier

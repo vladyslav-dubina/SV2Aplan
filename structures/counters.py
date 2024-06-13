@@ -41,7 +41,7 @@ class Counters:
             self.body_counter += 1
         if counter_type is CounterTypes.ELSE_BODY_COUNTER:
             self.else_body_counter += 1
-            
+
     def decrieseCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
             self.assignment_counter -= 1
@@ -59,8 +59,7 @@ class Counters:
             self.body_counter -= 1
         if counter_type is CounterTypes.ELSE_BODY_COUNTER:
             self.else_body_counter -= 1
-            
-            
+
     def getCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
             return self.assignment_counter
@@ -78,7 +77,7 @@ class Counters:
             return self.body_counter
         if counter_type is CounterTypes.ELSE_BODY_COUNTER:
             return self.else_body_counter
-         
+
     def countersDeinit(self):
         self.module_counter = 1
         self.assignment_counter = 0
