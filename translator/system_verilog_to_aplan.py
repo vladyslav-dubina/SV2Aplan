@@ -70,6 +70,42 @@ class SV2aplan:
                 res += self.extractSensetive(child)
         return res
 
+    def assign2Aplan(self, input: str):
+        Counters_Object.incrieseCounter(CounterTypes.ASSIGNMENT_COUNTER)
+        assign = valuesToAplanStandart(input)
+        assign = addSpacesAroundOperators(assign)
+        assign_with_replaced_names = self.findAndChangeNamesToAplanNames(assign)
+        assign_with_replaced_names = vectorSizes2AplanStandart(
+            assign_with_replaced_names
+        )
+        assign_with_replaced_names = parallelAssignment2Assignment(
+            assign_with_replaced_names
+        )
+        action_name = "assign_{0}".format(
+            Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER)
+        )
+        action = " = (\n\t\t(1)->\n"
+        action += "\t\t(\"{2}#{3}:action '{0}';\")\n\t\t({1})".format(
+            assign,
+            assign_with_replaced_names,
+            self.module.identifier,
+            self.module.ident_uniq_name,
+        )
+        action += ")"
+        action_check_result = self.module.isUniqAction(action)
+        if action_check_result is None:
+            self.module.actions.append(
+                Action(
+                    "assign",
+                    Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER),
+                    action,
+                )
+            )
+        else:
+            Counters_Object.decrieseCounter(CounterTypes.ASSIGNMENT_COUNTER)
+            action_name = action_check_result
+        return action_name
+
     def assert2Aplan(self, input: str):
         Counters_Object.incrieseCounter(CounterTypes.ASSERT_COUNTER)
         condition = valuesToAplanStandart(input)
@@ -84,20 +120,25 @@ class SV2aplan:
         assert_name = "assert_{0}".format(
             Counters_Object.getCounter(CounterTypes.ASSERT_COUNTER)
         )
-        action = assert_name + " = (\n\t\t({0})->\n".format(
-            condition_with_replaced_names
-        )
+        action = " = (\n\t\t({0})->\n".format(condition_with_replaced_names)
         action += "\t\t(\"{1}#{2}:action 'assert ({0})';\")\n\t\t(1)".format(
             condition, self.module.identifier, self.module.ident_uniq_name
         )
         action += ")"
-        self.module.actions.append(
-            Action(
-                "assert",
-                Counters_Object.getCounter(CounterTypes.ASSERT_COUNTER),
-                action,
+
+        assert_check_result = self.module.isUniqAction(action)
+        if assert_check_result is None:
+            self.module.actions.append(
+                Action(
+                    "assert",
+                    Counters_Object.getCounter(CounterTypes.ASSERT_COUNTER),
+                    action,
+                )
             )
-        )
+        else:
+            Counters_Object.decrieseCounter(CounterTypes.ASSERT_COUNTER)
+            assert_name = assert_check_result
+
         return assert_name
 
     def body2Aplan(self, ctx, sv_structure: Structure):
@@ -125,34 +166,7 @@ class SV2aplan:
                 type(child) is SystemVerilogParser.Variable_decl_assignmentContext
                 or type(child) is SystemVerilogParser.Nonblocking_assignmentContext
             ):
-                Counters_Object.incrieseCounter(CounterTypes.ASSIGNMENT_COUNTER)
-                assign = valuesToAplanStandart(child.getText())
-                assign = addSpacesAroundOperators(assign)
-                assign_with_replaced_names = self.findAndChangeNamesToAplanNames(assign)
-                assign_with_replaced_names = vectorSizes2AplanStandart(
-                    assign_with_replaced_names
-                )
-                assign_with_replaced_names = parallelAssignment2Assignment(
-                    assign_with_replaced_names
-                )
-                action_name = "assign_{0}".format(
-                    Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER)
-                )
-                action = action_name + " = (\n\t\t(1)->\n"
-                action += "\t\t(\"{2}#{3}:action '{0}';\")\n\t\t({1})".format(
-                    assign,
-                    assign_with_replaced_names,
-                    self.module.identifier,
-                    self.module.ident_uniq_name,
-                )
-                action += ")"
-                self.module.actions.append(
-                    Action(
-                        "assign",
-                        Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER),
-                        action,
-                    )
-                )
+                action_name = self.assign2Aplan(child.getText())
                 beh_index = sv_structure.getLastBehaviorIndex()
 
                 if type(child) is SystemVerilogParser.Nonblocking_assignmentContext:
@@ -187,9 +201,14 @@ class SV2aplan:
                         )
 
                 for index, element in enumerate(predicate_statements_list):
-
+                    action_name = "if_{0}".format(
+                        Counters_Object.getCounter(CounterTypes.IF_COUNTER)
+                    )
                     if element["predicate"] is not None:
                         Counters_Object.incrieseCounter(CounterTypes.IF_COUNTER)
+                        action_name = "if_{0}".format(
+                            Counters_Object.getCounter(CounterTypes.IF_COUNTER)
+                        )
                         predicateString = valuesToAplanStandart(
                             element["predicate"].getText()
                         )
@@ -211,23 +230,28 @@ class SV2aplan:
                                 predicateWithReplacedNames
                             )
                             action = ""
-                            action_name = "if_{0}".format(
-                                Counters_Object.getCounter(CounterTypes.IF_COUNTER)
-                            )
-                            action += """{0} = (\n\t\t({1})->\n\t\t("{2}#{3}:action 'if ({4})';")\n\t\t(1))""".format(
-                                action_name,
+
+                            action += """ = (\n\t\t({0})->\n\t\t("{1}#{2}:action 'if ({3})';")\n\t\t(1))""".format(
                                 predicateWithReplacedNames,
                                 self.module.identifier,
                                 self.module.ident_uniq_name,
                                 predicateString,
                             )
-                            self.module.actions.append(
-                                Action(
-                                    "if",
-                                    Counters_Object.getCounter(CounterTypes.IF_COUNTER),
-                                    action,
+
+                            if_check_result = self.module.isUniqAction(action)
+                            if if_check_result is None:
+                                self.module.actions.append(
+                                    Action(
+                                        "if",
+                                        Counters_Object.getCounter(
+                                            CounterTypes.IF_COUNTER
+                                        ),
+                                        action,
+                                    )
                                 )
-                            )
+                            else:
+                                Counters_Object.decrieseCounter(CounterTypes.IF_COUNTER)
+                                action_name = if_check_result
 
                     local_if_counter = Counters_Object.getCounter(
                         CounterTypes.IF_COUNTER
@@ -265,14 +289,14 @@ class SV2aplan:
                                 Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
                             )
                         elif index == len(predicate_statements_list) - 1:
-                            body = "if_{0}.body_{1} + !if_{0}".format(
-                                Counters_Object.getCounter(CounterTypes.IF_COUNTER),
+                            body = "{0}.body_{1} + !{0}".format(
+                                action_name,
                                 Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
                             )
                         else:
 
-                            body = "if_{0}.body_{1} + !if_{0}.else_body_{2}".format(
-                                Counters_Object.getCounter(CounterTypes.IF_COUNTER),
+                            body = "{0}.body_{1} + !{0}.else_body_{2}".format(
+                                action_name,
                                 Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
                                 Counters_Object.getCounter(
                                     CounterTypes.ELSE_BODY_COUNTER
@@ -327,36 +351,5 @@ class SV2aplan:
         return
 
     def declaration2Aplan(self, ctx):
-        Counters_Object.incrieseCounter(CounterTypes.ASSIGNMENT_COUNTER)
-        assign_sv = ctx.getText()
-        assign_sv = valuesToAplanStandart(assign_sv)
-        assign_sv = addSpacesAroundOperators(assign_sv)
-        assign_with_replaced_names = self.findAndChangeNamesToAplanNames(assign_sv)
-        assign_with_replaced_names = vectorSizes2AplanStandart(
-            assign_with_replaced_names
-        )
-        assign_with_replaced_names = parallelAssignment2Assignment(
-            assign_with_replaced_names
-        )
-        action = "assign{0} = (\n\t\t(1)->\n".format(
-            Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER)
-        )
-        action += "\t\t(\"{2}#{3}:action '{0}';\")\n\t\t({1})".format(
-            assign_sv,
-            assign_with_replaced_names,
-            self.module.identifier,
-            self.module.ident_uniq_name,
-        )
-        action += ")"
-
-        self.module.actions.append(
-            Action(
-                "assign",
-                Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER),
-                action,
-            )
-        )
-        expression = "assign{0}".format(
-            Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER)
-        )
-        return expression
+        assign_name = self.assign2Aplan(ctx.getText())
+        return assign_name

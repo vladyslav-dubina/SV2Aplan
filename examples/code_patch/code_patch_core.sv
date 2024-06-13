@@ -46,7 +46,7 @@ module code_patch_core
     endgenerate
 
     //global enable
-    assign patch_enable = si_read_i & cfg_pat_gen_i;
+    patch_enable = si_read_i & cfg_pat_gen_i;
 
     //address patching enable
     assign adr_act = (|patch_match) & patch_enable & !cfg_addr_or_data_i;

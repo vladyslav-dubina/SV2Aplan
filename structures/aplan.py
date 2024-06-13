@@ -1,6 +1,7 @@
 from enum import Enum, auto
 from utils import generate_module_names, removeTrailingComma
 from typing import List, Optional
+import difflib
 
 
 class DeclTypes(Enum):
@@ -27,7 +28,7 @@ class Action:
         return "{0}_{1}".format(self.name, self.number)
 
     def __str__(self):
-        return "{0},".format(self.body)
+        return "{0}{1},".format(self.name, self.body)
 
 
 class Declaration:
@@ -157,6 +158,14 @@ class Module:
         self.structures: List[Structure] = []
 
         self.not_block_elements: List[Protocol] = []
+
+    def isUniqAction(self, action_body: str):
+
+        for element in self.actions:
+            if element.body == action_body:
+                print(element.name)
+                return element.name
+        return None
 
     def isIncludeInputPorts(self):
         for element in self.declarations:

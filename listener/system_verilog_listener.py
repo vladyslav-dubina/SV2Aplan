@@ -135,3 +135,10 @@ class SVListener(SystemVerilogParserListener):
             struct_assert = Protocol(assert_b)
             struct_assert.addBody("{0}.Delta + !{0}.0".format(assert_name))
             self.module.not_block_elements.append(struct_assert)
+
+    # def exitVariable_decl_assignment(self, ctx):
+    # print("----------")
+    # print(ctx.getText())
+
+    # def exitContinuous_assign(self, ctx):
+    # print(ctx.getText())
