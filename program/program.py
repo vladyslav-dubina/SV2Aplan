@@ -31,7 +31,6 @@ class Program:
         printWithColor(
             'Path to result: "{0}"'.format(self.path_to_result), Color.ORANGE
         )
-        print()
 
         if not os.path.exists(self.path_to_result[:-1]):
             os.mkdir(self.path_to_result[:-1])

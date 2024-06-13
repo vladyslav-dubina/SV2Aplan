@@ -44,9 +44,10 @@ class SV2aplan:
 
     def findAndChangeNamesToAplanNames(self, input: str):
         for elem in self.module.declarations:
-            input = input.replace(
-                elem.identifier,
-                "{0}.{1}".format(self.module.ident_uniq_name, elem.identifier),
+            input = re.sub(
+                r"\b{}\b".format(re.escape(elem.identifier)),
+                "{}.{}".format(self.module.ident_uniq_name, elem.identifier),
+                input,
             )
         return input
 

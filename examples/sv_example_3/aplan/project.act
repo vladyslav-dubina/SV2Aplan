@@ -1,5 +1,5 @@
 
-assign1 = (
+assign_1 = (
 		(1)->
 		("register_write_once_example#module_1:action 'Write_once_status = 0';")
 		(Write_once_status = 0)),

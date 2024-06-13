@@ -24,7 +24,7 @@ class SVListener(SystemVerilogParserListener):
         assign_name = ""
         for element in ctx.list_of_genvar_identifiers().genvar_identifier():
             identifier = element.identifier().getText()
-            self.module.declarations.append(
+            self.module.addDeclaration(
                 Declaration(
                     DeclTypes.REG,
                     identifier,
@@ -50,7 +50,8 @@ class SVListener(SystemVerilogParserListener):
                             assign_name = sv2aplan.declaration2Aplan(elem)
                     if not assign_name:
                         assign_name = ""
-                    self.module.declarations.append(
+
+                    self.module.addDeclaration(
                         Declaration(
                             DeclTypes.REG,
                             identifier,
@@ -69,11 +70,12 @@ class SVListener(SystemVerilogParserListener):
                     if expression:
                         sv2aplan = SV2aplan(self.module)
                         assign_name = sv2aplan.declaration2Aplan(elem)
-                    if not assign_name:
-                        assign_name = ""
-                    self.module.declarations.append(
-                        Declaration(DeclTypes.WIRE, identifier, assign_name, 0)
-                    )
+                if not assign_name:
+                    assign_name = ""
+
+                self.module.addDeclaration(
+                    Declaration(DeclTypes.WIRE, identifier, assign_name, 0)
+                )
 
     def exitAnsi_port_declaration(self, ctx):
         header = ctx.net_port_header().getText()
@@ -87,7 +89,7 @@ class SVListener(SystemVerilogParserListener):
                     "",
                     0,
                 )
-                self.module.declarations.append(port)
+                self.module.addDeclaration(port)
             else:
                 aplan_vector_size = vectorSize2Aplan(vector_size[0], vector_size[1])
                 port = Declaration(
@@ -96,7 +98,7 @@ class SVListener(SystemVerilogParserListener):
                     "",
                     aplan_vector_size[0],
                 )
-                self.module.declarations.append(port)
+                self.module.addDeclaration(port)
 
         index = header.find("output")
         if index != -1:
@@ -108,7 +110,7 @@ class SVListener(SystemVerilogParserListener):
                     "",
                     0,
                 )
-                self.module.declarations.append(port)
+                self.module.addDeclaration(port)
             else:
                 aplan_vector_size = vectorSize2Aplan(vector_size[0], vector_size[1])
                 port = Declaration(
@@ -117,7 +119,7 @@ class SVListener(SystemVerilogParserListener):
                     "",
                     aplan_vector_size[0],
                 )
-                self.module.declarations.append(port)
+                self.module.addDeclaration(port)
 
     def enterAlways_construct(self, ctx):
         sv2aplan = SV2aplan(self.module)

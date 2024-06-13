@@ -21,7 +21,7 @@ class Action:
     def __init__(self, name: str, number: int, body: str):
         self.name = name
         self.number = number
-        self.name = self.name + str(number)
+        self.name = self.name + "_" + str(number)
         self.body = body
 
     def getActionName(self):
@@ -159,11 +159,18 @@ class Module:
 
         self.not_block_elements: List[Protocol] = []
 
+    def addDeclaration(self, decl: Declaration):
+        self.declarations.append(decl)
+        self.declarations = sorted(
+            self.declarations,
+            key=lambda elem: len(elem.identifier),
+            reverse=True,
+        )
+
     def isUniqAction(self, action_body: str):
 
         for element in self.actions:
             if element.body == action_body:
-                print(element.name)
                 return element.name
         return None
 
