@@ -138,9 +138,24 @@ class SVListener(SystemVerilogParserListener):
             struct_assert.addBody("{0}.Delta + !{0}.0".format(assert_name))
             self.module.out_of_block_elements.append(struct_assert)
 
+    def exitNet_assignment(self, ctx):
+        sv2aplan = SV2aplan(self.module)
+        assign_name = sv2aplan.assign2Aplan(ctx.getText())
+        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+        assign_b = "assign_B_{}".format(
+            Counters_Object.getCounter(CounterTypes.B_COUNTER)
+        )
+        struct_assign = Protocol(assign_b)
+        struct_assign.addBody(assign_name)
+        self.module.out_of_block_elements.append(struct_assign)
 
-# def exitNet_assignment(self, ctx):
-#   print(ctx.getText())
-
-# def exitVariable_assignment(self, ctx):
-#   print(ctx.getText())
+    def exitVariable_assignment(self, ctx):
+        sv2aplan = SV2aplan(self.module)
+        assign_name = sv2aplan.assign2Aplan(ctx.getText())
+        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+        assign_b = "assign_B_{}".format(
+            Counters_Object.getCounter(CounterTypes.B_COUNTER)
+        )
+        struct_assign = Protocol(assign_b)
+        struct_assign.addBody(assign_name)
+        self.module.out_of_block_elements.append(struct_assign)
