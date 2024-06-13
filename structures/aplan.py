@@ -1,7 +1,6 @@
 from enum import Enum, auto
 from utils import generate_module_names, removeTrailingComma
-from typing import List, Optional
-import difflib
+from typing import List
 
 
 class DeclTypes(Enum):

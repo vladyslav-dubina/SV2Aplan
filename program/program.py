@@ -1,13 +1,14 @@
 from translator.translator import SystemVerilogFind
 from utils import printWithColor, Color, removeTrailingComma
 from structures.aplan import Module
+from typing import List
 import os
 
 
 class Program:
     def __init__(self, path_to_result: str = None) -> None:
         self.path_to_result = path_to_result
-        self.module: Module
+        self.modules: List[Module]
         self.finder = SystemVerilogFind()
 
     def setUp(self, path):
@@ -16,10 +17,9 @@ class Program:
         data = f.read()
         f.close()
         self.finder.setUp(data)
-        self.createResDir()
 
     def setData(self, input):
-        self.module = input
+        self.modules = input
 
     def createResDir(self):
         if self.path_to_result is not None:
@@ -42,10 +42,11 @@ class Program:
 
     def createEVT(self):
         evt = "events(\n"
-        for elem in self.module.getInputPorts():
-            evt += "\ts_{0}:obj(x1:{1});\n".format(
-                elem.identifier, elem.getAplanDecltype()
-            )
+        for module in self.modules:
+            for elem in module.getInputPorts():
+                evt += "\ts_{0}:obj(x1:{1});\n".format(
+                    elem.identifier, elem.getAplanDecltype()
+                )
         evt += ");"
         self.writeToFile(self.path_to_result + "project.evt_descript", evt)
         printWithColor(".evt_descript file created \n", Color.PURPLE)
@@ -70,82 +71,90 @@ class Program:
 
         env += "\tagent_types : obj (\n"
 
-        env += "\t\tENVIRONMENT:obj(Nil),\n"
+        for module in self.modules:
+            if (
+                module.isIncludeInputPorts()
+                or module.isIncludeOutputPorts()
+                or module.isIncludeWires()
+                or module.isIncludeRegs()
+            ):
 
-        if (
-            self.module.isIncludeInputPorts()
-            or self.module.isIncludeOutputPorts()
-            or self.module.isIncludeWires()
-            or self.module.isIncludeRegs()
-        ):
+                env += "\t\t{0} : obj (\n".format(module.identifier)
 
-            env += "\t\t{0} : obj (\n".format(self.module.identifier)
-
-            regs = self.module.getRegs(False)
-            for index, elem in enumerate(regs):
-                if index > 0:
-                    env += ",\n"
-                env += "\t\t\t{0}:{1}".format(elem.identifier, elem.getAplanDecltype())
-                if index + 1 == len(regs):
-                    if (
-                        self.module.isIncludeWires()
-                        or self.module.isIncludeInputPorts()
-                        or self.module.isIncludeOutputPorts()
-                    ):
+                regs = module.getRegs(False)
+                for index, elem in enumerate(regs):
+                    if index > 0:
                         env += ",\n"
-                    else:
+                    env += "\t\t\t{0}:{1}".format(
+                        elem.identifier, elem.getAplanDecltype()
+                    )
+                    if index + 1 == len(regs):
+                        if (
+                            module.isIncludeWires()
+                            or module.isIncludeInputPorts()
+                            or module.isIncludeOutputPorts()
+                        ):
+                            env += ",\n"
+                        else:
+                            env += "\n"
+
+                wires = module.getWires(False)
+                for index, elem in enumerate(wires):
+                    if index > 0:
+                        env += ",\n"
+                    env += "\t\t\t{0}:{1}".format(
+                        elem.identifier, elem.getAplanDecltype()
+                    )
+                    if index + 1 == len(wires):
+                        if (
+                            module.isIncludeInputPorts()
+                            or module.isIncludeOutputPorts()
+                        ):
+                            env += ",\n"
+                        else:
+                            env += "\n"
+
+                include_ports = module.getInputPorts()
+                for index, elem in enumerate(include_ports):
+                    if index > 0:
+                        env += ",\n"
+                    env += "\t\t\t{0}:{1}".format(
+                        elem.identifier, elem.getAplanDecltype()
+                    )
+                    if index + 1 == len(include_ports):
+                        if module.isIncludeOutputPorts():
+                            env += ",\n"
+                        else:
+                            env += "\n"
+
+                output_ports = module.getOutputPorts()
+                for index, elem in enumerate(output_ports):
+                    if index > 0:
+                        env += ",\n"
+                    env += "\t\t\t{0}:{1}".format(
+                        elem.identifier, elem.getAplanDecltype()
+                    )
+                    if index + 1 == len(output_ports):
                         env += "\n"
 
-            wires = self.module.getWires(False)
-            for index, elem in enumerate(wires):
-                if index > 0:
-                    env += ",\n"
-                env += "\t\t\t{0}:{1}".format(elem.identifier, elem.getAplanDecltype())
-                if index + 1 == len(wires):
-                    if (
-                        self.module.isIncludeInputPorts()
-                        or self.module.isIncludeOutputPorts()
-                    ):
-                        env += ",\n"
-                    else:
-                        env += "\n"
-
-            include_ports = self.module.getInputPorts()
-            for index, elem in enumerate(include_ports):
-                if index > 0:
-                    env += ",\n"
-                env += "\t\t\t{0}:{1}".format(elem.identifier, elem.getAplanDecltype())
-                if index + 1 == len(include_ports):
-                    if self.module.isIncludeOutputPorts():
-                        env += ",\n"
-                    else:
-                        env += "\n"
-
-            output_ports = self.module.getOutputPorts()
-            for index, elem in enumerate(output_ports):
-                if index > 0:
-                    env += ",\n"
-                env += "\t\t\t{0}:{1}".format(elem.identifier, elem.getAplanDecltype())
-                if index + 1 == len(output_ports):
-                    env += "\n"
-
-            env += "\t\t)\n"
-
+                env += "\t\t),\n"
+        env += "\t\tENVIRONMENT:obj(Nil)\n"
         env += "\t);\n"
 
         # ----------------------------------
         # Agents
         # ----------------------------------
         env += "\tagents : obj (\n"
-        if (
-            self.module.isIncludeInputPorts
-            or self.module.isIncludeOutputPorts()
-            or self.module.isIncludeWires()
-            or self.module.isIncludeRegs()
-        ):
-            env += "\t\t{0} : obj ({1}),\n".format(
-                self.module.identifier, self.module.ident_uniq_name
-            )
+        for module in self.modules:
+            if (
+                module.isIncludeInputPorts
+                or module.isIncludeOutputPorts()
+                or module.isIncludeWires()
+                or module.isIncludeRegs()
+            ):
+                env += "\t\t{0} : obj ({1}),\n".format(
+                    module.identifier, module.ident_uniq_name
+                )
         env += "\t\tENVIRONMENT : obj (env)\n"
         env += "\t);\n"
 
@@ -167,8 +176,9 @@ class Program:
         # ----------------------------------
         # Actions
         # ----------------------------------
-
-        actions = self.module.getActionsInStrFormat()
+        actions = ""
+        for module in self.modules:
+            actions += module.getActionsInStrFormat()
         self.writeToFile(self.path_to_result + "project.act", actions)
         printWithColor(".act file created \n", Color.PURPLE)
 
@@ -176,13 +186,15 @@ class Program:
         # ----------------------------------
         # Behaviour
         # ----------------------------------
-        behaviour = f"{self.module.getBehInitProtocols()}"
-        behaviour += self.module.getStructuresInStrFormat()
+        behaviour = ""
+        for module in self.modules:
+            behaviour += f"{module.getBehInitProtocols()}"
+            behaviour += module.getStructuresInStrFormat()
 
-        if self.module.isIncludeNonBlockElements():
-            behaviour += "," + self.module.getnot_block_elementsInStrFormat() + "\n"
-        else:
-            behaviour += "\n"
+            if module.isIncludeNonBlockElements():
+                behaviour += "," + module.getnot_block_elementsInStrFormat() + "\n"
+            else:
+                behaviour += "\n"
         self.writeToFile(self.path_to_result + "project.behp", behaviour)
         printWithColor(".beh file created \n", Color.PURPLE)
 

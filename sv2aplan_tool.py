@@ -1,4 +1,10 @@
 import argparse
+import time
+import traceback
+import sys
+import os
+import glob
+from structures.aplan import Module
 from utils import (
     Color,
     format_time,
@@ -6,12 +12,26 @@ from utils import (
     moduleCounterDeinit,
 )
 from program.program import Program
-import time
-import traceback
-import sys
+from typing import List
 
 
-def start(path_to_sv, path_to_aplan_result):
+def find_sv_files(path: str):
+    if not os.path.exists(path):
+        raise ValueError(f"Path '{path}' does not exist")
+
+    if os.path.isfile(path) and path.endswith(".sv"):
+        return [path]
+
+    elif os.path.isdir(path):
+        sv_files = glob.glob(os.path.join(path, "**", "*.sv"), recursive=True)
+        return sv_files
+    else:
+        raise ValueError(
+            f"Path '{path}' is not a .sv file or a directory containing .sv files"
+        )
+
+
+def start(path, path_to_aplan_result):
     printWithColor(
         "\n-------------------------SV TO APLAN TRANSLATOR START-------------------------\n",
         Color.CYAN,
@@ -27,9 +47,13 @@ def start(path_to_sv, path_to_aplan_result):
     )
     try:
         program = Program(path_to_aplan_result)
-        program.setUp(path_to_sv)
-        analyze_result = program.finder.startTranslate()
+        analyze_result: List[Module] = []
+        for path_to_sv in find_sv_files(path):
+            program.setUp(path_to_sv)
+            printWithColor(f"{path_to_sv} \n", Color.BLUE)
+            analyze_result.append(program.finder.startTranslate())
         program.setData(analyze_result)
+        program.createResDir()
         program.createAplanFiles()
     except Exception as e:
         printWithColor("Program finished with error: \n", Color.RED)
