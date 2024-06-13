@@ -50,7 +50,7 @@ def start(path, path_to_aplan_result):
         analyze_result: List[Module] = []
         for path_to_sv in find_sv_files(path):
             program.setUp(path_to_sv)
-            printWithColor(f"{path_to_sv} \n", Color.BLUE)
+            printWithColor(f"Source file : {path_to_sv} \n", Color.BLUE)
             analyze_result.append(program.finder.startTranslate())
         program.setData(analyze_result)
         program.createResDir()

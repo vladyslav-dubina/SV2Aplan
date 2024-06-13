@@ -14,6 +14,7 @@ def run_generation(test_number, source_file, result_path):
     )
     test_start_time = time.time()
     try:
+        printWithColor(f"Source file : {source_file} \n", Color.BLUE)
         switchRemovePrints(True)
         start(source_file, result_path)
         switchRemovePrints(False)
@@ -64,6 +65,21 @@ def regeneration_start():
             3,
             "examples/sv_example_3/sv_example_3.sv",
             "examples/sv_example_3/aplan",
+        ),
+        (
+            4,
+            "examples/if_statemens/if_statement_1/if_statement_1.sv",
+            "examples/if_statemens/if_statement_1/aplan",
+        ),
+        (
+            5,
+            "examples/if_statemens/if_statement_2/if_statement_2.sv",
+            "examples/if_statemens/if_statement_2/aplan",
+        ),
+        (
+            6,
+            "examples/assert/assert.sv",
+            "examples/assert/aplan",
         ),
     ]
 

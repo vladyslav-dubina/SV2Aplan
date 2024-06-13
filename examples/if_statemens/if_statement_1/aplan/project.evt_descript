@@ -1,0 +1,5 @@
+events(
+	s_ip_resetn:obj(x1:bool);
+	s_write:obj(x1:bool);
+	s_Clk:obj(x1:bool);
+);

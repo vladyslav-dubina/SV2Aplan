@@ -69,6 +69,7 @@ def run_test(test_number, source_file, result_path, aplan_code_path):
     )
     test_start_time = time.time()
     try:
+        printWithColor(f"Source file : {source_file} \n", Color.BLUE)
         switchRemovePrints(True)
         start(source_file, result_path)
         switchRemovePrints(False)
@@ -120,6 +121,24 @@ def start_unit_test():
             "examples/sv_example_2/sv_example_2.sv",
             "examples/sv_example_2/test_result",
             "examples/sv_example_2/aplan",
+        ),
+        (
+            3,
+            "examples/if_statemens/if_statement_1/if_statement_1.sv",
+            "examples/if_statemens/if_statement_1/test_result",
+            "examples/if_statemens/if_statement_1/aplan",
+        ),
+        (
+            4,
+            "examples/if_statemens/if_statement_2/if_statement_2.sv",
+            "examples/if_statemens/if_statement_2/test_result",
+            "examples/if_statemens/if_statement_2/aplan",
+        ),
+        (
+            5,
+            "examples/assert/assert.sv",
+            "examples/assert/test_result",
+            "examples/assert/aplan",
         ),
     ]
 

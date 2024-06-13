@@ -1,0 +1,5 @@
+B = (Sensetive(always_comb_1);MAIN),
+MAIN = assert_B_2,
+always_comb_1 = assert_B_1,
+assert_B_1 = assert_1.Delta + !assert_1.0,
+assert_B_2 = assert_1.Delta + !assert_1.0
