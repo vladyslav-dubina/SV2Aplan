@@ -153,7 +153,6 @@ class SV2aplan:
             return
         for child in ctx.getChildren():
             # Assert handler
-            print(type(child))
             if (
                 type(child)
                 is SystemVerilogParser.Simple_immediate_assert_statementContext
@@ -228,7 +227,7 @@ class SV2aplan:
                             predicate_with_replaced_names
                         )
                         if_action.description.body.append(
-                            f"{self.module.identifier}#{self.module.ident_uniq_name}:action 'if ({predicate_string,})'"
+                            f"{self.module.identifier}#{self.module.ident_uniq_name}:action 'if ({predicate_string})'"
                         )
                         if_action.postcondition.body.append("1")
 

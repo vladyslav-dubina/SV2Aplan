@@ -52,7 +52,7 @@ class Action:
 
     def __str__(self):
         return "{0}{1},".format(self.name, self.getBody())
-     
+
     def __eq__(self, other):
         if isinstance(other, Action):
             return self.getBody() == other.getBody()
