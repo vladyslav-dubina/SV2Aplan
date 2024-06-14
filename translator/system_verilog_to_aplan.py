@@ -99,23 +99,20 @@ class SV2aplan:
         action_name = "assign_{0}".format(
             Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER)
         )
-        action = " = (\n\t\t(1)->\n"
-        action += "\t\t(\"{2}#{3}:action '{0}';\")\n\t\t({1})".format(
-            assign,
-            assign_with_replaced_names,
-            self.module.identifier,
-            self.module.ident_uniq_name,
+
+        assign_action = Action(
+            "assign",
+            Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER),
         )
-        action += ")"
-        action_check_result = self.module.isUniqAction(action)
+        assign_action.precondition.body.append("1")
+        assign_action.description.body.append(
+            f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{assign}'"
+        )
+        assign_action.postcondition.body.append(assign_with_replaced_names)
+
+        action_check_result = self.module.isUniqAction(assign_action)
         if action_check_result is None:
-            self.module.actions.append(
-                Action(
-                    "assign",
-                    Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER),
-                    action,
-                )
-            )
+            self.module.actions.append(assign_action)
         else:
             Counters_Object.decrieseCounter(CounterTypes.ASSIGNMENT_COUNTER)
             action_name = action_check_result
@@ -129,21 +126,19 @@ class SV2aplan:
         assert_name = "assert_{0}".format(
             Counters_Object.getCounter(CounterTypes.ASSERT_COUNTER)
         )
-        action = " = (\n\t\t({0})->\n".format(condition_with_replaced_names)
-        action += "\t\t(\"{1}#{2}:action 'assert ({0})';\")\n\t\t(1)".format(
-            condition, self.module.identifier, self.module.ident_uniq_name
+        assert_action = Action(
+            "assert",
+            Counters_Object.getCounter(CounterTypes.ASSERT_COUNTER),
         )
-        action += ")"
+        assert_action.precondition.body.append(condition_with_replaced_names)
+        assert_action.description.body.append(
+            f"{self.module.identifier}#{self.module.ident_uniq_name}:action 'assert ({condition})'"
+        )
+        assert_action.postcondition.body.append("1")
 
-        assert_check_result = self.module.isUniqAction(action)
+        assert_check_result = self.module.isUniqAction(assert_action)
         if assert_check_result is None:
-            self.module.actions.append(
-                Action(
-                    "assert",
-                    Counters_Object.getCounter(CounterTypes.ASSERT_COUNTER),
-                    action,
-                )
-            )
+            self.module.actions.append(assert_action)
         else:
             Counters_Object.decrieseCounter(CounterTypes.ASSERT_COUNTER)
             assert_name = assert_check_result
@@ -158,6 +153,7 @@ class SV2aplan:
             return
         for child in ctx.getChildren():
             # Assert handler
+            print(type(child))
             if (
                 type(child)
                 is SystemVerilogParser.Simple_immediate_assert_statementContext
@@ -194,7 +190,6 @@ class SV2aplan:
                         )
                     )
                     sv_structure.behavior[b_index].addBody(action_name)
-            # If statement handler
             elif type(child) is SystemVerilogParser.Conditional_statementContext:
                 predicate = child.cond_predicate()
                 statements = child.statement_or_null()
@@ -219,30 +214,27 @@ class SV2aplan:
                         action_name = "if_{0}".format(
                             Counters_Object.getCounter(CounterTypes.IF_COUNTER)
                         )
+                        if_action = Action(
+                            "if",
+                            Counters_Object.getCounter(CounterTypes.IF_COUNTER),
+                        )
                         predicate_string, predicate_with_replaced_names = (
                             self.prepareExpressionString(
                                 element["predicate"].getText(),
                                 ElementsTypes.IF_STATEMENT_ELEMENT,
                             )
                         )
-                        action = ""
-
-                        action += """ = (\n\t\t({0})->\n\t\t("{1}#{2}:action 'if ({3})';")\n\t\t(1))""".format(
-                            predicate_with_replaced_names,
-                            self.module.identifier,
-                            self.module.ident_uniq_name,
-                            predicate_string,
+                        if_action.precondition.body.append(
+                            predicate_with_replaced_names
                         )
+                        if_action.description.body.append(
+                            f"{self.module.identifier}#{self.module.ident_uniq_name}:action 'if ({predicate_string,})'"
+                        )
+                        if_action.postcondition.body.append("1")
 
-                        if_check_result = self.module.isUniqAction(action)
+                        if_check_result = self.module.isUniqAction(if_action)
                         if if_check_result is None:
-                            self.module.actions.append(
-                                Action(
-                                    "if",
-                                    Counters_Object.getCounter(CounterTypes.IF_COUNTER),
-                                    action,
-                                )
-                            )
+                            self.module.actions.append(if_action)
                         else:
                             Counters_Object.decrieseCounter(CounterTypes.IF_COUNTER)
                             action_name = if_check_result
@@ -318,7 +310,6 @@ class SV2aplan:
         )
         struct = Structure(generate_name)
         struct.addProtocol(generate_name)
-        # always.addProtocol(always_name)
         self.body2Aplan(ctx, struct)
         self.module.structures.append(struct)
         Counters_Object.incrieseCounter(CounterTypes.LOOP_COUNTER)

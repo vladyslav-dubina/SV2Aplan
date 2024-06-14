@@ -22,18 +22,41 @@ class B0:
         self.elements = []
 
 
+class ActionParts:
+    def __init__(self):
+        self.body: List[str] = []
+
+    def __str__(self):
+        body_to_str = ""
+        for index, elem in enumerate(self.body):
+            if index != 0:
+                body_to_str += "; "
+            body_to_str += elem
+        return body_to_str
+
+
 class Action:
-    def __init__(self, name: str, number: int, body: str):
+    def __init__(self, name: str, number: int):
         self.name = name
         self.number = number
         self.name = self.name + "_" + str(number)
-        self.body = body
+        self.precondition: ActionParts = ActionParts()
+        self.postcondition: ActionParts = ActionParts()
+        self.description: ActionParts = ActionParts()
+
+    def getBody(self):
+        return f""" = (\n\t\t({self.precondition})->\n\t\t("{self.description};")\n\t\t({self.postcondition}))"""
 
     def getActionName(self):
         return "{0}_{1}".format(self.name, self.number)
 
     def __str__(self):
-        return "{0}{1},".format(self.name, self.body)
+        return "{0}{1},".format(self.name, self.getBody())
+     
+    def __eq__(self, other):
+        if isinstance(other, Action):
+            return self.getBody() == other.getBody()
+        return False
 
 
 class Declaration:
@@ -172,10 +195,10 @@ class Module:
             reverse=True,
         )
 
-    def isUniqAction(self, action_body: str):
+    def isUniqAction(self, action: Action):
 
         for element in self.actions:
-            if element.body == action_body:
+            if element == action:
                 return element.name
         return None
 
