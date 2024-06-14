@@ -1,6 +1,5 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
-from antlr4_verilog.systemverilog import SystemVerilogParser
 from structures.aplan import Module, Action, Always, ElementsTypes, Structure, DeclTypes
 from structures.counters import CounterTypes
 from utils import (
@@ -11,6 +10,7 @@ from utils import (
     vectorSizes2AplanStandart,
     notConcreteIndex2AplanStandart,
     doubleOperators2Aplan,
+    removeTypeFromForInit,
     Counters_Object,
 )
 import re
@@ -132,6 +132,9 @@ class SV2aplan:
         ),
         sv_structure: Structure,
     ):
+
+        if type(ctx) is SystemVerilogParser.Loop_statementContext:
+            print()
         beh_index = sv_structure.getLastBehaviorIndex()
         if beh_index is not None:
             sv_structure.behavior[beh_index].addBody(
@@ -161,8 +164,11 @@ class SV2aplan:
         )
 
         # LOOP INIT
+        initialization = ""
         if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
             initialization = ctx.genvar_initialization().getText()
+        elif type(ctx) is SystemVerilogParser.Loop_statementContext:
+            initialization = removeTypeFromForInit(ctx.for_initialization())
         action_name = self.expression2Aplan(
             initialization, ElementsTypes.ASSIGN_ELEMENT
         )
@@ -175,8 +181,11 @@ class SV2aplan:
         sv_structure.behavior[beh_index].addBody(action_name)
 
         # LOOP INC
+        iteration = ""
         if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
             iteration = ctx.genvar_iteration().getText()
+        elif type(ctx) is SystemVerilogParser.Loop_statementContext:
+            iteration = ctx.for_step().getText()
         action_name = self.expression2Aplan(iteration, ElementsTypes.ASSIGN_ELEMENT)
 
         beh_index = sv_structure.addProtocol(
@@ -185,9 +194,12 @@ class SV2aplan:
         sv_structure.behavior[beh_index].addBody(action_name)
 
         # LOOP CONDITION
+        condition = ""
         if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
-            iteration = ctx.genvar_expression().getText()
-        action_name = self.expression2Aplan(iteration, ElementsTypes.CONDITION_ELEMENT)
+            condition = ctx.genvar_expression().getText()
+        elif type(ctx) is SystemVerilogParser.Loop_statementContext:
+            condition = ctx.expression().getText()
+        action_name = self.expression2Aplan(condition, ElementsTypes.CONDITION_ELEMENT)
 
         beh_index = sv_structure.addProtocol(
             "loop_cond_{0}".format(
@@ -202,7 +214,12 @@ class SV2aplan:
                 Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
             )
         )
-        self.body2Aplan(ctx.generate_block(), sv_structure)
+
+        if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
+            self.body2Aplan(ctx.generate_block(), sv_structure)
+        elif type(ctx) is SystemVerilogParser.Loop_statementContext:
+            self.body2Aplan(ctx.statement_or_null(), sv_structure)
+
         Counters_Object.incrieseCounter(CounterTypes.LOOP_COUNTER)
 
     def body2Aplan(self, ctx, sv_structure: Structure):
@@ -251,7 +268,7 @@ class SV2aplan:
                     )
                     sv_structure.behavior[b_index].addBody(action_name)
             elif type(child) is SystemVerilogParser.Loop_statementContext:
-                print(child.getText())
+                self.loop2Aplan(ctx, sv_structure)
             elif type(child) is SystemVerilogParser.Conditional_statementContext:
                 predicate = child.cond_predicate()
                 statements = child.statement_or_null()

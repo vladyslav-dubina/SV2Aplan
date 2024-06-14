@@ -2,6 +2,7 @@ import re
 from ast import literal_eval
 from typing import List
 from structures.counters import Counters, CounterTypes
+from antlr4_verilog.systemverilog import SystemVerilogParser
 
 
 class Color:
@@ -208,6 +209,15 @@ def vectorSize2AplanVectorSize(left, right):
         right = int(right)
         left = int(left)
         return [left - right, right]
+
+
+def removeTypeFromForInit(ctx: SystemVerilogParser.For_initializationContext):
+    result = ""
+    for element in ctx.for_variable_declaration():
+        result += f"{element.variable_identifier(0).getText()}"
+        result += "="
+        result += f"{element.expression(0).getText()}"
+    return result
 
 
 def isInStrList(array: List[str], search_word: str):

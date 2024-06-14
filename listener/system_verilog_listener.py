@@ -138,8 +138,27 @@ class SVListener(SystemVerilogParserListener):
             )
             self.module.addDeclaration(port)
 
-    def exitLoop_statement(self, ctx):
-        print(ctx.getText())
+    def exitFor_variable_declaration(self, ctx):
+        assign_name = ""
+        data_type = ctx.data_type()
+        sv2aplan = SV2aplan(self.module)
+        action_txt = (
+            f"{ctx.variable_identifier(0).getText()}={ctx.expression(0).getText()}"
+        )
+        assign_name = sv2aplan.expression2Aplan(
+            action_txt, ElementsTypes.ASSIGN_ELEMENT
+        )
+        print(assign_name)
+        data_type = DeclTypes.checkType(data_type)
+        self.module.addDeclaration(
+            Declaration(
+                data_type,
+                ctx.variable_identifier(0).getText(),
+                assign_name,
+                0,
+                Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+            )
+        )
 
     def enterLoop_generate_construct(self, ctx):
         sv2aplan = SV2aplan(self.module)

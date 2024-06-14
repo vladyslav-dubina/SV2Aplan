@@ -209,6 +209,13 @@ class Module:
             reverse=True,
         )
 
+    def getDeclarationsWithExpressions(self):
+        result = []
+        for element in self.declarations:
+            if len(element.expression) > 0:
+                result.append(element)
+        return result
+
     def findDeclaration(self, identifier: str):
         for index, element in enumerate(self.declarations):
             if element.identifier == identifier:
@@ -342,14 +349,14 @@ class Module:
 
         init_protocol = ""
         init_protocol_part = ""
-        init_protocols_array = self.declarations
+        init_protocols_array = self.getDeclarationsWithExpressions()
         init_flag = False
 
+        init_protocols_array.sort(key=lambda student: student.sequence)
         for index, element in enumerate(init_protocols_array):
-            if len(element.expression) > 0:
-                if index != 0:
-                    init_protocol += "."
-                init_protocol += element.expression
+            if index != 0:
+                init_protocol += "."
+            init_protocol += element.expression
 
         if len(init_protocol) > 0:
             init_flag = True
