@@ -10,11 +10,11 @@ genvar j;
 
 wire    [7:0]  patch_match;
 
-generate
-   for (j = 0; j < 8; j++) begin: addr_comp
-      assign patch_match[j] = (si_addr_i == ctl_pat_addr_i[j]) & ctl_pat_pen_i[j]; 
-   end        
-endgenerate
+always_comb begin
+   for (int h = 0; h < 8; h++) begin: addr_comp
+      assign patch_match[h] = (si_addr_i == ctl_pat_addr_i[h]) & ctl_pat_pen_i[h]; 
+   end   
+end
 
 endmodule
 

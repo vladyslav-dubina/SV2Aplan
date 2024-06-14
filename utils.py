@@ -136,12 +136,34 @@ def parallelAssignment2Assignment(expression: str):
     return result
 
 
+def doubleOperators2Aplan(expression: str):
+    patterns = [r"(\w+)(\+\+)", r"(\w+)(--)"]
+    pattern = "|".join(patterns)
+
+    def replace_match(match):
+        for i in range(len(patterns)):
+            if match.group(i) is not None:
+                if i == 0:
+                    value = f"{match.group(i+1)} = {match.group(i+1)} + 1"
+                elif i == 1:
+                    value = f"{match.group(i+1)} = {match.group(i+1)} - 1"
+                else:
+                    printWithColor(f"Unhandled case {match}", Color.RED)
+                return value
+
+        return value
+
+    result = re.sub(pattern, lambda match: replace_match(match), expression)
+
+    return result
+
+
 def notConcreteIndex2AplanStandart(expression: str):
     pattern = r"(\w+\.\w+)\[([^\[\]]*[a-zA-Z][^\[\]]*)\]"
 
     def replace_match(match):
         identifier, index = match.group(1), match.group(2)
-        return f"BGETI({identifier},{index})"
+        return f"BGETI({identifier}, {index})"
 
     result = re.sub(pattern, lambda match: replace_match(match), expression)
     return result
@@ -170,6 +192,22 @@ def vectorSizes2AplanStandart(expression: str):
     expression = re.sub(pattern, lambda match: replace_match(match), expression)
 
     return expression
+
+
+def extractVectorSize(s):
+    matches = re.findall(r"\[(\d+):(\d+)\]", s)
+    if matches:
+        return matches[0]
+
+
+def vectorSize2AplanVectorSize(left, right):
+    if right == "0":
+        left = int(left) + 1
+        return [left, 0]
+    else:
+        right = int(right)
+        left = int(left)
+        return [left - right, right]
 
 
 def isInStrList(array: List[str], search_word: str):

@@ -1,5 +1,6 @@
 from enum import Enum, auto
-from utils import generate_module_names, removeTrailingComma
+from utils import generate_module_names, removeTrailingComma, Counters_Object
+from structures.counters import CounterTypes
 from typing import List
 
 
@@ -7,14 +8,21 @@ class ElementsTypes(Enum):
     ASSERT_ELEMENT = auto()
     IF_STATEMENT_ELEMENT = auto()
     ASSIGN_ELEMENT = auto()
+    CONDITION_ELEMENT = auto()
 
 
 class DeclTypes(Enum):
     WIRE = auto()
+    INT = auto()
     REG = auto()
     INPORT = auto()
     OUTPORT = auto()
     IF_STATEMENT = auto()
+
+    def checkType(type_str: str):
+        if type_str == "int":
+            return DeclTypes.INT
+        return DeclTypes.INT
 
 
 class B0:
@@ -66,18 +74,23 @@ class Declaration:
         identifier: str,
         expression: str,
         size: int,
+        sequence: int,
     ):
         self.data_type = data_type
         self.identifier = identifier
         self.expression = expression
         self.size = size
+        self.sequence = sequence
 
     def getAplanDecltype(self):
-        if self.data_type == DeclTypes.WIRE:
-            return "bool"
-        if self.data_type == DeclTypes.REG:
-            return "bool"
-        if self.data_type == DeclTypes.INPORT or self.data_type == DeclTypes.OUTPORT:
+        if self.data_type == DeclTypes.INT:
+            return "int"
+        elif (
+            self.data_type == DeclTypes.INPORT
+            or self.data_type == DeclTypes.OUTPORT
+            or self.data_type == DeclTypes.WIRE
+            or self.data_type == DeclTypes.REG
+        ):
             if self.size == 0:
                 return "bool"
             if self.size > 0:
@@ -85,10 +98,11 @@ class Declaration:
 
 
 class Protocol:
-    def __init__(self, identifier: str):
+    def __init__(self, identifier: str, sequence: int):
         self.identifier = identifier
         self.body: List[str] = []
         self.type: DeclTypes | None = None
+        self.sequence = sequence
 
     def setType(self, type: DeclTypes | None):
         self.type = type
@@ -119,8 +133,9 @@ class Protocol:
 
 
 class Structure:
-    def __init__(self, identifier: str):
+    def __init__(self, identifier: str, sequence: int):
         self.identifier = identifier
+        self.sequence = sequence
         self.behavior: List[Protocol] = []
 
     def getLastBehaviorIndex(self):
@@ -129,23 +144,13 @@ class Structure:
         return len(self.behavior) - 1
 
     def addProtocol(self, protocol_identifier: str):
-        self.behavior.append(Protocol(protocol_identifier))
+        self.behavior.append(
+            Protocol(
+                protocol_identifier,
+                Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+            )
+        )
         return len(self.behavior) - 1
-
-    def getBehInStrFormat(self):
-        pass
-
-    def getBehLen(self):
-        return len(self.behavior)
-
-    def __str__(self):
-        return ""
-
-
-class Always(Structure):
-    def __init__(self, identifier: str, sensetive: str | None):
-        super().__init__(identifier)
-        self.sensetive = sensetive
 
     def getBehInStrFormat(self):
         result = ""
@@ -157,19 +162,28 @@ class Always(Structure):
                 result += str(element)
         return result
 
+    def getBehLen(self):
+        return len(self.behavior)
+
+    def __str__(self):
+        result = ""
+        for element in self.behavior:
+            result += "\n"
+            result += str(element)
+        return result
+
+
+class Always(Structure):
+    def __init__(self, identifier: str, sensetive: str | None, sequence: int):
+        super().__init__(identifier, sequence)
+        self.sensetive = sensetive
+
     def getSensetiveForB0(self):
         result = ""
         if self.sensetive is not None:
             result = "Sensetive({0}, {1})".format(self.identifier, self.sensetive)
         else:
             result = "Sensetive({0})".format(self.identifier)
-        return result
-
-    def __str__(self) -> str:
-        result = ""
-        for element in self.behavior:
-            result += "\n"
-            result += str(element)
         return result
 
 
@@ -194,6 +208,14 @@ class Module:
             key=lambda elem: len(elem.identifier),
             reverse=True,
         )
+
+    def findDeclaration(self, identifier: str):
+        for index, element in enumerate(self.declarations):
+            if element.identifier == identifier:
+                return index
+
+    def updateDeclarationExpression(self, index: int, expression: str):
+        self.declarations[index].expression = expression
 
     def isUniqAction(self, action: Action):
 
@@ -228,44 +250,10 @@ class Module:
                 result.append(element)
         return result
 
-    def isIncludeNonBlockElements(self):
+    def isIncludeOutOfBlockElements(self):
         if len(self.out_of_block_elements) > 0:
             return True
         return False
-
-    def isIncludeWires(self):
-        for element in self.declarations:
-            if element.data_type == DeclTypes.WIRE:
-                return True
-        return False
-
-    def getWires(self, assignment: bool):
-        result: List[Declaration] = []
-        for element in self.declarations:
-            if element.data_type == DeclTypes.WIRE:
-                if assignment:
-                    if len(element.expression) > 0:
-                        result.append(element)
-                else:
-                    result.append(element)
-        return result
-
-    def isIncludeRegs(self):
-        for element in self.declarations:
-            if element.data_type == DeclTypes.REG:
-                return True
-        return False
-
-    def getRegs(self, assignment: bool):
-        result: List[Declaration] = []
-        for element in self.declarations:
-            if element.data_type == DeclTypes.REG:
-                if assignment:
-                    if len(element.expression) > 0:
-                        result.append(element)
-                else:
-                    result.append(element)
-        return result
 
     def isIncludeAlways(self):
         for element in self.structures:
@@ -277,6 +265,13 @@ class Module:
         result: List[Always] = []
         for element in self.structures:
             if isinstance(element, Always):
+                result.append(element)
+        return result
+
+    def getNoAlwaysStructures(self):
+        result: List[Structure] = []
+        for element in self.structures:
+            if isinstance(element, Always) == False:
                 result.append(element)
         return result
 
@@ -313,7 +308,9 @@ class Module:
         main_protocol_part = ""
         main_flag = False
 
-        for index, element in enumerate(self.out_of_block_elements):
+        protocols = self.out_of_block_elements + self.getNoAlwaysStructures()
+        protocols.sort(key=lambda student: student.sequence)
+        for index, element in enumerate(protocols):
             if index != 0:
                 main_protocol += "."
             main_protocol += element.identifier
@@ -342,12 +339,10 @@ class Module:
                 always_part += ";"
 
         # INIT PROTOCOL
-        wires = self.getWires(True)
-        regs = self.getRegs(True)
 
         init_protocol = ""
         init_protocol_part = ""
-        init_protocols_array = wires + regs
+        init_protocols_array = self.declarations
         init_flag = False
 
         for index, element in enumerate(init_protocols_array):

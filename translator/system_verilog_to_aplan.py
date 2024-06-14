@@ -10,25 +10,10 @@ from utils import (
     parallelAssignment2Assignment,
     vectorSizes2AplanStandart,
     notConcreteIndex2AplanStandart,
+    doubleOperators2Aplan,
     Counters_Object,
 )
 import re
-
-
-def extractVectorSize(s):
-    matches = re.findall(r"\[(\d+):(\d+)\]", s)
-    if matches:
-        return matches[0]
-
-
-def vectorSize2Aplan(left, right):
-    if right == "0":
-        left = int(left) + 1
-        return [left, 0]
-    else:
-        right = int(right)
-        left = int(left)
-        return [left - right, right]
 
 
 class SV2aplan:
@@ -74,6 +59,7 @@ class SV2aplan:
 
     def prepareExpressionString(self, expression: str, expr_type: ElementsTypes):
         expression = valuesToAplanStandart(expression)
+        expression = doubleOperators2Aplan(expression)
         expression = addSpacesAroundOperators(expression)
         expression_with_replaced_names = self.findAndChangeNamesToAplanNames(expression)
         expression_with_replaced_names = addBracketsAfterTilda(
@@ -91,62 +77,133 @@ class SV2aplan:
         )
         return (expression, expression_with_replaced_names)
 
-    def assign2Aplan(self, input: str):
-        Counters_Object.incrieseCounter(CounterTypes.ASSIGNMENT_COUNTER)
-        assign, assign_with_replaced_names = self.prepareExpressionString(
-            input, ElementsTypes.ASSIGN_ELEMENT
+    def expression2Aplan(self, input: str, cond_type: ElementsTypes):
+        name_part = ""
+        counter_type = CounterTypes.NONE_COUNTER
+
+        if cond_type == ElementsTypes.ASSERT_ELEMENT:
+            name_part = "assert"
+            counter_type = CounterTypes.ASSERT_COUNTER
+        elif cond_type == ElementsTypes.CONDITION_ELEMENT:
+            name_part = "cond"
+            counter_type = CounterTypes.CONDITION_COUNTER
+        elif cond_type == ElementsTypes.ASSIGN_ELEMENT:
+            name_part = "assign"
+            counter_type = CounterTypes.ASSIGNMENT_COUNTER
+
+        action_name = "{0}_{1}".format(
+            name_part, Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER)
         )
-        action_name = "assign_{0}".format(
-            Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER)
+        condition, condition_with_replaced_names = self.prepareExpressionString(
+            input, counter_type
         )
 
-        assign_action = Action(
-            "assign",
-            Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER),
+        action = Action(
+            name_part,
+            Counters_Object.getCounter(counter_type),
         )
-        assign_action.precondition.body.append("1")
-        assign_action.description.body.append(
-            f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{assign}'"
-        )
-        assign_action.postcondition.body.append(assign_with_replaced_names)
 
-        action_check_result = self.module.isUniqAction(assign_action)
-        if action_check_result is None:
-            self.module.actions.append(assign_action)
+        if cond_type == ElementsTypes.ASSIGN_ELEMENT:
+            action.precondition.body.append("1")
+            action.postcondition.body.append(condition_with_replaced_names)
         else:
-            Counters_Object.decrieseCounter(CounterTypes.ASSIGNMENT_COUNTER)
+            action.precondition.body.append(condition_with_replaced_names)
+            action.postcondition.body.append("1")
+
+        action.description.body.append(
+            f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({condition})'"
+        )
+
+        action_check_result = self.module.isUniqAction(action)
+        if action_check_result is None:
+            self.module.actions.append(action)
+        else:
+            Counters_Object.decrieseCounter(counter_type)
             action_name = action_check_result
+
+        Counters_Object.incrieseCounter(counter_type)
         return action_name
 
-    def assert2Aplan(self, input: str):
-        Counters_Object.incrieseCounter(CounterTypes.ASSERT_COUNTER)
-        condition, condition_with_replaced_names = self.prepareExpressionString(
-            input, ElementsTypes.ASSERT_ELEMENT
-        )
-        assert_name = "assert_{0}".format(
-            Counters_Object.getCounter(CounterTypes.ASSERT_COUNTER)
-        )
-        assert_action = Action(
-            "assert",
-            Counters_Object.getCounter(CounterTypes.ASSERT_COUNTER),
-        )
-        assert_action.precondition.body.append(condition_with_replaced_names)
-        assert_action.description.body.append(
-            f"{self.module.identifier}#{self.module.ident_uniq_name}:action 'assert ({condition})'"
-        )
-        assert_action.postcondition.body.append("1")
+    def loop2Aplan(
+        self,
+        ctx: (
+            SystemVerilogParser.Loop_generate_constructContext
+            | SystemVerilogParser.Loop_statementContext
+        ),
+        sv_structure: Structure,
+    ):
+        beh_index = sv_structure.getLastBehaviorIndex()
+        if beh_index is not None:
+            sv_structure.behavior[beh_index].addBody(
+                "loop_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
+            )
 
-        assert_check_result = self.module.isUniqAction(assert_action)
-        if assert_check_result is None:
-            self.module.actions.append(assert_action)
-        else:
-            Counters_Object.decrieseCounter(CounterTypes.ASSERT_COUNTER)
-            assert_name = assert_check_result
+        # LOOP
+        beh_index = sv_structure.addProtocol(
+            "loop_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
+        )
+        sv_structure.behavior[beh_index].addBody(
+            "loop_init_{0}.loop_main_{0}".format(
+                Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
+            )
+        )
 
-        return assert_name
+        # LOOP MAIN
+        beh_index = sv_structure.addProtocol(
+            "loop_main_{0}".format(
+                Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
+            )
+        )
+        sv_structure.behavior[beh_index].addBody(
+            "loop_cond_{0}.(loop_body_{0};loop_inc_{0};loop_main_{0}) + !loop_cond_{0}".format(
+                Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
+            )
+        )
 
-    def loop2Aplan(self, ctx, sv_structure: Structure):
-        pass
+        # LOOP INIT
+        if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
+            initialization = ctx.genvar_initialization().getText()
+        action_name = self.expression2Aplan(
+            initialization, ElementsTypes.ASSIGN_ELEMENT
+        )
+
+        beh_index = sv_structure.addProtocol(
+            "loop_init_{0}".format(
+                Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
+            )
+        )
+        sv_structure.behavior[beh_index].addBody(action_name)
+
+        # LOOP INC
+        if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
+            iteration = ctx.genvar_iteration().getText()
+        action_name = self.expression2Aplan(iteration, ElementsTypes.ASSIGN_ELEMENT)
+
+        beh_index = sv_structure.addProtocol(
+            "loop_inc_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
+        )
+        sv_structure.behavior[beh_index].addBody(action_name)
+
+        # LOOP CONDITION
+        if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
+            iteration = ctx.genvar_expression().getText()
+        action_name = self.expression2Aplan(iteration, ElementsTypes.CONDITION_ELEMENT)
+
+        beh_index = sv_structure.addProtocol(
+            "loop_cond_{0}".format(
+                Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
+            )
+        )
+        sv_structure.behavior[beh_index].addBody(action_name)
+
+        # BODY LOOP
+        sv_structure.addProtocol(
+            "loop_body_{0}".format(
+                Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
+            )
+        )
+        self.body2Aplan(ctx.generate_block(), sv_structure)
+        Counters_Object.incrieseCounter(CounterTypes.LOOP_COUNTER)
 
     def body2Aplan(self, ctx, sv_structure: Structure):
         if ctx.getChildCount() == 0:
@@ -157,7 +214,9 @@ class SV2aplan:
                 type(child)
                 is SystemVerilogParser.Simple_immediate_assert_statementContext
             ):
-                assert_name = self.assert2Aplan(child.expression().getText())
+                assert_name = self.expression2Aplan(
+                    child.expression().getText(), ElementsTypes.ASSERT_ELEMENT
+                )
                 Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
                 assert_b = "assert_B_{}".format(
                     Counters_Object.getCounter(CounterTypes.B_COUNTER)
@@ -172,13 +231,15 @@ class SV2aplan:
             elif (
                 type(child) is SystemVerilogParser.Variable_decl_assignmentContext
                 or type(child) is SystemVerilogParser.Nonblocking_assignmentContext
+                or type(child) is SystemVerilogParser.Net_assignmentContext
             ):
-                action_name = self.assign2Aplan(child.getText())
+                action_name = self.expression2Aplan(
+                    child.getText(), ElementsTypes.ASSIGN_ELEMENT
+                )
                 beh_index = sv_structure.getLastBehaviorIndex()
 
                 if type(child) is SystemVerilogParser.Nonblocking_assignmentContext:
                     action_name = "Sensetive(" + action_name + ")"
-
                 if beh_index is not None:
                     sv_structure.behavior[beh_index].addBody(action_name)
                 else:
@@ -189,6 +250,8 @@ class SV2aplan:
                         )
                     )
                     sv_structure.behavior[b_index].addBody(action_name)
+            elif type(child) is SystemVerilogParser.Loop_statementContext:
+                print(child.getText())
             elif type(child) is SystemVerilogParser.Conditional_statementContext:
                 predicate = child.cond_predicate()
                 statements = child.statement_or_null()
@@ -301,15 +364,17 @@ class SV2aplan:
             else:
                 self.body2Aplan(child, sv_structure)
 
-    def generate2Aplan(self, ctx):
+    def generate2Aplan(self, ctx: SystemVerilogParser.Loop_generate_constructContext):
         generate_name = (
             "generate"
             + "_"
             + str(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
         )
-        struct = Structure(generate_name)
+        struct = Structure(
+            generate_name, Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER)
+        )
         struct.addProtocol(generate_name)
-        self.body2Aplan(ctx, struct)
+        self.loop2Aplan(ctx, struct)
         self.module.structures.append(struct)
         Counters_Object.incrieseCounter(CounterTypes.LOOP_COUNTER)
         return
@@ -340,7 +405,11 @@ class SV2aplan:
             + "_"
             + str(Counters_Object.getCounter(CounterTypes.ALWAYS_COUNTER))
         )
-        always = Always(always_name, sensetive)
+        always = Always(
+            always_name,
+            sensetive,
+            Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+        )
         always.addProtocol(always_name)
         # always.addProtocol(always_name)
         self.body2Aplan(always_body, always)
@@ -349,5 +418,5 @@ class SV2aplan:
         return
 
     def declaration2Aplan(self, ctx):
-        assign_name = self.assign2Aplan(ctx.getText())
+        assign_name = self.expression2Aplan(ctx.getText(), ElementsTypes.ASSIGN_ELEMENT)
         return assign_name

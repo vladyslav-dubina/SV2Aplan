@@ -72,72 +72,16 @@ class Program:
         env += "\tagent_types : obj (\n"
 
         for module in self.modules:
-            if (
-                module.isIncludeInputPorts()
-                or module.isIncludeOutputPorts()
-                or module.isIncludeWires()
-                or module.isIncludeRegs()
-            ):
+            env += "\t\t{0} : obj (\n".format(module.identifier)
+            decls = module.declarations
+            for index, elem in enumerate(decls):
+                if index > 0:
+                    env += ",\n"
+                env += "\t\t\t{0}:{1}".format(elem.identifier, elem.getAplanDecltype())
+                if index + 1 == len(decls):
+                    env += "\n"
 
-                env += "\t\t{0} : obj (\n".format(module.identifier)
-
-                regs = module.getRegs(False)
-                for index, elem in enumerate(regs):
-                    if index > 0:
-                        env += ",\n"
-                    env += "\t\t\t{0}:{1}".format(
-                        elem.identifier, elem.getAplanDecltype()
-                    )
-                    if index + 1 == len(regs):
-                        if (
-                            module.isIncludeWires()
-                            or module.isIncludeInputPorts()
-                            or module.isIncludeOutputPorts()
-                        ):
-                            env += ",\n"
-                        else:
-                            env += "\n"
-
-                wires = module.getWires(False)
-                for index, elem in enumerate(wires):
-                    if index > 0:
-                        env += ",\n"
-                    env += "\t\t\t{0}:{1}".format(
-                        elem.identifier, elem.getAplanDecltype()
-                    )
-                    if index + 1 == len(wires):
-                        if (
-                            module.isIncludeInputPorts()
-                            or module.isIncludeOutputPorts()
-                        ):
-                            env += ",\n"
-                        else:
-                            env += "\n"
-
-                include_ports = module.getInputPorts()
-                for index, elem in enumerate(include_ports):
-                    if index > 0:
-                        env += ",\n"
-                    env += "\t\t\t{0}:{1}".format(
-                        elem.identifier, elem.getAplanDecltype()
-                    )
-                    if index + 1 == len(include_ports):
-                        if module.isIncludeOutputPorts():
-                            env += ",\n"
-                        else:
-                            env += "\n"
-
-                output_ports = module.getOutputPorts()
-                for index, elem in enumerate(output_ports):
-                    if index > 0:
-                        env += ",\n"
-                    env += "\t\t\t{0}:{1}".format(
-                        elem.identifier, elem.getAplanDecltype()
-                    )
-                    if index + 1 == len(output_ports):
-                        env += "\n"
-
-                env += "\t\t),\n"
+            env += "\t\t),\n"
         env += "\t\tENVIRONMENT:obj(Nil)\n"
         env += "\t);\n"
 
@@ -146,15 +90,9 @@ class Program:
         # ----------------------------------
         env += "\tagents : obj (\n"
         for module in self.modules:
-            if (
-                module.isIncludeInputPorts
-                or module.isIncludeOutputPorts()
-                or module.isIncludeWires()
-                or module.isIncludeRegs()
-            ):
-                env += "\t\t{0} : obj ({1}),\n".format(
-                    module.identifier, module.ident_uniq_name
-                )
+            env += "\t\t{0} : obj ({1}),\n".format(
+                module.identifier, module.ident_uniq_name
+            )
         env += "\t\tENVIRONMENT : obj (env)\n"
         env += "\t);\n"
 
@@ -191,7 +129,7 @@ class Program:
             behaviour += f"{module.getBehInitProtocols()}"
             behaviour += module.getStructuresInStrFormat()
 
-            if module.isIncludeNonBlockElements():
+            if module.isIncludeOutOfBlockElements():
                 behaviour += "," + module.getOutOfBlockInStrFormat() + "\n"
             else:
                 behaviour += "\n"

@@ -5,36 +5,36 @@ if_1 = (
 		(1)),
 assign_1 = (
 		(1)->
-		("Locked_register_example#module_1:action 'lock_status <= 0';")
-		(module_1.lock_status = 0)),
+		("Locked_register_example#module_1:action 'assign (lock_status <= 0)';")
+		(module_1.lock_status <= 0)),
 if_2 = (
 		(module_1.Lock)->
 		("Locked_register_example#module_1:action 'if (Lock)';")
 		(1)),
 assign_2 = (
 		(1)->
-		("Locked_register_example#module_1:action 'lock_status <= 1';")
-		(module_1.lock_status = 1)),
+		("Locked_register_example#module_1:action 'assign (lock_status <= 1)';")
+		(module_1.lock_status <= 1)),
 if_3 = (
 		(~(module_1.Lock))->
 		("Locked_register_example#module_1:action 'if (~Lock)';")
 		(1)),
 assign_3 = (
 		(1)->
-		("Locked_register_example#module_1:action 'lock_status <= lock_status';")
-		(module_1.lock_status = module_1.lock_status)),
+		("Locked_register_example#module_1:action 'assign (lock_status <= lock_status)';")
+		(module_1.lock_status <= module_1.lock_status)),
 assign_4 = (
 		(1)->
-		("Locked_register_example#module_1:action 'Data_out <= 0';")
-		(module_1.Data_out = 0)),
+		("Locked_register_example#module_1:action 'assign (Data_out <= 0)';")
+		(module_1.Data_out <= 0)),
 if_4 = (
 		(module_1.write & ( ~(module_1.lock_status) | module_1.scan_mode | module_1.debug_unlocked ))->
 		("Locked_register_example#module_1:action 'if (write & ( ~lock_status | scan_mode | debug_unlocked ))';")
 		(1)),
 assign_5 = (
 		(1)->
-		("Locked_register_example#module_1:action 'Data_out <= Data_in';")
-		(module_1.Data_out = module_1.Data_in)),
+		("Locked_register_example#module_1:action 'assign (Data_out <= Data_in)';")
+		(module_1.Data_out <= module_1.Data_in)),
 assert_1 = (
 		(module_1.write && module_1.lock_status)->
 		("Locked_register_example#module_1:action 'assert (write && lock_status)';")
@@ -45,5 +45,5 @@ if_5 = (
 		(1)),
 assign_6 = (
 		(1)->
-		("Locked_register_example#module_1:action 'Data_out <= Data_out';")
-		(module_1.Data_out = module_1.Data_out))
+		("Locked_register_example#module_1:action 'assign (Data_out <= Data_out)';")
+		(module_1.Data_out <= module_1.Data_out))

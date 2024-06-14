@@ -2,12 +2,10 @@ from antlr4_verilog.systemverilog import SystemVerilogParserListener
 
 from translator.system_verilog_to_aplan import (
     SV2aplan,
-    extractVectorSize,
-    vectorSize2Aplan,
 )
-from structures.aplan import Declaration, DeclTypes, Module, Protocol
+from structures.aplan import Declaration, DeclTypes, Module, Protocol, ElementsTypes
 from structures.counters import CounterTypes
-from utils import Counters_Object
+from utils import Counters_Object, extractVectorSize, vectorSize2AplanVectorSize
 
 
 class SVListener(SystemVerilogParserListener):
@@ -26,10 +24,11 @@ class SVListener(SystemVerilogParserListener):
             identifier = element.identifier().getText()
             self.module.addDeclaration(
                 Declaration(
-                    DeclTypes.REG,
+                    DeclTypes.INT,
                     identifier,
                     assign_name,
                     0,
+                    Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                 )
             )
 
@@ -37,6 +36,12 @@ class SVListener(SystemVerilogParserListener):
         assign_name = ""
         if ctx.data_type_or_implicit():
             data_type = ctx.data_type_or_implicit().getText()
+            aplan_vector_size = [0]
+            vector_size = extractVectorSize(data_type)
+            if vector_size is not None:
+                aplan_vector_size = vectorSize2AplanVectorSize(
+                    vector_size[0], vector_size[1]
+                )
             index = data_type.find("reg")
             if index != -1:
                 for (
@@ -56,12 +61,22 @@ class SVListener(SystemVerilogParserListener):
                             DeclTypes.REG,
                             identifier,
                             assign_name,
-                            0,
+                            aplan_vector_size[0],
+                            Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                         )
                     )
 
     def exitNet_declaration(self, ctx):
         assign_name = ""
+        data_type = ctx.data_type_or_implicit()
+        aplan_vector_size = [0]
+        if data_type:
+            vector_size = extractVectorSize(data_type.getText())
+            if vector_size is not None:
+                aplan_vector_size = vectorSize2AplanVectorSize(
+                    vector_size[0], vector_size[1]
+                )
+
         if ctx.net_type().getText() == "wire":
             for elem in ctx.list_of_net_decl_assignments().net_decl_assignment():
                 identifier = elem.net_identifier().identifier().getText()
@@ -74,7 +89,13 @@ class SVListener(SystemVerilogParserListener):
                     assign_name = ""
 
                 self.module.addDeclaration(
-                    Declaration(DeclTypes.WIRE, identifier, assign_name, 0)
+                    Declaration(
+                        DeclTypes.WIRE,
+                        identifier,
+                        assign_name,
+                        aplan_vector_size[0],
+                        Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+                    )
                 )
 
     def exitAnsi_port_declaration(self, ctx):
@@ -82,53 +103,48 @@ class SVListener(SystemVerilogParserListener):
         index = header.find("input")
         if index != -1:
             vector_size = extractVectorSize(header)
-            if vector_size is None:
-                port = Declaration(
-                    DeclTypes.INPORT,
-                    ctx.port_identifier().getText(),
-                    "",
-                    0,
+            aplan_vector_size = [0]
+            if vector_size is not None:
+                aplan_vector_size = vectorSize2AplanVectorSize(
+                    vector_size[0], vector_size[1]
                 )
-                self.module.addDeclaration(port)
-            else:
-                aplan_vector_size = vectorSize2Aplan(vector_size[0], vector_size[1])
-                port = Declaration(
-                    DeclTypes.INPORT,
-                    ctx.port_identifier().getText(),
-                    "",
-                    aplan_vector_size[0],
-                )
-                self.module.addDeclaration(port)
+
+            port = Declaration(
+                DeclTypes.INPORT,
+                ctx.port_identifier().getText(),
+                "",
+                aplan_vector_size[0],
+                Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+            )
+            self.module.addDeclaration(port)
 
         index = header.find("output")
         if index != -1:
             vector_size = extractVectorSize(header)
+            aplan_vector_size = [0]
             if vector_size is None:
-                port = Declaration(
-                    DeclTypes.OUTPORT,
-                    ctx.port_identifier().getText(),
-                    "",
-                    0,
+                aplan_vector_size = vectorSize2AplanVectorSize(
+                    vector_size[0], vector_size[1]
                 )
-                self.module.addDeclaration(port)
-            else:
-                aplan_vector_size = vectorSize2Aplan(vector_size[0], vector_size[1])
-                port = Declaration(
-                    DeclTypes.OUTPORT,
-                    ctx.port_identifier().getText(),
-                    "",
-                    aplan_vector_size[0],
-                )
-                self.module.addDeclaration(port)
-    
+            aplan_vector_size = vectorSize2AplanVectorSize(
+                vector_size[0], vector_size[1]
+            )
+            port = Declaration(
+                DeclTypes.OUTPORT,
+                ctx.port_identifier().getText(),
+                "",
+                aplan_vector_size[0],
+                Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+            )
+            self.module.addDeclaration(port)
+
+    def exitLoop_statement(self, ctx):
+        print(ctx.getText())
+
     def enterLoop_generate_construct(self, ctx):
-       sv2aplan = SV2aplan(self.module)
-       sv2aplan.generate2Aplan(ctx)
-       #print(ctx.generate_block().getText())
-       #print(ctx.genvar_initialization().getText())
-       #print(ctx.genvar_expression().getText())
-       #print(ctx.genvar_iteration().getText())
-       
+        sv2aplan = SV2aplan(self.module)
+        sv2aplan.generate2Aplan(ctx)
+
     def enterAlways_construct(self, ctx):
         sv2aplan = SV2aplan(self.module)
         sv2aplan.always2Aplan(ctx)
@@ -137,18 +153,28 @@ class SVListener(SystemVerilogParserListener):
         expression = ctx.property_spec()
         if expression is not None:
             sv2aplan = SV2aplan(self.module)
-            assert_name = sv2aplan.assert2Aplan(expression.getText())
+            assert_name = sv2aplan.expression2Aplan(
+                expression.getText(), ElementsTypes.ASSERT_ELEMENT
+            )
             Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
             assert_b = "assert_B_{}".format(
                 Counters_Object.getCounter(CounterTypes.B_COUNTER)
             )
-            struct_assert = Protocol(assert_b)
+            struct_assert = Protocol(
+                assert_b,
+                Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+            )
             struct_assert.addBody("{0}.Delta + !{0}.0".format(assert_name))
             self.module.out_of_block_elements.append(struct_assert)
 
+
+"""
     def exitNet_assignment(self, ctx):
+        print("tre")
         sv2aplan = SV2aplan(self.module)
-        assign_name = sv2aplan.assign2Aplan(ctx.getText())
+        assign_name = sv2aplan.expression2Aplan(
+            ctx.getText(), ElementsTypes.ASSIGN_ELEMENT
+        )
         Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
         assign_b = "assign_B_{}".format(
             Counters_Object.getCounter(CounterTypes.B_COUNTER)
@@ -159,7 +185,9 @@ class SVListener(SystemVerilogParserListener):
 
     def exitVariable_assignment(self, ctx):
         sv2aplan = SV2aplan(self.module)
-        assign_name = sv2aplan.assign2Aplan(ctx.getText())
+        assign_name = sv2aplan.expression2Aplan(
+            ctx.getText(), ElementsTypes.ASSIGN_ELEMENT
+        )
         Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
         assign_b = "assign_B_{}".format(
             Counters_Object.getCounter(CounterTypes.B_COUNTER)
@@ -167,3 +195,27 @@ class SVListener(SystemVerilogParserListener):
         struct_assign = Protocol(assign_b)
         struct_assign.addBody(assign_name)
         self.module.out_of_block_elements.append(struct_assign)
+"""
+
+"""
+    def exitFor_variable_declaration(self, ctx):
+        assign_name = ""
+        data_type = ctx.data_type().getText()
+        data_type = DeclTypes.checkType(data_type)
+        for elem in ctx.variable_identifier():
+            identifier = elem.getText()
+            self.module.addDeclaration(
+                Declaration(data_type, identifier, assign_name, 0)
+            )
+            
+            if ctx.expression():
+                expression = ctx.expression(0).getText()
+                if expression:
+                    sv2aplan = SV2aplan(self.module)
+                    assign_name = sv2aplan.assign2Aplan(f"{identifier}={expression}")
+            if not assign_name:
+                assign_name = ""
+            self.module.updateDeclarationExpression(
+                self.module.findDeclaration(identifier), assign_name
+            )
+            """

@@ -140,6 +140,12 @@ def start_unit_test():
             "examples/assert/test_result",
             "examples/assert/aplan",
         ),
+        (
+            6,
+            "examples/loops/loop_1/loop_1.sv",
+            "examples/loops/loop_1/test_result",
+            "examples/loops/loop_1/aplan",
+        ),
     ]
 
     for test_number, source_file, result_path, aplan_code_path in test_definitions:

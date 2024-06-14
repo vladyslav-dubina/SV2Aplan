@@ -11,6 +11,6 @@ B_2 = if_1.body_4 + !if_1.else_body_3,
 body_4 = Sensetive(assign_4),
 else_body_3 = if_4.body_5 + !if_4.else_body_4,
 body_5 = Sensetive(assign_5).assert_B_3,
-assert_B_3 = assert_1.Delta + !assert_1.0,
+assert_B_3 = assert_6.Delta + !assert_6.0,
 else_body_4 = if_5.body_6 + !if_5,
 body_6 = Sensetive(assign_6)

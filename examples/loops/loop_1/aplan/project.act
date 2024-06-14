@@ -1,0 +1,17 @@
+
+assign_1 = (
+		(1)->
+		("code_patch_core#module_1:action 'assign (j = 0)';")
+		(module_1.j = 0)),
+assign_2 = (
+		(1)->
+		("code_patch_core#module_1:action 'assign (j = j + 1)';")
+		(module_1.j = module_1.j + 1)),
+cond_1 = (
+		(module_1.j < 8)->
+		("code_patch_core#module_1:action 'cond (j < 8)';")
+		(1)),
+assign_3 = (
+		(1)->
+		("code_patch_core#module_1:action 'assign (patch_match[j] = ( si_addr_i == ctl_pat_addr_i[j] ) & ctl_pat_pen_i[j])';")
+		(BGETI(module_1.patch_match, module_1.j) = ( module_1.si_addr_i == BGETI(module_1.ctl_pat_addr_i, module_1.j) ) & BGETI(module_1.ctl_pat_pen_i, module_1.j)))

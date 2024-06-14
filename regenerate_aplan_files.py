@@ -81,6 +81,11 @@ def regeneration_start():
             "examples/assert/assert.sv",
             "examples/assert/aplan",
         ),
+        (
+            7,
+            "examples/loops/loop_1/loop_1.sv",
+            "examples/loops/loop_1/aplan",
+        ),
     ]
 
     for test_number, source_file, result_path in test_definitions:
