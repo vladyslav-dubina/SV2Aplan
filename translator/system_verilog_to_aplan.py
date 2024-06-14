@@ -1,7 +1,7 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from structures.aplan import Module, Action, Always, Protocol, Structure, DeclTypes
+from structures.aplan import Module, Action, Always, ElementsTypes, Structure, DeclTypes
 from structures.counters import CounterTypes
 from utils import (
     addSpacesAroundOperators,
@@ -9,6 +9,7 @@ from utils import (
     addBracketsAfterTilda,
     parallelAssignment2Assignment,
     vectorSizes2AplanStandart,
+    notConcreteIndex2AplanStandart,
     Counters_Object,
 )
 import re
@@ -71,16 +72,29 @@ class SV2aplan:
                 res += self.extractSensetive(child)
         return res
 
+    def prepareExpressionString(self, expression: str, expr_type: ElementsTypes):
+        expression = valuesToAplanStandart(expression)
+        expression = addSpacesAroundOperators(expression)
+        expression_with_replaced_names = self.findAndChangeNamesToAplanNames(expression)
+        expression_with_replaced_names = addBracketsAfterTilda(
+            expression_with_replaced_names
+        )
+        expression_with_replaced_names = vectorSizes2AplanStandart(
+            expression_with_replaced_names
+        )
+        if ElementsTypes.ASSIGN_ELEMENT == expr_type:
+            expression_with_replaced_names = parallelAssignment2Assignment(
+                expression_with_replaced_names
+            )
+        expression_with_replaced_names = notConcreteIndex2AplanStandart(
+            expression_with_replaced_names
+        )
+        return (expression, expression_with_replaced_names)
+
     def assign2Aplan(self, input: str):
         Counters_Object.incrieseCounter(CounterTypes.ASSIGNMENT_COUNTER)
-        assign = valuesToAplanStandart(input)
-        assign = addSpacesAroundOperators(assign)
-        assign_with_replaced_names = self.findAndChangeNamesToAplanNames(assign)
-        assign_with_replaced_names = vectorSizes2AplanStandart(
-            assign_with_replaced_names
-        )
-        assign_with_replaced_names = parallelAssignment2Assignment(
-            assign_with_replaced_names
+        assign, assign_with_replaced_names = self.prepareExpressionString(
+            input, ElementsTypes.ASSIGN_ELEMENT
         )
         action_name = "assign_{0}".format(
             Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER)
@@ -109,14 +123,8 @@ class SV2aplan:
 
     def assert2Aplan(self, input: str):
         Counters_Object.incrieseCounter(CounterTypes.ASSERT_COUNTER)
-        condition = valuesToAplanStandart(input)
-        condition = addSpacesAroundOperators(condition)
-        condition_with_replaced_names = self.findAndChangeNamesToAplanNames(condition)
-        condition_with_replaced_names = addBracketsAfterTilda(
-            condition_with_replaced_names
-        )
-        condition_with_replaced_names = vectorSizes2AplanStandart(
-            condition_with_replaced_names
+        condition, condition_with_replaced_names = self.prepareExpressionString(
+            input, ElementsTypes.ASSERT_ELEMENT
         )
         assert_name = "assert_{0}".format(
             Counters_Object.getCounter(CounterTypes.ASSERT_COUNTER)
@@ -141,6 +149,9 @@ class SV2aplan:
             assert_name = assert_check_result
 
         return assert_name
+
+    def loop2Aplan(self, ctx, sv_structure: Structure):
+        pass
 
     def body2Aplan(self, ctx, sv_structure: Structure):
         if ctx.getChildCount() == 0:
@@ -185,8 +196,6 @@ class SV2aplan:
                     sv_structure.behavior[b_index].addBody(action_name)
             # If statement handler
             elif type(child) is SystemVerilogParser.Conditional_statementContext:
-
-                if_index_list = []
                 predicate = child.cond_predicate()
                 statements = child.statement_or_null()
 
@@ -210,49 +219,33 @@ class SV2aplan:
                         action_name = "if_{0}".format(
                             Counters_Object.getCounter(CounterTypes.IF_COUNTER)
                         )
-                        predicateString = valuesToAplanStandart(
-                            element["predicate"].getText()
+                        predicate_string, predicate_with_replaced_names = (
+                            self.prepareExpressionString(
+                                element["predicate"].getText(),
+                                ElementsTypes.IF_STATEMENT_ELEMENT,
+                            )
                         )
-                        predicateString = addSpacesAroundOperators(predicateString)
-                        if len(predicateString) > 0:
-                            if_index_list.append(
-                                Counters_Object.getCounter(CounterTypes.IF_COUNTER)
-                            )
-                            predicateWithReplacedNames = (
-                                self.findAndChangeNamesToAplanNames(predicateString)
-                            )
-                            predicateWithReplacedNames = vectorSizes2AplanStandart(
-                                predicateWithReplacedNames
-                            )
-                            predicateWithReplacedNames = valuesToAplanStandart(
-                                predicateWithReplacedNames
-                            )
-                            predicateWithReplacedNames = addBracketsAfterTilda(
-                                predicateWithReplacedNames
-                            )
-                            action = ""
+                        action = ""
 
-                            action += """ = (\n\t\t({0})->\n\t\t("{1}#{2}:action 'if ({3})';")\n\t\t(1))""".format(
-                                predicateWithReplacedNames,
-                                self.module.identifier,
-                                self.module.ident_uniq_name,
-                                predicateString,
-                            )
+                        action += """ = (\n\t\t({0})->\n\t\t("{1}#{2}:action 'if ({3})';")\n\t\t(1))""".format(
+                            predicate_with_replaced_names,
+                            self.module.identifier,
+                            self.module.ident_uniq_name,
+                            predicate_string,
+                        )
 
-                            if_check_result = self.module.isUniqAction(action)
-                            if if_check_result is None:
-                                self.module.actions.append(
-                                    Action(
-                                        "if",
-                                        Counters_Object.getCounter(
-                                            CounterTypes.IF_COUNTER
-                                        ),
-                                        action,
-                                    )
+                        if_check_result = self.module.isUniqAction(action)
+                        if if_check_result is None:
+                            self.module.actions.append(
+                                Action(
+                                    "if",
+                                    Counters_Object.getCounter(CounterTypes.IF_COUNTER),
+                                    action,
                                 )
-                            else:
-                                Counters_Object.decrieseCounter(CounterTypes.IF_COUNTER)
-                                action_name = if_check_result
+                            )
+                        else:
+                            Counters_Object.decrieseCounter(CounterTypes.IF_COUNTER)
+                            action_name = if_check_result
 
                     local_if_counter = Counters_Object.getCounter(
                         CounterTypes.IF_COUNTER
@@ -316,6 +309,20 @@ class SV2aplan:
 
             else:
                 self.body2Aplan(child, sv_structure)
+
+    def generate2Aplan(self, ctx):
+        generate_name = (
+            "generate"
+            + "_"
+            + str(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
+        )
+        struct = Structure(generate_name)
+        struct.addProtocol(generate_name)
+        # always.addProtocol(always_name)
+        self.body2Aplan(ctx, struct)
+        self.module.structures.append(struct)
+        Counters_Object.incrieseCounter(CounterTypes.LOOP_COUNTER)
+        return
 
     def always2Aplan(self, ctx):
         sensetive = None

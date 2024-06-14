@@ -120,7 +120,15 @@ class SVListener(SystemVerilogParserListener):
                     aplan_vector_size[0],
                 )
                 self.module.addDeclaration(port)
-
+    
+    def enterLoop_generate_construct(self, ctx):
+       sv2aplan = SV2aplan(self.module)
+       sv2aplan.generate2Aplan(ctx)
+       #print(ctx.generate_block().getText())
+       #print(ctx.genvar_initialization().getText())
+       #print(ctx.genvar_expression().getText())
+       #print(ctx.genvar_iteration().getText())
+       
     def enterAlways_construct(self, ctx):
         sv2aplan = SV2aplan(self.module)
         sv2aplan.always2Aplan(ctx)

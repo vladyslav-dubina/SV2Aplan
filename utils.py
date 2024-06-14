@@ -136,6 +136,17 @@ def parallelAssignment2Assignment(expression: str):
     return result
 
 
+def notConcreteIndex2AplanStandart(expression: str):
+    pattern = r"(\w+\.\w+)\[([^\[\]]*[a-zA-Z][^\[\]]*)\]"
+
+    def replace_match(match):
+        identifier, index = match.group(1), match.group(2)
+        return f"BGETI({identifier},{index})"
+
+    result = re.sub(pattern, lambda match: replace_match(match), expression)
+    return result
+
+
 def vectorSizes2AplanStandart(expression: str):
     patterns = [r"\[([0-9]+)\]", r"\[([0-9]+):([0-9]+)\]"]
 

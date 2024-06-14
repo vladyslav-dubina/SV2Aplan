@@ -3,6 +3,12 @@ from utils import generate_module_names, removeTrailingComma
 from typing import List
 
 
+class ElementsTypes(Enum):
+    ASSERT_ELEMENT = auto()
+    IF_STATEMENT_ELEMENT = auto()
+    ASSIGN_ELEMENT = auto()
+
+
 class DeclTypes(Enum):
     WIRE = auto()
     REG = auto()
