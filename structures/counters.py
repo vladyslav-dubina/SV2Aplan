@@ -10,6 +10,7 @@ class CounterTypes(Enum):
     MODULE_COUNTER = auto()
     BODY_COUNTER = auto()
     ELSE_BODY_COUNTER = auto()
+    LOOP_COUNTER = auto()
 
 
 class Counters:
@@ -23,6 +24,7 @@ class Counters:
         self.b_counter = 0
         self.body_counter = 1
         self.else_body_counter = 1
+        self.loop_counter = 1
 
     def incrieseCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
@@ -41,6 +43,8 @@ class Counters:
             self.body_counter += 1
         if counter_type is CounterTypes.ELSE_BODY_COUNTER:
             self.else_body_counter += 1
+        if counter_type is CounterTypes.LOOP_COUNTER:
+            self.loop_counter += 1
 
     def decrieseCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
@@ -59,6 +63,8 @@ class Counters:
             self.body_counter -= 1
         if counter_type is CounterTypes.ELSE_BODY_COUNTER:
             self.else_body_counter -= 1
+        if counter_type is CounterTypes.LOOP_COUNTER:
+            self.loop_counter -= 1
 
     def getCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
@@ -77,6 +83,8 @@ class Counters:
             return self.body_counter
         if counter_type is CounterTypes.ELSE_BODY_COUNTER:
             return self.else_body_counter
+        if counter_type is CounterTypes.LOOP_COUNTER:
+            return self.loop_counter
 
     def countersDeinit(self):
         self.module_counter = 1
@@ -87,3 +95,4 @@ class Counters:
         self.b_counter = 0
         self.body_counter = 1
         self.else_body_counter = 1
+        self.loop_counter = 1
