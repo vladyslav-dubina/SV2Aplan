@@ -33,7 +33,6 @@ class SVListener(SystemVerilogParserListener):
             )
 
     def exitData_declaration(self, ctx):
-        assign_name = ""
         if ctx.data_type_or_implicit():
             data_type = ctx.data_type_or_implicit().getText()
             aplan_vector_size = [0]
@@ -47,16 +46,9 @@ class SVListener(SystemVerilogParserListener):
                 for (
                     elem
                 ) in ctx.list_of_variable_decl_assignments().variable_decl_assignment():
+                    assign_name = ""
                     identifier = elem.variable_identifier().identifier().getText()
-                    if elem.expression():
-                        expression = elem.expression().getText()
-                        if expression:
-                            sv2aplan = SV2aplan(self.module)
-                            assign_name = sv2aplan.declaration2Aplan(elem)
-                    if not assign_name:
-                        assign_name = ""
-
-                    self.module.addDeclaration(
+                    decl_index = self.module.addDeclaration(
                         Declaration(
                             DeclTypes.REG,
                             identifier,
@@ -66,8 +58,16 @@ class SVListener(SystemVerilogParserListener):
                         )
                     )
 
+                    if elem.expression():
+                        expression = elem.expression().getText()
+                        if expression:
+                            sv2aplan = SV2aplan(self.module)
+                            assign_name = sv2aplan.declaration2Aplan(elem)
+                            self.module.declarations[decl_index].expression = (
+                                assign_name
+                            )
+
     def exitNet_declaration(self, ctx):
-        assign_name = ""
         data_type = ctx.data_type_or_implicit()
         aplan_vector_size = [0]
         if data_type:
@@ -80,15 +80,8 @@ class SVListener(SystemVerilogParserListener):
         if ctx.net_type().getText() == "wire":
             for elem in ctx.list_of_net_decl_assignments().net_decl_assignment():
                 identifier = elem.net_identifier().identifier().getText()
-                if elem.expression():
-                    expression = elem.expression().getText()
-                    if expression:
-                        sv2aplan = SV2aplan(self.module)
-                        assign_name = sv2aplan.declaration2Aplan(elem)
-                if not assign_name:
-                    assign_name = ""
-
-                self.module.addDeclaration(
+                assign_name = ""
+                decl_index = self.module.addDeclaration(
                     Declaration(
                         DeclTypes.WIRE,
                         identifier,
@@ -97,6 +90,13 @@ class SVListener(SystemVerilogParserListener):
                         Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                     )
                 )
+
+                if elem.expression():
+                    expression = elem.expression().getText()
+                    if expression:
+                        sv2aplan = SV2aplan(self.module)
+                        assign_name = sv2aplan.declaration2Aplan(elem)
+                        self.module.declarations[decl_index].expression = assign_name
 
     def exitAnsi_port_declaration(self, ctx):
         header = ctx.net_port_header().getText()
@@ -141,15 +141,8 @@ class SVListener(SystemVerilogParserListener):
     def exitFor_variable_declaration(self, ctx):
         assign_name = ""
         data_type = ctx.data_type()
-        sv2aplan = SV2aplan(self.module)
-        action_txt = (
-            f"{ctx.variable_identifier(0).getText()}={ctx.expression(0).getText()}"
-        )
-        assign_name = sv2aplan.expression2Aplan(
-            action_txt, ElementsTypes.ASSIGN_ELEMENT
-        )
         data_type = DeclTypes.checkType(data_type)
-        self.module.addDeclaration(
+        decl_index = self.module.addDeclaration(
             Declaration(
                 data_type,
                 ctx.variable_identifier(0).getText(),
@@ -158,12 +151,21 @@ class SVListener(SystemVerilogParserListener):
                 Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
             )
         )
+        sv2aplan = SV2aplan(self.module)
+        if ctx.expression(0) is not None:
+            action_txt = (
+                f"{ctx.variable_identifier(0).getText()}={ctx.expression(0).getText()}"
+            )
+            assign_name = sv2aplan.expression2Aplan(
+                action_txt, ElementsTypes.ASSIGN_ELEMENT
+            )
+        self.module.declarations[decl_index].expression = assign_name
 
-    def enterLoop_generate_construct(self, ctx):
+    def exitLoop_generate_construct(self, ctx):
         sv2aplan = SV2aplan(self.module)
         sv2aplan.generate2Aplan(ctx)
 
-    def enterAlways_construct(self, ctx):
+    def exitAlways_construct(self, ctx):
         sv2aplan = SV2aplan(self.module)
         sv2aplan.always2Aplan(ctx)
 
@@ -187,6 +189,24 @@ class SVListener(SystemVerilogParserListener):
 
 
 """
+    def exitVariable_assignment(self, ctx):
+        sv2aplan = SV2aplan(self.module)
+        assign_name = sv2aplan.expression2Aplan(
+            ctx.getText(), ElementsTypes.ASSIGN_ELEMENT
+        )
+        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+        assign_b = "assign_B_{}".format(
+            Counters_Object.getCounter(CounterTypes.B_COUNTER)
+        )
+        struct_assign = Protocol(
+            assign_b,
+            Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+        )
+        struct_assign.addBody(assign_name)
+        self.module.out_of_block_elements.append(struct_assign)
+
+
+
     def exitNet_assignment(self, ctx):
         print("tre")
         sv2aplan = SV2aplan(self.module)
@@ -201,21 +221,6 @@ class SVListener(SystemVerilogParserListener):
         struct_assign.addBody(assign_name)
         self.module.out_of_block_elements.append(struct_assign)
 
-    def exitVariable_assignment(self, ctx):
-        sv2aplan = SV2aplan(self.module)
-        assign_name = sv2aplan.expression2Aplan(
-            ctx.getText(), ElementsTypes.ASSIGN_ELEMENT
-        )
-        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-        assign_b = "assign_B_{}".format(
-            Counters_Object.getCounter(CounterTypes.B_COUNTER)
-        )
-        struct_assign = Protocol(assign_b)
-        struct_assign.addBody(assign_name)
-        self.module.out_of_block_elements.append(struct_assign)
-"""
-
-"""
     def exitFor_variable_declaration(self, ctx):
         assign_name = ""
         data_type = ctx.data_type().getText()

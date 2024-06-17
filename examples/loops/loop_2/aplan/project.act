@@ -2,16 +2,16 @@
 assign_1 = (
 		(1)->
 		("code_patch_core#module_1:action 'assign (h = 0)';")
-		(h = 0)),
+		(module_1.h = 0)),
 assign_2 = (
 		(1)->
 		("code_patch_core#module_1:action 'assign (h = h + 1)';")
-		(h = h + 1)),
+		(module_1.h = module_1.h + 1)),
 cond_1 = (
-		(h < 8)->
+		(module_1.h < 8)->
 		("code_patch_core#module_1:action 'cond (h < 8)';")
 		(1)),
 assign_3 = (
 		(1)->
 		("code_patch_core#module_1:action 'assign (patch_match[h] = ( si_addr_i == ctl_pat_addr_i[h] ) & ctl_pat_pen_i[h])';")
-		(BGETI(module_1.patch_match, h) = ( module_1.si_addr_i == BGETI(module_1.ctl_pat_addr_i, h) ) & BGETI(module_1.ctl_pat_pen_i, h)))
+		(BGETI(module_1.patch_match, module_1.h) = ( module_1.si_addr_i == BGETI(module_1.ctl_pat_addr_i, module_1.h) ) & BGETI(module_1.ctl_pat_pen_i, module_1.h)))

@@ -2,7 +2,7 @@
 assign_1 = (
 		(1)->
 		("register_write_once_example#module_1:action 'assign (Write_once_status = 0)';")
-		(Write_once_status = 0)),
+		(module_1.Write_once_status = 0)),
 if_1 = (
 		(~(module_1.ip_resetn))->
 		("register_write_once_example#module_1:action 'if (~ip_resetn)';")

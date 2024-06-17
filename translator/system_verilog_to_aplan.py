@@ -1,6 +1,6 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
-from structures.aplan import Module, Action, Always, ElementsTypes, Structure, DeclTypes
+from structures.aplan import Module, Action, Always, ElementsTypes, Structure, DeclTypes, Declaration
 from structures.counters import CounterTypes
 from utils import (
     addSpacesAroundOperators,
@@ -94,7 +94,8 @@ class SV2aplan:
         action_name = "{0}_{1}".format(
             name_part, Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER)
         )
-        condition, condition_with_replaced_names = self.prepareExpressionString(
+        
+        expression, expression_with_replaced_names = self.prepareExpressionString(
             input, counter_type
         )
 
@@ -105,13 +106,13 @@ class SV2aplan:
 
         if cond_type == ElementsTypes.ASSIGN_ELEMENT:
             action.precondition.body.append("1")
-            action.postcondition.body.append(condition_with_replaced_names)
+            action.postcondition.body.append(expression_with_replaced_names)
         else:
-            action.precondition.body.append(condition_with_replaced_names)
+            action.precondition.body.append(expression_with_replaced_names)
             action.postcondition.body.append("1")
 
         action.description.body.append(
-            f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({condition})'"
+            f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
         )
 
         action_check_result = self.module.isUniqAction(action)
@@ -265,6 +266,29 @@ class SV2aplan:
                         )
                     )
                     sv_structure.behavior[b_index].addBody(action_name)
+            elif type(child) is SystemVerilogParser.For_variable_declarationContext:
+                assign_name = ""
+                data_type = ctx.data_type()
+                sv2aplan = SV2aplan(self.module)
+                if (ctx.expression(0) is not None):
+                    action_txt = (
+                        f"{ctx.variable_identifier(0).getText()}={ctx.expression(0).getText()}"
+                    )
+                    assign_name = sv2aplan.expression2Aplan(
+                        action_txt, ElementsTypes.ASSIGN_ELEMENT
+                    )
+                data_type = DeclTypes.checkType(data_type)
+                print("ta")
+                print(ctx.variable_identifier(0).getText())
+                self.module.addDeclaration(
+                    Declaration(
+                        data_type,
+                        ctx.variable_identifier(0).getText(),
+                        assign_name,
+                        0,
+                        Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+                    )
+                )
             elif type(child) is SystemVerilogParser.Loop_statementContext:
                 self.loop2Aplan(child, sv_structure)
             elif type(child) is SystemVerilogParser.Conditional_statementContext:

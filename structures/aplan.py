@@ -208,6 +208,7 @@ class Module:
             key=lambda elem: len(elem.identifier),
             reverse=True,
         )
+        return len(self.declarations) - 1
 
     def getDeclarationsWithExpressions(self):
         result = []
