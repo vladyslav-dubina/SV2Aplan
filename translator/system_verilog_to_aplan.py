@@ -1,6 +1,14 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
-from structures.aplan import Module, Action, Always, ElementsTypes, Structure, DeclTypes, Declaration
+from structures.aplan import (
+    Module,
+    Action,
+    Always,
+    ElementsTypes,
+    Structure,
+    DeclTypes,
+    Declaration,
+)
 from structures.counters import CounterTypes
 from utils import (
     addSpacesAroundOperators,
@@ -13,6 +21,7 @@ from utils import (
     removeTypeFromForInit,
     Counters_Object,
 )
+from typing import Tuple
 import re
 
 
@@ -77,7 +86,9 @@ class SV2aplan:
         )
         return (expression, expression_with_replaced_names)
 
-    def expression2Aplan(self, input: str, cond_type: ElementsTypes):
+    def expression2Aplan(
+        self, input: str, cond_type: ElementsTypes, source_interval: Tuple[int, int]
+    ):
         name_part = ""
         counter_type = CounterTypes.NONE_COUNTER
 
@@ -94,7 +105,7 @@ class SV2aplan:
         action_name = "{0}_{1}".format(
             name_part, Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER)
         )
-        
+
         expression, expression_with_replaced_names = self.prepareExpressionString(
             input, counter_type
         )
@@ -102,6 +113,8 @@ class SV2aplan:
         action = Action(
             name_part,
             Counters_Object.getCounter(counter_type),
+            Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+            source_interval,
         )
 
         if cond_type == ElementsTypes.ASSIGN_ELEMENT:
@@ -115,7 +128,7 @@ class SV2aplan:
             f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
         )
 
-        action_check_result = self.module.isUniqAction(action)
+        action_check_result, source_interval = self.module.isUniqAction(action)
         if action_check_result is None:
             self.module.actions.append(action)
         else:
@@ -123,7 +136,34 @@ class SV2aplan:
             action_name = action_check_result
 
         Counters_Object.incrieseCounter(counter_type)
-        return action_name
+        return (action_name, source_interval)
+
+    def forDeclarationToApan(self, ctx: SystemVerilogParser.For_initializationContext):
+        assign_name = ""
+        expression = ctx.for_variable_declaration(0)
+        if expression is not None:
+            data_type = expression.data_type()
+            data_type = DeclTypes.checkType(data_type)
+            decl_index = self.module.addDeclaration(
+                Declaration(
+                    data_type,
+                    expression.variable_identifier(0).getText(),
+                    assign_name,
+                    0,
+                    Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+                    expression.getSourceInterval(),
+                )
+            )
+            sv2aplan = SV2aplan(self.module)
+            if expression.expression(0) is not None:
+                action_txt = (
+                    f"{expression.variable_identifier(0).getText()}={expression.expression(0).getText()}"
+                )
+                assign_name, source_interval = sv2aplan.expression2Aplan(
+                    action_txt, ElementsTypes.ASSIGN_ELEMENT, ctx.getSourceInterval()
+                )
+            self.module.declarations[decl_index].expression = assign_name
+
 
     def loop2Aplan(
         self,
@@ -133,6 +173,9 @@ class SV2aplan:
         ),
         sv_structure: Structure,
     ):
+        if type(ctx) is SystemVerilogParser.Loop_statementContext:
+            self.forDeclarationToApan(ctx.for_initialization())
+
         beh_index = sv_structure.getLastBehaviorIndex()
         if beh_index is not None:
             sv_structure.behavior[beh_index].addBody(
@@ -165,11 +208,18 @@ class SV2aplan:
         initialization = ""
         if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
             initialization = ctx.genvar_initialization().getText()
+            action_name, source_interval = self.expression2Aplan(
+                initialization,
+                ElementsTypes.ASSIGN_ELEMENT,
+                ctx.genvar_initialization().getSourceInterval(),
+            )
         elif type(ctx) is SystemVerilogParser.Loop_statementContext:
             initialization = removeTypeFromForInit(ctx.for_initialization())
-        action_name = self.expression2Aplan(
-            initialization, ElementsTypes.ASSIGN_ELEMENT
-        )
+            action_name, source_interval = self.expression2Aplan(
+                initialization,
+                ElementsTypes.ASSIGN_ELEMENT,
+                ctx.for_initialization().getSourceInterval(),
+            )
 
         beh_index = sv_structure.addProtocol(
             "loop_init_{0}".format(
@@ -182,9 +232,18 @@ class SV2aplan:
         iteration = ""
         if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
             iteration = ctx.genvar_iteration().getText()
+            action_name, source_interval = self.expression2Aplan(
+                iteration,
+                ElementsTypes.ASSIGN_ELEMENT,
+                ctx.genvar_iteration().getSourceInterval(),
+            )
         elif type(ctx) is SystemVerilogParser.Loop_statementContext:
             iteration = ctx.for_step().getText()
-        action_name = self.expression2Aplan(iteration, ElementsTypes.ASSIGN_ELEMENT)
+            action_name, source_interval = self.expression2Aplan(
+                iteration,
+                ElementsTypes.ASSIGN_ELEMENT,
+                ctx.for_step().getSourceInterval(),
+            )
 
         beh_index = sv_structure.addProtocol(
             "loop_inc_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
@@ -195,9 +254,18 @@ class SV2aplan:
         condition = ""
         if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
             condition = ctx.genvar_expression().getText()
+            action_name, source_interval = self.expression2Aplan(
+                condition,
+                ElementsTypes.CONDITION_ELEMENT,
+                ctx.genvar_expression().getSourceInterval(),
+            )
         elif type(ctx) is SystemVerilogParser.Loop_statementContext:
             condition = ctx.expression().getText()
-        action_name = self.expression2Aplan(condition, ElementsTypes.CONDITION_ELEMENT)
+            action_name, source_interval = self.expression2Aplan(
+                condition,
+                ElementsTypes.CONDITION_ELEMENT,
+                ctx.expression().getSourceInterval(),
+            )
 
         beh_index = sv_structure.addProtocol(
             "loop_cond_{0}".format(
@@ -229,8 +297,10 @@ class SV2aplan:
                 type(child)
                 is SystemVerilogParser.Simple_immediate_assert_statementContext
             ):
-                assert_name = self.expression2Aplan(
-                    child.expression().getText(), ElementsTypes.ASSERT_ELEMENT
+                assert_name, source_interval = self.expression2Aplan(
+                    child.expression().getText(),
+                    ElementsTypes.ASSERT_ELEMENT,
+                    child.expression().getSourceInterval(),
                 )
                 Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
                 assert_b = "assert_B_{}".format(
@@ -249,8 +319,10 @@ class SV2aplan:
                 or type(child) is SystemVerilogParser.Net_assignmentContext
                 or type(child) is SystemVerilogParser.Variable_assignmentContext
             ):
-                action_name = self.expression2Aplan(
-                    child.getText(), ElementsTypes.ASSIGN_ELEMENT
+                action_name, source_interval = self.expression2Aplan(
+                    child.getText(),
+                    ElementsTypes.ASSIGN_ELEMENT,
+                    child.getSourceInterval(),
                 )
                 beh_index = sv_structure.getLastBehaviorIndex()
 
@@ -270,16 +342,14 @@ class SV2aplan:
                 assign_name = ""
                 data_type = ctx.data_type()
                 sv2aplan = SV2aplan(self.module)
-                if (ctx.expression(0) is not None):
-                    action_txt = (
-                        f"{ctx.variable_identifier(0).getText()}={ctx.expression(0).getText()}"
-                    )
-                    assign_name = sv2aplan.expression2Aplan(
-                        action_txt, ElementsTypes.ASSIGN_ELEMENT
+                if ctx.expression(0) is not None:
+                    action_txt = f"{ctx.variable_identifier(0).getText()}={ctx.expression(0).getText()}"
+                    assign_name, source_interval = sv2aplan.expression2Aplan(
+                        action_txt,
+                        ElementsTypes.ASSIGN_ELEMENT,
+                        ctx.getSourceInterval(),
                     )
                 data_type = DeclTypes.checkType(data_type)
-                print("ta")
-                print(ctx.variable_identifier(0).getText())
                 self.module.addDeclaration(
                     Declaration(
                         data_type,
@@ -287,6 +357,7 @@ class SV2aplan:
                         assign_name,
                         0,
                         Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+                        ctx.getSourceInterval(),
                     )
                 )
             elif type(child) is SystemVerilogParser.Loop_statementContext:
@@ -318,6 +389,8 @@ class SV2aplan:
                         if_action = Action(
                             "if",
                             Counters_Object.getCounter(CounterTypes.IF_COUNTER),
+                            Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+                            child.getSourceInterval(),
                         )
                         predicate_string, predicate_with_replaced_names = (
                             self.prepareExpressionString(
@@ -333,7 +406,9 @@ class SV2aplan:
                         )
                         if_action.postcondition.body.append("1")
 
-                        if_check_result = self.module.isUniqAction(if_action)
+                        if_check_result, source_interval = self.module.isUniqAction(
+                            if_action
+                        )
                         if if_check_result is None:
                             self.module.actions.append(if_action)
                         else:
@@ -410,7 +485,9 @@ class SV2aplan:
             + str(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
         )
         struct = Structure(
-            generate_name, Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER)
+            generate_name,
+            Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+            ctx.getSourceInterval(),
         )
         struct.addProtocol(generate_name)
         self.loop2Aplan(ctx, struct)
@@ -448,6 +525,7 @@ class SV2aplan:
             always_name,
             sensetive,
             Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+            ctx.getSourceInterval(),
         )
         always.addProtocol(always_name)
         # always.addProtocol(always_name)
@@ -457,5 +535,7 @@ class SV2aplan:
         return
 
     def declaration2Aplan(self, ctx):
-        assign_name = self.expression2Aplan(ctx.getText(), ElementsTypes.ASSIGN_ELEMENT)
+        assign_name, source_interval = self.expression2Aplan(
+            ctx.getText(), ElementsTypes.ASSIGN_ELEMENT, ctx.getSourceInterval()
+        )
         return assign_name

@@ -1,7 +1,7 @@
 from enum import Enum, auto
 from utils import generate_module_names, removeTrailingComma, Counters_Object
 from structures.counters import CounterTypes
-from typing import List
+from typing import List, Tuple
 
 
 class ElementsTypes(Enum):
@@ -30,6 +30,15 @@ class B0:
         self.elements = []
 
 
+class Basic:
+    def __init__(
+        self, identifier: str, sequence: int, source_interval: Tuple[int, int]
+    ):
+        self.identifier = identifier
+        self.sequence = sequence
+        self.source_interval: Tuple[int, int] = source_interval
+
+
 class ActionParts:
     def __init__(self):
         self.body: List[str] = []
@@ -43,11 +52,17 @@ class ActionParts:
         return body_to_str
 
 
-class Action:
-    def __init__(self, name: str, number: int):
-        self.name = name
+class Action(Basic):
+    def __init__(
+        self,
+        identifier: str,
+        number: int,
+        sequence: int,
+        source_interval: Tuple[int, int],
+    ):
         self.number = number
-        self.name = self.name + "_" + str(number)
+        identifier_tmp = identifier + "_" + str(number)
+        super().__init__(identifier_tmp, sequence, source_interval)
         self.precondition: ActionParts = ActionParts()
         self.postcondition: ActionParts = ActionParts()
         self.description: ActionParts = ActionParts()
@@ -56,18 +71,20 @@ class Action:
         return f""" = (\n\t\t({self.precondition})->\n\t\t("{self.description};")\n\t\t({self.postcondition}))"""
 
     def getActionName(self):
-        return "{0}_{1}".format(self.name, self.number)
+        return "{0}_{1}".format(self.identifier, self.number)
 
     def __str__(self):
-        return "{0}{1},".format(self.name, self.getBody())
+        return "{0}{1},".format(self.identifier, self.getBody())
 
     def __eq__(self, other):
         if isinstance(other, Action):
-            return self.getBody() == other.getBody()
+            return (
+                self.getBody() == other.getBody()
+            )
         return False
 
 
-class Declaration:
+class Declaration(Basic):
     def __init__(
         self,
         data_type: DeclTypes,
@@ -75,12 +92,12 @@ class Declaration:
         expression: str,
         size: int,
         sequence: int,
+        source_interval: Tuple[int, int],
     ):
+        super().__init__(identifier, sequence, source_interval)
         self.data_type = data_type
-        self.identifier = identifier
         self.expression = expression
         self.size = size
-        self.sequence = sequence
 
     def getAplanDecltype(self):
         if self.data_type == DeclTypes.INT:
@@ -97,12 +114,13 @@ class Declaration:
                 return "Bits " + str(self.size)
 
 
-class Protocol:
-    def __init__(self, identifier: str, sequence: int):
-        self.identifier = identifier
+class Protocol(Basic):
+    def __init__(
+        self, identifier: str, sequence: int, source_interval: Tuple[int, int]
+    ):
+        super().__init__(identifier, sequence, source_interval)
         self.body: List[str] = []
         self.type: DeclTypes | None = None
-        self.sequence = sequence
 
     def setType(self, type: DeclTypes | None):
         self.type = type
@@ -132,10 +150,11 @@ class Protocol:
         return "{0} = {1}".format(self.identifier, body_to_str)
 
 
-class Structure:
-    def __init__(self, identifier: str, sequence: int):
-        self.identifier = identifier
-        self.sequence = sequence
+class Structure(Basic):
+    def __init__(
+        self, identifier: str, sequence: int, source_interval: Tuple[int, int]
+    ):
+        super().__init__(identifier, sequence, source_interval)
         self.behavior: List[Protocol] = []
 
     def getLastBehaviorIndex(self):
@@ -148,6 +167,7 @@ class Structure:
             Protocol(
                 protocol_identifier,
                 Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+                (0, 0),
             )
         )
         return len(self.behavior) - 1
@@ -174,8 +194,14 @@ class Structure:
 
 
 class Always(Structure):
-    def __init__(self, identifier: str, sensetive: str | None, sequence: int):
-        super().__init__(identifier, sequence)
+    def __init__(
+        self,
+        identifier: str,
+        sensetive: str | None,
+        sequence: int,
+        source_interval: Tuple[int, int],
+    ):
+        super().__init__(identifier, sequence, source_interval)
         self.sensetive = sensetive
 
     def getSensetiveForB0(self):
@@ -229,8 +255,8 @@ class Module:
 
         for element in self.actions:
             if element == action:
-                return element.name
-        return None
+                return (element.identifier, element.source_interval)
+        return None, (None, None)
 
     def isIncludeInputPorts(self):
         for element in self.declarations:
@@ -297,7 +323,6 @@ class Module:
         result = ""
         for element in self.structures:
             result += str(element)
-        result = removeTrailingComma(result)
         return result
 
     def getOutOfBlockInStrFormat(self):

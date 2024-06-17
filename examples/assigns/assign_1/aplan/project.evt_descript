@@ -1,0 +1,4 @@
+events(
+	s_cfg_pat_gen_i:obj(x1:bool);
+	s_si_read_i:obj(x1:bool);
+);

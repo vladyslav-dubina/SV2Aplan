@@ -145,6 +145,11 @@ def start_unit_test():
             "examples/loops/loop_2/test_result",
             "examples/loops/loop_2/aplan",
         ),
+        (
+            "examples/assigns/assign_1/assign_1.sv",
+            "examples/assigns/assign_1/test_result",
+            "examples/assigns/assign_1/aplan",
+        ),
     ]
 
     for test_number, data in enumerate(test_definitions):

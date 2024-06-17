@@ -83,6 +83,10 @@ def regeneration_start():
             "examples/loops/loop_2/loop_2.sv",
             "examples/loops/loop_2/aplan",
         ),
+        (
+            "examples/assigns/assign_1/assign_1.sv",
+            "examples/assigns/assign_1/aplan",
+        ),
     ]
 
     for test_number, data in enumerate(test_definitions):

@@ -29,6 +29,7 @@ class SVListener(SystemVerilogParserListener):
                     assign_name,
                     0,
                     Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+                    ctx.getSourceInterval(),
                 )
             )
 
@@ -55,6 +56,7 @@ class SVListener(SystemVerilogParserListener):
                             assign_name,
                             aplan_vector_size[0],
                             Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+                            ctx.getSourceInterval(),
                         )
                     )
 
@@ -88,6 +90,7 @@ class SVListener(SystemVerilogParserListener):
                         assign_name,
                         aplan_vector_size[0],
                         Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+                        ctx.getSourceInterval(),
                     )
                 )
 
@@ -115,6 +118,7 @@ class SVListener(SystemVerilogParserListener):
                 "",
                 aplan_vector_size[0],
                 Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+                ctx.getSourceInterval(),
             )
             self.module.addDeclaration(port)
 
@@ -122,50 +126,26 @@ class SVListener(SystemVerilogParserListener):
         if index != -1:
             vector_size = extractVectorSize(header)
             aplan_vector_size = [0]
-            if vector_size is None:
+            if vector_size is not None:
                 aplan_vector_size = vectorSize2AplanVectorSize(
                     vector_size[0], vector_size[1]
                 )
-            aplan_vector_size = vectorSize2AplanVectorSize(
-                vector_size[0], vector_size[1]
-            )
+
             port = Declaration(
                 DeclTypes.OUTPORT,
                 ctx.port_identifier().getText(),
                 "",
                 aplan_vector_size[0],
                 Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+                ctx.getSourceInterval(),
             )
             self.module.addDeclaration(port)
 
-    def exitFor_variable_declaration(self, ctx):
-        assign_name = ""
-        data_type = ctx.data_type()
-        data_type = DeclTypes.checkType(data_type)
-        decl_index = self.module.addDeclaration(
-            Declaration(
-                data_type,
-                ctx.variable_identifier(0).getText(),
-                assign_name,
-                0,
-                Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
-            )
-        )
-        sv2aplan = SV2aplan(self.module)
-        if ctx.expression(0) is not None:
-            action_txt = (
-                f"{ctx.variable_identifier(0).getText()}={ctx.expression(0).getText()}"
-            )
-            assign_name = sv2aplan.expression2Aplan(
-                action_txt, ElementsTypes.ASSIGN_ELEMENT
-            )
-        self.module.declarations[decl_index].expression = assign_name
-
-    def exitLoop_generate_construct(self, ctx):
+    def enterLoop_generate_construct(self, ctx):
         sv2aplan = SV2aplan(self.module)
         sv2aplan.generate2Aplan(ctx)
 
-    def exitAlways_construct(self, ctx):
+    def enterAlways_construct(self, ctx):
         sv2aplan = SV2aplan(self.module)
         sv2aplan.always2Aplan(ctx)
 
@@ -173,8 +153,10 @@ class SVListener(SystemVerilogParserListener):
         expression = ctx.property_spec()
         if expression is not None:
             sv2aplan = SV2aplan(self.module)
-            assert_name = sv2aplan.expression2Aplan(
-                expression.getText(), ElementsTypes.ASSERT_ELEMENT
+            assert_name, source_interval = sv2aplan.expression2Aplan(
+                expression.getText(),
+                ElementsTypes.ASSERT_ELEMENT,
+                ctx.getSourceInterval(),
             )
             Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
             assert_b = "assert_B_{}".format(
@@ -183,62 +165,25 @@ class SVListener(SystemVerilogParserListener):
             struct_assert = Protocol(
                 assert_b,
                 Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+                ctx.getSourceInterval(),
             )
             struct_assert.addBody("{0}.Delta + !{0}.0".format(assert_name))
             self.module.out_of_block_elements.append(struct_assert)
 
-
-"""
-    def exitVariable_assignment(self, ctx):
-        sv2aplan = SV2aplan(self.module)
-        assign_name = sv2aplan.expression2Aplan(
-            ctx.getText(), ElementsTypes.ASSIGN_ELEMENT
-        )
-        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-        assign_b = "assign_B_{}".format(
-            Counters_Object.getCounter(CounterTypes.B_COUNTER)
-        )
-        struct_assign = Protocol(
-            assign_b,
-            Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
-        )
-        struct_assign.addBody(assign_name)
-        self.module.out_of_block_elements.append(struct_assign)
-
-
-
     def exitNet_assignment(self, ctx):
-        print("tre")
         sv2aplan = SV2aplan(self.module)
-        assign_name = sv2aplan.expression2Aplan(
-            ctx.getText(), ElementsTypes.ASSIGN_ELEMENT
+        assign_name, source_interval = sv2aplan.expression2Aplan(
+            ctx.getText(), ElementsTypes.ASSIGN_ELEMENT, ctx.getSourceInterval()
         )
-        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-        assign_b = "assign_B_{}".format(
-            Counters_Object.getCounter(CounterTypes.B_COUNTER)
-        )
-        struct_assign = Protocol(assign_b)
-        struct_assign.addBody(assign_name)
-        self.module.out_of_block_elements.append(struct_assign)
-
-    def exitFor_variable_declaration(self, ctx):
-        assign_name = ""
-        data_type = ctx.data_type().getText()
-        data_type = DeclTypes.checkType(data_type)
-        for elem in ctx.variable_identifier():
-            identifier = elem.getText()
-            self.module.addDeclaration(
-                Declaration(data_type, identifier, assign_name, 0)
+        if source_interval != ctx.getSourceInterval():
+            Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+            assign_b = "assign_B_{}".format(
+                Counters_Object.getCounter(CounterTypes.B_COUNTER)
             )
-            
-            if ctx.expression():
-                expression = ctx.expression(0).getText()
-                if expression:
-                    sv2aplan = SV2aplan(self.module)
-                    assign_name = sv2aplan.assign2Aplan(f"{identifier}={expression}")
-            if not assign_name:
-                assign_name = ""
-            self.module.updateDeclarationExpression(
-                self.module.findDeclaration(identifier), assign_name
+            struct_assign = Protocol(
+                assign_b,
+                Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+                ctx.getSourceInterval(),
             )
-            """
+            struct_assign.addBody(assign_name)
+            self.module.out_of_block_elements.append(struct_assign)
