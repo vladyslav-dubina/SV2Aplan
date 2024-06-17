@@ -1,15 +1,14 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
-from structures.aplan import (
+from classes.declarations import Declaration, DeclTypes
+from classes.actions import Action
+from classes.structure import Structure
+from classes.always import Always
+from classes.aplan import (
     Module,
-    Action,
-    Always,
     ElementsTypes,
-    Structure,
-    DeclTypes,
-    Declaration,
 )
-from structures.counters import CounterTypes
+from classes.counters import CounterTypes
 from utils import (
     addSpacesAroundOperators,
     valuesToAplanStandart,
@@ -38,7 +37,7 @@ class SV2aplan:
         return input
 
     def findAndChangeNamesToAplanNames(self, input: str):
-        for elem in self.module.declarations:
+        for elem in self.module.declarations.getElements():
             input = re.sub(
                 r"\b{}\b".format(re.escape(elem.identifier)),
                 "{}.{}".format(self.module.ident_uniq_name, elem.identifier),
@@ -128,9 +127,9 @@ class SV2aplan:
             f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
         )
 
-        action_check_result, source_interval = self.module.isUniqAction(action)
+        action_check_result, source_interval = self.module.actions.isUniqAction(action)
         if action_check_result is None:
-            self.module.actions.append(action)
+            self.module.actions.addElement(action)
         else:
             Counters_Object.decrieseCounter(counter_type)
             action_name = action_check_result
@@ -144,7 +143,7 @@ class SV2aplan:
         if expression is not None:
             data_type = expression.data_type()
             data_type = DeclTypes.checkType(data_type)
-            decl_index = self.module.addDeclaration(
+            decl_index = self.module.declarations.addElement(
                 Declaration(
                     data_type,
                     expression.variable_identifier(0).getText(),
@@ -156,14 +155,12 @@ class SV2aplan:
             )
             sv2aplan = SV2aplan(self.module)
             if expression.expression(0) is not None:
-                action_txt = (
-                    f"{expression.variable_identifier(0).getText()}={expression.expression(0).getText()}"
-                )
+                action_txt = f"{expression.variable_identifier(0).getText()}={expression.expression(0).getText()}"
                 assign_name, source_interval = sv2aplan.expression2Aplan(
                     action_txt, ElementsTypes.ASSIGN_ELEMENT, ctx.getSourceInterval()
                 )
-            self.module.declarations[decl_index].expression = assign_name
-
+            declaration = self.module.declarations.getElementByIndex(decl_index)
+            declaration.expression = assign_name
 
     def loop2Aplan(
         self,
@@ -350,7 +347,7 @@ class SV2aplan:
                         ctx.getSourceInterval(),
                     )
                 data_type = DeclTypes.checkType(data_type)
-                self.module.addDeclaration(
+                self.module.declarations.addElement(
                     Declaration(
                         data_type,
                         ctx.variable_identifier(0).getText(),
@@ -406,11 +403,11 @@ class SV2aplan:
                         )
                         if_action.postcondition.body.append("1")
 
-                        if_check_result, source_interval = self.module.isUniqAction(
-                            if_action
+                        if_check_result, source_interval = (
+                            self.module.actions.isUniqAction(if_action)
                         )
                         if if_check_result is None:
-                            self.module.actions.append(if_action)
+                            self.module.actions.addElement(if_action)
                         else:
                             Counters_Object.decrieseCounter(CounterTypes.IF_COUNTER)
                             action_name = if_check_result
@@ -491,7 +488,7 @@ class SV2aplan:
         )
         struct.addProtocol(generate_name)
         self.loop2Aplan(ctx, struct)
-        self.module.structures.append(struct)
+        self.module.structures.addElement(struct)
         Counters_Object.incrieseCounter(CounterTypes.LOOP_COUNTER)
         return
 
@@ -530,7 +527,7 @@ class SV2aplan:
         always.addProtocol(always_name)
         # always.addProtocol(always_name)
         self.body2Aplan(always_body, always)
-        self.module.structures.append(always)
+        self.module.structures.addElement(always)
 
         return
 

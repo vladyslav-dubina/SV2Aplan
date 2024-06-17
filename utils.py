@@ -1,7 +1,7 @@
 import re
 from ast import literal_eval
 from typing import List
-from structures.counters import Counters, CounterTypes
+from classes.counters import Counters, CounterTypes
 from antlr4_verilog.systemverilog import SystemVerilogParser
 
 

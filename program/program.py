@@ -1,6 +1,6 @@
 from translator.translator import SystemVerilogFinder
 from utils import printWithColor, Color, removeTrailingComma
-from structures.aplan import Module
+from classes.aplan import Module
 from typing import List
 import os
 
@@ -43,7 +43,7 @@ class Program:
     def createEVT(self):
         evt = "events(\n"
         for module in self.modules:
-            for elem in module.getInputPorts():
+            for elem in module.declarations.getInputPorts():
                 evt += "\ts_{0}:obj(x1:{1});\n".format(
                     elem.identifier, elem.getAplanDecltype()
                 )
@@ -73,7 +73,7 @@ class Program:
 
         for module in self.modules:
             env += "\t\t{0} : obj (\n".format(module.identifier)
-            decls = module.declarations
+            decls = module.declarations.getElements()
             for index, elem in enumerate(decls):
                 if index > 0:
                     env += ",\n"
@@ -116,7 +116,7 @@ class Program:
         # ----------------------------------
         actions = ""
         for module in self.modules:
-            actions += module.getActionsInStrFormat()
+            actions += module.actions.getActionsInStrFormat()
         self.writeToFile(self.path_to_result + "project.act", actions)
         printWithColor(".act file created \n", Color.PURPLE)
 
@@ -127,10 +127,10 @@ class Program:
         behaviour = ""
         for module in self.modules:
             behaviour += f"{module.getBehInitProtocols()}"
-            behaviour += module.getStructuresInStrFormat()
+            behaviour += module.structures.getStructuresInStrFormat()
 
             if module.isIncludeOutOfBlockElements():
-                behaviour += module.getOutOfBlockInStrFormat() + "\n"
+                behaviour += module.out_of_block_elements.getProtocolsInStrFormat() + "\n"
             else:
                 behaviour = removeTrailingComma(behaviour)
                 behaviour += "\n"

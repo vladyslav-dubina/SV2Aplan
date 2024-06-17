@@ -3,8 +3,10 @@ from antlr4_verilog.systemverilog import SystemVerilogParserListener
 from translator.system_verilog_to_aplan import (
     SV2aplan,
 )
-from structures.aplan import Declaration, DeclTypes, Module, Protocol, ElementsTypes
-from structures.counters import CounterTypes
+from classes.declarations import Declaration, DeclTypes
+from classes.protocols import Protocol
+from classes.aplan import Module, ElementsTypes
+from classes.counters import CounterTypes
 from utils import Counters_Object, extractVectorSize, vectorSize2AplanVectorSize
 
 
@@ -18,11 +20,14 @@ class SVListener(SystemVerilogParserListener):
         if ctx.module_ansi_header() is not None:
             self.module = Module(ctx.module_ansi_header().module_identifier().getText())
 
+    def exitParameter_declaration(self, ctx):
+        print(ctx.getText())
+
     def exitGenvar_declaration(self, ctx):
         assign_name = ""
         for element in ctx.list_of_genvar_identifiers().genvar_identifier():
             identifier = element.identifier().getText()
-            self.module.addDeclaration(
+            self.module.declarations.addElement(
                 Declaration(
                     DeclTypes.INT,
                     identifier,
@@ -49,7 +54,7 @@ class SVListener(SystemVerilogParserListener):
                 ) in ctx.list_of_variable_decl_assignments().variable_decl_assignment():
                     assign_name = ""
                     identifier = elem.variable_identifier().identifier().getText()
-                    decl_index = self.module.addDeclaration(
+                    decl_index = self.module.declarations.addElement(
                         Declaration(
                             DeclTypes.REG,
                             identifier,
@@ -65,9 +70,10 @@ class SVListener(SystemVerilogParserListener):
                         if expression:
                             sv2aplan = SV2aplan(self.module)
                             assign_name = sv2aplan.declaration2Aplan(elem)
-                            self.module.declarations[decl_index].expression = (
-                                assign_name
+                            declaration = self.module.declarations.getElementByIndex(
+                                decl_index
                             )
+                            declaration.expression = assign_name
 
     def exitNet_declaration(self, ctx):
         data_type = ctx.data_type_or_implicit()
@@ -83,7 +89,7 @@ class SVListener(SystemVerilogParserListener):
             for elem in ctx.list_of_net_decl_assignments().net_decl_assignment():
                 identifier = elem.net_identifier().identifier().getText()
                 assign_name = ""
-                decl_index = self.module.addDeclaration(
+                decl_index = self.module.declarations.addElement(
                     Declaration(
                         DeclTypes.WIRE,
                         identifier,
@@ -99,7 +105,10 @@ class SVListener(SystemVerilogParserListener):
                     if expression:
                         sv2aplan = SV2aplan(self.module)
                         assign_name = sv2aplan.declaration2Aplan(elem)
-                        self.module.declarations[decl_index].expression = assign_name
+                        declaration = self.module.declarations.getElementByIndex(
+                            decl_index
+                        )
+                        declaration.expression = assign_name
 
     def exitAnsi_port_declaration(self, ctx):
         header = ctx.net_port_header().getText()
@@ -120,7 +129,7 @@ class SVListener(SystemVerilogParserListener):
                 Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                 ctx.getSourceInterval(),
             )
-            self.module.addDeclaration(port)
+            self.module.declarations.addElement(port)
 
         index = header.find("output")
         if index != -1:
@@ -139,7 +148,7 @@ class SVListener(SystemVerilogParserListener):
                 Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                 ctx.getSourceInterval(),
             )
-            self.module.addDeclaration(port)
+            self.module.declarations.addElement(port)
 
     def enterLoop_generate_construct(self, ctx):
         sv2aplan = SV2aplan(self.module)
@@ -168,7 +177,7 @@ class SVListener(SystemVerilogParserListener):
                 ctx.getSourceInterval(),
             )
             struct_assert.addBody("{0}.Delta + !{0}.0".format(assert_name))
-            self.module.out_of_block_elements.append(struct_assert)
+            self.module.out_of_block_elements.addElement(struct_assert)
 
     def exitNet_assignment(self, ctx):
         sv2aplan = SV2aplan(self.module)
@@ -186,4 +195,4 @@ class SVListener(SystemVerilogParserListener):
                 ctx.getSourceInterval(),
             )
             struct_assign.addBody(assign_name)
-            self.module.out_of_block_elements.append(struct_assign)
+            self.module.out_of_block_elements.addElement(struct_assign)
