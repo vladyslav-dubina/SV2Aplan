@@ -132,9 +132,6 @@ class SV2aplan:
         ),
         sv_structure: Structure,
     ):
-
-        if type(ctx) is SystemVerilogParser.Loop_statementContext:
-            print()
         beh_index = sv_structure.getLastBehaviorIndex()
         if beh_index is not None:
             sv_structure.behavior[beh_index].addBody(
@@ -249,6 +246,7 @@ class SV2aplan:
                 type(child) is SystemVerilogParser.Variable_decl_assignmentContext
                 or type(child) is SystemVerilogParser.Nonblocking_assignmentContext
                 or type(child) is SystemVerilogParser.Net_assignmentContext
+                or type(child) is SystemVerilogParser.Variable_assignmentContext
             ):
                 action_name = self.expression2Aplan(
                     child.getText(), ElementsTypes.ASSIGN_ELEMENT
@@ -268,7 +266,7 @@ class SV2aplan:
                     )
                     sv_structure.behavior[b_index].addBody(action_name)
             elif type(child) is SystemVerilogParser.Loop_statementContext:
-                self.loop2Aplan(ctx, sv_structure)
+                self.loop2Aplan(child, sv_structure)
             elif type(child) is SystemVerilogParser.Conditional_statementContext:
                 predicate = child.cond_predicate()
                 statements = child.statement_or_null()

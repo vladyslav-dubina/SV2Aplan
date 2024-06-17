@@ -1,0 +1,10 @@
+B = (INIT;Sensetive(always_comb_1)),
+INIT = assign_1,
+
+always_comb_1 = loop_1,
+loop_1 = loop_init_1.loop_main_1,
+loop_main_1 = loop_cond_1.(loop_body_1;loop_inc_1;loop_main_1) + !loop_cond_1,
+loop_init_1 = assign_1,
+loop_inc_1 = assign_2,
+loop_cond_1 = cond_3,
+loop_body_1 = assign_3

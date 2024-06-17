@@ -6,12 +6,10 @@ module code_patch_core
    input           [7:0]              ctl_pat_pen_i
 );
 
-genvar j;
-
 wire    [7:0]  patch_match;
 
 always_comb begin
-   for (int h = 0 + 1; h < 8; h++) begin
+   for (int h = 0; h < 8; h++) begin
       assign patch_match[h] = (si_addr_i == ctl_pat_addr_i[h]) & ctl_pat_pen_i[h]; 
    end   
 end

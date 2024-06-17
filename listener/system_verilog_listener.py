@@ -148,7 +148,6 @@ class SVListener(SystemVerilogParserListener):
         assign_name = sv2aplan.expression2Aplan(
             action_txt, ElementsTypes.ASSIGN_ELEMENT
         )
-        print(assign_name)
         data_type = DeclTypes.checkType(data_type)
         self.module.addDeclaration(
             Declaration(

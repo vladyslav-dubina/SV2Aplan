@@ -111,46 +111,46 @@ def start_unit_test():
 
     test_definitions = [
         (
-            1,
             "examples/sv_example_1/sv_example_1.sv",
             "examples/sv_example_1/test_result",
             "examples/sv_example_1/aplan",
         ),
         (
-            2,
             "examples/sv_example_2/sv_example_2.sv",
             "examples/sv_example_2/test_result",
             "examples/sv_example_2/aplan",
         ),
         (
-            3,
             "examples/if_statemens/if_statement_1/if_statement_1.sv",
             "examples/if_statemens/if_statement_1/test_result",
             "examples/if_statemens/if_statement_1/aplan",
         ),
         (
-            4,
             "examples/if_statemens/if_statement_2/if_statement_2.sv",
             "examples/if_statemens/if_statement_2/test_result",
             "examples/if_statemens/if_statement_2/aplan",
         ),
         (
-            5,
             "examples/assert/assert.sv",
             "examples/assert/test_result",
             "examples/assert/aplan",
         ),
         (
-            6,
             "examples/loops/loop_1/loop_1.sv",
             "examples/loops/loop_1/test_result",
             "examples/loops/loop_1/aplan",
         ),
+        (
+            "examples/loops/loop_2/loop_2.sv",
+            "examples/loops/loop_2/test_result",
+            "examples/loops/loop_2/aplan",
+        ),
     ]
 
-    for test_number, source_file, result_path, aplan_code_path in test_definitions:
-        if run_test(test_number, source_file, result_path, aplan_code_path):
-            failed_tests.append(test_number)
+    for test_number, data in enumerate(test_definitions):
+        source_file, result_path, aplan_code_path = data
+        if run_test(test_number + 1, source_file, result_path, aplan_code_path):
+            failed_tests.append(test_number + 1)
 
     end_time = time.time()
     execution_time = end_time - start_time
