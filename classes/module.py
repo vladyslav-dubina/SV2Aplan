@@ -6,7 +6,7 @@ from classes.protocols import ProtocolArray
 from classes.declarations import DeclarationArray
 from classes.structure import StructureArray
 from classes.basic import Basic, BasicArray
-from classes.counters import CounterTypes
+from classes.module_instantiation import ModuleInstantiationArray
 from typing import Tuple
 
 
@@ -110,12 +110,15 @@ class Module(Basic):
         return result
 
     def __repr__(self):
-        return f"\tBasic{self.identifier!r}\n"
+        return f"\tModule({self.identifier!r}\n)"
 
 
 class ModuleArray(BasicArray):
     def __init__(self):
         super().__init__(Module)
+        self.module_instantiations: ModuleInstantiationArray = (
+            ModuleInstantiationArray()
+        )
 
     def __repr__(self):
         return f"ModulesArray(\n{self.elements!r}\n)"

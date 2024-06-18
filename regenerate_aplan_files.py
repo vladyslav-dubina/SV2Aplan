@@ -51,7 +51,7 @@ def regeneration_start():
     )
 
     test_definitions = [
-                (
+        (
             "examples/if_statemens/if_statement_1/if_statement_1.sv",
             "examples/if_statemens/if_statement_1/aplan",
         ),
@@ -78,6 +78,10 @@ def regeneration_start():
         (
             "examples/parametrs/parametrs_1/parametrs_1.sv",
             "examples/parametrs/parametrs_1/aplan",
+        ),
+        (
+            "examples/parametrs/parametrs_2/",
+            "examples/parametrs/parametrs_2/aplan",
         ),
         (
             "examples/sv_example_1/sv_example_1.sv",

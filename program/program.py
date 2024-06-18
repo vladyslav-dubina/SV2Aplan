@@ -140,6 +140,32 @@ class Program:
         for module in self.modules.getElements():
             module.declarations.recalculateSizeExpressions(module.parametrs)
 
+        for element in self.modules.module_instantiations.getElements():
+            source_module = self.modules.findElement(element.source_identifier)
+            destination_module = self.modules.findElement(
+                element.destination_identifier
+            )
+
+            if source_module and destination_module:
+                for (
+                    module_instantiations
+                ) in self.modules.module_instantiations.getElements():
+                    for (
+                        parametrs_for_change
+                    ) in module_instantiations.parametrs_for_assignment:
+                        left, right = parametrs_for_change
+                        source_parametr = source_module.parametrs.findElement(right)
+                        destination_parametr = destination_module.parametrs.findElement(
+                            left
+                        )
+                        if source_parametr and destination_parametr:
+                            destination_parametr.value = source_parametr.value
+                
+                destination_module.parametrs.recalculateParametrValue()
+                destination_module.declarations.recalculateSizeExpressions(
+                    destination_module.parametrs
+                )
+
     def createAplanFiles(self):
         self.prepareToTranslation()
         self.createEVT()

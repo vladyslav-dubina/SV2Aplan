@@ -8,6 +8,11 @@ from classes.protocols import Protocol
 from classes.module import Module, ElementsTypes
 from classes.counters import CounterTypes
 from classes.parametrs import Parametr
+from classes.module import (
+    Module,
+    ModuleArray,
+)
+from classes.module_instantiation import ModuleInstantiation
 from utils import (
     Counters_Object,
     extractVectorSize,
@@ -15,7 +20,6 @@ from utils import (
     is_numeric_string,
     replaceParametrsCalls,
 )
-from classes.module import Module, ModuleArray
 
 
 class SVListener(SystemVerilogParserListener):
@@ -237,3 +241,15 @@ class SVListener(SystemVerilogParserListener):
             )
             struct_assign.addBody(assign_name)
             self.module.out_of_block_elements.addElement(struct_assign)
+
+    def exitModule_instantiation(self, ctx):
+        destination_identifier = ctx.module_identifier().getText()
+        self.modules.module_instantiations.addElement(
+            ModuleInstantiation(
+                self.module.identifier,
+                destination_identifier,
+                ctx.parameter_value_assignment().getText(),
+            )
+        )
+        # for element in ctx.hierarchical_instance():
+        # print(element.getText())

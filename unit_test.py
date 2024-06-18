@@ -146,6 +146,11 @@ def start_unit_test():
             "examples/parametrs/parametrs_1/aplan",
         ),
         (
+            "examples/parametrs/parametrs_2/",
+            "examples/parametrs/parametrs_2/test_result",
+            "examples/parametrs/parametrs_2/aplan",
+        ),
+        (
             "examples/sv_example_1/sv_example_1.sv",
             "examples/sv_example_1/test_result",
             "examples/sv_example_1/aplan",

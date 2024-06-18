@@ -1,0 +1,6 @@
+B_MODULE_1 = (MAIN_MODULE_1),
+MAIN_MODULE_1 = assign_B_1,
+assign_B_1 = assign_1
+B_MODULE_2 = (MAIN_MODULE_2),
+MAIN_MODULE_2 = assign_B_2,
+assign_B_2 = assign_2
