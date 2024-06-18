@@ -1,5 +1,5 @@
-B = (MAIN),
-MAIN = generate_1,
+B_MODULE_1 = (MAIN_MODULE_1),
+MAIN_MODULE_1 = generate_1,
 generate_1 = loop_1,
 loop_1 = loop_init_1.loop_main_1,
 loop_main_1 = loop_cond_1.(loop_body_1;loop_inc_1;loop_main_1) + !loop_cond_1,

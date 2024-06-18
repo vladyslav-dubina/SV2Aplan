@@ -23,8 +23,8 @@ class Module(Basic):
             identifier,
             source_interval,
         )
-        self.ident_uniq_name = generate_module_names()
-        self.identifierUpper = self.identifier.upper()
+        self.ident_uniq_name, self.number = generate_module_names()
+        self.identifierUpper = self.ident_uniq_name.upper()
 
         # arrays
         self.declarations = DeclarationArray()
@@ -61,8 +61,8 @@ class Module(Basic):
 
         if len(main_protocol) > 0:
             main_flag = True
-            main_protocol = "MAIN = " + main_protocol + ","
-            main_protocol_part = "MAIN"
+            main_protocol = f"MAIN_{self.identifierUpper} = " + main_protocol + ","
+            main_protocol_part = f"MAIN_{self.identifierUpper}"
             result += main_protocol
 
         # ALWAYS PART
@@ -97,13 +97,13 @@ class Module(Basic):
 
         if len(init_protocol) > 0:
             init_flag = True
-            init_protocol = "INIT = " + init_protocol + ","
-            init_protocol_part = "INIT"
+            init_protocol = f"INIT_{self.identifierUpper} = " + init_protocol + ","
+            init_protocol_part = f"INIT_{self.identifierUpper}"
             if main_flag or always_flag:
                 init_protocol_part += ";"
             result = init_protocol + result
 
-        b0 = f"B = ({init_protocol_part}{always_part}{main_protocol_part}),"
+        b0 = f"B_{self.identifierUpper} = ({init_protocol_part}{always_part}{main_protocol_part}),"
         if main_flag or init_flag:
             b0 += "\n"
         result = b0 + result

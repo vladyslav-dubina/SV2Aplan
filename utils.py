@@ -86,9 +86,10 @@ def moduleCounterDeinit():
 
 def generate_module_names():
     global Counters_Object
-    module_name = "module_" + str(Counters_Object.module_counter)
+    index = Counters_Object.getCounter(CounterTypes.MODULE_COUNTER)
+    module_name = "module_" + str(index)
     Counters_Object.incrieseCounter(CounterTypes.MODULE_COUNTER)
-    return module_name
+    return (module_name, index)
 
 
 def removeTrailingComma(s: str) -> str:

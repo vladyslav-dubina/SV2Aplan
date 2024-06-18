@@ -1,3 +1,3 @@
-B = (MAIN),
-MAIN = assign_B_1,
+B_MODULE_1 = (MAIN_MODULE_1),
+MAIN_MODULE_1 = assign_B_1,
 assign_B_1 = assign_1
