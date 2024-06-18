@@ -1,6 +1,6 @@
 
 
-module code_patch_wb_wrapper 
+module parametrs_2_2 
     #(  
         parameter ADDR_WIDTH            =   12,
         parameter DATA_WIDTH            =   14,
@@ -18,7 +18,7 @@ module code_patch_wb_wrapper
     //bus read operation indicator
     assign bus_read = wb_si_cyc_i;
 
-    code_patch_core #(
+    parametrs_2_1 #(
         .ADDR_WIDTH             (ADDR_WIDTH), 
         .DATA_WIDTH             (DATA_WIDTH), 
         .NUM_REGS               (NUM_REGS)) 

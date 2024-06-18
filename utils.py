@@ -1,6 +1,6 @@
 import re
+import os
 from ast import literal_eval
-from typing import List
 from classes.counters import Counters, CounterTypes
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.parametrs import ParametrArray
@@ -264,3 +264,9 @@ def replaceParametrsCalls(param_array: ParametrArray, expression: str):
         )
 
     return expression
+
+
+def replace_filename(path: str, new_filename: str) -> str:
+    directory = os.path.dirname(path)
+    new_path = os.path.join(directory, new_filename)
+    return new_path

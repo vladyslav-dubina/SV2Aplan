@@ -1,8 +1,8 @@
 events(
 	s_ctl_pat_data_i:obj(x1:Bits 14);
 	s_cfg_pat_gen_i:obj(x1:bool);
-	s_si_addr_i:obj(x1:Bits 12);
+	s_wb_si_adr_i:obj(x1:Bits 12);
 	s_ctl_pat_data_i:obj(x1:Bits 14);
 	s_cfg_pat_gen_i:obj(x1:bool);
-	s_wb_si_adr_i:obj(x1:Bits 12);
+	s_si_addr_i:obj(x1:Bits 12);
 );

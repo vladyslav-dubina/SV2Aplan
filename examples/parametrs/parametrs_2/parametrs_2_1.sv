@@ -1,5 +1,5 @@
 
-module code_patch_core
+module parametrs_2_1
     #(
         parameter ADDR_WIDTH            =   32,
         parameter DATA_WIDTH            =   12,

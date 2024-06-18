@@ -1,8 +1,6 @@
 from typing import Tuple
 from classes.basic import Basic, BasicArray
 
-import re
-
 
 class Parametr(Basic):
     def __init__(
@@ -67,7 +65,7 @@ class ParametrArray(BasicArray):
             expression = evaluateExpression(expression)
             parametr.value = expression
         return expression
-    
+
     def recalculateParametrValue(self):
         for index, element in enumerate(self.getElements()):
             self.evaluateParametrExpressionByIndex(index)

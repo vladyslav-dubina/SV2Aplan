@@ -10,34 +10,42 @@ from classes.counters import CounterTypes
 from classes.parametrs import Parametr
 from classes.module import (
     Module,
-    ModuleArray,
 )
 from classes.module_instantiation import ModuleInstantiation
+
 from utils import (
     Counters_Object,
     extractVectorSize,
     vectorSize2AplanVectorSize,
     is_numeric_string,
     replaceParametrsCalls,
+    printWithColor,
+    replace_filename,
+    Color,
 )
 
 
 class SVListener(SystemVerilogParserListener):
+
     global Counters_Object
 
-    def __init__(self, modules: ModuleArray):
-        self.module = None
-        self.modules: ModuleArray = modules
+    def __init__(
+        self, program, module_instantiation: ModuleInstantiation | None
+    ):
+        from program.program import Program
+        self.module: Module = None
+        self.program: Program = program
+        self.module_instantiation: ModuleInstantiation | None = module_instantiation
 
     def enterModule_declaration(self, ctx):
         if ctx.module_ansi_header() is not None:
-            index = self.modules.addElement(
+            index = self.program.modules.addElement(
                 Module(
                     ctx.module_ansi_header().module_identifier().getText(),
                     ctx.getSourceInterval(),
                 )
             )
-            self.module = self.modules.getElementByIndex(index)
+            self.module = self.program.modules.getElementByIndex(index)
 
     def exitParam_assignment(self, ctx):
         identifier = ctx.parameter_identifier().getText()
@@ -59,6 +67,11 @@ class SVListener(SystemVerilogParserListener):
             )
         )
         self.module.parametrs.evaluateParametrExpressionByIndex(parametr_index)
+        if self.module_instantiation is not None:
+            source_parametr = self.module_instantiation.paramets.findElement(identifier)
+            if source_parametr is not None:
+                parametr = self.module.parametrs.getElementByIndex(parametr_index)
+                parametr.value = source_parametr.value
 
     def exitGenvar_declaration(self, ctx):
         assign_name = ""
@@ -243,13 +256,23 @@ class SVListener(SystemVerilogParserListener):
             self.module.out_of_block_elements.addElement(struct_assign)
 
     def exitModule_instantiation(self, ctx):
+        from translator.translator import SystemVerilogFinder
+
         destination_identifier = ctx.module_identifier().getText()
-        self.modules.module_instantiations.addElement(
-            ModuleInstantiation(
-                self.module.identifier,
-                destination_identifier,
-                ctx.parameter_value_assignment().getText(),
-            )
+        file_path = replace_filename(
+            self.program.file_path, f"{destination_identifier}.sv"
         )
+        file_data = self.program.readFileData(file_path)
+        finder = SystemVerilogFinder()
+        finder.setUp(file_data)
+        printWithColor(f"Source file : {file_path} \n", Color.BLUE)
+        module_instantiation = ModuleInstantiation(
+            self.module.identifier,
+            destination_identifier,
+            ctx.parameter_value_assignment().getText(),
+            self.module.parametrs,
+        )
+        finder.startTranslate(self.program, module_instantiation)
+
         # for element in ctx.hierarchical_instance():
         # print(element.getText())

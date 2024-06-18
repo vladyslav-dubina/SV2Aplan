@@ -80,7 +80,7 @@ def regeneration_start():
             "examples/parametrs/parametrs_1/aplan",
         ),
         (
-            "examples/parametrs/parametrs_2/",
+            "examples/parametrs/parametrs_2/parametrs_2_2.sv",
             "examples/parametrs/parametrs_2/aplan",
         ),
         (

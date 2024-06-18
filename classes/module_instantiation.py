@@ -1,4 +1,5 @@
 from classes.basic import Basic, BasicArray
+from classes.parametrs import ParametrArray
 import re
 
 
@@ -16,6 +17,7 @@ class ModuleInstantiation(Basic):
         source_identifier: str,
         destination_identifier: str,
         parameter_value_assignment: str,
+        source_parametrs:ParametrArray
     ):
         super().__init__(
             "",
@@ -23,9 +25,14 @@ class ModuleInstantiation(Basic):
         )
         self.source_identifier = source_identifier
         self.destination_identifier = destination_identifier
-        self.parametrs_for_assignment = self.extractParametrsAndValues(
+        self.paramets: ParametrArray = ParametrArray()
+        parametrs_for_assignment = self.extractParametrsAndValues(
             parameter_value_assignment
         )
+        for left, right in parametrs_for_assignment:
+            source_parametr = source_parametrs.findElement(right)
+            if source_parametr is not None:
+                self.paramets.addElement(source_parametr)            
 
     def __repr__(self):
         return "\tModuleInstantiation(\n\t\t{0},\n\t\t{1},\n\t\t{2}\n\t)\n".format(

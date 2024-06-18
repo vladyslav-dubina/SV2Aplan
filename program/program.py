@@ -1,7 +1,5 @@
-from translator.translator import SystemVerilogFinder
 from utils import printWithColor, Color, removeTrailingComma
 from classes.module import Module, ModuleArray
-from typing import List
 import os
 
 
@@ -9,14 +7,14 @@ class Program:
     def __init__(self, path_to_result: str = None) -> None:
         self.path_to_result = path_to_result
         self.modules: ModuleArray = ModuleArray()
-        self.finder = SystemVerilogFinder()
 
-    def setUp(self, path):
+    def readFileData(self, path):
+        self.file_path = path
         printWithColor("Set up tranlator environment \n", Color.ORANGE)
         f = open(path, "r")
         data = f.read()
         f.close()
-        self.finder.setUp(data)
+        return data
 
     def createResDir(self):
         if self.path_to_result is not None:
@@ -136,38 +134,7 @@ class Program:
         self.writeToFile(self.path_to_result + "project.behp", behaviour)
         printWithColor(".beh file created \n", Color.PURPLE)
 
-    def prepareToTranslation(self):
-        for module in self.modules.getElements():
-            module.declarations.recalculateSizeExpressions(module.parametrs)
-
-        for element in self.modules.module_instantiations.getElements():
-            source_module = self.modules.findElement(element.source_identifier)
-            destination_module = self.modules.findElement(
-                element.destination_identifier
-            )
-
-            if source_module and destination_module:
-                for (
-                    module_instantiations
-                ) in self.modules.module_instantiations.getElements():
-                    for (
-                        parametrs_for_change
-                    ) in module_instantiations.parametrs_for_assignment:
-                        left, right = parametrs_for_change
-                        source_parametr = source_module.parametrs.findElement(right)
-                        destination_parametr = destination_module.parametrs.findElement(
-                            left
-                        )
-                        if source_parametr and destination_parametr:
-                            destination_parametr.value = source_parametr.value
-                
-                destination_module.parametrs.recalculateParametrValue()
-                destination_module.declarations.recalculateSizeExpressions(
-                    destination_module.parametrs
-                )
-
     def createAplanFiles(self):
-        self.prepareToTranslation()
         self.createEVT()
         self.createENV()
         self.createAction()

@@ -11,23 +11,17 @@ from utils import (
     moduleCounterDeinit,
 )
 from program.program import Program
+from translator.translator import SystemVerilogFinder
 
 
-def find_sv_files(path: str):
+def is_sv_file(path: str):
     if not os.path.exists(path):
         raise ValueError(f"Path '{path}' does not exist")
 
     if os.path.isfile(path) and path.endswith(".sv"):
-        return [path]
-
-    elif os.path.isdir(path):
-        sv_files = glob.glob(os.path.join(path, "**", "*.sv"), recursive=True)
-        sv_files.sort()
-        return sv_files
+        return True
     else:
-        raise ValueError(
-            f"Path '{path}' is not a .sv file or a directory containing .sv files"
-        )
+        raise ValueError(f"Path '{path}' is not a .sv file")
 
 
 def start(path, path_to_aplan_result):
@@ -46,10 +40,12 @@ def start(path, path_to_aplan_result):
     )
     try:
         program = Program(path_to_aplan_result)
-        for path_to_sv in find_sv_files(path):
-            program.setUp(path_to_sv)
-            printWithColor(f"Source file : {path_to_sv} \n", Color.BLUE)
-            program.finder.startTranslate(program.modules)
+        if is_sv_file(path):
+            file_data = program.readFileData(path)
+            finder = SystemVerilogFinder()
+            finder.setUp(file_data)
+            printWithColor(f"Source file : {path} \n", Color.BLUE)
+            finder.startTranslate(program, None)
         program.createResDir()
         program.createAplanFiles()
     except Exception as e:

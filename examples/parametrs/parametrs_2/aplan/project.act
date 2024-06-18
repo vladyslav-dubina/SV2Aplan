@@ -1,9 +1,9 @@
 
 assign_1 = (
 		(1)->
-		("code_patch_core#module_1:action 'assign (nopg_o = no_pg)';")
-		(module_1.nopg_o = module_1.no_pg))
+		("parametrs_2_2#module_1:action 'assign (bus_read = wb_si_cyc_i)';")
+		(module_1.bus_read = wb_si_cyc_i))
 assign_2 = (
 		(1)->
-		("code_patch_wb_wrapper#module_2:action 'assign (bus_read = wb_si_cyc_i)';")
-		(module_2.bus_read = wb_si_cyc_i))
+		("parametrs_2_1#module_2:action 'assign (nopg_o = no_pg)';")
+		(module_2.nopg_o = module_2.no_pg))
