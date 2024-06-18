@@ -9,24 +9,20 @@ from utils import (
     format_time,
     printWithColor,
     moduleCounterDeinit,
-    switchRemovePrints
 )
 from program.program import Program
 
 
 def find_sv_files(path: str):
-    switchRemovePrints(False)
     if not os.path.exists(path):
         raise ValueError(f"Path '{path}' does not exist")
 
     if os.path.isfile(path) and path.endswith(".sv"):
-        switchRemovePrints(True)
         return [path]
 
     elif os.path.isdir(path):
-        switchRemovePrints(True)
         sv_files = glob.glob(os.path.join(path, "**", "*.sv"), recursive=True)
-        print(sv_files)
+        sv_files.sort()
         return sv_files
     else:
         raise ValueError(
