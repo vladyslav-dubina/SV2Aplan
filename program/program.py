@@ -1,6 +1,6 @@
 from translator.translator import SystemVerilogFinder
 from utils import printWithColor, Color, removeTrailingComma
-from classes.aplan import Module
+from classes.module import Module
 from typing import List
 import os
 

@@ -4,7 +4,7 @@ from classes.declarations import Declaration, DeclTypes
 from classes.actions import Action
 from classes.structure import Structure
 from classes.always import Always
-from classes.aplan import (
+from classes.module import (
     Module,
     ElementsTypes,
 )

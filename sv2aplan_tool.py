@@ -4,7 +4,7 @@ import traceback
 import sys
 import os
 import glob
-from classes.aplan import Module
+from classes.module import Module
 from utils import (
     Color,
     format_time,

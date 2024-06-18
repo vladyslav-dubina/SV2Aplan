@@ -5,7 +5,7 @@ from translator.system_verilog_to_aplan import (
 )
 from classes.declarations import Declaration, DeclTypes
 from classes.protocols import Protocol
-from classes.aplan import Module, ElementsTypes
+from classes.module import Module, ElementsTypes
 from classes.counters import CounterTypes
 from classes.parametrs import Parametr
 from utils import (

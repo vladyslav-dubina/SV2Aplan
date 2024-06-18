@@ -1,12 +1,10 @@
 from enum import Enum, auto
 from utils import generate_module_names
-from typing import List
 from classes.actions import ActionArray
 from classes.parametrs import ParametrArray
 from classes.protocols import ProtocolArray
 from classes.declarations import DeclarationArray
 from classes.structure import StructureArray
-import re
 
 
 class ElementsTypes(Enum):
@@ -93,7 +91,7 @@ class Module:
 
         if len(init_protocol) > 0:
             init_flag = True
-            init_protocol = "INIT = " + init_protocol + ",\n"
+            init_protocol = "INIT = " + init_protocol + ","
             init_protocol_part = "INIT"
             if main_flag or always_flag:
                 init_protocol_part += ";"
