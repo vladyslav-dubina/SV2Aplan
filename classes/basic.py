@@ -18,7 +18,7 @@ class BasicArray:
         self.elements: List[Basic] = []
         self.element_type: Basic = element_type
 
-    def addElement(self, new_element):
+    def addElement(self, new_element: Basic):
         if isinstance(new_element, self.element_type):
             self.elements.append(new_element)
         else:
@@ -33,6 +33,15 @@ class BasicArray:
         for element in self.elements:
             if element.identifier == identifier:
                 return element
+        return None
+
+    def getElementIndex(
+        self,
+        identifier: str,
+    ):
+        for index, element in enumerate(self.elements):
+            if element.identifier == identifier:
+                return index
         return None
 
     def removeElement(self, element):

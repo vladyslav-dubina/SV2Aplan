@@ -7,7 +7,15 @@ from classes.declarations import Declaration, DeclTypes
 from classes.protocols import Protocol
 from classes.aplan import Module, ElementsTypes
 from classes.counters import CounterTypes
-from utils import Counters_Object, extractVectorSize, vectorSize2AplanVectorSize
+from classes.parametrs import Parametr
+from utils import (
+    Counters_Object,
+    extractVectorSize,
+    vectorSize2AplanVectorSize,
+    is_numeric_string,
+    replaceParametrsCalls,
+    evaluateExpression,
+)
 
 
 class SVListener(SystemVerilogParserListener):
@@ -20,8 +28,27 @@ class SVListener(SystemVerilogParserListener):
         if ctx.module_ansi_header() is not None:
             self.module = Module(ctx.module_ansi_header().module_identifier().getText())
 
-    def exitParameter_declaration(self, ctx):
-        print(ctx.getText())
+    def exitParam_assignment(self, ctx):
+        identifier = ctx.parameter_identifier().getText()
+        expression = ctx.constant_param_expression()
+        expression_str = ""
+        value = 0
+        if expression is not None:
+            numeric_string = is_numeric_string(expression.getText())
+            if numeric_string is None:
+                expression_str = expression.getText()
+            else:
+                value = numeric_string
+        parametr_index = self.module.parametrs.addElement(
+            Parametr(
+                identifier,
+                Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
+                ctx.getSourceInterval(),
+                value,
+                expression_str,
+            )
+        )
+        self.module.parametrs.evaluateParametrExpressionByIndex(parametr_index)
 
     def exitGenvar_declaration(self, ctx):
         assign_name = ""
@@ -32,6 +59,7 @@ class SVListener(SystemVerilogParserListener):
                     DeclTypes.INT,
                     identifier,
                     assign_name,
+                    "",
                     0,
                     Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                     ctx.getSourceInterval(),
@@ -42,6 +70,8 @@ class SVListener(SystemVerilogParserListener):
         if ctx.data_type_or_implicit():
             data_type = ctx.data_type_or_implicit().getText()
             aplan_vector_size = [0]
+            size_expression = data_type
+            data_type = replaceParametrsCalls(self.module.parametrs, data_type)
             vector_size = extractVectorSize(data_type)
             if vector_size is not None:
                 aplan_vector_size = vectorSize2AplanVectorSize(
@@ -59,6 +89,7 @@ class SVListener(SystemVerilogParserListener):
                             DeclTypes.REG,
                             identifier,
                             assign_name,
+                            size_expression,
                             aplan_vector_size[0],
                             Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                             ctx.getSourceInterval(),
@@ -78,8 +109,13 @@ class SVListener(SystemVerilogParserListener):
     def exitNet_declaration(self, ctx):
         data_type = ctx.data_type_or_implicit()
         aplan_vector_size = [0]
+        size_expression = ''
         if data_type:
-            vector_size = extractVectorSize(data_type.getText())
+            size_expression = data_type.getText()
+            data_type = replaceParametrsCalls(
+                self.module.parametrs, data_type.getText()
+            )
+            vector_size = extractVectorSize(data_type)
             if vector_size is not None:
                 aplan_vector_size = vectorSize2AplanVectorSize(
                     vector_size[0], vector_size[1]
@@ -94,6 +130,7 @@ class SVListener(SystemVerilogParserListener):
                         DeclTypes.WIRE,
                         identifier,
                         assign_name,
+                        size_expression,
                         aplan_vector_size[0],
                         Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                         ctx.getSourceInterval(),
@@ -114,6 +151,8 @@ class SVListener(SystemVerilogParserListener):
         header = ctx.net_port_header().getText()
         index = header.find("input")
         if index != -1:
+            size_expression = header
+            header = replaceParametrsCalls(self.module.parametrs, header)
             vector_size = extractVectorSize(header)
             aplan_vector_size = [0]
             if vector_size is not None:
@@ -125,6 +164,7 @@ class SVListener(SystemVerilogParserListener):
                 DeclTypes.INPORT,
                 ctx.port_identifier().getText(),
                 "",
+                size_expression,
                 aplan_vector_size[0],
                 Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                 ctx.getSourceInterval(),
@@ -133,17 +173,19 @@ class SVListener(SystemVerilogParserListener):
 
         index = header.find("output")
         if index != -1:
+            size_expression = header
+            header = replaceParametrsCalls(self.module.parametrs, header)
             vector_size = extractVectorSize(header)
             aplan_vector_size = [0]
             if vector_size is not None:
                 aplan_vector_size = vectorSize2AplanVectorSize(
                     vector_size[0], vector_size[1]
                 )
-
             port = Declaration(
                 DeclTypes.OUTPORT,
                 ctx.port_identifier().getText(),
                 "",
+                size_expression,
                 aplan_vector_size[0],
                 Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                 ctx.getSourceInterval(),

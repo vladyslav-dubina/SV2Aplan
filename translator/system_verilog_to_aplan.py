@@ -18,6 +18,7 @@ from utils import (
     notConcreteIndex2AplanStandart,
     doubleOperators2Aplan,
     removeTypeFromForInit,
+    replaceParametrsCalls,
     Counters_Object,
 )
 from typing import Tuple
@@ -83,6 +84,9 @@ class SV2aplan:
         expression_with_replaced_names = notConcreteIndex2AplanStandart(
             expression_with_replaced_names
         )
+        expression_with_replaced_names = replaceParametrsCalls(
+            self.module.parametrs, expression_with_replaced_names
+        )
         return (expression, expression_with_replaced_names)
 
     def expression2Aplan(
@@ -141,13 +145,15 @@ class SV2aplan:
         assign_name = ""
         expression = ctx.for_variable_declaration(0)
         if expression is not None:
-            data_type = expression.data_type()
+            data_type = expression.data_type().getText()
+            size_expression = data_type
             data_type = DeclTypes.checkType(data_type)
             decl_index = self.module.declarations.addElement(
                 Declaration(
                     data_type,
                     expression.variable_identifier(0).getText(),
                     assign_name,
+                    size_expression,
                     0,
                     Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                     expression.getSourceInterval(),
@@ -337,7 +343,8 @@ class SV2aplan:
                     sv_structure.behavior[b_index].addBody(action_name)
             elif type(child) is SystemVerilogParser.For_variable_declarationContext:
                 assign_name = ""
-                data_type = ctx.data_type()
+                data_type = ctx.data_type().getText()
+                size_expression = data_type
                 sv2aplan = SV2aplan(self.module)
                 if ctx.expression(0) is not None:
                     action_txt = f"{ctx.variable_identifier(0).getText()}={ctx.expression(0).getText()}"
@@ -352,6 +359,7 @@ class SV2aplan:
                         data_type,
                         ctx.variable_identifier(0).getText(),
                         assign_name,
+                        size_expression,
                         0,
                         Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                         ctx.getSourceInterval(),

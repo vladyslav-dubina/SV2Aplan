@@ -3,6 +3,7 @@ from ast import literal_eval
 from typing import List
 from classes.counters import Counters, CounterTypes
 from antlr4_verilog.systemverilog import SystemVerilogParser
+from classes.parametrs import ParametrArray
 
 
 class Color:
@@ -41,6 +42,8 @@ def addSpacesAroundOperators(expression: str):
         r"\(",
         r"\)",
         r"=",
+        r"\?",
+        r":",
     ]
     pattern = "|".join(operators)
 
@@ -171,7 +174,7 @@ def notConcreteIndex2AplanStandart(expression: str):
 
 
 def vectorSizes2AplanStandart(expression: str):
-    patterns = [r"\[([0-9]+)\]", r"\[([0-9]+):([0-9]+)\]"]
+    patterns = [r"\[(\d+)\]", r"\[(\d+)\s*:\s*(\d+)\]"]
 
     pattern = "|".join(patterns)
 
@@ -195,10 +198,20 @@ def vectorSizes2AplanStandart(expression: str):
     return expression
 
 
-def extractVectorSize(s):
-    matches = re.findall(r"\[(\d+):(\d+)\]", s)
-    if matches:
-        return matches[0]
+def generatePythonStyleTernary(expression: str):
+    pattern = (
+        r"\((?P<condition>.+)\)\s*\?\s*(?P<true_value>.+)\s*:\s*(?P<false_value>.+)"
+    )
+    match = re.match(pattern, expression)
+
+    if match:
+        condition = match.group("condition")
+        true_value = match.group("true_value")
+        false_value = match.group("false_value")
+        expression = f"({true_value} if {condition} else {false_value})"
+        return expression
+    else:
+        return expression
 
 
 def vectorSize2AplanVectorSize(left, right):
@@ -220,8 +233,33 @@ def removeTypeFromForInit(ctx: SystemVerilogParser.For_initializationContext):
     return result
 
 
-def isInStrList(array: List[str], search_word: str):
-    for element in array:
-        if element == search_word:
-            return True
-    return False
+def evaluateExpression(expr: str):
+    result = eval(expr)
+    return result
+
+
+def extractVectorSize(s: str):
+    matches = re.findall(r"\[(.+)\s*:\s*(.+)\]", s)
+    if matches:
+        left = matches[0][0]
+        right = matches[0][1]
+        left = evaluateExpression(left)
+        right = evaluateExpression(right)
+        result = [str(left), str(right)]
+        return result
+
+
+def is_numeric_string(s):
+    match = re.fullmatch(r"\d+", s)
+    return match.group(0) if match else None
+
+
+def replaceParametrsCalls(param_array: ParametrArray, expression: str):
+    for element in param_array.elements:
+        expression = re.sub(
+            r"\b{}\b".format(re.escape(element.identifier)),
+            str(element.value),
+            expression,
+        )
+
+    return expression

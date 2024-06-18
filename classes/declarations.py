@@ -1,6 +1,7 @@
 from typing import Tuple, List
 from enum import Enum, auto
 from classes.basic import Basic, BasicArray
+from utils import replaceParametrsCalls, extractVectorSize, vectorSize2AplanVectorSize
 
 
 class DeclTypes(Enum):
@@ -23,6 +24,7 @@ class Declaration(Basic):
         data_type: DeclTypes,
         identifier: str,
         expression: str,
+        size_expression: str,
         size: int,
         sequence: int,
         source_interval: Tuple[int, int],
@@ -31,6 +33,7 @@ class Declaration(Basic):
         self.data_type = data_type
         self.expression = expression
         self.size = size
+        self.size_expression = size_expression
 
     def getAplanDecltype(self):
         if self.data_type == DeclTypes.INT:
@@ -54,7 +57,7 @@ class DeclarationArray(BasicArray):
     def __init__(self):
         super().__init__(Declaration)
 
-    def addElement(self, new_element):
+    def addElement(self, new_element: Declaration):
         if isinstance(new_element, self.element_type):
             self.elements.append(new_element)
             self.elements = sorted(
@@ -62,7 +65,7 @@ class DeclarationArray(BasicArray):
                 key=lambda element: len(element.identifier),
                 reverse=True,
             )
-            return len(self.elements) - 1
+            return self.getElementIndex(new_element.identifier)
         else:
             raise TypeError(
                 f"Object should be of type {self.element_type} but you passed an object of type {type(new_element)}. \n Object: {new_element}"
@@ -74,6 +77,18 @@ class DeclarationArray(BasicArray):
             if len(element.expression) > 0:
                 result.append(element)
         return result
+
+    def recalculateSizeExpressions(self, parametrs):
+        for element in self.elements:
+            if len(element.size_expression) > 0:
+                expression = replaceParametrsCalls(parametrs, element.size_expression)
+                vector_size = extractVectorSize(expression)
+                aplan_vector_size = [0]
+                if vector_size is not None:
+                    aplan_vector_size = vectorSize2AplanVectorSize(
+                        vector_size[0], vector_size[1]
+                    )
+                element.size = aplan_vector_size[0]
 
     def isIncludeInputPorts(self):
         for element in self.elements:
@@ -100,6 +115,6 @@ class DeclarationArray(BasicArray):
             if element.data_type == DeclTypes.OUTPORT:
                 result.append(element)
         return result
-    
+
     def __repr__(self):
         return f"DeclarationsArray(\n{self.elements!r}\n)"

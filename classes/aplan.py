@@ -6,6 +6,7 @@ from classes.parametrs import ParametrArray
 from classes.protocols import ProtocolArray
 from classes.declarations import DeclarationArray
 from classes.structure import StructureArray
+import re
 
 
 class ElementsTypes(Enum):
@@ -13,8 +14,6 @@ class ElementsTypes(Enum):
     IF_STATEMENT_ELEMENT = auto()
     ASSIGN_ELEMENT = auto()
     CONDITION_ELEMENT = auto()
-
-
 
 
 class Module:
@@ -46,8 +45,10 @@ class Module:
         main_protocol = ""
         main_protocol_part = ""
         main_flag = False
-
-        protocols = self.out_of_block_elements.getElements() + self.structures.getNoAlwaysStructures()
+        protocols = (
+            self.out_of_block_elements.getElements()
+            + self.structures.getNoAlwaysStructures()
+        )
         protocols.sort(key=lambda student: student.sequence)
         for index, element in enumerate(protocols):
             if index != 0:

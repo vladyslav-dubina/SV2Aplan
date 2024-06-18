@@ -1,0 +1,5 @@
+events(
+	s_ctl_pat_data_i:obj(x1:Bits 32);
+	s_cfg_pat_gen_i:obj(x1:bool);
+	s_si_addr_i:obj(x1:Bits 32);
+);

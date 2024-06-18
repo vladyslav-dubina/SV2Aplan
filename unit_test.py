@@ -111,16 +111,6 @@ def start_unit_test():
 
     test_definitions = [
         (
-            "examples/sv_example_1/sv_example_1.sv",
-            "examples/sv_example_1/test_result",
-            "examples/sv_example_1/aplan",
-        ),
-        (
-            "examples/sv_example_2/sv_example_2.sv",
-            "examples/sv_example_2/test_result",
-            "examples/sv_example_2/aplan",
-        ),
-        (
             "examples/if_statemens/if_statement_1/if_statement_1.sv",
             "examples/if_statemens/if_statement_1/test_result",
             "examples/if_statemens/if_statement_1/aplan",
@@ -149,6 +139,21 @@ def start_unit_test():
             "examples/assigns/assign_1/assign_1.sv",
             "examples/assigns/assign_1/test_result",
             "examples/assigns/assign_1/aplan",
+        ),
+        (
+            "examples/parametrs/parametrs_1/parametrs_1.sv",
+            "examples/parametrs/parametrs_1/test_result",
+            "examples/parametrs/parametrs_1/aplan",
+        ),
+        (
+            "examples/sv_example_1/sv_example_1.sv",
+            "examples/sv_example_1/test_result",
+            "examples/sv_example_1/aplan",
+        ),
+        (
+            "examples/sv_example_2/sv_example_2.sv",
+            "examples/sv_example_2/test_result",
+            "examples/sv_example_2/aplan",
         ),
     ]
 

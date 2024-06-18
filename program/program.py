@@ -136,8 +136,13 @@ class Program:
                 behaviour += "\n"
         self.writeToFile(self.path_to_result + "project.behp", behaviour)
         printWithColor(".beh file created \n", Color.PURPLE)
+        
+    def prepareToTranslation(self):
+        for module in self.modules:
+            module.declarations.recalculateSizeExpressions(module.parametrs)
 
     def createAplanFiles(self):
+        self.prepareToTranslation()
         self.createEVT()
         self.createENV()
         self.createAction()
