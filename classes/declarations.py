@@ -26,10 +26,9 @@ class Declaration(Basic):
         expression: str,
         size_expression: str,
         size: int,
-        sequence: int,
         source_interval: Tuple[int, int],
     ):
-        super().__init__(identifier, sequence, source_interval)
+        super().__init__(identifier, source_interval)
         self.data_type = data_type
         self.expression = expression
         self.size = size

@@ -8,12 +8,11 @@ class Parametr(Basic):
     def __init__(
         self,
         identifier: str,
-        sequence: int,
         source_interval: Tuple[int, int],
         value: int = 0,
         expression: str | None = None,
     ):
-        super().__init__(identifier, sequence, source_interval)
+        super().__init__(identifier, source_interval)
         self.value = value
         self.expression = expression
 

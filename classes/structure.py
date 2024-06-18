@@ -6,10 +6,8 @@ from utils import Counters_Object
 
 
 class Structure(Basic):
-    def __init__(
-        self, identifier: str, sequence: int, source_interval: Tuple[int, int]
-    ):
-        super().__init__(identifier, sequence, source_interval)
+    def __init__(self, identifier: str, source_interval: Tuple[int, int]):
+        super().__init__(identifier, source_interval)
         self.behavior: List[Protocol] = []
 
     def getLastBehaviorIndex(self):
@@ -21,7 +19,6 @@ class Structure(Basic):
         self.behavior.append(
             Protocol(
                 protocol_identifier,
-                Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                 (0, 0),
             )
         )
@@ -50,6 +47,7 @@ class Structure(Basic):
     def __repr__(self):
         return f"\tStructure({self.identifier!r}, {self.sequence!r})\n"
 
+
 class StructureArray(BasicArray):
     def __init__(self, element_type: Basic | None = None):
         if element_type is None:
@@ -59,6 +57,7 @@ class StructureArray(BasicArray):
 
     def isIncludeAlways(self):
         from classes.always import Always
+
         for element in self.elements:
             if isinstance(element, Always):
                 return True
@@ -66,6 +65,7 @@ class StructureArray(BasicArray):
 
     def getAlwaysList(self):
         from classes.always import Always
+
         result: List[Always] = []
         for element in self.elements:
             if isinstance(element, Always):
@@ -74,6 +74,7 @@ class StructureArray(BasicArray):
 
     def getNoAlwaysStructures(self):
         from classes.always import Always
+
         result: List[Structure] = []
         for element in self.elements:
             if isinstance(element, Always) == False:
@@ -85,6 +86,6 @@ class StructureArray(BasicArray):
         for element in self.elements:
             result += str(element)
         return result
-    
+
     def __repr__(self):
         return f"StructuresArray(\n{self.elements!r}\n)"

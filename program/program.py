@@ -1,6 +1,6 @@
 from translator.translator import SystemVerilogFinder
 from utils import printWithColor, Color, removeTrailingComma
-from classes.module import Module
+from classes.module import Module, ModuleArray
 from typing import List
 import os
 
@@ -8,7 +8,7 @@ import os
 class Program:
     def __init__(self, path_to_result: str = None) -> None:
         self.path_to_result = path_to_result
-        self.modules: List[Module]
+        self.modules: ModuleArray = ModuleArray()
         self.finder = SystemVerilogFinder()
 
     def setUp(self, path):
@@ -17,9 +17,6 @@ class Program:
         data = f.read()
         f.close()
         self.finder.setUp(data)
-
-    def setData(self, input):
-        self.modules = input
 
     def createResDir(self):
         if self.path_to_result is not None:
@@ -42,7 +39,7 @@ class Program:
 
     def createEVT(self):
         evt = "events(\n"
-        for module in self.modules:
+        for module in self.modules.getElements():
             for elem in module.declarations.getInputPorts():
                 evt += "\ts_{0}:obj(x1:{1});\n".format(
                     elem.identifier, elem.getAplanDecltype()
@@ -71,7 +68,7 @@ class Program:
 
         env += "\tagent_types : obj (\n"
 
-        for module in self.modules:
+        for module in self.modules.getElements():
             env += "\t\t{0} : obj (\n".format(module.identifier)
             decls = module.declarations.getElements()
             for index, elem in enumerate(decls):
@@ -89,7 +86,7 @@ class Program:
         # Agents
         # ----------------------------------
         env += "\tagents : obj (\n"
-        for module in self.modules:
+        for module in self.modules.getElements():
             env += "\t\t{0} : obj ({1}),\n".format(
                 module.identifier, module.ident_uniq_name
             )
@@ -115,7 +112,7 @@ class Program:
         # Actions
         # ----------------------------------
         actions = ""
-        for module in self.modules:
+        for module in self.modules.getElements():
             actions += module.actions.getActionsInStrFormat()
         self.writeToFile(self.path_to_result + "project.act", actions)
         printWithColor(".act file created \n", Color.PURPLE)
@@ -125,20 +122,22 @@ class Program:
         # Behaviour
         # ----------------------------------
         behaviour = ""
-        for module in self.modules:
+        for module in self.modules.getElements():
             behaviour += f"{module.getBehInitProtocols()}"
             behaviour += module.structures.getStructuresInStrFormat()
 
             if module.isIncludeOutOfBlockElements():
-                behaviour += module.out_of_block_elements.getProtocolsInStrFormat() + "\n"
+                behaviour += (
+                    module.out_of_block_elements.getProtocolsInStrFormat() + "\n"
+                )
             else:
                 behaviour = removeTrailingComma(behaviour)
                 behaviour += "\n"
         self.writeToFile(self.path_to_result + "project.behp", behaviour)
         printWithColor(".beh file created \n", Color.PURPLE)
-        
+
     def prepareToTranslation(self):
-        for module in self.modules:
+        for module in self.modules.getElements():
             module.declarations.recalculateSizeExpressions(module.parametrs)
 
     def createAplanFiles(self):

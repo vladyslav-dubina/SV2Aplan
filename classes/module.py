@@ -1,10 +1,13 @@
 from enum import Enum, auto
-from utils import generate_module_names
+from utils import generate_module_names, Counters_Object
 from classes.actions import ActionArray
 from classes.parametrs import ParametrArray
 from classes.protocols import ProtocolArray
 from classes.declarations import DeclarationArray
 from classes.structure import StructureArray
+from classes.basic import Basic, BasicArray
+from classes.counters import CounterTypes
+from typing import Tuple
 
 
 class ElementsTypes(Enum):
@@ -14,9 +17,12 @@ class ElementsTypes(Enum):
     CONDITION_ELEMENT = auto()
 
 
-class Module:
-    def __init__(self, identifier: str):
-        self.identifier = identifier
+class Module(Basic):
+    def __init__(self, identifier: str, source_interval: Tuple[int, int]):
+        super().__init__(
+            identifier,
+            source_interval,
+        )
         self.ident_uniq_name = generate_module_names()
         self.identifierUpper = self.identifier.upper()
 
@@ -102,3 +108,14 @@ class Module:
             b0 += "\n"
         result = b0 + result
         return result
+
+    def __repr__(self):
+        return f"\tBasic{self.identifier!r}\n"
+
+
+class ModuleArray(BasicArray):
+    def __init__(self):
+        super().__init__(Module)
+
+    def __repr__(self):
+        return f"ModulesArray(\n{self.elements!r}\n)"

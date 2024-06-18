@@ -116,7 +116,6 @@ class SV2aplan:
         action = Action(
             name_part,
             Counters_Object.getCounter(counter_type),
-            Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
             source_interval,
         )
 
@@ -155,7 +154,6 @@ class SV2aplan:
                     assign_name,
                     size_expression,
                     0,
-                    Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                     expression.getSourceInterval(),
                 )
             )
@@ -361,7 +359,6 @@ class SV2aplan:
                         assign_name,
                         size_expression,
                         0,
-                        Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                         ctx.getSourceInterval(),
                     )
                 )
@@ -394,7 +391,6 @@ class SV2aplan:
                         if_action = Action(
                             "if",
                             Counters_Object.getCounter(CounterTypes.IF_COUNTER),
-                            Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                             child.getSourceInterval(),
                         )
                         predicate_string, predicate_with_replaced_names = (
@@ -491,7 +487,6 @@ class SV2aplan:
         )
         struct = Structure(
             generate_name,
-            Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
             ctx.getSourceInterval(),
         )
         struct.addProtocol(generate_name)
@@ -529,7 +524,6 @@ class SV2aplan:
         always = Always(
             always_name,
             sensetive,
-            Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
             ctx.getSourceInterval(),
         )
         always.addProtocol(always_name)

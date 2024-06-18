@@ -2,6 +2,7 @@ from antlr4_verilog import InputStream, CommonTokenStream, ParseTreeWalker
 from listener.system_verilog_listener import SVListener
 from antlr4_verilog.systemverilog import SystemVerilogLexer, SystemVerilogParser
 from utils import printWithColor, Color
+from classes.module import ModuleArray
 
 
 class SystemVerilogFinder:
@@ -12,9 +13,8 @@ class SystemVerilogFinder:
         self.tree = parser.source_text()
         self.walker = ParseTreeWalker()
 
-    def startTranslate(self):
+    def startTranslate(self, modules: ModuleArray):
         printWithColor("Tranlation process start... \n", Color.ORANGE)
-        listener = SVListener()
+        listener = SVListener(modules)
         self.walker.walk(listener, self.tree)
         printWithColor("Tranlation process finished! \n", Color.ORANGE)
-        return listener.module

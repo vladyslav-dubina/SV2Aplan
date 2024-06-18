@@ -21,12 +21,11 @@ class Action(Basic):
         self,
         identifier: str,
         number: int,
-        sequence: int,
         source_interval: Tuple[int, int],
     ):
         self.number = number
         identifier_tmp = identifier + "_" + str(number)
-        super().__init__(identifier_tmp, sequence, source_interval)
+        super().__init__(identifier_tmp, source_interval)
         self.precondition: ActionParts = ActionParts()
         self.postcondition: ActionParts = ActionParts()
         self.description: ActionParts = ActionParts()
@@ -68,6 +67,6 @@ class ActionArray(BasicArray):
         result = removeTrailingComma(result)
 
         return result
-    
+
     def __repr__(self):
         return f"ActionsArray(\n{self.elements!r}\t)"

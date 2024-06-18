@@ -5,10 +5,8 @@ from utils import removeTrailingComma
 
 
 class Protocol(Basic):
-    def __init__(
-        self, identifier: str, sequence: int, source_interval: Tuple[int, int]
-    ):
-        super().__init__(identifier, sequence, source_interval)
+    def __init__(self, identifier: str, source_interval: Tuple[int, int]):
+        super().__init__(identifier, source_interval)
         self.body: List[str] = []
         self.type: DeclTypes | None = None
 
@@ -41,7 +39,8 @@ class Protocol(Basic):
 
     def __repr__(self):
         return f"\tProtocol({self.identifier!r}, {self.sequence!r})\n"
-    
+
+
 class ProtocolArray(BasicArray):
     def __init__(self):
         super().__init__(Protocol)

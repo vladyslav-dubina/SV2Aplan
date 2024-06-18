@@ -14,19 +14,26 @@ from utils import (
     vectorSize2AplanVectorSize,
     is_numeric_string,
     replaceParametrsCalls,
-    evaluateExpression,
 )
+from classes.module import Module, ModuleArray
 
 
 class SVListener(SystemVerilogParserListener):
     global Counters_Object
 
-    def __init__(self):
+    def __init__(self, modules: ModuleArray):
         self.module = None
+        self.modules: ModuleArray = modules
 
     def enterModule_declaration(self, ctx):
         if ctx.module_ansi_header() is not None:
-            self.module = Module(ctx.module_ansi_header().module_identifier().getText())
+            index = self.modules.addElement(
+                Module(
+                    ctx.module_ansi_header().module_identifier().getText(),
+                    ctx.getSourceInterval(),
+                )
+            )
+            self.module = self.modules.getElementByIndex(index)
 
     def exitParam_assignment(self, ctx):
         identifier = ctx.parameter_identifier().getText()
@@ -42,7 +49,6 @@ class SVListener(SystemVerilogParserListener):
         parametr_index = self.module.parametrs.addElement(
             Parametr(
                 identifier,
-                Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                 ctx.getSourceInterval(),
                 value,
                 expression_str,
@@ -61,7 +67,6 @@ class SVListener(SystemVerilogParserListener):
                     assign_name,
                     "",
                     0,
-                    Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                     ctx.getSourceInterval(),
                 )
             )
@@ -91,7 +96,6 @@ class SVListener(SystemVerilogParserListener):
                             assign_name,
                             size_expression,
                             aplan_vector_size[0],
-                            Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                             ctx.getSourceInterval(),
                         )
                     )
@@ -109,7 +113,7 @@ class SVListener(SystemVerilogParserListener):
     def exitNet_declaration(self, ctx):
         data_type = ctx.data_type_or_implicit()
         aplan_vector_size = [0]
-        size_expression = ''
+        size_expression = ""
         if data_type:
             size_expression = data_type.getText()
             data_type = replaceParametrsCalls(
@@ -132,7 +136,6 @@ class SVListener(SystemVerilogParserListener):
                         assign_name,
                         size_expression,
                         aplan_vector_size[0],
-                        Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                         ctx.getSourceInterval(),
                     )
                 )
@@ -166,7 +169,6 @@ class SVListener(SystemVerilogParserListener):
                 "",
                 size_expression,
                 aplan_vector_size[0],
-                Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                 ctx.getSourceInterval(),
             )
             self.module.declarations.addElement(port)
@@ -187,7 +189,6 @@ class SVListener(SystemVerilogParserListener):
                 "",
                 size_expression,
                 aplan_vector_size[0],
-                Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                 ctx.getSourceInterval(),
             )
             self.module.declarations.addElement(port)
@@ -215,7 +216,6 @@ class SVListener(SystemVerilogParserListener):
             )
             struct_assert = Protocol(
                 assert_b,
-                Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                 ctx.getSourceInterval(),
             )
             struct_assert.addBody("{0}.Delta + !{0}.0".format(assert_name))
@@ -233,7 +233,6 @@ class SVListener(SystemVerilogParserListener):
             )
             struct_assign = Protocol(
                 assign_b,
-                Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),
                 ctx.getSourceInterval(),
             )
             struct_assign.addBody(assign_name)

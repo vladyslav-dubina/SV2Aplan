@@ -2,11 +2,12 @@ from typing import List, Tuple
 
 
 class Basic:
-    def __init__(
-        self, identifier: str, sequence: int, source_interval: Tuple[int, int]
-    ):
+    def __init__(self, identifier: str, source_interval: Tuple[int, int]):
+        from classes.counters import CounterTypes
+        from utils import Counters_Object
+
         self.identifier = identifier
-        self.sequence = sequence
+        self.sequence = (Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),)
         self.source_interval: Tuple[int, int] = source_interval
 
     def __repr__(self):
@@ -21,6 +22,7 @@ class BasicArray:
     def addElement(self, new_element: Basic):
         if isinstance(new_element, self.element_type):
             self.elements.append(new_element)
+            return len(self.elements) - 1
         else:
             raise TypeError(
                 f"Object should be of type {self.element_type} but you passed an object of type {type(new_element)}. \n Object: {new_element}"
