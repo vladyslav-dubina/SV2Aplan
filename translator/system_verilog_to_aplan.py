@@ -452,17 +452,17 @@ class SV2aplan:
                     beh_index = sv_structure.getLastBehaviorIndex()
                     if beh_index is not None:
                         if element["predicate"] is None:
-                            body = "body_{0}".format(
+                            body = "if_body_{0}".format(
                                 Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
                             )
                         elif index == len(predicate_statements_list) - 1:
-                            body = "{0}.body_{1} + !{0}".format(
+                            body = "{0}.if_body_{1} + !{0}".format(
                                 action_name,
                                 Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
                             )
                         else:
 
-                            body = "{0}.body_{1} + !{0}.else_body_{2}".format(
+                            body = "{0}.if_body_{1} + !{0}.else_body_{2}".format(
                                 action_name,
                                 Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
                                 Counters_Object.getCounter(
@@ -473,7 +473,7 @@ class SV2aplan:
                         sv_structure.behavior[beh_index].addBody(body)
 
                     sv_structure.addProtocol(
-                        "body_{0}".format(
+                        "if_body_{0}".format(
                             Counters_Object.getCounter(CounterTypes.BODY_COUNTER)
                         )
                     )
