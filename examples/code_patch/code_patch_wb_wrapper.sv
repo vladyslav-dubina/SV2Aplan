@@ -2,7 +2,7 @@
 
 module code_patch_wb_wrapper 
     #(  
-        parameter ADDR_WIDTH            =   16,
+        parameter ADDR_WIDTH            =   32,
         parameter DATA_WIDTH            =   16,
         parameter NUM_REGS              =   2,
         //localparam not works -- incisive bug, using parameters. do not change.

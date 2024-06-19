@@ -220,6 +220,7 @@ def replace_cpp_operators(expression: str) -> str:
         r"\b&&\b": "and",
         r"\b\|\|\b": "or",
         r"!": "not ",
+        r"(?<!/)/(?!/)": "//",
         r"\btrue\b": "True",
         r"\bfalse\b": "False",
     }

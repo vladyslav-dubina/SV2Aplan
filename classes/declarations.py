@@ -64,6 +64,10 @@ class DeclarationArray(BasicArray):
 
     def addElement(self, new_element: Declaration):
         if isinstance(new_element, self.element_type):
+            is_uniq_element = self.findElement(new_element.identifier)
+            if is_uniq_element is not None:
+                return self.getElementIndex(is_uniq_element.identifier)
+
             self.elements.append(new_element)
             self.elements = sorted(
                 self.elements,

@@ -5,20 +5,8 @@ assign_1 = (
 		(module_1.bus_read = wb_si_cyc_i)),
 assign_3 = (
 		(1)->
-		("parametrs_2_2#module_1:action 'assign (module_2.si_addr_i = module_1.wb_si_adr_i)';")
-		(module_2.si_addr_i = module_1.wb_si_adr_i)),
-assign_4 = (
-		(1)->
-		("parametrs_2_2#module_1:action 'assign (module_2.cfg_pat_gen_i = module_1.cfg_pat_gen_i)';")
-		(module_2.cfg_pat_gen_i = module_1.cfg_pat_gen_i)),
-assign_5 = (
-		(1)->
-		("parametrs_2_2#module_1:action 'assign (module_2.ctl_pat_data_i = module_1.ctl_pat_data_i)';")
-		(module_2.ctl_pat_data_i = module_1.ctl_pat_data_i)),
-assign_6 = (
-		(1)->
-		("parametrs_2_2#module_1:action 'assign (module_2.nopg_o = module_1.no_pg_gen_ack)';")
-		(module_2.nopg_o = module_1.no_pg_gen_ack))
+		("parametrs_2_2#module_1:action 'assign (module_2.si_addr_i = module_1.wb_si_adr_i; module_2.cfg_pat_gen_i = module_1.cfg_pat_gen_i; module_2.ctl_pat_data_i = module_1.ctl_pat_data_i; module_2.nopg_o = module_1.no_pg_gen_ack)';")
+		(module_2.si_addr_i = module_1.wb_si_adr_i; module_2.cfg_pat_gen_i = module_1.cfg_pat_gen_i; module_2.ctl_pat_data_i = module_1.ctl_pat_data_i; module_2.nopg_o = module_1.no_pg_gen_ack))
 assign_2 = (
 		(1)->
 		("parametrs_2_1#module_2:action 'assign (nopg_o = no_pg)';")

@@ -24,7 +24,7 @@ from utils import (
     printWithColor,
     Color,
 )
-from typing import Tuple
+from typing import Tuple, List
 import re
 
 
@@ -123,6 +123,7 @@ class SV2aplan:
                 ):
                     printWithColor(f"Unhandled case for module call", Color.RED)
 
+                assign_str_list: List[str] = []
                 for (
                     named_port_connection
                 ) in (
@@ -134,17 +135,22 @@ class SV2aplan:
                         self.module.ident_uniq_name,
                         named_port_connection.expression().getText(),
                     )
-                    action_name, source_interval = self.expression2Aplan(
-                        assign_str,
-                        ElementsTypes.ASSIGN_FOR_CALL_ELEMENT,
-                        ctx.getSourceInterval(),
-                    )
-                    struct_call_assign.addBody(action_name)
+                    assign_str_list.append(assign_str)
+
+                action_name, source_interval = self.expression2Aplan(
+                    assign_str_list,
+                    ElementsTypes.ASSIGN_FOR_CALL_ELEMENT,
+                    ctx.getSourceInterval(),
+                )
+                struct_call_assign.addBody(action_name)
 
                 self.module.out_of_block_elements.addElement(struct_call_assign)
 
     def expression2Aplan(
-        self, input: str, cond_type: ElementsTypes, source_interval: Tuple[int, int]
+        self,
+        input: str | List[str],
+        cond_type: ElementsTypes,
+        source_interval: Tuple[int, int],
     ):
         name_part = ""
         counter_type = CounterTypes.NONE_COUNTER
@@ -166,9 +172,10 @@ class SV2aplan:
             name_part, Counters_Object.getCounter(counter_type)
         )
 
-        expression, expression_with_replaced_names = self.prepareExpressionString(
-            input, cond_type
-        )
+        if cond_type != ElementsTypes.ASSIGN_FOR_CALL_ELEMENT:
+            expression, expression_with_replaced_names = self.prepareExpressionString(
+                input, cond_type
+            )
 
         action = Action(
             name_part,
@@ -176,19 +183,33 @@ class SV2aplan:
             source_interval,
         )
 
-        if (
-            cond_type == ElementsTypes.ASSIGN_ELEMENT
-            or cond_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT
-        ):
+        if cond_type == ElementsTypes.ASSIGN_ELEMENT:
             action.precondition.body.append("1")
             action.postcondition.body.append(expression_with_replaced_names)
+            action.description.body.append(
+                f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
+            )
+        elif cond_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT:
+            action.precondition.body.append("1")
+            descroption = ""
+            for index, input_str in enumerate(input):
+                if index != 0:
+                    descroption += "; "
+                expression, expression_with_replaced_names = (
+                    self.prepareExpressionString(input_str, cond_type)
+                )
+                action.postcondition.body.append(expression_with_replaced_names)
+                descroption += expression
+
+            action.description.body.append(
+                f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({descroption})'"
+            )
         else:
             action.precondition.body.append(expression_with_replaced_names)
             action.postcondition.body.append("1")
-
-        action.description.body.append(
-            f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
-        )
+            action.description.body.append(
+                f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
+            )
 
         action_check_result, source_interval = self.module.actions.isUniqAction(action)
         if action_check_result is None:
