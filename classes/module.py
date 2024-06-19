@@ -6,7 +6,7 @@ from classes.protocols import ProtocolArray
 from classes.declarations import DeclarationArray
 from classes.structure import StructureArray
 from classes.basic import Basic, BasicArray
-from classes.module_instantiation import ModuleInstantiationArray
+from classes.module_call import ModuleCallArray
 from typing import Tuple
 
 
@@ -14,6 +14,7 @@ class ElementsTypes(Enum):
     ASSERT_ELEMENT = auto()
     IF_STATEMENT_ELEMENT = auto()
     ASSIGN_ELEMENT = auto()
+    ASSIGN_FOR_CALL_ELEMENT = auto()
     CONDITION_ELEMENT = auto()
 
 
@@ -118,9 +119,7 @@ class Module(Basic):
 class ModuleArray(BasicArray):
     def __init__(self):
         super().__init__(Module)
-        self.module_instantiations: ModuleInstantiationArray = (
-            ModuleInstantiationArray()
-        )
+        self.module_instantiations: ModuleCallArray = ModuleCallArray()
 
     def __repr__(self):
         return f"ModulesArray(\n{self.elements!r}\n)"

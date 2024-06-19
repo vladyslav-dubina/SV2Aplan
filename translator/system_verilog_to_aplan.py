@@ -3,6 +3,7 @@ from antlr4.tree import Tree
 from classes.declarations import Declaration, DeclTypes
 from classes.actions import Action
 from classes.structure import Structure
+from classes.protocols import Protocol
 from classes.always import Always
 from classes.module import (
     Module,
@@ -20,6 +21,8 @@ from utils import (
     removeTypeFromForInit,
     replaceParametrsCalls,
     Counters_Object,
+    printWithColor,
+    Color,
 )
 from typing import Tuple
 import re
@@ -70,7 +73,12 @@ class SV2aplan:
         expression = valuesToAplanStandart(expression)
         expression = doubleOperators2Aplan(expression)
         expression = addSpacesAroundOperators(expression)
-        expression_with_replaced_names = self.findAndChangeNamesToAplanNames(expression)
+        if ElementsTypes.ASSIGN_FOR_CALL_ELEMENT != expr_type:
+            expression_with_replaced_names = self.findAndChangeNamesToAplanNames(
+                expression
+            )
+        else:
+            expression_with_replaced_names = expression
         expression_with_replaced_names = addBracketsAfterTilda(
             expression_with_replaced_names
         )
@@ -89,6 +97,52 @@ class SV2aplan:
         )
         return (expression, expression_with_replaced_names)
 
+    def moduleCall2Aplan(
+        self,
+        ctx: SystemVerilogParser.Module_instantiationContext,
+        destination_module_name: str,
+    ):
+        for hierarchical_instance in ctx.hierarchical_instance():
+            instance = hierarchical_instance.name_of_instance().getText()
+            index = instance.find("core")
+            if index != -1:
+
+                Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+                call_assign_b = "module_assign_B_{}".format(
+                    Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                )
+                struct_call_assign = Protocol(
+                    call_assign_b,
+                    ctx.getSourceInterval(),
+                )
+
+                for (
+                    order_port_connection
+                ) in (
+                    hierarchical_instance.list_of_port_connections().ordered_port_connection()
+                ):
+                    printWithColor(f"Unhandled case for module call", Color.RED)
+
+                for (
+                    named_port_connection
+                ) in (
+                    hierarchical_instance.list_of_port_connections().named_port_connection()
+                ):
+                    assign_str = "{0}.{1}={2}.{3}".format(
+                        destination_module_name,
+                        named_port_connection.port_identifier().getText(),
+                        self.module.ident_uniq_name,
+                        named_port_connection.expression().getText(),
+                    )
+                    action_name, source_interval = self.expression2Aplan(
+                        assign_str,
+                        ElementsTypes.ASSIGN_FOR_CALL_ELEMENT,
+                        ctx.getSourceInterval(),
+                    )
+                    struct_call_assign.addBody(action_name)
+
+                self.module.out_of_block_elements.addElement(struct_call_assign)
+
     def expression2Aplan(
         self, input: str, cond_type: ElementsTypes, source_interval: Tuple[int, int]
     ):
@@ -101,16 +155,19 @@ class SV2aplan:
         elif cond_type == ElementsTypes.CONDITION_ELEMENT:
             name_part = "cond"
             counter_type = CounterTypes.CONDITION_COUNTER
-        elif cond_type == ElementsTypes.ASSIGN_ELEMENT:
+        elif (
+            cond_type == ElementsTypes.ASSIGN_ELEMENT
+            or cond_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT
+        ):
             name_part = "assign"
             counter_type = CounterTypes.ASSIGNMENT_COUNTER
 
         action_name = "{0}_{1}".format(
-            name_part, Counters_Object.getCounter(CounterTypes.ASSIGNMENT_COUNTER)
+            name_part, Counters_Object.getCounter(counter_type)
         )
 
         expression, expression_with_replaced_names = self.prepareExpressionString(
-            input, counter_type
+            input, cond_type
         )
 
         action = Action(
@@ -119,7 +176,10 @@ class SV2aplan:
             source_interval,
         )
 
-        if cond_type == ElementsTypes.ASSIGN_ELEMENT:
+        if (
+            cond_type == ElementsTypes.ASSIGN_ELEMENT
+            or cond_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT
+        ):
             action.precondition.body.append("1")
             action.postcondition.body.append(expression_with_replaced_names)
         else:

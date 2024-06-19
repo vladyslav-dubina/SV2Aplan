@@ -11,7 +11,7 @@ from classes.parametrs import Parametr
 from classes.module import (
     Module,
 )
-from classes.module_instantiation import ModuleInstantiation
+from classes.module_call import ModuleCall
 
 from utils import (
     Counters_Object,
@@ -30,12 +30,12 @@ class SVListener(SystemVerilogParserListener):
 
     global Counters_Object
 
-    def __init__(self, program, module_instantiation: ModuleInstantiation | None):
+    def __init__(self, program, module_call: ModuleCall | None):
         from program.program import Program
 
         self.module: Module = None
         self.program: Program = program
-        self.module_instantiation: ModuleInstantiation | None = module_instantiation
+        self.module_call: ModuleCall | None = module_call
 
     def enterModule_declaration(self, ctx):
         if ctx.module_ansi_header() is not None:
@@ -67,8 +67,8 @@ class SVListener(SystemVerilogParserListener):
             )
         )
         self.module.parametrs.evaluateParametrExpressionByIndex(parametr_index)
-        if self.module_instantiation is not None:
-            source_parametr = self.module_instantiation.paramets.findElement(identifier)
+        if self.module_call is not None:
+            source_parametr = self.module_call.paramets.findElement(identifier)
             if source_parametr is not None:
                 parametr = self.module.parametrs.getElementByIndex(parametr_index)
                 parametr.value = source_parametr.value
@@ -293,13 +293,26 @@ class SVListener(SystemVerilogParserListener):
         finder = SystemVerilogFinder()
         finder.setUp(file_data)
         printWithColor(f"Source file : {file_path} \n", Color.BLUE)
-        module_instantiation = ModuleInstantiation(
+        module_call = ModuleCall(
             self.module.identifier,
             destination_identifier,
             ctx.parameter_value_assignment().getText(),
             self.module.parametrs,
         )
-        finder.startTranslate(self.program, module_instantiation)
 
-        # for element in ctx.hierarchical_instance():
-        # print(element.getText())
+        call_module_name = finder.startTranslate(
+            self.program, module_call
+        )
+        sv2aplan = SV2aplan(self.module)
+        sv2aplan.moduleCall2Aplan(ctx, call_module_name)
+        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+        call_b = "module_call_B_{}".format(
+            Counters_Object.getCounter(CounterTypes.B_COUNTER)
+        )
+        struct_call = Protocol(
+            call_b,
+            ctx.getSourceInterval(),
+        )
+        struct_call.addBody(f"call B_{call_module_name.upper()}")
+        self.module.out_of_block_elements.addElement(struct_call)
+        

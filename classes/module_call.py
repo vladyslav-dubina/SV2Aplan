@@ -3,7 +3,7 @@ from classes.parametrs import ParametrArray
 import re
 
 
-class ModuleInstantiation(Basic):
+class ModuleCall(Basic):
     def extractParametrsAndValues(self, expression):
         result = []
         matches = re.findall(r"\.(.+?)\b\s*\((.+?)\)", expression)
@@ -17,7 +17,7 @@ class ModuleInstantiation(Basic):
         source_identifier: str,
         destination_identifier: str,
         parameter_value_assignment: str,
-        source_parametrs:ParametrArray
+        source_parametrs: ParametrArray,
     ):
         super().__init__(
             "",
@@ -32,19 +32,19 @@ class ModuleInstantiation(Basic):
         for left, right in parametrs_for_assignment:
             source_parametr = source_parametrs.findElement(right)
             if source_parametr is not None:
-                self.paramets.addElement(source_parametr)            
+                self.paramets.addElement(source_parametr)
 
     def __repr__(self):
-        return "\tModuleInstantiation(\n\t\t{0},\n\t\t{1},\n\t\t{2}\n\t)\n".format(
+        return "\tModuleCall(\n\t\t{0},\n\t\t{1},\n\t\t{2}\n\t)\n".format(
             self.source_identifier,
             self.destination_identifier,
-            self.parametrs_for_assignment,
+            self.paramets,
         )
 
 
-class ModuleInstantiationArray(BasicArray):
+class ModuleCallArray(BasicArray):
     def __init__(self):
-        super().__init__(ModuleInstantiation)
+        super().__init__(ModuleCall)
 
     def __repr__(self):
-        return f"ModuleInstantiationArray(\n{self.elements!r}\n)"
+        return f"ModuleCallArray(\n{self.elements!r}\n)"
