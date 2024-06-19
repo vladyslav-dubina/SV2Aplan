@@ -1,0 +1,7 @@
+events(
+	s_global_resetn:obj(x1:bool);
+	s_ip_resetn:obj(x1:bool);
+	s_Data_in:obj(x1:Bits 16);
+	s_write:obj(x1:bool);
+	s_Clk:obj(x1:bool);
+);

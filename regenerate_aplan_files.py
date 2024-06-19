@@ -88,6 +88,14 @@ def regeneration_start():
             "examples/code_patch/aplan",
         ),
         (
+            "examples/always/always_@*/always_@*.sv",
+            "examples/always/always_@*/aplan",
+        ),
+        (
+            "examples/always/always_without_sensetive/always_without_sensetive.sv",
+            "examples/always/always_without_sensetive/aplan",
+        ),
+        (
             "examples/sv_example_1/sv_example_1.sv",
             "examples/sv_example_1/aplan",
         ),
