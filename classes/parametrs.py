@@ -22,6 +22,7 @@ class Parametr(Basic):
             addBracketsAfterTilda,
             vectorSizes2AplanStandart,
             generatePythonStyleTernary,
+            replace_cpp_operators,
         )
 
         expression = valuesToAplanStandart(self.expression)
@@ -29,6 +30,7 @@ class Parametr(Basic):
         expression = addSpacesAroundOperators(expression)
         expression = addBracketsAfterTilda(expression)
         expression = vectorSizes2AplanStandart(expression)
+        expression = replace_cpp_operators(expression)
         expression = generatePythonStyleTernary(expression)
         self.expression = expression
 

@@ -215,6 +215,21 @@ def generatePythonStyleTernary(expression: str):
         return expression
 
 
+def replace_cpp_operators(expression: str) -> str:
+    replacements = {
+        r"\b&&\b": "and",
+        r"\b\|\|\b": "or",
+        r"!": "not ",
+        r"\btrue\b": "True",
+        r"\bfalse\b": "False",
+    }
+
+    for cpp_op, py_op in replacements.items():
+        expression = re.sub(cpp_op, py_op, expression)
+
+    return expression
+
+
 def vectorSize2AplanVectorSize(left, right):
     if right == "0":
         left = int(left) + 1
