@@ -1,6 +1,6 @@
 
 
-module parametrs_2_2 
+module call_2 
     #(  
         parameter ADDR_WIDTH            =   12,
         parameter DATA_WIDTH            =   14,
@@ -18,7 +18,7 @@ module parametrs_2_2
     //bus read operation indicator
     assign bus_read = wb_si_cyc_i;
 
-    parametrs_2_1 #(
+    call_1 #(
         .ADDR_WIDTH             (ADDR_WIDTH), 
         .DATA_WIDTH             (DATA_WIDTH), 
         .NUM_REGS               (NUM_REGS)) 

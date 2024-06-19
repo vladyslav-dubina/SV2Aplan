@@ -1,5 +1,5 @@
 
-module parametrs_2_1
+module call_1
     #(
         parameter ADDR_WIDTH            =   32,
         parameter DATA_WIDTH            =   12,
