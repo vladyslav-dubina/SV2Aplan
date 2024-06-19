@@ -26,6 +26,8 @@ class Declaration(Basic):
         expression: str,
         size_expression: str,
         size: int,
+        dimension_expression: str,
+        dimension_size: int,
         source_interval: Tuple[int, int],
     ):
         super().__init__(identifier, source_interval)
@@ -33,6 +35,8 @@ class Declaration(Basic):
         self.expression = expression
         self.size = size
         self.size_expression = size_expression
+        self.dimension_expression = dimension_expression
+        self.dimension_size = dimension_size
 
     def getAplanDecltype(self):
         if self.data_type == DeclTypes.INT:
@@ -43,10 +47,12 @@ class Declaration(Basic):
             or self.data_type == DeclTypes.WIRE
             or self.data_type == DeclTypes.REG
         ):
-            if self.size == 0:
-                return "bool"
-            if self.size > 0:
+            if self.dimension_size > 0:
+                return f"(Bits {self.size}) -> Bits {self.dimension_size}"
+            elif self.size > 0:
                 return "Bits " + str(self.size)
+            else:
+                return "bool"
 
     def __repr__(self):
         return f"\tDeclaration({self.data_type!r}, {self.identifier!r}, {self.expression!r}, {self.size!r}, {self.sequence!r})\n"

@@ -1,4 +1,5 @@
 events(
 	s_cfg_pat_gen_i:obj(x1:bool);
 	s_si_read_i:obj(x1:bool);
+	s_test_1:obj(x1:(Bits 13) -> Bits 2);
 );

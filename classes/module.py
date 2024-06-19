@@ -101,6 +101,8 @@ class Module(Basic):
             init_protocol_part = f"INIT_{self.identifierUpper}"
             if main_flag or always_flag:
                 init_protocol_part += ";"
+            if main_flag:
+                init_protocol += "\n"
             result = init_protocol + result
 
         b0 = f"B_{self.identifierUpper} = ({init_protocol_part}{always_part}{main_protocol_part}),"

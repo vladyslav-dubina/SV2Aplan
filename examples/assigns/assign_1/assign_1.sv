@@ -1,18 +1,15 @@
 
 module code_patch_core  
     (
-
-        //signal representing if the read operation is currently on a bus
         input                                       si_read_i,
-
-        //configuration from register or a constant
         input                                       cfg_pat_gen_i,
+        input [12:0]                                  test_1[2],
 
         output logic                                nopg_o // output to bus wrapper
     );
 
     wire                    patch_enable;
-    reg                     no_pg;
+    reg [21:0]                     no_pg[3];
 
 
     //global enable

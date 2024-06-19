@@ -154,6 +154,8 @@ class SV2aplan:
                     assign_name,
                     size_expression,
                     0,
+                    "",
+                    0,
                     expression.getSourceInterval(),
                 )
             )
@@ -358,6 +360,8 @@ class SV2aplan:
                         ctx.variable_identifier(0).getText(),
                         assign_name,
                         size_expression,
+                        0,
+                        "",
                         0,
                         ctx.getSourceInterval(),
                     )

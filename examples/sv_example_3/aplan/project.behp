@@ -1,5 +1,6 @@
 B_MODULE_1 = (INIT_MODULE_1;Sensetive(always_1, module_1.Clk || !module_1.ip_resetn);MAIN_MODULE_1),
-INIT_MODULE_1 = assign_1,MAIN_MODULE_1 = assert_B_2,
+INIT_MODULE_1 = assign_1,
+MAIN_MODULE_1 = assert_B_2,
 always_1 = B_1,
 B_1 = if_1.body_1 + !if_1.else_body_1,
 body_1 = Sensetive(assign_2).Sensetive(assign_3),

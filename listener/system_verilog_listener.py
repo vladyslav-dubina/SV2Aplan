@@ -21,6 +21,7 @@ from utils import (
     replaceParametrsCalls,
     printWithColor,
     replace_filename,
+    extractDimentionSize,
     Color,
 )
 
@@ -29,10 +30,9 @@ class SVListener(SystemVerilogParserListener):
 
     global Counters_Object
 
-    def __init__(
-        self, program, module_instantiation: ModuleInstantiation | None
-    ):
+    def __init__(self, program, module_instantiation: ModuleInstantiation | None):
         from program.program import Program
+
         self.module: Module = None
         self.program: Program = program
         self.module_instantiation: ModuleInstantiation | None = module_instantiation
@@ -84,6 +84,8 @@ class SVListener(SystemVerilogParserListener):
                     assign_name,
                     "",
                     0,
+                    "",
+                    0,
                     ctx.getSourceInterval(),
                 )
             )
@@ -104,6 +106,18 @@ class SVListener(SystemVerilogParserListener):
                 for (
                     elem
                 ) in ctx.list_of_variable_decl_assignments().variable_decl_assignment():
+
+                    unpacked_dimention = elem.variable_dimension(0)
+                    dimension_size = 0
+                    dimension_size_expression = ""
+                    if unpacked_dimention is not None:
+                        dimension = unpacked_dimention.getText()
+                        dimension_size_expression = dimension
+                        dimension = replaceParametrsCalls(
+                            self.module.parametrs, dimension
+                        )
+                        dimension_size = extractDimentionSize(dimension)
+
                     assign_name = ""
                     identifier = elem.variable_identifier().identifier().getText()
                     decl_index = self.module.declarations.addElement(
@@ -113,6 +127,8 @@ class SVListener(SystemVerilogParserListener):
                             assign_name,
                             size_expression,
                             aplan_vector_size[0],
+                            dimension_size_expression,
+                            dimension_size,
                             ctx.getSourceInterval(),
                         )
                     )
@@ -129,6 +145,16 @@ class SVListener(SystemVerilogParserListener):
 
     def exitNet_declaration(self, ctx):
         data_type = ctx.data_type_or_implicit()
+
+        unpacked_dimention = ctx.unpacked_dimension(0)
+        dimension_size = 0
+        dimension_size_expression = ""
+        if unpacked_dimention is not None:
+            dimension = unpacked_dimention.getText()
+            dimension_size_expression = dimension
+            dimension = replaceParametrsCalls(self.module.parametrs, dimension)
+            dimension_size = extractDimentionSize(dimension)
+
         aplan_vector_size = [0]
         size_expression = ""
         if data_type:
@@ -153,6 +179,8 @@ class SVListener(SystemVerilogParserListener):
                         assign_name,
                         size_expression,
                         aplan_vector_size[0],
+                        dimension_size_expression,
+                        dimension_size,
                         ctx.getSourceInterval(),
                     )
                 )
@@ -169,46 +197,45 @@ class SVListener(SystemVerilogParserListener):
 
     def exitAnsi_port_declaration(self, ctx):
         header = ctx.net_port_header().getText()
-        index = header.find("input")
-        if index != -1:
-            size_expression = header
-            header = replaceParametrsCalls(self.module.parametrs, header)
-            vector_size = extractVectorSize(header)
-            aplan_vector_size = [0]
-            if vector_size is not None:
-                aplan_vector_size = vectorSize2AplanVectorSize(
-                    vector_size[0], vector_size[1]
-                )
+        unpacked_dimention = ctx.unpacked_dimension(0)
+        dimension_size = 0
+        dimension_size_expression = ""
+        if unpacked_dimention is not None:
+            dimension = unpacked_dimention.getText()
+            dimension_size_expression = dimension
+            dimension = replaceParametrsCalls(self.module.parametrs, dimension)
+            dimension_size = extractDimentionSize(dimension)
 
-            port = Declaration(
-                DeclTypes.INPORT,
-                ctx.port_identifier().getText(),
-                "",
-                size_expression,
-                aplan_vector_size[0],
-                ctx.getSourceInterval(),
-            )
-            self.module.declarations.addElement(port)
-
+        data_type = DeclTypes.INPORT
         index = header.find("output")
         if index != -1:
-            size_expression = header
-            header = replaceParametrsCalls(self.module.parametrs, header)
-            vector_size = extractVectorSize(header)
-            aplan_vector_size = [0]
-            if vector_size is not None:
-                aplan_vector_size = vectorSize2AplanVectorSize(
-                    vector_size[0], vector_size[1]
-                )
-            port = Declaration(
-                DeclTypes.OUTPORT,
-                ctx.port_identifier().getText(),
-                "",
-                size_expression,
-                aplan_vector_size[0],
-                ctx.getSourceInterval(),
+            data_type = DeclTypes.OUTPORT
+
+        index = header.find("input")
+        if index != -1:
+            data_type = DeclTypes.INPORT
+
+        size_expression = header
+        header = replaceParametrsCalls(self.module.parametrs, header)
+        vector_size = extractVectorSize(header)
+        aplan_vector_size = [0]
+
+        if vector_size is not None:
+            aplan_vector_size = vectorSize2AplanVectorSize(
+                vector_size[0], vector_size[1]
             )
-            self.module.declarations.addElement(port)
+
+        port = Declaration(
+            data_type,
+            ctx.port_identifier().getText(),
+            "",
+            size_expression,
+            aplan_vector_size[0],
+            dimension_size_expression,
+            dimension_size,
+            ctx.getSourceInterval(),
+        )
+        self.module.declarations.addElement(port)
 
     def enterLoop_generate_construct(self, ctx):
         sv2aplan = SV2aplan(self.module)

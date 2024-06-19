@@ -254,6 +254,14 @@ def evaluateExpression(expr: str):
     return result
 
 
+def extractDimentionSize(s: str):
+    matches = re.findall(r"\[\s*(.+)\s*\]", s)
+    if matches:
+        value = matches[0][0]
+        value = evaluateExpression(value)
+        return value
+
+
 def extractVectorSize(s: str):
     matches = re.findall(r"\[(.+)\s*:\s*(.+)\]", s)
     if matches:
