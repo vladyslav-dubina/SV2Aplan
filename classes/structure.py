@@ -1,8 +1,6 @@
 from typing import Tuple, List
 from classes.basic import Basic, BasicArray
-from classes.counters import CounterTypes
 from classes.protocols import Protocol
-from utils import Counters_Object
 
 
 class Structure(Basic):

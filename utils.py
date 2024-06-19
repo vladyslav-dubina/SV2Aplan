@@ -1,5 +1,6 @@
 import re
 import os
+from typing import Tuple, List
 from ast import literal_eval
 from classes.counters import Counters, CounterTypes
 from antlr4_verilog.systemverilog import SystemVerilogParser
@@ -74,6 +75,18 @@ def switchRemovePrints(flag: bool):
 def printWithColor(text, color_start: Color, color_end: Color = Color.END):
     if REMOVE_PRINTS == False:
         print(color_start + text + color_end)
+
+
+def printWithColors(
+    input: List[Tuple[str, Color]],
+):
+    if REMOVE_PRINTS == False:
+        color_end = Color.END
+        print_str = ""
+        for element in input:
+            text, color_start = element
+            print_str += color_start + text + color_end
+        print(print_str)
 
 
 Counters_Object = Counters()

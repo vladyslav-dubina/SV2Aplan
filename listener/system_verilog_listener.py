@@ -286,13 +286,14 @@ class SVListener(SystemVerilogParserListener):
         from translator.translator import SystemVerilogFinder
 
         destination_identifier = ctx.module_identifier().getText()
+        previous_file_path = self.program.file_path
         file_path = replace_filename(
             self.program.file_path, f"{destination_identifier}.sv"
         )
         file_data = self.program.readFileData(file_path)
         finder = SystemVerilogFinder()
         finder.setUp(file_data)
-        printWithColor(f"Source file : {file_path} \n", Color.BLUE)
+
         module_call = ModuleCall(
             self.module.identifier,
             destination_identifier,
@@ -300,9 +301,8 @@ class SVListener(SystemVerilogParserListener):
             self.module.parametrs,
         )
 
-        call_module_name = finder.startTranslate(
-            self.program, module_call
-        )
+        call_module_name = finder.startTranslate(self.program, module_call)
+        self.program.file_path = previous_file_path
         sv2aplan = SV2aplan(self.module)
         sv2aplan.moduleCall2Aplan(ctx, call_module_name)
         Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
@@ -315,4 +315,3 @@ class SVListener(SystemVerilogParserListener):
         )
         struct_call.addBody(f"call B_{call_module_name.upper()}")
         self.module.out_of_block_elements.addElement(struct_call)
-        

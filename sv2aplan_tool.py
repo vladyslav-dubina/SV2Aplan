@@ -44,7 +44,6 @@ def start(path, path_to_aplan_result):
             file_data = program.readFileData(path)
             finder = SystemVerilogFinder()
             finder.setUp(file_data)
-            printWithColor(f"Source file : {path} \n", Color.BLUE)
             finder.startTranslate(program, None)
         program.createResDir()
         program.createAplanFiles()

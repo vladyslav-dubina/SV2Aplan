@@ -1,5 +1,5 @@
 from utils import printWithColor, Color, removeTrailingComma
-from classes.module import Module, ModuleArray
+from classes.module import ModuleArray
 import os
 
 
@@ -10,7 +10,8 @@ class Program:
 
     def readFileData(self, path):
         self.file_path = path
-        printWithColor("Set up tranlator environment \n", Color.ORANGE)
+        printWithColor(f"===============================================================================\n", Color.BLUE)
+        printWithColor(f"Read SV file {path}\n", Color.BLUE)
         f = open(path, "r")
         data = f.read()
         f.close()
@@ -24,7 +25,7 @@ class Program:
         else:
             self.path_to_result = "results" + os.sep
         printWithColor(
-            'Path to result: "{0}"'.format(self.path_to_result), Color.ORANGE
+            'Path to result: "{0}"\n'.format(self.path_to_result), Color.ORANGE
         )
 
         if not os.path.exists(self.path_to_result[:-1]):
