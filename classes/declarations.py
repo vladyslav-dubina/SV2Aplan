@@ -1,7 +1,8 @@
 from typing import Tuple, List
 from enum import Enum, auto
 from classes.basic import Basic, BasicArray
-from utils import replaceParametrsCalls, extractVectorSize, vectorSize2AplanVectorSize
+from utils.string_formating import replaceParametrsCalls
+from utils.utils import extractVectorSize, vectorSize2AplanVectorSize
 
 
 class DeclTypes(Enum):

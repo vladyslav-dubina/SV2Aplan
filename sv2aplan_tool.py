@@ -4,7 +4,7 @@ import traceback
 import sys
 import os
 import glob
-from utils import (
+from utils.utils import (
     Color,
     format_time,
     printWithColor,

@@ -1,4 +1,5 @@
-from utils import printWithColor, Color, removeTrailingComma
+from utils.string_formating import removeTrailingComma
+from utils.utils import printWithColor, Color
 from classes.module import ModuleArray
 import os
 
@@ -10,7 +11,10 @@ class Program:
 
     def readFileData(self, path):
         self.file_path = path
-        printWithColor(f"===============================================================================\n", Color.BLUE)
+        printWithColor(
+            f"===============================================================================\n",
+            Color.BLUE,
+        )
         printWithColor(f"Read SV file {path}\n", Color.BLUE)
         f = open(path, "r")
         data = f.read()

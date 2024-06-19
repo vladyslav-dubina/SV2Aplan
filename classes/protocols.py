@@ -1,7 +1,7 @@
 from typing import Tuple, List
 from classes.basic import Basic, BasicArray
 from classes.declarations import DeclTypes
-from utils import removeTrailingComma
+from utils.string_formating import removeTrailingComma
 
 
 class Protocol(Basic):

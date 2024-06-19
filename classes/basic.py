@@ -4,7 +4,7 @@ from typing import List, Tuple
 class Basic:
     def __init__(self, identifier: str, source_interval: Tuple[int, int]):
         from classes.counters import CounterTypes
-        from utils import Counters_Object
+        from utils.utils import Counters_Object
 
         self.identifier = identifier
         self.sequence = (Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),)

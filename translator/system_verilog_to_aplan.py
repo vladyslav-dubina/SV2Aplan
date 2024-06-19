@@ -10,7 +10,7 @@ from classes.module import (
     ElementsTypes,
 )
 from classes.counters import CounterTypes
-from utils import (
+from utils.string_formating import (
     addSpacesAroundOperators,
     valuesToAplanStandart,
     addBracketsAfterTilda,
@@ -18,8 +18,10 @@ from utils import (
     vectorSizes2AplanStandart,
     notConcreteIndex2AplanStandart,
     doubleOperators2Aplan,
-    removeTypeFromForInit,
     replaceParametrsCalls,
+)
+from utils.utils import (
+    removeTypeFromForInit,
     Counters_Object,
     printWithColor,
     Color,

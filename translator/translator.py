@@ -1,7 +1,7 @@
 from antlr4_verilog import InputStream, CommonTokenStream, ParseTreeWalker
 from listener.system_verilog_listener import SVListener
 from antlr4_verilog.systemverilog import SystemVerilogLexer, SystemVerilogParser
-from utils import printWithColor, printWithColors, Color
+from utils.utils import printWithColor, printWithColors, Color
 from program.program import Program
 from classes.module_call import ModuleCall
 

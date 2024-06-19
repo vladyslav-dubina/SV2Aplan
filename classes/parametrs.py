@@ -15,7 +15,7 @@ class Parametr(Basic):
         self.expression = expression
 
     def prepareExpression(self):
-        from utils import (
+        from utils.string_formating import (
             valuesToAplanStandart,
             doubleOperators2Aplan,
             addSpacesAroundOperators,
@@ -58,7 +58,8 @@ class ParametrArray(BasicArray):
             )
 
     def evaluateParametrExpressionByIndex(self, index: int):
-        from utils import replaceParametrsCalls, evaluateExpression
+        from utils.string_formating import replaceParametrsCalls
+        from utils.utils import evaluateExpression
 
         parametr = self.getElementByIndex(index)
         expression = parametr.expression

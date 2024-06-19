@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from utils import generate_module_names
+from utils.utils import generate_module_names
 from classes.actions import ActionArray
 from classes.parametrs import ParametrArray
 from classes.protocols import ProtocolArray

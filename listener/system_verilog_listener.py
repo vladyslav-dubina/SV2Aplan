@@ -12,17 +12,16 @@ from classes.module import (
     Module,
 )
 from classes.module_call import ModuleCall
-
-from utils import (
+from utils.string_formating import (
+    replaceParametrsCalls,
+    replace_filename,
+)
+from utils.utils import (
     Counters_Object,
     extractVectorSize,
     vectorSize2AplanVectorSize,
     is_numeric_string,
-    replaceParametrsCalls,
-    printWithColor,
-    replace_filename,
     extractDimentionSize,
-    Color,
 )
 
 
