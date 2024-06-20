@@ -17,7 +17,6 @@ class CounterTypes(Enum):
 
 
 class Counters:
-
     def __init__(self) -> None:
         self.module_counter = 1
         self.assignment_counter = 1
