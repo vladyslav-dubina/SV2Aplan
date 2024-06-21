@@ -84,6 +84,10 @@ def regeneration_start():
             "examples/call/aplan",
         ),
         (
+            "examples/code_patch/code_patch_wb_wrapper.sv",
+            "examples/code_patch/aplan",
+        ),
+        (
             "examples/always/always_@*/always_@*.sv",
             "examples/always/always_@*/aplan",
         ),

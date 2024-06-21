@@ -163,4 +163,4 @@ cython_debug/
 /results
 
 /example
-/code_patch
+/examples/code_patch/*.sv
