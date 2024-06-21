@@ -6,7 +6,8 @@ from translator.system_verilog_to_aplan import (
 )
 from classes.declarations import Declaration, DeclTypes
 from classes.protocols import Protocol
-from classes.module import Module, ElementsTypes
+from classes.element_types import ElementsTypes
+from classes.module import Module
 from classes.counters import CounterTypes
 from classes.parametrs import Parametr
 from classes.module import (
@@ -156,7 +157,7 @@ class SVListener(SystemVerilogParserListener):
                         assign_b,
                         ctx.getSourceInterval(),
                     )
-                    struct_assign.addBody(assign_name)
+                    struct_assign.addBody((assign_name, ElementsTypes.ACTION_ELEMENT))
                     self.module.out_of_block_elements.addElement(struct_assign)
 
     def exitNet_declaration(self, ctx):
@@ -290,7 +291,7 @@ class SVListener(SystemVerilogParserListener):
                 assert_b,
                 ctx.getSourceInterval(),
             )
-            struct_assert.addBody("{0}.Delta + !{0}.0".format(assert_name))
+            struct_assert.addBody(("{0}.Delta + !{0}.0".format(assert_name), ElementsTypes.ACTION_ELEMENT))
             self.module.out_of_block_elements.addElement(struct_assert)
 
     def exitNet_assignment(self, ctx):
@@ -307,7 +308,7 @@ class SVListener(SystemVerilogParserListener):
                 assign_b,
                 ctx.getSourceInterval(),
             )
-            struct_assign.addBody(assign_name)
+            struct_assign.addBody((assign_name, ElementsTypes.ACTION_ELEMENT))
             self.module.out_of_block_elements.addElement(struct_assign)
 
     def exitModule_instantiation(self, ctx):
@@ -341,5 +342,5 @@ class SVListener(SystemVerilogParserListener):
             call_b,
             ctx.getSourceInterval(),
         )
-        struct_call.addBody(f"call B_{call_module_name.upper()}")
+        struct_call.addBody((f"call B_{call_module_name.upper()}", ElementsTypes.PROTOCOL_ELEMENT))
         self.module.out_of_block_elements.addElement(struct_call)

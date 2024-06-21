@@ -1,4 +1,3 @@
-from enum import Enum, auto
 from utils.utils import generate_module_names
 from classes.actions import ActionArray
 from classes.parametrs import ParametrArray
@@ -8,14 +7,6 @@ from classes.structure import StructureArray
 from classes.basic import Basic, BasicArray
 from classes.module_call import ModuleCallArray
 from typing import Tuple
-
-
-class ElementsTypes(Enum):
-    ASSERT_ELEMENT = auto()
-    IF_STATEMENT_ELEMENT = auto()
-    ASSIGN_ELEMENT = auto()
-    ASSIGN_FOR_CALL_ELEMENT = auto()
-    CONDITION_ELEMENT = auto()
 
 
 class Module(Basic):
@@ -57,8 +48,12 @@ class Module(Basic):
         protocols.sort(key=lambda student: student.sequence)
         for index, element in enumerate(protocols):
             if index != 0:
-                main_protocol += "."
+                main_protocol += ";"
+                main_protocol += "("
             main_protocol += element.identifier
+
+            if index != 0:
+                main_protocol += ")"
 
         if len(main_protocol) > 0:
             main_flag = True

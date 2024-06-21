@@ -5,10 +5,8 @@ from classes.actions import Action
 from classes.structure import Structure
 from classes.protocols import Protocol
 from classes.always import Always
-from classes.module import (
-    Module,
-    ElementsTypes,
-)
+from classes.module import Module
+from classes.element_types import ElementsTypes
 from classes.counters import CounterTypes
 from utils.string_formating import (
     addSpacesAroundOperators,
@@ -144,7 +142,7 @@ class SV2aplan:
                     ElementsTypes.ASSIGN_FOR_CALL_ELEMENT,
                     ctx.getSourceInterval(),
                 )
-                struct_call_assign.addBody(action_name)
+                struct_call_assign.addBody((action_name, ElementsTypes.ACTION_ELEMENT))
 
                 self.module.out_of_block_elements.addElement(struct_call_assign)
 
@@ -265,7 +263,12 @@ class SV2aplan:
         beh_index = sv_structure.getLastBehaviorIndex()
         if beh_index is not None:
             sv_structure.behavior[beh_index].addBody(
-                "LOOP_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
+                (
+                    "LOOP_{0}".format(
+                        Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
+                    ),
+                    ElementsTypes.PROTOCOL_ELEMENT,
+                )
             )
 
         # LOOP
@@ -273,8 +276,11 @@ class SV2aplan:
             "LOOP_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
         )
         sv_structure.behavior[beh_index].addBody(
-            "(LOOP_INIT_{0};LOOP_MAIN_{0})".format(
-                Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
+            (
+                "(LOOP_INIT_{0};LOOP_MAIN_{0})".format(
+                    Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
+                ),
+                ElementsTypes.PROTOCOL_ELEMENT,
             )
         )
 
@@ -303,8 +309,12 @@ class SV2aplan:
             )
 
         sv_structure.behavior[beh_index].addBody(
-            "{1}.(LOOP_BODY_{0};LOOP_INC_{0};LOOP_MAIN_{0}) + !{1}".format(
-                Counters_Object.getCounter(CounterTypes.LOOP_COUNTER), condition_name
+            (
+                "{1}.(LOOP_BODY_{0};LOOP_INC_{0};LOOP_MAIN_{0}) + !{1}".format(
+                    Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
+                    condition_name,
+                ),
+                ElementsTypes.ACTION_ELEMENT,
             )
         )
 
@@ -330,7 +340,9 @@ class SV2aplan:
                 Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
             )
         )
-        sv_structure.behavior[beh_index].addBody(action_name)
+        sv_structure.behavior[beh_index].addBody(
+            (action_name, ElementsTypes.ACTION_ELEMENT)
+        )
 
         # LOOP INC
         iteration = ""
@@ -352,7 +364,9 @@ class SV2aplan:
         beh_index = sv_structure.addProtocol(
             "LOOP_INC_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
         )
-        sv_structure.behavior[beh_index].addBody(action_name)
+        sv_structure.behavior[beh_index].addBody(
+            (action_name, ElementsTypes.ACTION_ELEMENT)
+        )
 
         # BODY LOOP
         sv_structure.addProtocol(
@@ -388,10 +402,15 @@ class SV2aplan:
                 )
                 beh_index = sv_structure.addProtocol(assert_b)
                 sv_structure.behavior[beh_index].addBody(
-                    "{0}.Delta + !{0}.0".format(assert_name)
+                    (
+                        "{0}.Delta + !{0}.0".format(assert_name),
+                        ElementsTypes.ACTION_ELEMENT,
+                    )
                 )
                 if beh_index != 0:
-                    sv_structure.behavior[beh_index - 1].addBody(assert_b)
+                    sv_structure.behavior[beh_index - 1].addBody(
+                        (assert_b, ElementsTypes.PROTOCOL_ELEMENT)
+                    )
             # Assign handler
             elif (
                 type(child) is SystemVerilogParser.Variable_decl_assignmentContext
@@ -409,7 +428,9 @@ class SV2aplan:
                 if type(child) is SystemVerilogParser.Nonblocking_assignmentContext:
                     action_name = "Sensetive(" + action_name + ")"
                 if beh_index is not None:
-                    sv_structure.behavior[beh_index].addBody(action_name)
+                    sv_structure.behavior[beh_index].addBody(
+                        (action_name, ElementsTypes.ACTION_ELEMENT)
+                    )
                 else:
                     Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
                     b_index = sv_structure.addProtocol(
@@ -417,7 +438,9 @@ class SV2aplan:
                             Counters_Object.getCounter(CounterTypes.B_COUNTER)
                         )
                     )
-                    sv_structure.behavior[b_index].addBody(action_name)
+                    sv_structure.behavior[b_index].addBody(
+                        (action_name, ElementsTypes.ACTION_ELEMENT)
+                    )
             elif type(child) is SystemVerilogParser.For_variable_declarationContext:
                 assign_name = ""
                 data_type = ctx.data_type().getText()
@@ -507,8 +530,13 @@ class SV2aplan:
                         beh_index = sv_structure.getLastBehaviorIndex()
                         if beh_index is not None:
                             sv_structure.behavior[beh_index].addBody(
-                                "B_{0}".format(
-                                    Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                                (
+                                    "B_{0}".format(
+                                        Counters_Object.getCounter(
+                                            CounterTypes.B_COUNTER
+                                        )
+                                    ),
+                                    ElementsTypes.PROTOCOL_ELEMENT,
                                 )
                             )
                         sv_structure.addProtocol(
@@ -547,7 +575,9 @@ class SV2aplan:
                                 ),
                             )
 
-                        sv_structure.behavior[beh_index].addBody(body)
+                        sv_structure.behavior[beh_index].addBody(
+                            (body, ElementsTypes.ACTION_ELEMENT)
+                        )
 
                     sv_structure.addProtocol(
                         "IF_BODY_{0}".format(
