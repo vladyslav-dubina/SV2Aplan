@@ -43,6 +43,10 @@
 
 </details>
 
+## Elements that are translated in Aplan
+
+You can read more about the transposition of elements in [this file](https://github.com/vladyslav-dubina/SV2Aplan/blob/SV2Aplan_stable/SV%20to%20Aplan%20Progress.docx)
+
 ## Authors
 
 - [Vlad Dubina](https://github.com/vladyslav-dubina)
