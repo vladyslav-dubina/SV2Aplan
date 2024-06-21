@@ -273,7 +273,7 @@ class SV2aplan:
             "LOOP_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
         )
         sv_structure.behavior[beh_index].addBody(
-            "LOOP_INIT_{0}.LOOP_MAIN_{0}".format(
+            "(LOOP_INIT_{0};LOOP_MAIN_{0})".format(
                 Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
             )
         )
@@ -284,9 +284,27 @@ class SV2aplan:
                 Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
             )
         )
+
+        # LOOP CONDITION
+        condition_name = ""
+        if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
+            condition = ctx.genvar_expression().getText()
+            condition_name, source_interval = self.expression2Aplan(
+                condition,
+                ElementsTypes.CONDITION_ELEMENT,
+                ctx.genvar_expression().getSourceInterval(),
+            )
+        elif type(ctx) is SystemVerilogParser.Loop_statementContext:
+            condition = ctx.expression().getText()
+            condition_name, source_interval = self.expression2Aplan(
+                condition,
+                ElementsTypes.CONDITION_ELEMENT,
+                ctx.expression().getSourceInterval(),
+            )
+
         sv_structure.behavior[beh_index].addBody(
-            "LOOP_COND_{0}.(LOOP_BODY_{0};LOOP_INC_{0};LOOP_MAIN_{0}) + !LOOP_COND_{0}".format(
-                Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
+            "{1}.(LOOP_BODY_{0};LOOP_INC_{0};LOOP_MAIN_{0}) + !{1}".format(
+                Counters_Object.getCounter(CounterTypes.LOOP_COUNTER), condition_name
             )
         )
 
@@ -333,30 +351,6 @@ class SV2aplan:
 
         beh_index = sv_structure.addProtocol(
             "LOOP_INC_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
-        )
-        sv_structure.behavior[beh_index].addBody(action_name)
-
-        # LOOP CONDITION
-        condition = ""
-        if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
-            condition = ctx.genvar_expression().getText()
-            action_name, source_interval = self.expression2Aplan(
-                condition,
-                ElementsTypes.CONDITION_ELEMENT,
-                ctx.genvar_expression().getSourceInterval(),
-            )
-        elif type(ctx) is SystemVerilogParser.Loop_statementContext:
-            condition = ctx.expression().getText()
-            action_name, source_interval = self.expression2Aplan(
-                condition,
-                ElementsTypes.CONDITION_ELEMENT,
-                ctx.expression().getSourceInterval(),
-            )
-
-        beh_index = sv_structure.addProtocol(
-            "LOOP_COND_{0}".format(
-                Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
-            )
         )
         sv_structure.behavior[beh_index].addBody(action_name)
 
@@ -579,7 +573,6 @@ class SV2aplan:
         struct.addProtocol(generate_name)
         self.loop2Aplan(ctx, struct)
         self.module.structures.addElement(struct)
-        Counters_Object.incrieseCounter(CounterTypes.LOOP_COUNTER)
         return
 
     def always2Aplan(self, ctx):

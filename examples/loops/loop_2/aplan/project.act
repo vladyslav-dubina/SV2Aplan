@@ -3,14 +3,14 @@ assign_1 = (
 		(1)->
 		("code_patch_core#module_1:action 'assign (h = 0)';")
 		(module_1.h = 0)),
-assign_2 = (
-		(1)->
-		("code_patch_core#module_1:action 'assign (h = h + 1)';")
-		(module_1.h = module_1.h + 1)),
 cond_1 = (
 		(module_1.h < 8)->
 		("code_patch_core#module_1:action 'cond (h < 8)';")
 		(1)),
+assign_2 = (
+		(1)->
+		("code_patch_core#module_1:action 'assign (h = h + 1)';")
+		(module_1.h = module_1.h + 1)),
 assign_3 = (
 		(1)->
 		("code_patch_core#module_1:action 'assign (patch_match[h] = ( si_addr_i == ctl_pat_addr_i[h] ) & ctl_pat_pen_i[h])';")
