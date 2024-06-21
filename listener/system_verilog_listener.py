@@ -100,12 +100,10 @@ class SVListener(SystemVerilogParserListener):
             aplan_vector_size = vectorSize2AplanVectorSize(
                 vector_size[0], vector_size[1]
             )
-        index = data_type.find("reg")
-        if index != -1:
-            for (
-                elem
-            ) in ctx.list_of_variable_decl_assignments().variable_decl_assignment():
 
+        for elem in ctx.list_of_variable_decl_assignments().variable_decl_assignment():
+            index = data_type.find("reg")
+            if index != -1:
                 unpacked_dimention = elem.variable_dimension(0)
                 dimension_size = 0
                 dimension_size_expression = ""
@@ -136,10 +134,7 @@ class SVListener(SystemVerilogParserListener):
                     assign_name = sv2aplan.declaration2Aplan(elem)
                     declaration = self.module.declarations.getElementByIndex(decl_index)
                     declaration.expression = assign_name
-        else:
-            for (
-                elem
-            ) in ctx.list_of_variable_decl_assignments().variable_decl_assignment():
+            else:
                 identifier = elem.variable_identifier().identifier().getText()
                 if elem.expression() is not None:
                     expression = identifier + "=" + elem.expression().getText()
