@@ -110,7 +110,7 @@ class SV2aplan:
             if index != -1:
 
                 Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-                call_assign_b = "module_assign_B_{}".format(
+                call_assign_b = "MODULE_ASSIGN_B_{}".format(
                     Counters_Object.getCounter(CounterTypes.B_COUNTER)
                 )
                 struct_call_assign = Protocol(
@@ -265,27 +265,27 @@ class SV2aplan:
         beh_index = sv_structure.getLastBehaviorIndex()
         if beh_index is not None:
             sv_structure.behavior[beh_index].addBody(
-                "loop_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
+                "LOOP_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
             )
 
         # LOOP
         beh_index = sv_structure.addProtocol(
-            "loop_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
+            "LOOP_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
         )
         sv_structure.behavior[beh_index].addBody(
-            "loop_init_{0}.loop_main_{0}".format(
+            "LOOP_INIT_{0}.LOOP_MAIN_{0}".format(
                 Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
             )
         )
 
         # LOOP MAIN
         beh_index = sv_structure.addProtocol(
-            "loop_main_{0}".format(
+            "LOOP_MAIN_{0}".format(
                 Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
             )
         )
         sv_structure.behavior[beh_index].addBody(
-            "loop_cond_{0}.(loop_body_{0};loop_inc_{0};loop_main_{0}) + !loop_cond_{0}".format(
+            "LOOP_COND_{0}.(LOOP_BODY_{0};LOOP_INC_{0};LOOP_MAIN_{0}) + !LOOP_COND_{0}".format(
                 Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
             )
         )
@@ -308,7 +308,7 @@ class SV2aplan:
             )
 
         beh_index = sv_structure.addProtocol(
-            "loop_init_{0}".format(
+            "LOOP_INIT_{0}".format(
                 Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
             )
         )
@@ -332,7 +332,7 @@ class SV2aplan:
             )
 
         beh_index = sv_structure.addProtocol(
-            "loop_inc_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
+            "LOOP_INC_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
         )
         sv_structure.behavior[beh_index].addBody(action_name)
 
@@ -354,7 +354,7 @@ class SV2aplan:
             )
 
         beh_index = sv_structure.addProtocol(
-            "loop_cond_{0}".format(
+            "LOOP_COND_{0}".format(
                 Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
             )
         )
@@ -362,7 +362,7 @@ class SV2aplan:
 
         # BODY LOOP
         sv_structure.addProtocol(
-            "loop_body_{0}".format(
+            "LOOP_BODY_{0}".format(
                 Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
             )
         )
@@ -389,7 +389,7 @@ class SV2aplan:
                     child.expression().getSourceInterval(),
                 )
                 Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-                assert_b = "assert_B_{}".format(
+                assert_b = "ASSERT_B_{}".format(
                     Counters_Object.getCounter(CounterTypes.B_COUNTER)
                 )
                 beh_index = sv_structure.addProtocol(assert_b)
@@ -524,7 +524,7 @@ class SV2aplan:
                         )
                     else:
                         sv_structure.addProtocol(
-                            "else_body_{0}".format(
+                            "ELSE_BODY_{0}".format(
                                 Counters_Object.getCounter(
                                     CounterTypes.ELSE_BODY_COUNTER
                                 )
@@ -535,17 +535,17 @@ class SV2aplan:
                     beh_index = sv_structure.getLastBehaviorIndex()
                     if beh_index is not None:
                         if element["predicate"] is None:
-                            body = "if_body_{0}".format(
+                            body = "IF_BODY_{0}".format(
                                 Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
                             )
                         elif index == len(predicate_statements_list) - 1:
-                            body = "{0}.if_body_{1} + !{0}".format(
+                            body = "{0}.IF_BODY_{1} + !{0}".format(
                                 action_name,
                                 Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
                             )
                         else:
 
-                            body = "{0}.if_body_{1} + !{0}.else_body_{2}".format(
+                            body = "{0}.IF_BODY_{1} + !{0}.ELSE_BODY_{2}".format(
                                 action_name,
                                 Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
                                 Counters_Object.getCounter(
@@ -556,7 +556,7 @@ class SV2aplan:
                         sv_structure.behavior[beh_index].addBody(body)
 
                     sv_structure.addProtocol(
-                        "if_body_{0}".format(
+                        "IF_BODY_{0}".format(
                             Counters_Object.getCounter(CounterTypes.BODY_COUNTER)
                         )
                     )
@@ -568,7 +568,7 @@ class SV2aplan:
 
     def generate2Aplan(self, ctx: SystemVerilogParser.Loop_generate_constructContext):
         generate_name = (
-            "generate"
+            "GENERATE"
             + "_"
             + str(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
         )
@@ -604,7 +604,7 @@ class SV2aplan:
 
         Counters_Object.incrieseCounter(CounterTypes.ALWAYS_COUNTER)
         always_name = (
-            always_keyword
+            always_keyword.upper()
             + "_"
             + str(Counters_Object.getCounter(CounterTypes.ALWAYS_COUNTER))
         )

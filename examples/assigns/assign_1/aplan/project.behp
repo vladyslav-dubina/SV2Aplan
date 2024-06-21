@@ -1,3 +1,5 @@
-B_MODULE_1 = (MAIN_MODULE_1),
-MAIN_MODULE_1 = assign_B_1,
-assign_B_1 = assign_1
+B_MODULE_1 = (INIT_MODULE_1;MAIN_MODULE_1),
+INIT_MODULE_1 = assign_1,
+MAIN_MODULE_1 = ASSIGN_B_1.ASSIGN_B_2,
+ASSIGN_B_1 = assign_2,
+ASSIGN_B_2 = assign_3

@@ -1,4 +1,5 @@
 from antlr4_verilog.systemverilog import SystemVerilogParserListener
+from antlr4_verilog.systemverilog import SystemVerilogParser
 
 from translator.system_verilog_to_aplan import (
     SV2aplan,
@@ -132,15 +133,37 @@ class SVListener(SystemVerilogParserListener):
                         )
                     )
 
-                    if elem.expression():
+                    if elem.expression() is not None:
                         expression = elem.expression().getText()
-                        if expression:
-                            sv2aplan = SV2aplan(self.module)
-                            assign_name = sv2aplan.declaration2Aplan(elem)
-                            declaration = self.module.declarations.getElementByIndex(
-                                decl_index
-                            )
-                            declaration.expression = assign_name
+                        sv2aplan = SV2aplan(self.module)
+                        assign_name = sv2aplan.declaration2Aplan(elem)
+                        declaration = self.module.declarations.getElementByIndex(
+                            decl_index
+                        )
+                        declaration.expression = assign_name
+            else:
+                for (
+                    elem
+                ) in ctx.list_of_variable_decl_assignments().variable_decl_assignment():
+                    identifier = elem.variable_identifier().identifier().getText()
+                    if elem.expression() is not None:
+                        expression = identifier + "=" + elem.expression().getText()
+                        sv2aplan = SV2aplan(self.module)
+                        assign_name, source_interval = sv2aplan.expression2Aplan(
+                            expression,
+                            ElementsTypes.ASSIGN_ELEMENT,
+                            ctx.getSourceInterval(),
+                        )
+                        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+                        assign_b = "ASSIGN_B_{}".format(
+                            Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                        )
+                        struct_assign = Protocol(
+                            assign_b,
+                            ctx.getSourceInterval(),
+                        )
+                        struct_assign.addBody(assign_name)
+                        self.module.out_of_block_elements.addElement(struct_assign)
 
     def exitNet_declaration(self, ctx):
         data_type = ctx.data_type_or_implicit()
@@ -224,17 +247,29 @@ class SVListener(SystemVerilogParserListener):
                 vector_size[0], vector_size[1]
             )
 
+        assign_name = ""
+
         port = Declaration(
             data_type,
             ctx.port_identifier().getText(),
-            "",
+            assign_name,
             size_expression,
             aplan_vector_size[0],
             dimension_size_expression,
             dimension_size,
             ctx.getSourceInterval(),
         )
-        self.module.declarations.addElement(port)
+        decl_index = self.module.declarations.addElement(port)
+
+        constant_expression = ctx.constant_expression()
+        if constant_expression is not None:
+            expression = constant_expression.getText()
+            sv2aplan = SV2aplan(self.module)
+            assign_name, source_interval = sv2aplan.expression2Aplan(
+                expression, ElementsTypes.ASSIGN_ELEMENT, ctx.getSourceInterval()
+            )
+            declaration = self.module.declarations.getElementByIndex(decl_index)
+            declaration.expression = assign_name
 
     def enterLoop_generate_construct(self, ctx):
         sv2aplan = SV2aplan(self.module)
@@ -254,7 +289,7 @@ class SVListener(SystemVerilogParserListener):
                 ctx.getSourceInterval(),
             )
             Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-            assert_b = "assert_B_{}".format(
+            assert_b = "ASSERT_B_{}".format(
                 Counters_Object.getCounter(CounterTypes.B_COUNTER)
             )
             struct_assert = Protocol(
@@ -271,7 +306,7 @@ class SVListener(SystemVerilogParserListener):
         )
         if source_interval != ctx.getSourceInterval():
             Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-            assign_b = "assign_B_{}".format(
+            assign_b = "ASSIGN_B_{}".format(
                 Counters_Object.getCounter(CounterTypes.B_COUNTER)
             )
             struct_assign = Protocol(
@@ -305,7 +340,7 @@ class SVListener(SystemVerilogParserListener):
         sv2aplan = SV2aplan(self.module)
         sv2aplan.moduleCall2Aplan(ctx, call_module_name)
         Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-        call_b = "module_call_B_{}".format(
+        call_b = "MODULE_CALL_B_{}".format(
             Counters_Object.getCounter(CounterTypes.B_COUNTER)
         )
         struct_call = Protocol(

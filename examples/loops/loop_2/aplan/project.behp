@@ -1,9 +1,9 @@
-B_MODULE_1 = (INIT_MODULE_1;Sensetive(always_comb_1)),
+B_MODULE_1 = (INIT_MODULE_1;Sensetive(ALWAYS_COMB_1)),
 INIT_MODULE_1 = assign_1,
-always_comb_1 = loop_1,
-loop_1 = loop_init_1.loop_main_1,
-loop_main_1 = loop_cond_1.(loop_body_1;loop_inc_1;loop_main_1) + !loop_cond_1,
-loop_init_1 = assign_1,
-loop_inc_1 = assign_2,
-loop_cond_1 = cond_1,
-loop_body_1 = assign_3
+ALWAYS_COMB_1 = LOOP_1,
+LOOP_1 = LOOP_INIT_1.LOOP_MAIN_1,
+LOOP_MAIN_1 = LOOP_COND_1.(LOOP_BODY_1;LOOP_INC_1;LOOP_MAIN_1) + !LOOP_COND_1,
+LOOP_INIT_1 = assign_1,
+LOOP_INC_1 = assign_2,
+LOOP_COND_1 = cond_1,
+LOOP_BODY_1 = assign_3

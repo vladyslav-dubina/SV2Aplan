@@ -1,5 +1,13 @@
 
 assign_1 = (
 		(1)->
+		("code_patch_core#module_1:action 'assign (0)';")
+		(0)),
+assign_2 = (
+		(1)->
+		("code_patch_core#module_1:action 'assign (patch_enable = si_read_i & cfg_pat_gen_i)';")
+		(module_1.patch_enable = module_1.si_read_i & module_1.cfg_pat_gen_i)),
+assign_3 = (
+		(1)->
 		("code_patch_core#module_1:action 'assign (nopg_o = no_pg)';")
 		(module_1.nopg_o = module_1.no_pg))
