@@ -102,19 +102,24 @@ class SVListener(SystemVerilogParserListener):
             )
 
         for elem in ctx.list_of_variable_decl_assignments().variable_decl_assignment():
-            index = data_type.find("reg")
-            if index != -1:
-                unpacked_dimention = elem.variable_dimension(0)
-                dimension_size = 0
-                dimension_size_expression = ""
-                if unpacked_dimention is not None:
-                    dimension = unpacked_dimention.getText()
-                    dimension_size_expression = dimension
-                    dimension = replaceParametrsCalls(self.module.parametrs, dimension)
-                    dimension_size = extractDimentionSize(dimension)
+            identifier = elem.variable_identifier().identifier().getText()
 
+            unpacked_dimention = elem.variable_dimension(0)
+            dimension_size = 0
+            dimension_size_expression = ""
+            if unpacked_dimention is not None:
+                dimension = unpacked_dimention.getText()
+                dimension_size_expression = dimension
+                dimension = replaceParametrsCalls(self.module.parametrs, dimension)
+                dimension_size = extractDimentionSize(dimension)
+
+            index = data_type.find("reg")
+            is_register = False
+            if index != -1:
+                is_register = True
+
+            if is_register == True:
                 assign_name = ""
-                identifier = elem.variable_identifier().identifier().getText()
                 decl_index = self.module.declarations.addElement(
                     Declaration(
                         DeclTypes.REG,
@@ -128,15 +133,14 @@ class SVListener(SystemVerilogParserListener):
                     )
                 )
 
-                if elem.expression() is not None:
+            if elem.expression() is not None:
+                if is_register == True:
                     expression = elem.expression().getText()
                     sv2aplan = SV2aplan(self.module)
                     assign_name = sv2aplan.declaration2Aplan(elem)
                     declaration = self.module.declarations.getElementByIndex(decl_index)
                     declaration.expression = assign_name
-            else:
-                identifier = elem.variable_identifier().identifier().getText()
-                if elem.expression() is not None:
+                else:
                     expression = identifier + "=" + elem.expression().getText()
                     sv2aplan = SV2aplan(self.module)
                     assign_name, source_interval = sv2aplan.expression2Aplan(
