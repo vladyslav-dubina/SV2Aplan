@@ -62,7 +62,7 @@ cond_1 = (
 assign_4 = (
 		(1)->
 		("code_patch_core#module_2:action 'assign (patch_match[j] = ( si_addr_i == ctl_pat_addr_i[j] ) & ctl_pat_pen_i[j])';")
-		(BGETI(module_2.patch_match, module_2.j) = ( module_2.si_addr_i == BGETI(module_2.ctl_pat_addr_i, module_2.j) ) & BGETI(module_2.ctl_pat_pen_i, module_2.j))),
+		(BGET(module_2.patch_match, module_2.j) = ( module_2.si_addr_i == BGET(module_2.ctl_pat_addr_i, module_2.j) ) & BGET(module_2.ctl_pat_pen_i, module_2.j))),
 assign_5 = (
 		(1)->
 		("code_patch_core#module_2:action 'assign (patch_enable = si_read_i & cfg_pat_gen_i)';")
@@ -92,13 +92,13 @@ cond_2 = (
 		("code_patch_core#module_2:action 'cond (i < NUM_REGS)';")
 		(1)),
 if_2 = (
-		(BGETI(module_2.patch_match, module_2.i))->
+		(BGET(module_2.patch_match, module_2.i))->
 		("code_patch_core#module_2:action 'if (patch_match[i])';")
 		(1)),
 assign_10 = (
 		(1)->
 		("code_patch_core#module_2:action 'assign (mi_addr_o = mi_addr_o | ctl_pat_data_i[i])';")
-		(module_2.mi_addr_o = module_2.mi_addr_o | BGETI(module_2.ctl_pat_data_i, module_2.i))),
+		(module_2.mi_addr_o = module_2.mi_addr_o | BGET(module_2.ctl_pat_data_i, module_2.i))),
 assign_11 = (
 		(1)->
 		("code_patch_core#module_2:action 'assign (mi_addr_o = si_addr_i)';")
@@ -122,11 +122,11 @@ assign_14 = (
 assign_15 = (
 		(1)->
 		("code_patch_core#module_2:action 'assign (si_data_o = si_data_o | ctl_pat_data_i[i])';")
-		(module_2.si_data_o = module_2.si_data_o | BGETI(module_2.ctl_pat_data_i, module_2.i))),
+		(module_2.si_data_o = module_2.si_data_o | BGET(module_2.ctl_pat_data_i, module_2.i))),
 assign_16 = (
 		(1)->
 		("code_patch_core#module_2:action 'assign (no_pg = no_pg | ctl_pat_nopg_i[i])';")
-		(module_2.no_pg = module_2.no_pg | BGETI(module_2.ctl_pat_nopg_i, module_2.i))),
+		(module_2.no_pg = module_2.no_pg | BGET(module_2.ctl_pat_nopg_i, module_2.i))),
 assign_17 = (
 		(1)->
 		("code_patch_core#module_2:action 'assign (si_data_o = mi_data_i)';")

@@ -114,7 +114,7 @@ def notConcreteIndex2AplanStandart(expression: str):
 
     def replace_match(match):
         identifier, index = match.group(1), match.group(2)
-        return f"BGETI({identifier}, {index})"
+        return f"BGET({identifier}, {index})"
 
     result = re.sub(pattern, lambda match: replace_match(match), expression)
     return result
