@@ -12,6 +12,8 @@ from utils.string_formating import (
     addSpacesAroundOperators,
     valuesToAplanStandart,
     addBracketsAfterTilda,
+    addBracketsAfterNegation,
+    addLeftValueForUnaryOrOperator,
     parallelAssignment2Assignment,
     vectorSizes2AplanStandart,
     notConcreteIndex2AplanStandart,
@@ -72,6 +74,7 @@ class SV2aplan:
     def prepareExpressionString(self, expression: str, expr_type: ElementsTypes):
         expression = valuesToAplanStandart(expression)
         expression = doubleOperators2Aplan(expression)
+        expression = addLeftValueForUnaryOrOperator(expression)
         expression = addSpacesAroundOperators(expression)
         if ElementsTypes.ASSIGN_FOR_CALL_ELEMENT != expr_type:
             expression_with_replaced_names = self.findAndChangeNamesToAplanNames(
@@ -79,6 +82,10 @@ class SV2aplan:
             )
         else:
             expression_with_replaced_names = expression
+
+        expression_with_replaced_names = addBracketsAfterNegation(
+            expression_with_replaced_names
+        )
         expression_with_replaced_names = addBracketsAfterTilda(
             expression_with_replaced_names
         )
@@ -106,7 +113,6 @@ class SV2aplan:
             instance = hierarchical_instance.name_of_instance().getText()
             index = instance.find("core")
             if index != -1:
-
                 Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
                 call_assign_b = "MODULE_ASSIGN_B_{}".format(
                     Counters_Object.getCounter(CounterTypes.B_COUNTER)
@@ -195,9 +201,10 @@ class SV2aplan:
             for index, input_str in enumerate(input):
                 if index != 0:
                     descroption += "; "
-                expression, expression_with_replaced_names = (
-                    self.prepareExpressionString(input_str, cond_type)
-                )
+                (
+                    expression,
+                    expression_with_replaced_names,
+                ) = self.prepareExpressionString(input_str, cond_type)
                 action.postcondition.body.append(expression_with_replaced_names)
                 descroption += expression
 
@@ -497,11 +504,12 @@ class SV2aplan:
                             Counters_Object.getCounter(CounterTypes.IF_COUNTER),
                             child.getSourceInterval(),
                         )
-                        predicate_string, predicate_with_replaced_names = (
-                            self.prepareExpressionString(
-                                element["predicate"].getText(),
-                                ElementsTypes.IF_STATEMENT_ELEMENT,
-                            )
+                        (
+                            predicate_string,
+                            predicate_with_replaced_names,
+                        ) = self.prepareExpressionString(
+                            element["predicate"].getText(),
+                            ElementsTypes.IF_STATEMENT_ELEMENT,
                         )
                         if_action.precondition.body.append(
                             predicate_with_replaced_names
@@ -511,9 +519,10 @@ class SV2aplan:
                         )
                         if_action.postcondition.body.append("1")
 
-                        if_check_result, source_interval = (
-                            self.module.actions.isUniqAction(if_action)
-                        )
+                        (
+                            if_check_result,
+                            source_interval,
+                        ) = self.module.actions.isUniqAction(if_action)
                         if if_check_result is None:
                             self.module.actions.addElement(if_action)
                         else:
@@ -566,7 +575,6 @@ class SV2aplan:
                                 Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
                             )
                         else:
-
                             body = "{0}.IF_BODY_{1} + !{0}.ELSE_BODY_{2}".format(
                                 action_name,
                                 Counters_Object.getCounter(CounterTypes.BODY_COUNTER),

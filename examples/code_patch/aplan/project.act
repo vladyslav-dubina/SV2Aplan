@@ -1,49 +1,49 @@
 
 assign_1 = (
 		(1)->
-		("code_patch_wb_wrapper#module_1:action 'assign (bus_read = wb_si_cyc_i & wb_si_stb_i & ! wb_si_we_i)';")
-		(module_1.bus_read = module_1.wb_si_cyc_i & module_1.wb_si_stb_i & ! module_1.wb_si_we_i)),
-assign_20 = (
+		("code_patch_wb_wrapper#module_1:action 'assign (bus_read = wb_si_cyc_i & wb_si_stb_i & !wb_si_we_i)';")
+		(module_1.bus_read = module_1.wb_si_cyc_i & module_1.wb_si_stb_i & !(module_1.wb_si_we_i))),
+assign_19 = (
 		(1)->
 		("code_patch_wb_wrapper#module_1:action 'assign (module_2.si_addr_i = module_1.wb_si_adr_i; module_2.si_data_o = module_1.wb_si_dat_o; module_2.si_read_i = module_1.bus_read; module_2.mi_addr_o = module_1.wb_mi_adr_o; module_2.mi_data_i = module_1.wb_mi_dat_i; module_2.cfg_pat_gen_i = module_1.cfg_pat_gen_i; module_2.cfg_addr_or_data_i = module_1.cfg_addr_or_data_i; module_2.ctl_pat_addr_i = module_1.ctl_pat_addr_i; module_2.ctl_pat_data_i = module_1.ctl_pat_data_i; module_2.ctl_pat_pen_i = module_1.ctl_pat_pen_i; module_2.ctl_pat_nopg_i = module_1.ctl_pat_nopg_i; module_2.nopg_o = module_1.no_pg_gen_ack)';")
 		(module_2.si_addr_i = module_1.wb_si_adr_i; module_2.si_data_o = module_1.wb_si_dat_o; module_2.si_read_i = module_1.bus_read; module_2.mi_addr_o = module_1.wb_mi_adr_o; module_2.mi_data_i = module_1.wb_mi_dat_i; module_2.cfg_pat_gen_i = module_1.cfg_pat_gen_i; module_2.cfg_addr_or_data_i = module_1.cfg_addr_or_data_i; module_2.ctl_pat_addr_i = module_1.ctl_pat_addr_i; module_2.ctl_pat_data_i = module_1.ctl_pat_data_i; module_2.ctl_pat_pen_i = module_1.ctl_pat_pen_i; module_2.ctl_pat_nopg_i = module_1.ctl_pat_nopg_i; module_2.nopg_o = module_1.no_pg_gen_ack)),
-assign_21 = (
+assign_20 = (
 		(1)->
 		("code_patch_wb_wrapper#module_1:action 'assign (wb_si_ack_o = wb_mi_ack_i | no_pg_gen_ack)';")
 		(module_1.wb_si_ack_o = module_1.wb_mi_ack_i | module_1.no_pg_gen_ack)),
-assign_22 = (
+assign_21 = (
 		(1)->
 		("code_patch_wb_wrapper#module_1:action 'assign (wb_mi_dat_o = wb_si_dat_i)';")
 		(module_1.wb_mi_dat_o = module_1.wb_si_dat_i)),
-assign_23 = (
+assign_22 = (
 		(1)->
 		("code_patch_wb_wrapper#module_1:action 'assign (wb_mi_sel_o = wb_si_sel_i)';")
 		(module_1.wb_mi_sel_o = module_1.wb_si_sel_i)),
-assign_24 = (
+assign_23 = (
 		(1)->
 		("code_patch_wb_wrapper#module_1:action 'assign (wb_mi_we_o = wb_si_we_i)';")
 		(module_1.wb_mi_we_o = module_1.wb_si_we_i)),
+assign_24 = (
+		(1)->
+		("code_patch_wb_wrapper#module_1:action 'assign (wb_mi_cyc_o = wb_si_cyc_i & !no_pg_gen_ack)';")
+		(module_1.wb_mi_cyc_o = module_1.wb_si_cyc_i & !(module_1.no_pg_gen_ack))),
 assign_25 = (
 		(1)->
-		("code_patch_wb_wrapper#module_1:action 'assign (wb_mi_cyc_o = wb_si_cyc_i & ! no_pg_gen_ack)';")
-		(module_1.wb_mi_cyc_o = module_1.wb_si_cyc_i & ! module_1.no_pg_gen_ack)),
+		("code_patch_wb_wrapper#module_1:action 'assign (wb_mi_stb_o = wb_si_stb_i & !no_pg_gen_ack)';")
+		(module_1.wb_mi_stb_o = module_1.wb_si_stb_i & !(module_1.no_pg_gen_ack))),
 assign_26 = (
-		(1)->
-		("code_patch_wb_wrapper#module_1:action 'assign (wb_mi_stb_o = wb_si_stb_i & ! no_pg_gen_ack)';")
-		(module_1.wb_mi_stb_o = module_1.wb_si_stb_i & ! module_1.no_pg_gen_ack)),
-assign_27 = (
 		(1)->
 		("code_patch_wb_wrapper#module_1:action 'assign (wb_si_stall_o = wb_mi_stall_i)';")
 		(module_1.wb_si_stall_o = module_1.wb_mi_stall_i)),
-assign_28 = (
+assign_27 = (
 		(1)->
 		("code_patch_wb_wrapper#module_1:action 'assign (wb_si_rty_o = wb_mi_rty_i)';")
 		(module_1.wb_si_rty_o = module_1.wb_mi_rty_i)),
-assign_29 = (
+assign_28 = (
 		(1)->
 		("code_patch_wb_wrapper#module_1:action 'assign (wb_si_err_o = wb_mi_err_i)';")
 		(module_1.wb_si_err_o = module_1.wb_mi_err_i)),
-assign_30 = (
+assign_29 = (
 		(1)->
 		("code_patch_wb_wrapper#module_1:action 'assign (wb_mi_lock_o = wb_si_lock_i)';")
 		(module_1.wb_mi_lock_o = module_1.wb_si_lock_i))
@@ -69,8 +69,8 @@ assign_5 = (
 		(module_2.patch_enable = module_2.si_read_i & module_2.cfg_pat_gen_i)),
 assign_6 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (adr_act = ( | patch_match ) & patch_enable & ! cfg_addr_or_data_i)';")
-		(module_2.adr_act = ( | module_2.patch_match ) & module_2.patch_enable & ! module_2.cfg_addr_or_data_i)),
+		("code_patch_core#module_2:action 'assign (adr_act = ( adr_act | patch_match ) & patch_enable & !cfg_addr_or_data_i)';")
+		(module_2.adr_act = ( module_2.adr_act | module_2.patch_match ) & module_2.patch_enable & !(module_2.cfg_addr_or_data_i))),
 if_1 = (
 		(module_2.adr_act)->
 		("code_patch_core#module_2:action 'if (adr_act)';")
@@ -105,8 +105,8 @@ assign_11 = (
 		(module_2.mi_addr_o = module_2.si_addr_i)),
 assign_12 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (dat_act = ( | patch_match ) & patch_enable & cfg_addr_or_data_i)';")
-		(module_2.dat_act = ( | module_2.patch_match ) & module_2.patch_enable & module_2.cfg_addr_or_data_i)),
+		("code_patch_core#module_2:action 'assign (dat_act = ( dat_act | patch_match ) & patch_enable & cfg_addr_or_data_i)';")
+		(module_2.dat_act = ( module_2.dat_act | module_2.patch_match ) & module_2.patch_enable & module_2.cfg_addr_or_data_i)),
 if_3 = (
 		(module_2.dat_act)->
 		("code_patch_core#module_2:action 'if (dat_act)';")
@@ -132,10 +132,6 @@ assign_17 = (
 		("code_patch_core#module_2:action 'assign (si_data_o = mi_data_i)';")
 		(module_2.si_data_o = module_2.mi_data_i)),
 assign_18 = (
-		(1)->
-		("code_patch_core#module_2:action 'assign (no_pg[12 : 2] = 0)';")
-		(module_2.no_pg(2,12) = 0)),
-assign_19 = (
 		(1)->
 		("code_patch_core#module_2:action 'assign (nopg_o = no_pg)';")
 		(module_2.nopg_o = module_2.no_pg))

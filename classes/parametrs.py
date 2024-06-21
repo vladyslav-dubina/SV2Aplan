@@ -20,6 +20,8 @@ class Parametr(Basic):
             doubleOperators2Aplan,
             addSpacesAroundOperators,
             addBracketsAfterTilda,
+            addBracketsAfterNegation,
+            addLeftValueForUnaryOrOperator,
             vectorSizes2AplanStandart,
             generatePythonStyleTernary,
             replace_cpp_operators,
@@ -27,7 +29,9 @@ class Parametr(Basic):
 
         expression = valuesToAplanStandart(self.expression)
         expression = doubleOperators2Aplan(expression)
+        expression = addLeftValueForUnaryOrOperator(expression)
         expression = addSpacesAroundOperators(expression)
+        expression = addBracketsAfterNegation(expression)
         expression = addBracketsAfterTilda(expression)
         expression = vectorSizes2AplanStandart(expression)
         expression = replace_cpp_operators(expression)

@@ -21,7 +21,6 @@ def addSpacesAroundOperators(expression: str):
         r"<",
         r"&&",
         r"\|\|",
-        r"!",
         r"&",
         r"\|",
         r"\(",
@@ -75,6 +74,22 @@ def valuesToAplanStandart(expression: str) -> str:
     return expression
 
 
+def addBracketsAfterNegation(expression: str):
+    pattern = r"!([^\s]*)"
+    result = re.sub(pattern, r"!(\1)", expression)
+    return result
+
+
+def addLeftValueForUnaryOrOperator(expression: str):
+    prefix = expression.split("=")[0].strip()
+
+    pattern = re.compile(r"(?<![a-zA-Z0-9_])\|")
+
+    new_expression = pattern.sub(f"{prefix}|", expression)
+
+    return new_expression
+
+
 def addBracketsAfterTilda(expression: str):
     pattern = r"~([^\s]*)"
     result = re.sub(pattern, r"~(\1)", expression)
@@ -126,7 +141,6 @@ def vectorSizes2AplanStandart(expression: str):
     pattern = "|".join(patterns)
 
     def replace_match(match):
-
         for i in range(len(patterns)):
             value_1, value_2 = (
                 match.group(1 + i),
