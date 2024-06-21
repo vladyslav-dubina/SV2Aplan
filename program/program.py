@@ -125,13 +125,15 @@ class Program:
         # Behaviour
         # ----------------------------------
         behaviour = ""
-        for module in self.modules.getElements():
+        for index, module in enumerate(self.modules.getElements()):
+            if index !=0:
+                behaviour += ",\n"
             behaviour += f"{module.getBehInitProtocols()}"
             behaviour += module.structures.getStructuresInStrFormat()
 
             if module.isIncludeOutOfBlockElements():
                 behaviour += (
-                    module.out_of_block_elements.getProtocolsInStrFormat() + "\n"
+                    module.out_of_block_elements.getProtocolsInStrFormat()
                 )
             else:
                 behaviour = removeTrailingComma(behaviour)
