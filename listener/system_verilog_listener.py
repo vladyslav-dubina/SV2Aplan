@@ -91,79 +91,74 @@ class SVListener(SystemVerilogParserListener):
             )
 
     def exitData_declaration(self, ctx):
-        if ctx.data_type_or_implicit():
-            data_type = ctx.data_type_or_implicit().getText()
-            aplan_vector_size = [0]
-            size_expression = data_type
-            data_type = replaceParametrsCalls(self.module.parametrs, data_type)
-            vector_size = extractVectorSize(data_type)
-            if vector_size is not None:
-                aplan_vector_size = vectorSize2AplanVectorSize(
-                    vector_size[0], vector_size[1]
-                )
-            index = data_type.find("reg")
-            if index != -1:
-                for (
-                    elem
-                ) in ctx.list_of_variable_decl_assignments().variable_decl_assignment():
+        data_type = ctx.data_type_or_implicit().getText()
+        aplan_vector_size = [0]
+        size_expression = data_type
+        data_type = replaceParametrsCalls(self.module.parametrs, data_type)
+        vector_size = extractVectorSize(data_type)
+        if vector_size is not None:
+            aplan_vector_size = vectorSize2AplanVectorSize(
+                vector_size[0], vector_size[1]
+            )
+        index = data_type.find("reg")
+        if index != -1:
+            for (
+                elem
+            ) in ctx.list_of_variable_decl_assignments().variable_decl_assignment():
 
-                    unpacked_dimention = elem.variable_dimension(0)
-                    dimension_size = 0
-                    dimension_size_expression = ""
-                    if unpacked_dimention is not None:
-                        dimension = unpacked_dimention.getText()
-                        dimension_size_expression = dimension
-                        dimension = replaceParametrsCalls(
-                            self.module.parametrs, dimension
-                        )
-                        dimension_size = extractDimentionSize(dimension)
+                unpacked_dimention = elem.variable_dimension(0)
+                dimension_size = 0
+                dimension_size_expression = ""
+                if unpacked_dimention is not None:
+                    dimension = unpacked_dimention.getText()
+                    dimension_size_expression = dimension
+                    dimension = replaceParametrsCalls(self.module.parametrs, dimension)
+                    dimension_size = extractDimentionSize(dimension)
 
-                    assign_name = ""
-                    identifier = elem.variable_identifier().identifier().getText()
-                    decl_index = self.module.declarations.addElement(
-                        Declaration(
-                            DeclTypes.REG,
-                            identifier,
-                            assign_name,
-                            size_expression,
-                            aplan_vector_size[0],
-                            dimension_size_expression,
-                            dimension_size,
-                            ctx.getSourceInterval(),
-                        )
+                assign_name = ""
+                identifier = elem.variable_identifier().identifier().getText()
+                decl_index = self.module.declarations.addElement(
+                    Declaration(
+                        DeclTypes.REG,
+                        identifier,
+                        assign_name,
+                        size_expression,
+                        aplan_vector_size[0],
+                        dimension_size_expression,
+                        dimension_size,
+                        ctx.getSourceInterval(),
                     )
+                )
 
-                    if elem.expression() is not None:
-                        expression = elem.expression().getText()
-                        sv2aplan = SV2aplan(self.module)
-                        assign_name = sv2aplan.declaration2Aplan(elem)
-                        declaration = self.module.declarations.getElementByIndex(
-                            decl_index
-                        )
-                        declaration.expression = assign_name
-            else:
-                for (
-                    elem
-                ) in ctx.list_of_variable_decl_assignments().variable_decl_assignment():
-                    identifier = elem.variable_identifier().identifier().getText()
-                    if elem.expression() is not None:
-                        expression = identifier + "=" + elem.expression().getText()
-                        sv2aplan = SV2aplan(self.module)
-                        assign_name, source_interval = sv2aplan.expression2Aplan(
-                            expression,
-                            ElementsTypes.ASSIGN_ELEMENT,
-                            ctx.getSourceInterval(),
-                        )
-                        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-                        assign_b = "ASSIGN_B_{}".format(
-                            Counters_Object.getCounter(CounterTypes.B_COUNTER)
-                        )
-                        struct_assign = Protocol(
-                            assign_b,
-                            ctx.getSourceInterval(),
-                        )
-                        struct_assign.addBody(assign_name)
-                        self.module.out_of_block_elements.addElement(struct_assign)
+                if elem.expression() is not None:
+                    expression = elem.expression().getText()
+                    sv2aplan = SV2aplan(self.module)
+                    assign_name = sv2aplan.declaration2Aplan(elem)
+                    declaration = self.module.declarations.getElementByIndex(decl_index)
+                    declaration.expression = assign_name
+        else:
+            for (
+                elem
+            ) in ctx.list_of_variable_decl_assignments().variable_decl_assignment():
+                identifier = elem.variable_identifier().identifier().getText()
+                if elem.expression() is not None:
+                    expression = identifier + "=" + elem.expression().getText()
+                    sv2aplan = SV2aplan(self.module)
+                    assign_name, source_interval = sv2aplan.expression2Aplan(
+                        expression,
+                        ElementsTypes.ASSIGN_ELEMENT,
+                        ctx.getSourceInterval(),
+                    )
+                    Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+                    assign_b = "ASSIGN_B_{}".format(
+                        Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                    )
+                    struct_assign = Protocol(
+                        assign_b,
+                        ctx.getSourceInterval(),
+                    )
+                    struct_assign.addBody(assign_name)
+                    self.module.out_of_block_elements.addElement(struct_assign)
 
     def exitNet_declaration(self, ctx):
         data_type = ctx.data_type_or_implicit()
