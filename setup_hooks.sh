@@ -1,6 +1,6 @@
 #!/bin/sh
 
-pip install -r requirements_for_developers.txt
+pip install -r requirements_for_developmers.txt
 
 pre-commit install --config hooks/.pre-commit-config.yaml
 
