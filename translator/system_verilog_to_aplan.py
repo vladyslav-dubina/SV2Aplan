@@ -37,12 +37,7 @@ class SV2aplan:
         self.module = module
         self.actionList = []
 
-    def addCommaAndNeLines(self, input):
-        if len(input) > 0:
-            input = ",\n\n" + input
-        return input
-
-    def findAndChangeNamesToAplanNames(self, input: str):
+    def findAndChangeNamesToAgentAttrCall(self, input: str):
         for elem in self.module.declarations.getElements():
             input = re.sub(
                 r"\b{}\b".format(re.escape(elem.identifier)),
@@ -66,7 +61,7 @@ class SV2aplan:
                 if index != -1:
                     res += " && "
             elif type(child) is SystemVerilogParser.IdentifierContext:
-                res += self.findAndChangeNamesToAplanNames(child.getText())
+                res += self.findAndChangeNamesToAgentAttrCall(child.getText())
             else:
                 res += self.extractSensetive(child)
         return res
@@ -77,7 +72,7 @@ class SV2aplan:
         expression = addLeftValueForUnaryOrOperator(expression)
         expression = addSpacesAroundOperators(expression)
         if ElementsTypes.ASSIGN_FOR_CALL_ELEMENT != expr_type:
-            expression_with_replaced_names = self.findAndChangeNamesToAplanNames(
+            expression_with_replaced_names = self.findAndChangeNamesToAgentAttrCall(
                 expression
             )
         else:

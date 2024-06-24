@@ -11,7 +11,7 @@ class Basic:
         self.source_interval: Tuple[int, int] = source_interval
 
     def __repr__(self):
-        return f"\tBasic{self.identifier!r}\n"
+        return f"\tBasic({self.identifier!r}, {self.sequence!r}, {self.source_interval!r})\n"
 
 
 class BasicArray:
