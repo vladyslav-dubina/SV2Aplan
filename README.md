@@ -13,7 +13,7 @@
 3. For developmers:
 
       - Ubuntu/Mac OS: ```chod +x setup_hooks.sh```
-      - ./setup_hooks.sh
+      - ```./setup_hooks.sh```
 
 </details>
 
