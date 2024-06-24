@@ -126,5 +126,15 @@ class DeclarationArray(BasicArray):
                 result.append(element)
         return result
 
+    def findDeclWithDimentionByName(
+        self,
+        identifier: str,
+    ):
+        element = self.findElement(identifier)
+        if element is not None:
+            if element.dimension_size > 0:
+                return element
+        return None
+
     def __repr__(self):
         return f"DeclarationsArray(\n{self.elements!r}\n)"

@@ -93,7 +93,7 @@ class SV2aplan:
                 expression_with_replaced_names
             )
         expression_with_replaced_names = notConcreteIndex2AplanStandart(
-            expression_with_replaced_names
+            expression_with_replaced_names, self.module
         )
         expression_with_replaced_names = replaceParametrsCalls(
             self.module.parametrs, expression_with_replaced_names

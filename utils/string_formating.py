@@ -130,12 +130,17 @@ def doubleOperators2Aplan(expression: str):
     return result
 
 
-def notConcreteIndex2AplanStandart(expression: str):
+def notConcreteIndex2AplanStandart(expression: str, module):
     pattern = r"(\w+\.\w+)\[([^\[\]]*[a-zA-Z][^\[\]]*)\]"
 
     def replace_match(match):
         identifier, index = match.group(1), match.group(2)
-        return f"BGET({identifier}, {index})"
+        tmp = identifier.split(".")
+        decl_with_dimention = module.declarations.findDeclWithDimentionByName(tmp[1])
+        if decl_with_dimention is not None:
+            return f"{identifier}({index})"
+        else:
+            return f"BGET({identifier}, {index})"
 
     result = re.sub(pattern, lambda match: replace_match(match), expression)
     return result

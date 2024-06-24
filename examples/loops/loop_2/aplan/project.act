@@ -14,4 +14,4 @@ assign_2 = (
 assign_3 = (
 		(1)->
 		("code_patch_core#module_1:action 'assign (patch_match[h] = ( si_addr_i == ctl_pat_addr_i[h] ) & ctl_pat_pen_i[h])';")
-		(BGET(module_1.patch_match, module_1.h) = ( module_1.si_addr_i == BGET(module_1.ctl_pat_addr_i, module_1.h) ) & BGET(module_1.ctl_pat_pen_i, module_1.h)))
+		(BGET(module_1.patch_match, module_1.h) = ( module_1.si_addr_i == module_1.ctl_pat_addr_i(module_1.h) ) & BGET(module_1.ctl_pat_pen_i, module_1.h)))
