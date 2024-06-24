@@ -49,15 +49,11 @@ class Module(Basic):
         for index, element in enumerate(protocols):
             if index != 0:
                 main_protocol += ";"
-                main_protocol += "("
             main_protocol += element.identifier
-
-            if index != 0:
-                main_protocol += ")"
 
         if len(main_protocol) > 0:
             main_flag = True
-            main_protocol = f"MAIN_{self.identifierUpper} = " + main_protocol + ","
+            main_protocol = f"MAIN_{self.identifierUpper} = (" + main_protocol + "),"
             main_protocol_part = f"MAIN_{self.identifierUpper}"
             result += main_protocol
 

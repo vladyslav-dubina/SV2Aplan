@@ -46,7 +46,7 @@ assign_28 = (
 assign_29 = (
 		(1)->
 		("code_patch_wb_wrapper#module_1:action 'assign (wb_mi_lock_o = wb_si_lock_i)';")
-		(module_1.wb_mi_lock_o = module_1.wb_si_lock_i))
+		(module_1.wb_mi_lock_o = module_1.wb_si_lock_i)),
 cond_1 = (
 		(module_2.j < 2)->
 		("code_patch_core#module_2:action 'cond (j < NUM_REGS)';")

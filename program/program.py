@@ -115,7 +115,9 @@ class Program:
         # Actions
         # ----------------------------------
         actions = ""
-        for module in self.modules.getElements():
+        for index, module in enumerate(self.modules.getElements()):
+            if index != 0:
+                actions += ","
             actions += module.actions.getActionsInStrFormat()
         self.writeToFile(self.path_to_result + "project.act", actions)
         printWithColor(".act file created \n", Color.PURPLE)
@@ -126,15 +128,13 @@ class Program:
         # ----------------------------------
         behaviour = ""
         for index, module in enumerate(self.modules.getElements()):
-            if index !=0:
+            if index != 0:
                 behaviour += ",\n"
             behaviour += f"{module.getBehInitProtocols()}"
             behaviour += module.structures.getStructuresInStrFormat()
 
             if module.isIncludeOutOfBlockElements():
-                behaviour += (
-                    module.out_of_block_elements.getProtocolsInStrFormat()
-                )
+                behaviour += module.out_of_block_elements.getProtocolsInStrFormat()
             else:
                 behaviour = removeTrailingComma(behaviour)
                 behaviour += "\n"
