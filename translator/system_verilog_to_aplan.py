@@ -19,6 +19,7 @@ from utils.string_formating import (
     notConcreteIndex2AplanStandart,
     doubleOperators2Aplan,
     replaceParametrsCalls,
+    addEqueToBGET,
 )
 from utils.utils import (
     removeTypeFromForInit,
@@ -505,6 +506,9 @@ class SV2aplan:
                         ) = self.prepareExpressionString(
                             element["predicate"].getText(),
                             ElementsTypes.IF_STATEMENT_ELEMENT,
+                        )
+                        predicate_with_replaced_names = addEqueToBGET(
+                            predicate_with_replaced_names
                         )
                         if_action.precondition.body.append(
                             predicate_with_replaced_names

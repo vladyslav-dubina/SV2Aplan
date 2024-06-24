@@ -28,7 +28,6 @@ from utils.utils import (
 
 
 class SVListener(SystemVerilogParserListener):
-
     global Counters_Object
 
     def __init__(self, program, module_call: ModuleCall | None):
@@ -141,24 +140,6 @@ class SVListener(SystemVerilogParserListener):
                     assign_name = sv2aplan.declaration2Aplan(elem)
                     declaration = self.module.declarations.getElementByIndex(decl_index)
                     declaration.expression = assign_name
-                else:
-                    expression = identifier + "=" + elem.expression().getText()
-                    sv2aplan = SV2aplan(self.module)
-                    assign_name, source_interval = sv2aplan.expression2Aplan(
-                        expression,
-                        ElementsTypes.ASSIGN_ELEMENT,
-                        ctx.getSourceInterval(),
-                    )
-                    Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-                    assign_b = "ASSIGN_B_{}".format(
-                        Counters_Object.getCounter(CounterTypes.B_COUNTER)
-                    )
-                    struct_assign = Protocol(
-                        assign_b,
-                        ctx.getSourceInterval(),
-                    )
-                    struct_assign.addBody((assign_name, ElementsTypes.ACTION_ELEMENT))
-                    self.module.out_of_block_elements.addElement(struct_assign)
 
     def exitNet_declaration(self, ctx):
         data_type = ctx.data_type_or_implicit()
@@ -291,7 +272,9 @@ class SVListener(SystemVerilogParserListener):
                 assert_b,
                 ctx.getSourceInterval(),
             )
-            struct_assert.addBody(("{0}.Delta + !{0}.0".format(assert_name), ElementsTypes.ACTION_ELEMENT))
+            struct_assert.addBody(
+                ("{0}.Delta + !{0}.0".format(assert_name), ElementsTypes.ACTION_ELEMENT)
+            )
             self.module.out_of_block_elements.addElement(struct_assert)
 
     def exitNet_assignment(self, ctx):
@@ -342,5 +325,7 @@ class SVListener(SystemVerilogParserListener):
             call_b,
             ctx.getSourceInterval(),
         )
-        struct_call.addBody((f"call B_{call_module_name.upper()}", ElementsTypes.PROTOCOL_ELEMENT))
+        struct_call.addBody(
+            (f"call B_{call_module_name.upper()}", ElementsTypes.PROTOCOL_ELEMENT)
+        )
         self.module.out_of_block_elements.addElement(struct_call)

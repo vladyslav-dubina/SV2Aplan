@@ -17,7 +17,7 @@ class Always(Structure):
         if self.sensetive is not None:
             result = "Sensetive({0}, {1})".format(self.identifier, self.sensetive)
         else:
-            result = "Sensetive({0})".format(self.identifier)
+            result = "{0}".format(self.identifier)
         return result
 
     def __repr__(self):

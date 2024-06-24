@@ -102,6 +102,12 @@ def parallelAssignment2Assignment(expression: str):
     return result
 
 
+def addEqueToBGET(expression: str):
+    pattern = r"(BGET\(.+\))"
+    result = re.sub(pattern, r"\1 == 1", expression)
+    return result
+
+
 def doubleOperators2Aplan(expression: str):
     patterns = [r"(\w+)(\+\+)", r"(\w+)(--)"]
     pattern = "|".join(patterns)

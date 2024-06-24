@@ -92,7 +92,7 @@ assign_9 = (
 		("code_patch_core#module_2:action 'assign (i = i + 1)';")
 		(module_2.i = module_2.i + 1)),
 if_2 = (
-		(BGET(module_2.patch_match, module_2.i))->
+		(BGET(module_2.patch_match, module_2.i) == 1)->
 		("code_patch_core#module_2:action 'if (patch_match[i])';")
 		(1)),
 assign_10 = (
