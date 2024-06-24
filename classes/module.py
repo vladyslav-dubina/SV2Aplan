@@ -6,6 +6,7 @@ from classes.declarations import DeclarationArray
 from classes.structure import StructureArray
 from classes.basic import Basic, BasicArray
 from classes.module_call import ModuleCallArray
+from classes.name_change import NameChangeArray
 from typing import Tuple
 
 
@@ -28,6 +29,8 @@ class Module(Basic):
         self.out_of_block_elements = ProtocolArray()
 
         self.parametrs = ParametrArray()
+
+        self.name_change = NameChangeArray()
 
     def isIncludeOutOfBlockElements(self):
         if len(self.out_of_block_elements.getElements()) > 0:

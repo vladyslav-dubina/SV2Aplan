@@ -10,9 +10,7 @@ from classes.element_types import ElementsTypes
 from classes.module import Module
 from classes.counters import CounterTypes
 from classes.parametrs import Parametr
-from classes.module import (
-    Module,
-)
+from classes.module import Module
 from classes.module_call import ModuleCall
 from utils.string_formating import (
     replaceParametrsCalls,

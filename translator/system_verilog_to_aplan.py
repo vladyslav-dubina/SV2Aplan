@@ -8,6 +8,7 @@ from classes.always import Always
 from classes.module import Module
 from classes.element_types import ElementsTypes
 from classes.counters import CounterTypes
+from classes.name_change import NameChange
 from utils.string_formating import (
     addSpacesAroundOperators,
     valuesToAplanStandart,
@@ -175,6 +176,7 @@ class SV2aplan:
         )
 
         if cond_type != ElementsTypes.ASSIGN_FOR_CALL_ELEMENT:
+            input = self.module.name_change.changeNamesInStr(input)
             expression, expression_with_replaced_names = self.prepareExpressionString(
                 input, cond_type
             )
@@ -228,13 +230,18 @@ class SV2aplan:
         assign_name = ""
         expression = ctx.for_variable_declaration(0)
         if expression is not None:
+            original_identifier = expression.variable_identifier(0).getText()
+            identifier = (
+                original_identifier
+                + f"_{Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)}"
+            )
             data_type = expression.data_type().getText()
             size_expression = data_type
             data_type = DeclTypes.checkType(data_type)
             decl_index = self.module.declarations.addElement(
                 Declaration(
                     data_type,
-                    expression.variable_identifier(0).getText(),
+                    identifier,
                     assign_name,
                     size_expression,
                     0,
@@ -243,14 +250,22 @@ class SV2aplan:
                     expression.getSourceInterval(),
                 )
             )
+            self.module.name_change.addElement(
+                NameChange(
+                    identifier, expression.getSourceInterval(), original_identifier
+                )
+            )
             sv2aplan = SV2aplan(self.module)
             if expression.expression(0) is not None:
-                action_txt = f"{expression.variable_identifier(0).getText()}={expression.expression(0).getText()}"
+                action_txt = f"{identifier}={expression.expression(0).getText()}"
                 assign_name, source_interval = sv2aplan.expression2Aplan(
                     action_txt, ElementsTypes.ASSIGN_ELEMENT, ctx.getSourceInterval()
                 )
             declaration = self.module.declarations.getElementByIndex(decl_index)
             declaration.expression = assign_name
+
+            return identifier
+        return None
 
     def loop2Aplan(
         self,
@@ -260,8 +275,9 @@ class SV2aplan:
         ),
         sv_structure: Structure,
     ):
+        for_decl_identifier: str | None = None
         if type(ctx) is SystemVerilogParser.Loop_statementContext:
-            self.forDeclarationToApan(ctx.for_initialization())
+            for_decl_identifier = self.forDeclarationToApan(ctx.for_initialization())
 
         beh_index = sv_structure.getLastBehaviorIndex()
         if beh_index is not None:
@@ -384,6 +400,7 @@ class SV2aplan:
             self.body2Aplan(ctx.statement_or_null(), sv_structure)
 
         Counters_Object.incrieseCounter(CounterTypes.LOOP_COUNTER)
+        self.module.name_change.deleteElement(for_decl_identifier)
 
     def body2Aplan(self, ctx, sv_structure: Structure):
         if ctx.getChildCount() == 0:
