@@ -1,0 +1,321 @@
+@import url("https://fonts.googleapis.com/css?family=Jaldi&display=swap");
+
+/* Add a black background color to the top navigation */
+.topnav {
+    background-color: #333;
+    overflow: hidden;
+}
+
+/* Style the links inside the navigation bar */
+.topnav a {
+    float: left;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+}
+
+/* Change the color of links on hover */
+.topnav a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+/* Add a color to the active/current link */
+/* .topnav a.active {
+   background-color: #4CAF50;
+   color: white;
+ } */
+
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #000000;
+    font-family: 'Jaldi', sans-serif;
+    /* Темно-синій колір фону */
+
+}
+
+
+/* Style the tab */
+.tab {
+    color: white;
+    overflow: hidden;
+    border: 1px solid #333;
+    background-color: #1f1f1f;
+}
+
+.toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+    color: white;
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+    color: #cf2e2e;
+    transition: all .25s linear;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+    color: #cf2e2e;
+    background-color: #1f1f1f;
+}
+
+/* Style the tab content */
+.tabcontent {
+    color: white;
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #333;
+    background-color: #1f1f1f;
+    border-top: none;
+}
+
+.tabcontent {
+    animation: fadeEffect 1s;
+    /* Fading effect takes 1 second */
+}
+
+/* Go from zero to full opacity */
+@keyframes fadeEffect {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.arrow {
+    margin-left: 5px;
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+.rotate {
+    transform: rotate(180deg);
+}
+
+.devided_line_color_red {
+    border-color: #cf2e2e !important;
+}
+
+.devided_line_color_green {
+    border-color: rgba(98, 208, 109, .8) !important;
+}
+
+.devided_line_color_yellow {
+    border-color: rgba(247, 196, 68, .8) !important;
+}
+
+
+.devided_line {
+    width: 100%;
+}
+
+.device_block,
+.device_info_block {
+    gap: 2em;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+
+.device_info_block {
+    width: 100%;
+}
+
+.device_data_input {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.statusPageInput {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.data_subblock {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.vertical_line {
+    border: none;
+    border-left: 1px solid #333;
+    width: 1px;
+    height: 100%;
+}
+
+.color_red {
+    color: #cf2e2e;
+}
+
+.font1d5ch {
+    font-size: 1.5ch;
+}
+
+
+#termometer {
+    width: 25px;
+    background: #38383f;
+    height: 12em;
+    position: relative;
+    border: 9px solid #2a2a2e;
+    border-radius: 20px;
+    z-index: 1;
+    margin-bottom: 50px;
+}
+
+#termometer:before,
+#termometer:after {
+    position: absolute;
+    content: "";
+    border-radius: 50%;
+}
+
+#termometer:before {
+    width: 100%;
+    height: 34px;
+    bottom: 9px;
+    background: #38383f;
+    z-index: -1;
+}
+
+#termometer:after {
+    transform: translateX(-50%);
+    width: 50px;
+    height: 50px;
+    background-color: #3dcadf;
+    bottom: -41px;
+    border: 9px solid #2a2a2e;
+    z-index: -3;
+    left: 50%;
+}
+
+#termometer #graduations {
+    height: 59%;
+    top: 20%;
+    width: 50%;
+}
+
+#termometer #graduations,
+#termometer #graduations:before {
+    position: absolute;
+    border-top: 2px solid rgba(0, 0, 0, 0.5);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.5);
+}
+
+#termometer #graduations:before {
+    content: "";
+    height: 34%;
+    width: 100%;
+    top: 32%;
+}
+
+#termometer #temperature {
+    bottom: 0;
+    background: linear-gradient(#f17a65, #3dcadf) no-repeat bottom;
+    width: 100%;
+    border-radius: 20px;
+    background-size: 100% 240px;
+    transition: all 0.2s ease-in-out;
+}
+
+#termometer #temperature,
+#termometer #temperature:before,
+#termometer #temperature:after {
+    position: absolute;
+}
+
+#termometer #temperature:before {
+    content: attr(data-value);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    z-index: 2;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 1em;
+    line-height: 1;
+    transform: translateY(50%);
+    left: calc(100% + 1em / 1.5);
+    top: calc(-1em + 5px - 5px * 2);
+}
+
+#termometer #temperature:after {
+    content: "";
+    border-top: 0.4545454545em solid transparent;
+    border-bottom: 0.4545454545em solid transparent;
+    border-right: 0.6666666667em solid rgba(0, 0, 0, 0.7);
+    left: 100%;
+    top: calc(-1em / 2.2 + 5px);
+}
+
+
+meter {
+    transform: rotate(270deg);
+    margin-bottom: 3em;
+    margin-top: 3em;
+    height: 150px;
+    width: 200px;
+    position: relative;
+}
+
+meter::-webkit-meter-bar {
+    border: 4px solid transparent;
+    border-radius: 8px;
+    padding: 4px;
+    background: linear-gradient(to top, #eceff1 10%, #fff 50%, #eceff1 90%) padding-box,
+        linear-gradient(to top, #37474f 10%, #b0bec5 50%, #37474f 90%) border-box;
+}
+
+meter::-webkit-meter-even-less-good-value {
+    background: linear-gradient(to top, #f44336 10%, #ef9a9a 50%, #f44336 90%);
+}
+
+meter::-webkit-meter-suboptimum-value {
+    background: linear-gradient(to top, #ff9800 10%, #ffcc80 50%, #ff9800 90%);
+}
+
+meter::-webkit-meter-optimum-value {
+    background: linear-gradient(to top, #4caf50 10%, #a5d6a7 50%, #4caf50 90%);
+}
+
+meter:before {
+    background: linear-gradient(to top, #455a64 0%, #b0bec5 50%, #455a64 100%);
+    position: absolute;
+    right: -12px;
+    width: 8px;
+    height: 30px;
+    top: 60px;
+    content: "";
+    border-radius: 0 6px 6px 0;
+    z-index: -1
+}
+
+#fileInput {
+    display: none;
+}

@@ -5,7 +5,7 @@ import os
 
 
 class Program:
-    def __init__(self, path_to_result: str = None) -> None:
+    def __init__(self, path_to_result: str | None = None) -> None:
         self.path_to_result = path_to_result
         self.modules: ModuleArray = ModuleArray()
 
@@ -126,15 +126,13 @@ class Program:
         # ----------------------------------
         behaviour = ""
         for index, module in enumerate(self.modules.getElements()):
-            if index !=0:
+            if index != 0:
                 behaviour += ",\n"
             behaviour += f"{module.getBehInitProtocols()}"
             behaviour += module.structures.getStructuresInStrFormat()
 
             if module.isIncludeOutOfBlockElements():
-                behaviour += (
-                    module.out_of_block_elements.getProtocolsInStrFormat()
-                )
+                behaviour += module.out_of_block_elements.getProtocolsInStrFormat()
             else:
                 behaviour = removeTrailingComma(behaviour)
                 behaviour += "\n"

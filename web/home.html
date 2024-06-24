@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battery status utilit (© TIRAS)</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script type="text/javascript" src="/eel.js"></script>
+</head>
+
+<body>
+    <!-- Tab links -->
+    <div class="tab toolbar">
+        <button class="tablinks" onclick="openTab(event, 'FT', 'SSVF')">Select file<span id="SSVF"
+                class="arrow">&#9650;</span></button>
+        <button class="tablinks" onclick="openTab(event, 'TT', 'TR')">Results<span id="TR"
+                class="arrow">&#9650;</span></button>
+    </div>
+
+    <!-- Tab content -->
+    <div id="FT" class="tabcontent">
+        <div class="tab" style="width: 20%;">
+            <button class="tablinks" style="width: 100%;" id="uploadButton">Select SV file</button>
+            <!-- Прихований елемент input -->
+            <input type="file" id="fileInput">
+
+            <button class="tablinks" onclick="rescan()" style="width: 100%;">Select result path</button>
+        </div>
+        <div id="devicesContainer">
+        </div>
+    </div>
+
+    <div id="TT" class="tabcontent">
+    </div>
+</body>
+<script src="home.js"></script>
+
+
+</html>
