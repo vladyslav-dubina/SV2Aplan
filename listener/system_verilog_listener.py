@@ -277,7 +277,9 @@ class SVListener(SystemVerilogParserListener):
 
     def exitNet_assignment(self, ctx):
         sv2aplan = SV2aplan(self.module)
-        if not self.module.processed_elements.isInProcessedElementAlready(ctx.getSourceInterval()):
+        if not self.module.processed_elements.isInProcessedElementAlready(
+            ctx.getSourceInterval()
+        ):
             assign_name, source_interval = sv2aplan.expression2Aplan(
                 ctx.getText(), ElementsTypes.ASSIGN_ELEMENT, ctx.getSourceInterval()
             )
@@ -306,11 +308,21 @@ class SVListener(SystemVerilogParserListener):
         file_data = self.program.readFileData(file_path)
         finder = SystemVerilogFinder()
         finder.setUp(file_data)
+        hierarchy = ctx.hierarchical_instance(0)
+        if hierarchy is not None:
+            print(hierarchy.getText())
+
+        parametrs = ctx.parameter_value_assignment()
+        if parametrs is not None:
+            parametrs = parametrs.getText()
+        else:
+            parametrs = ""
 
         module_call = ModuleCall(
+            "",
             self.module.identifier,
             destination_identifier,
-            ctx.parameter_value_assignment().getText(),
+            parametrs,
             self.module.parametrs,
         )
 
