@@ -92,8 +92,8 @@ assign_9 = (
 		("code_patch_core#module_2:action 'assign (i_2 = i_2 + 1)';")
 		(module_2.i_2 = module_2.i_2 + 1)),
 if_2 = (
-		(BGET(module_2.patch_match, i) == 1)->
-		("code_patch_core#module_2:action 'if (patch_match[i])';")
+		(BGET(module_2.patch_match, module_2.i_2) == 1)->
+		("code_patch_core#module_2:action 'if (patch_match[i_2])';")
 		(1)),
 assign_10 = (
 		(1)->
@@ -131,6 +131,10 @@ assign_16 = (
 		(1)->
 		("code_patch_core#module_2:action 'assign (i_3 = i_3 + 1)';")
 		(module_2.i_3 = module_2.i_3 + 1)),
+if_4 = (
+		(BGET(module_2.patch_match, module_2.i_3) == 1)->
+		("code_patch_core#module_2:action 'if (patch_match[i_3])';")
+		(1)),
 assign_17 = (
 		(1)->
 		("code_patch_core#module_2:action 'assign (si_data_o = si_data_o | ctl_pat_data_i[i_3])';")

@@ -517,11 +517,13 @@ class SV2aplan:
                             Counters_Object.getCounter(CounterTypes.IF_COUNTER),
                             child.getSourceInterval(),
                         )
+                        predicate_txt = element["predicate"].getText()
+                        predicate_txt = self.module.name_change.changeNamesInStr(predicate_txt)
                         (
                             predicate_string,
                             predicate_with_replaced_names,
                         ) = self.prepareExpressionString(
-                            element["predicate"].getText(),
+                            predicate_txt,
                             ElementsTypes.IF_STATEMENT_ELEMENT,
                         )
                         predicate_with_replaced_names = addEqueToBGET(
