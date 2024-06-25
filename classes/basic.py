@@ -1,8 +1,14 @@
 from typing import List, Tuple
 from classes.element_types import ElementsTypes
 
+
 class Basic:
-    def __init__(self, identifier: str, source_interval: Tuple[int, int], element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT):
+    def __init__(
+        self,
+        identifier: str,
+        source_interval: Tuple[int, int],
+        element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT,
+    ):
         from classes.counters import CounterTypes
         from utils.utils import Counters_Object
 

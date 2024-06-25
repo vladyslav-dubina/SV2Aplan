@@ -14,16 +14,18 @@ class ModuleCall(Basic):
 
     def __init__(
         self,
-        module_object_name: str,
+        identifier: str,
+        object_name: str,
         source_identifier: str,
         destination_identifier: str,
         parameter_value_assignment: str,
         source_parametrs: ParametrArray,
     ):
         super().__init__(
-            module_object_name,
+            identifier,
             (0, 0),
         )
+        self.object_name = object_name
         self.source_identifier = source_identifier
         self.destination_identifier = destination_identifier
         self.paramets: ParametrArray = ParametrArray()

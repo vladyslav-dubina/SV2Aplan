@@ -1,0 +1,13 @@
+events(
+	s_clk:obj(x1:bool);
+	s_rst:obj(x1:bool);
+	s_EP:obj(x1:bool);
+	s_CP:obj(x1:bool);
+	s_clk:obj(x1:bool);
+	s_rst:obj(x1:bool);
+	s_EP:obj(x1:bool);
+	s_CP:obj(x1:bool);
+	s_MAR_IN:obj(x1:Bits 5);
+	s_clk:obj(x1:bool);
+	s_LM:obj(x1:bool);
+);

@@ -12,14 +12,16 @@ from typing import Tuple
 
 
 class Module(Basic):
-    def __init__(self, identifier: str, source_interval: Tuple[int, int]):
+    def __init__(
+        self, identifier: str, source_interval: Tuple[int, int], ident_uniq_name
+    ):
         super().__init__(
             identifier.upper(),
             source_interval,
         )
-        self.ident_uniq_name = identifier
-        self.identifierUpper = self.ident_uniq_name.upper()
-
+        self.ident_uniq_name = ident_uniq_name
+        self.identifier_upper = self.identifier.upper()
+        self.ident_uniq_name_upper = self.ident_uniq_name.upper()
         # arrays
         self.declarations = DeclarationArray()
 
@@ -51,23 +53,40 @@ class Module(Basic):
         protocols.sort(key=lambda student: student.sequence)
         for index, element in enumerate(protocols):
             if index != 0:
+                prev_element = protocols[index - 1]
+
                 if element.element_type == ElementsTypes.MODULE_CALL_ELEMENT:
                     main_protocol += ";"
                 else:
                     main_protocol += " || "
 
-            if element.element_type == ElementsTypes.MODULE_ASSIGN_ELEMENT:
-                main_protocol += "("
+                if (
+                    prev_element.element_type
+                    == ElementsTypes.ASSIGN_OUT_OF_BLOCK_ELEMENT
+                ) and (
+                    element.element_type == ElementsTypes.MODULE_CALL_ELEMENT
+                    or element.element_type == ElementsTypes.MODULE_ASSIGN_ELEMENT
+                ):
+                    main_protocol += "("
 
             main_protocol += element.identifier
 
-            if element.element_type == ElementsTypes.MODULE_CALL_ELEMENT:
-                main_protocol += ")"
+            if index + 1 < len(protocols):
+                if (
+                    protocols[index + 1].element_type
+                    == ElementsTypes.ASSIGN_OUT_OF_BLOCK_ELEMENT
+                ) and (
+                    element.element_type == ElementsTypes.MODULE_CALL_ELEMENT
+                    or element.element_type == ElementsTypes.MODULE_ASSIGN_ELEMENT
+                ):
+                    main_protocol += ")"
 
         if len(main_protocol) > 0:
             main_flag = True
-            main_protocol = f"MAIN_{self.identifierUpper} = (" + main_protocol + "),"
-            main_protocol_part = f"MAIN_{self.identifierUpper}"
+            main_protocol = (
+                f"MAIN_{self.ident_uniq_name_upper} = (" + main_protocol + "),"
+            )
+            main_protocol_part = f"MAIN_{self.ident_uniq_name_upper}"
             result += main_protocol
 
         # ALWAYS PART
@@ -112,15 +131,17 @@ class Module(Basic):
 
         if len(init_protocol) > 0:
             init_flag = True
-            init_protocol = f"INIT_{self.identifierUpper} = " + init_protocol + ","
-            init_protocol_part = f"INIT_{self.identifierUpper}"
+            init_protocol = (
+                f"INIT_{self.ident_uniq_name_upper} = " + init_protocol + ","
+            )
+            init_protocol_part = f"INIT_{self.ident_uniq_name_upper}"
             if main_flag or always_flag or struct_flag:
                 init_protocol_part += " || "
             if main_flag:
                 init_protocol += "\n"
             result = init_protocol + result
 
-        b0 = f"B_{self.identifierUpper} = ({init_protocol_part}{struct_part}{always_part}{main_protocol_part}),"
+        b0 = f"B_{self.ident_uniq_name_upper} = ({init_protocol_part}{struct_part}{always_part}{main_protocol_part}),"
         if main_flag or init_flag:
             b0 += "\n"
         result = b0 + result

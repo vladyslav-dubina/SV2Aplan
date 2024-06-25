@@ -28,7 +28,7 @@ from utils.utils import (
 class SVListener(SystemVerilogParserListener):
     global Counters_Object
 
-    def __init__(self, program, module_call: ModuleCall | None):
+    def __init__(self, program, module_call: ModuleCall | None = None):
         from program.program import Program
 
         self.module: Module = None
@@ -37,11 +37,19 @@ class SVListener(SystemVerilogParserListener):
 
     def enterModule_declaration(self, ctx):
         if ctx.module_ansi_header() is not None:
+            identifier = ctx.module_ansi_header().module_identifier().getText()
+            local_module_call: ModuleCall = None
+            uniq_name = identifier
+            if self.module_call is not None:
+                local_module_call = self.module_call
+            else:
+                local_module_call = self.program.module_calls.findElement(identifier)
+            if local_module_call is not None:
+                if identifier == local_module_call.identifier:
+                    identifier = local_module_call.identifier
+                    uniq_name = local_module_call.object_name
             index = self.program.modules.addElement(
-                Module(
-                    ctx.module_ansi_header().module_identifier().getText(),
-                    ctx.getSourceInterval(),
-                )
+                Module(identifier, ctx.getSourceInterval(), uniq_name)
             )
             self.module = self.program.modules.getElementByIndex(index)
 
@@ -301,16 +309,11 @@ class SVListener(SystemVerilogParserListener):
         from translator.translator import SystemVerilogFinder
 
         destination_identifier = ctx.module_identifier().getText()
-        previous_file_path = self.program.file_path
-        file_path = replace_filename(
-            self.program.file_path, f"{destination_identifier}.sv"
-        )
-        file_data = self.program.readFileData(file_path)
-        finder = SystemVerilogFinder()
-        finder.setUp(file_data)
+
+        object_name = ""
         hierarchy = ctx.hierarchical_instance(0)
         if hierarchy is not None:
-            print(hierarchy.getText())
+            object_name = hierarchy.name_of_instance().getText()
 
         parametrs = ctx.parameter_value_assignment()
         if parametrs is not None:
@@ -319,14 +322,27 @@ class SVListener(SystemVerilogParserListener):
             parametrs = ""
 
         module_call = ModuleCall(
-            "",
+            destination_identifier,
+            object_name,
             self.module.identifier,
             destination_identifier,
             parametrs,
             self.module.parametrs,
         )
+        call_module_name = object_name
 
-        call_module_name = finder.startTranslate(self.program, module_call)
+        try:
+            previous_file_path = self.program.file_path
+            file_path = replace_filename(
+                self.program.file_path, f"{destination_identifier}.sv"
+            )
+            file_data = self.program.readFileData(file_path)
+            finder = SystemVerilogFinder()
+            finder.setUp(file_data)
+            finder.startTranslate(self.program, module_call)
+        except Exception as e:
+            self.program.module_calls.addElement(module_call)
+
         self.program.file_path = previous_file_path
         sv2aplan = SV2aplan(self.module)
         sv2aplan.moduleCall2Aplan(ctx, call_module_name)

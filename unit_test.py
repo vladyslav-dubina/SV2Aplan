@@ -100,9 +100,9 @@ def start_unit_test():
             "examples/parametrs/parametrs_1/aplan",
         ),
         (
-            "examples/call/call_2.sv",
-            "examples/call/test_result",
-            "examples/call/aplan",
+            "examples/call/call_1/call_2.sv",
+            "examples/call/call_1/test_result",
+            "examples/call/call_1/aplan",
         ),
         (
             "examples/always/always_@*/always_@*.sv",
