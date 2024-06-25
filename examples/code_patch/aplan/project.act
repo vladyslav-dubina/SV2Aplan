@@ -1,145 +1,145 @@
 
 assign_1 = (
 		(1)->
-		("code_patch_wb_wrapper#module_1:action 'assign (bus_read = wb_si_cyc_i & wb_si_stb_i & !wb_si_we_i)';")
-		(module_1.bus_read = module_1.wb_si_cyc_i & module_1.wb_si_stb_i & !(module_1.wb_si_we_i))),
+		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (bus_read = wb_si_cyc_i & wb_si_stb_i & !wb_si_we_i)';")
+		(code_patch_wb_wrapper.bus_read = code_patch_wb_wrapper.wb_si_cyc_i & code_patch_wb_wrapper.wb_si_stb_i & !(code_patch_wb_wrapper.wb_si_we_i))),
 assign_20 = (
 		(1)->
-		("code_patch_wb_wrapper#module_1:action 'assign (module_2.si_addr_i = module_1.wb_si_adr_i; module_2.si_data_o = module_1.wb_si_dat_o; module_2.si_read_i = module_1.bus_read; module_2.mi_addr_o = module_1.wb_mi_adr_o; module_2.mi_data_i = module_1.wb_mi_dat_i; module_2.cfg_pat_gen_i = module_1.cfg_pat_gen_i; module_2.cfg_addr_or_data_i = module_1.cfg_addr_or_data_i; module_2.ctl_pat_addr_i = module_1.ctl_pat_addr_i; module_2.ctl_pat_data_i = module_1.ctl_pat_data_i; module_2.ctl_pat_pen_i = module_1.ctl_pat_pen_i; module_2.ctl_pat_nopg_i = module_1.ctl_pat_nopg_i; module_2.nopg_o = module_1.no_pg_gen_ack)';")
-		(module_2.si_addr_i = module_1.wb_si_adr_i; module_2.si_data_o = module_1.wb_si_dat_o; module_2.si_read_i = module_1.bus_read; module_2.mi_addr_o = module_1.wb_mi_adr_o; module_2.mi_data_i = module_1.wb_mi_dat_i; module_2.cfg_pat_gen_i = module_1.cfg_pat_gen_i; module_2.cfg_addr_or_data_i = module_1.cfg_addr_or_data_i; module_2.ctl_pat_addr_i = module_1.ctl_pat_addr_i; module_2.ctl_pat_data_i = module_1.ctl_pat_data_i; module_2.ctl_pat_pen_i = module_1.ctl_pat_pen_i; module_2.ctl_pat_nopg_i = module_1.ctl_pat_nopg_i; module_2.nopg_o = module_1.no_pg_gen_ack)),
+		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (code_patch_core.si_addr_i = code_patch_wb_wrapper.wb_si_adr_i; code_patch_core.si_data_o = code_patch_wb_wrapper.wb_si_dat_o; code_patch_core.si_read_i = code_patch_wb_wrapper.bus_read; code_patch_core.mi_addr_o = code_patch_wb_wrapper.wb_mi_adr_o; code_patch_core.mi_data_i = code_patch_wb_wrapper.wb_mi_dat_i; code_patch_core.cfg_pat_gen_i = code_patch_wb_wrapper.cfg_pat_gen_i; code_patch_core.cfg_addr_or_data_i = code_patch_wb_wrapper.cfg_addr_or_data_i; code_patch_core.ctl_pat_addr_i = code_patch_wb_wrapper.ctl_pat_addr_i; code_patch_core.ctl_pat_data_i = code_patch_wb_wrapper.ctl_pat_data_i; code_patch_core.ctl_pat_pen_i = code_patch_wb_wrapper.ctl_pat_pen_i; code_patch_core.ctl_pat_nopg_i = code_patch_wb_wrapper.ctl_pat_nopg_i; code_patch_core.nopg_o = code_patch_wb_wrapper.no_pg_gen_ack)';")
+		(code_patch_core.si_addr_i = code_patch_wb_wrapper.wb_si_adr_i; code_patch_core.si_data_o = code_patch_wb_wrapper.wb_si_dat_o; code_patch_core.si_read_i = code_patch_wb_wrapper.bus_read; code_patch_core.mi_addr_o = code_patch_wb_wrapper.wb_mi_adr_o; code_patch_core.mi_data_i = code_patch_wb_wrapper.wb_mi_dat_i; code_patch_core.cfg_pat_gen_i = code_patch_wb_wrapper.cfg_pat_gen_i; code_patch_core.cfg_addr_or_data_i = code_patch_wb_wrapper.cfg_addr_or_data_i; code_patch_core.ctl_pat_addr_i = code_patch_wb_wrapper.ctl_pat_addr_i; code_patch_core.ctl_pat_data_i = code_patch_wb_wrapper.ctl_pat_data_i; code_patch_core.ctl_pat_pen_i = code_patch_wb_wrapper.ctl_pat_pen_i; code_patch_core.ctl_pat_nopg_i = code_patch_wb_wrapper.ctl_pat_nopg_i; code_patch_core.nopg_o = code_patch_wb_wrapper.no_pg_gen_ack)),
 assign_21 = (
 		(1)->
-		("code_patch_wb_wrapper#module_1:action 'assign (wb_si_ack_o = wb_mi_ack_i | no_pg_gen_ack)';")
-		(module_1.wb_si_ack_o = module_1.wb_mi_ack_i | module_1.no_pg_gen_ack)),
+		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_si_ack_o = wb_mi_ack_i | no_pg_gen_ack)';")
+		(code_patch_wb_wrapper.wb_si_ack_o = code_patch_wb_wrapper.wb_mi_ack_i | code_patch_wb_wrapper.no_pg_gen_ack)),
 assign_22 = (
 		(1)->
-		("code_patch_wb_wrapper#module_1:action 'assign (wb_mi_dat_o = wb_si_dat_i)';")
-		(module_1.wb_mi_dat_o = module_1.wb_si_dat_i)),
+		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_mi_dat_o = wb_si_dat_i)';")
+		(code_patch_wb_wrapper.wb_mi_dat_o = code_patch_wb_wrapper.wb_si_dat_i)),
 assign_23 = (
 		(1)->
-		("code_patch_wb_wrapper#module_1:action 'assign (wb_mi_sel_o = wb_si_sel_i)';")
-		(module_1.wb_mi_sel_o = module_1.wb_si_sel_i)),
+		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_mi_sel_o = wb_si_sel_i)';")
+		(code_patch_wb_wrapper.wb_mi_sel_o = code_patch_wb_wrapper.wb_si_sel_i)),
 assign_24 = (
 		(1)->
-		("code_patch_wb_wrapper#module_1:action 'assign (wb_mi_we_o = wb_si_we_i)';")
-		(module_1.wb_mi_we_o = module_1.wb_si_we_i)),
+		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_mi_we_o = wb_si_we_i)';")
+		(code_patch_wb_wrapper.wb_mi_we_o = code_patch_wb_wrapper.wb_si_we_i)),
 assign_25 = (
 		(1)->
-		("code_patch_wb_wrapper#module_1:action 'assign (wb_mi_cyc_o = wb_si_cyc_i & !no_pg_gen_ack)';")
-		(module_1.wb_mi_cyc_o = module_1.wb_si_cyc_i & !(module_1.no_pg_gen_ack))),
+		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_mi_cyc_o = wb_si_cyc_i & !no_pg_gen_ack)';")
+		(code_patch_wb_wrapper.wb_mi_cyc_o = code_patch_wb_wrapper.wb_si_cyc_i & !(code_patch_wb_wrapper.no_pg_gen_ack))),
 assign_26 = (
 		(1)->
-		("code_patch_wb_wrapper#module_1:action 'assign (wb_mi_stb_o = wb_si_stb_i & !no_pg_gen_ack)';")
-		(module_1.wb_mi_stb_o = module_1.wb_si_stb_i & !(module_1.no_pg_gen_ack))),
+		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_mi_stb_o = wb_si_stb_i & !no_pg_gen_ack)';")
+		(code_patch_wb_wrapper.wb_mi_stb_o = code_patch_wb_wrapper.wb_si_stb_i & !(code_patch_wb_wrapper.no_pg_gen_ack))),
 assign_27 = (
 		(1)->
-		("code_patch_wb_wrapper#module_1:action 'assign (wb_si_stall_o = wb_mi_stall_i)';")
-		(module_1.wb_si_stall_o = module_1.wb_mi_stall_i)),
+		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_si_stall_o = wb_mi_stall_i)';")
+		(code_patch_wb_wrapper.wb_si_stall_o = code_patch_wb_wrapper.wb_mi_stall_i)),
 assign_28 = (
 		(1)->
-		("code_patch_wb_wrapper#module_1:action 'assign (wb_si_rty_o = wb_mi_rty_i)';")
-		(module_1.wb_si_rty_o = module_1.wb_mi_rty_i)),
+		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_si_rty_o = wb_mi_rty_i)';")
+		(code_patch_wb_wrapper.wb_si_rty_o = code_patch_wb_wrapper.wb_mi_rty_i)),
 assign_29 = (
 		(1)->
-		("code_patch_wb_wrapper#module_1:action 'assign (wb_si_err_o = wb_mi_err_i)';")
-		(module_1.wb_si_err_o = module_1.wb_mi_err_i)),
+		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_si_err_o = wb_mi_err_i)';")
+		(code_patch_wb_wrapper.wb_si_err_o = code_patch_wb_wrapper.wb_mi_err_i)),
 assign_30 = (
 		(1)->
-		("code_patch_wb_wrapper#module_1:action 'assign (wb_mi_lock_o = wb_si_lock_i)';")
-		(module_1.wb_mi_lock_o = module_1.wb_si_lock_i)),
+		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_mi_lock_o = wb_si_lock_i)';")
+		(code_patch_wb_wrapper.wb_mi_lock_o = code_patch_wb_wrapper.wb_si_lock_i)),
 assign_2 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (patch_match[0] = ( si_addr_i == ctl_pat_addr_i[0] ) & ctl_pat_pen_i[0])';")
-		(module_2.patch_match(0) = ( module_2.si_addr_i == module_2.ctl_pat_addr_i(0) ) & module_2.ctl_pat_pen_i(0))),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (patch_match[0] = ( si_addr_i == ctl_pat_addr_i[0] ) & ctl_pat_pen_i[0])';")
+		(code_patch_core.patch_match(0) = ( code_patch_core.si_addr_i == code_patch_core.ctl_pat_addr_i(0) ) & code_patch_core.ctl_pat_pen_i(0))),
 assign_3 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (patch_match[1] = ( si_addr_i == ctl_pat_addr_i[1] ) & ctl_pat_pen_i[1])';")
-		(module_2.patch_match(1) = ( module_2.si_addr_i == module_2.ctl_pat_addr_i(1) ) & module_2.ctl_pat_pen_i(1))),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (patch_match[1] = ( si_addr_i == ctl_pat_addr_i[1] ) & ctl_pat_pen_i[1])';")
+		(code_patch_core.patch_match(1) = ( code_patch_core.si_addr_i == code_patch_core.ctl_pat_addr_i(1) ) & code_patch_core.ctl_pat_pen_i(1))),
 assign_4 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (patch_enable = si_read_i & cfg_pat_gen_i)';")
-		(module_2.patch_enable = module_2.si_read_i & module_2.cfg_pat_gen_i)),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (patch_enable = si_read_i & cfg_pat_gen_i)';")
+		(code_patch_core.patch_enable = code_patch_core.si_read_i & code_patch_core.cfg_pat_gen_i)),
 assign_5 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (adr_act = ( adr_act | patch_match ) & patch_enable & !cfg_addr_or_data_i)';")
-		(module_2.adr_act = ( module_2.adr_act | module_2.patch_match ) & module_2.patch_enable & !(module_2.cfg_addr_or_data_i))),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (adr_act = ( adr_act | patch_match ) & patch_enable & !cfg_addr_or_data_i)';")
+		(code_patch_core.adr_act = ( code_patch_core.adr_act | code_patch_core.patch_match ) & code_patch_core.patch_enable & !(code_patch_core.cfg_addr_or_data_i))),
 if_1 = (
-		(module_2.adr_act)->
-		("code_patch_core#module_2:action 'if (adr_act)';")
+		(code_patch_core.adr_act)->
+		("CODE_PATCH_CORE#code_patch_core:action 'if (adr_act)';")
 		(1)),
 assign_6 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (mi_addr_o = 0)';")
-		(module_2.mi_addr_o = 0)),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (mi_addr_o = 0)';")
+		(code_patch_core.mi_addr_o = 0)),
 cond_1 = (
-		(module_2.i_1 < 2)->
-		("code_patch_core#module_2:action 'cond (i_1 < NUM_REGS)';")
+		(code_patch_core.i_1 < 2)->
+		("CODE_PATCH_CORE#code_patch_core:action 'cond (i_1 < NUM_REGS)';")
 		(1)),
 assign_7 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (i_1 = 0)';")
-		(module_2.i_1 = 0)),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (i_1 = 0)';")
+		(code_patch_core.i_1 = 0)),
 assign_8 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (i_1 = i_1 + 1)';")
-		(module_2.i_1 = module_2.i_1 + 1)),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (i_1 = i_1 + 1)';")
+		(code_patch_core.i_1 = code_patch_core.i_1 + 1)),
 if_2 = (
-		(BGET(module_2.patch_match, module_2.i_1) == 1)->
-		("code_patch_core#module_2:action 'if (patch_match[i_1])';")
+		(BGET(code_patch_core.patch_match, code_patch_core.i_1) == 1)->
+		("CODE_PATCH_CORE#code_patch_core:action 'if (patch_match[i_1])';")
 		(1)),
 assign_9 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (mi_addr_o = mi_addr_o | ctl_pat_data_i[i_1])';")
-		(module_2.mi_addr_o = module_2.mi_addr_o | module_2.ctl_pat_data_i(module_2.i_1))),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (mi_addr_o = mi_addr_o | ctl_pat_data_i[i_1])';")
+		(code_patch_core.mi_addr_o = code_patch_core.mi_addr_o | code_patch_core.ctl_pat_data_i(code_patch_core.i_1))),
 assign_10 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (mi_addr_o = si_addr_i)';")
-		(module_2.mi_addr_o = module_2.si_addr_i)),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (mi_addr_o = si_addr_i)';")
+		(code_patch_core.mi_addr_o = code_patch_core.si_addr_i)),
 assign_11 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (dat_act = ( dat_act | patch_match ) & patch_enable & cfg_addr_or_data_i)';")
-		(module_2.dat_act = ( module_2.dat_act | module_2.patch_match ) & module_2.patch_enable & module_2.cfg_addr_or_data_i)),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (dat_act = ( dat_act | patch_match ) & patch_enable & cfg_addr_or_data_i)';")
+		(code_patch_core.dat_act = ( code_patch_core.dat_act | code_patch_core.patch_match ) & code_patch_core.patch_enable & code_patch_core.cfg_addr_or_data_i)),
 if_3 = (
-		(module_2.dat_act)->
-		("code_patch_core#module_2:action 'if (dat_act)';")
+		(code_patch_core.dat_act)->
+		("CODE_PATCH_CORE#code_patch_core:action 'if (dat_act)';")
 		(1)),
 assign_12 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (si_data_o = 0)';")
-		(module_2.si_data_o = 0)),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (si_data_o = 0)';")
+		(code_patch_core.si_data_o = 0)),
 assign_13 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (no_pg = 0)';")
-		(module_2.no_pg = 0)),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (no_pg = 0)';")
+		(code_patch_core.no_pg = 0)),
 cond_2 = (
-		(module_2.i_2 < 2)->
-		("code_patch_core#module_2:action 'cond (i_2 < NUM_REGS)';")
+		(code_patch_core.i_2 < 2)->
+		("CODE_PATCH_CORE#code_patch_core:action 'cond (i_2 < NUM_REGS)';")
 		(1)),
 assign_14 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (i_2 = 0)';")
-		(module_2.i_2 = 0)),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (i_2 = 0)';")
+		(code_patch_core.i_2 = 0)),
 assign_15 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (i_2 = i_2 + 1)';")
-		(module_2.i_2 = module_2.i_2 + 1)),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (i_2 = i_2 + 1)';")
+		(code_patch_core.i_2 = code_patch_core.i_2 + 1)),
 if_4 = (
-		(BGET(module_2.patch_match, module_2.i_2) == 1)->
-		("code_patch_core#module_2:action 'if (patch_match[i_2])';")
+		(BGET(code_patch_core.patch_match, code_patch_core.i_2) == 1)->
+		("CODE_PATCH_CORE#code_patch_core:action 'if (patch_match[i_2])';")
 		(1)),
 assign_16 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (si_data_o = si_data_o | ctl_pat_data_i[i_2])';")
-		(module_2.si_data_o = module_2.si_data_o | module_2.ctl_pat_data_i(module_2.i_2))),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (si_data_o = si_data_o | ctl_pat_data_i[i_2])';")
+		(code_patch_core.si_data_o = code_patch_core.si_data_o | code_patch_core.ctl_pat_data_i(code_patch_core.i_2))),
 assign_17 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (no_pg = no_pg | ctl_pat_nopg_i[i_2])';")
-		(module_2.no_pg = module_2.no_pg | BGET(module_2.ctl_pat_nopg_i, module_2.i_2))),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (no_pg = no_pg | ctl_pat_nopg_i[i_2])';")
+		(code_patch_core.no_pg = code_patch_core.no_pg | BGET(code_patch_core.ctl_pat_nopg_i, code_patch_core.i_2))),
 assign_18 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (si_data_o = mi_data_i)';")
-		(module_2.si_data_o = module_2.mi_data_i)),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (si_data_o = mi_data_i)';")
+		(code_patch_core.si_data_o = code_patch_core.mi_data_i)),
 assign_19 = (
 		(1)->
-		("code_patch_core#module_2:action 'assign (nopg_o = no_pg)';")
-		(module_2.nopg_o = module_2.no_pg))
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (nopg_o = no_pg)';")
+		(code_patch_core.nopg_o = code_patch_core.no_pg))

@@ -1,2 +1,2 @@
-B_MODULE_1 = (GENERATE_1),
+B_CODE_PATCH_CORE = (GENERATE_1),
 GENERATE_1 = Sensetive(assign_1) || Sensetive(assign_2) || Sensetive(assign_3) || Sensetive(assign_4) || Sensetive(assign_5) || Sensetive(assign_6) || Sensetive(assign_7) || Sensetive(assign_8)

@@ -1,5 +1,3 @@
-
-from utils.utils import generate_module_names
 from classes.processed import ProcessedElementArray
 from classes.actions import ActionArray
 from classes.parametrs import ParametrArray
@@ -16,10 +14,10 @@ from typing import Tuple
 class Module(Basic):
     def __init__(self, identifier: str, source_interval: Tuple[int, int]):
         super().__init__(
-            identifier,
+            identifier.upper(),
             source_interval,
         )
-        self.ident_uniq_name, self.number = generate_module_names()
+        self.ident_uniq_name = identifier
         self.identifierUpper = self.ident_uniq_name.upper()
 
         # arrays
@@ -34,7 +32,7 @@ class Module(Basic):
         self.parametrs = ParametrArray()
 
         self.name_change = NameChangeArray()
-        
+
         self.processed_elements = ProcessedElementArray()
 
     def isIncludeOutOfBlockElements(self):
@@ -94,7 +92,7 @@ class Module(Basic):
             if index != 0:
                 struct_part += " || "
             struct_part += element.identifier
-            
+
         if len(struct_part) > 0:
             struct_flag = True
             if always_flag:

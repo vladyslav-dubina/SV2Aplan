@@ -1,5 +1,5 @@
 
 assign_1 = (
 		(1)->
-		("code_patch_core#module_1:action 'assign (nopg_o = no_pg)';")
-		(module_1.nopg_o = module_1.no_pg))
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (nopg_o = no_pg)';")
+		(code_patch_core.nopg_o = code_patch_core.no_pg))
