@@ -6,6 +6,7 @@ from classes.structure import Structure
 from classes.protocols import Protocol
 from classes.always import Always
 from classes.module import Module
+from classes.processed import ProcessedElement
 from classes.element_types import ElementsTypes
 from classes.counters import CounterTypes
 from classes.name_change import NameChange
@@ -22,6 +23,7 @@ from utils.string_formating import (
     replaceParametrsCalls,
     addEqueToBGET,
     replace_cpp_operators,
+    replaceArrayIndexing,
 )
 from utils.utils import (
     removeTypeFromForInit,
@@ -638,6 +640,7 @@ class SV2aplan:
                 expression = self.replaceGenvarToValue(
                     expression, init_var_name, current_value
                 )
+                self.module.processed_elements.addElement(ProcessedElement("action", child.getSourceInterval()))
                 action_name, source_interval = self.expression2Aplan(
                     expression,
                     ElementsTypes.ASSIGN_ELEMENT,

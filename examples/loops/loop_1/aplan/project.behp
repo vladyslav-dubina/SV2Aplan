@@ -1,4 +1,2 @@
-B_MODULE_1 = (GENERATE_1MAIN_MODULE_1),
-MAIN_MODULE_1 = (ASSIGN_B_1),
-GENERATE_1 = Sensetive(assign_1) || Sensetive(assign_2) || Sensetive(assign_3) || Sensetive(assign_4) || Sensetive(assign_5) || Sensetive(assign_6) || Sensetive(assign_7) || Sensetive(assign_8),
-ASSIGN_B_1 = Sensetive(assign_9)
+B_MODULE_1 = (GENERATE_1),
+GENERATE_1 = Sensetive(assign_1) || Sensetive(assign_2) || Sensetive(assign_3) || Sensetive(assign_4) || Sensetive(assign_5) || Sensetive(assign_6) || Sensetive(assign_7) || Sensetive(assign_8)

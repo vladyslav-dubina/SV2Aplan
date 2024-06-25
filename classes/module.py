@@ -1,7 +1,9 @@
+
 from utils.utils import generate_module_names
+from classes.processed import ProcessedElementArray
 from classes.actions import ActionArray
 from classes.parametrs import ParametrArray
-from classes.protocols import ProtocolArray, Protocol
+from classes.protocols import ProtocolArray
 from classes.declarations import DeclarationArray
 from classes.structure import StructureArray
 from classes.basic import Basic, BasicArray
@@ -32,6 +34,8 @@ class Module(Basic):
         self.parametrs = ParametrArray()
 
         self.name_change = NameChangeArray()
+        
+        self.processed_elements = ProcessedElementArray()
 
     def isIncludeOutOfBlockElements(self):
         if len(self.out_of_block_elements.getElements()) > 0:

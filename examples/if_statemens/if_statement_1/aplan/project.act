@@ -6,7 +6,7 @@ if_1 = (
 assign_1 = (
 		(1)->
 		("register_write_once_example#module_1:action 'assign (Data_out[0] <= Write_once_status)';")
-		(module_1.Data_out(0,1) = module_1.Write_once_status)),
+		(module_1.Data_out(0) = module_1.Write_once_status)),
 if_2 = (
 		(module_1.write & ~(module_1.Write_once_status))->
 		("register_write_once_example#module_1:action 'if (write & ~Write_once_status)';")

@@ -44,7 +44,9 @@ class Action(Basic):
 
     def __eq__(self, other):
         if isinstance(other, Action):
-            return self.getBody() == other.getBody()
+            return (
+                self.getBody() == other.getBody()
+            )
         return False
 
 

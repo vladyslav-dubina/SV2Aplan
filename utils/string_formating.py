@@ -166,7 +166,7 @@ def vectorSizes2AplanStandart(expression: str):
             if value_1 is not None:
                 break
         if value_2 is None:
-            value = f"({value_1},1)"
+            value = f"({value_1})"
         else:
             value = f"({value_2},{value_1})"
         return value
