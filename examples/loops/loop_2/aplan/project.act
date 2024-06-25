@@ -1,12 +1,12 @@
 
-assign_1 = (
-		(1)->
-		("code_patch_core#module_1:action 'assign (h_1 = 0)';")
-		(module_1.h_1 = 0)),
 cond_1 = (
 		(module_1.h_1 < 8)->
 		("code_patch_core#module_1:action 'cond (h_1 < 8)';")
 		(1)),
+assign_1 = (
+		(1)->
+		("code_patch_core#module_1:action 'assign (h_1 = 0)';")
+		(module_1.h_1 = 0)),
 assign_2 = (
 		(1)->
 		("code_patch_core#module_1:action 'assign (h_1 = h_1 + 1)';")

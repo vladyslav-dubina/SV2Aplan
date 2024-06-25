@@ -1,14 +1,15 @@
 from typing import List, Tuple
-
+from classes.element_types import ElementsTypes
 
 class Basic:
-    def __init__(self, identifier: str, source_interval: Tuple[int, int]):
+    def __init__(self, identifier: str, source_interval: Tuple[int, int], element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT):
         from classes.counters import CounterTypes
         from utils.utils import Counters_Object
 
         self.identifier = identifier
         self.sequence = (Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),)
         self.source_interval: Tuple[int, int] = source_interval
+        self.element_type: ElementsTypes = element_type
 
     def __repr__(self):
         return f"\tBasic({self.identifier!r}, {self.sequence!r}, {self.source_interval!r})\n"

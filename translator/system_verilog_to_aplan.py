@@ -21,9 +21,11 @@ from utils.string_formating import (
     doubleOperators2Aplan,
     replaceParametrsCalls,
     addEqueToBGET,
+    replace_cpp_operators,
 )
 from utils.utils import (
     removeTypeFromForInit,
+    evaluateExpression,
     Counters_Object,
     printWithColor,
     Color,
@@ -117,6 +119,7 @@ class SV2aplan:
                 struct_call_assign = Protocol(
                     call_assign_b,
                     ctx.getSourceInterval(),
+                    ElementsTypes.MODULE_ASSIGN_ELEMENT,
                 )
 
                 for (
@@ -145,6 +148,7 @@ class SV2aplan:
                     ElementsTypes.ASSIGN_FOR_CALL_ELEMENT,
                     ctx.getSourceInterval(),
                 )
+                action_name = f"Sensetive({action_name})"
                 struct_call_assign.addBody((action_name, ElementsTypes.ACTION_ELEMENT))
 
                 self.module.out_of_block_elements.addElement(struct_call_assign)
@@ -152,21 +156,21 @@ class SV2aplan:
     def expression2Aplan(
         self,
         input: str | List[str],
-        cond_type: ElementsTypes,
+        element_type: ElementsTypes,
         source_interval: Tuple[int, int],
     ):
         name_part = ""
         counter_type = CounterTypes.NONE_COUNTER
 
-        if cond_type == ElementsTypes.ASSERT_ELEMENT:
+        if element_type == ElementsTypes.ASSERT_ELEMENT:
             name_part = "assert"
             counter_type = CounterTypes.ASSERT_COUNTER
-        elif cond_type == ElementsTypes.CONDITION_ELEMENT:
+        elif element_type == ElementsTypes.CONDITION_ELEMENT:
             name_part = "cond"
             counter_type = CounterTypes.CONDITION_COUNTER
         elif (
-            cond_type == ElementsTypes.ASSIGN_ELEMENT
-            or cond_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT
+            element_type == ElementsTypes.ASSIGN_ELEMENT
+            or element_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT
         ):
             name_part = "assign"
             counter_type = CounterTypes.ASSIGNMENT_COUNTER
@@ -175,10 +179,10 @@ class SV2aplan:
             name_part, Counters_Object.getCounter(counter_type)
         )
 
-        if cond_type != ElementsTypes.ASSIGN_FOR_CALL_ELEMENT:
+        if element_type != ElementsTypes.ASSIGN_FOR_CALL_ELEMENT:
             input = self.module.name_change.changeNamesInStr(input)
             expression, expression_with_replaced_names = self.prepareExpressionString(
-                input, cond_type
+                input, element_type
             )
 
         action = Action(
@@ -187,13 +191,13 @@ class SV2aplan:
             source_interval,
         )
 
-        if cond_type == ElementsTypes.ASSIGN_ELEMENT:
+        if element_type == ElementsTypes.ASSIGN_ELEMENT:
             action.precondition.body.append("1")
             action.postcondition.body.append(expression_with_replaced_names)
             action.description.body.append(
                 f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
             )
-        elif cond_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT:
+        elif element_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT:
             action.precondition.body.append("1")
             descroption = ""
             for index, input_str in enumerate(input):
@@ -202,7 +206,7 @@ class SV2aplan:
                 (
                     expression,
                     expression_with_replaced_names,
-                ) = self.prepareExpressionString(input_str, cond_type)
+                ) = self.prepareExpressionString(input_str, element_type)
                 action.postcondition.body.append(expression_with_replaced_names)
                 descroption += expression
 
@@ -255,14 +259,6 @@ class SV2aplan:
                     identifier, expression.getSourceInterval(), original_identifier
                 )
             )
-            sv2aplan = SV2aplan(self.module)
-            if expression.expression(0) is not None:
-                action_txt = f"{identifier}={expression.expression(0).getText()}"
-                assign_name, source_interval = sv2aplan.expression2Aplan(
-                    action_txt, ElementsTypes.ASSIGN_ELEMENT, ctx.getSourceInterval()
-                )
-            declaration = self.module.declarations.getElementByIndex(decl_index)
-            declaration.expression = assign_name
 
             return identifier
         return None
@@ -518,7 +514,9 @@ class SV2aplan:
                             child.getSourceInterval(),
                         )
                         predicate_txt = element["predicate"].getText()
-                        predicate_txt = self.module.name_change.changeNamesInStr(predicate_txt)
+                        predicate_txt = self.module.name_change.changeNamesInStr(
+                            predicate_txt
+                        )
                         (
                             predicate_string,
                             predicate_with_replaced_names,
@@ -616,7 +614,53 @@ class SV2aplan:
             else:
                 self.body2Aplan(child, sv_structure)
 
+    def replaceGenvarToValue(self, expression: str, genvar: str, value: int):
+        expression = re.sub(
+            r"\b{}\b".format(re.escape(genvar)),
+            f"{value}",
+            expression,
+        )
+        return expression
+
+    def generateBodyToAplan(
+        self, ctx, sv_structure: Structure, init_var_name, current_value
+    ):
+        if ctx.getChildCount() == 0:
+            return
+        for child in ctx.getChildren():
+            if (
+                type(child) is SystemVerilogParser.Variable_decl_assignmentContext
+                or type(child) is SystemVerilogParser.Nonblocking_assignmentContext
+                or type(child) is SystemVerilogParser.Net_assignmentContext
+                or type(child) is SystemVerilogParser.Variable_assignmentContext
+            ):
+                expression = child.getText()
+                expression = self.replaceGenvarToValue(
+                    expression, init_var_name, current_value
+                )
+                action_name, source_interval = self.expression2Aplan(
+                    expression,
+                    ElementsTypes.ASSIGN_ELEMENT,
+                    child.getSourceInterval(),
+                )
+                action_name = f"Sensetive({action_name})"
+                sv_structure.behavior[0].addBody(
+                    (action_name, ElementsTypes.ACTION_ELEMENT)
+                )
+
+            else:
+                self.generateBodyToAplan(
+                    child, sv_structure, init_var_name, current_value
+                )
+
     def generate2Aplan(self, ctx: SystemVerilogParser.Loop_generate_constructContext):
+        def prepareGenerateExpression(module: Module, expression: str):
+            expression = replace_cpp_operators(expression)
+            expression = parallelAssignment2Assignment(expression)
+            expression = replaceParametrsCalls(module.parametrs, expression)
+
+            return expression
+
         generate_name = (
             "GENERATE"
             + "_"
@@ -626,8 +670,23 @@ class SV2aplan:
             generate_name,
             ctx.getSourceInterval(),
         )
-        struct.addProtocol(generate_name)
-        self.loop2Aplan(ctx, struct)
+        struct.addProtocol(generate_name, ElementsTypes.GENERATE_ELEMENT)
+        initialization = ctx.genvar_initialization().getText()
+        initialization = prepareGenerateExpression(self.module, initialization)
+
+        condition = ctx.genvar_expression().getText()
+        condition = prepareGenerateExpression(self.module, condition)
+
+        iteration = ctx.genvar_iteration().getText()
+        iteration = prepareGenerateExpression(self.module, iteration)
+        init_var_name = initialization.split("=")[0]
+        exec(initialization)
+        while eval(condition):
+            current_value = eval(init_var_name)
+            self.generateBodyToAplan(
+                ctx.generate_block(), struct, init_var_name, current_value
+            )
+            exec(iteration)
         self.module.structures.addElement(struct)
         return
 

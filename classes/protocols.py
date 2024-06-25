@@ -1,13 +1,17 @@
 from typing import Tuple, List
 from classes.basic import Basic, BasicArray
-from classes.declarations import DeclTypes
 from utils.string_formating import removeTrailingComma
 from classes.element_types import ElementsTypes
 
 
 class Protocol(Basic):
-    def __init__(self, identifier: str, source_interval: Tuple[int, int]):
-        super().__init__(identifier, source_interval)
+    def __init__(
+        self,
+        identifier: str,
+        source_interval: Tuple[int, int],
+        element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT,
+    ):
+        super().__init__(identifier, source_interval, element_type)
         self.body: List[Tuple[str, ElementsTypes]] = []
 
     def identifierToBody(self):
@@ -30,15 +34,18 @@ class Protocol(Basic):
             protocol_element = False
             element, element_type = body_element
             if index != 0:
-                prev_element, prev_element_type = self.body[index - 1]
-                if prev_element_type == ElementsTypes.ACTION_ELEMENT and (
-                    element_type == ElementsTypes.ACTION_ELEMENT
-                    or element_type == ElementsTypes.PROTOCOL_ELEMENT
-                ):
-                    body_to_str += "."
+                if self.element_type == ElementsTypes.GENERATE_ELEMENT:
+                    body_to_str += " || "
                 else:
-                    protocol_element = True
-                    body_to_str += ";"
+                    prev_element, prev_element_type = self.body[index - 1]
+                    if prev_element_type == ElementsTypes.ACTION_ELEMENT and (
+                        element_type == ElementsTypes.ACTION_ELEMENT
+                        or element_type == ElementsTypes.PROTOCOL_ELEMENT
+                    ):
+                        body_to_str += "."
+                    else:
+                        protocol_element = True
+                        body_to_str += ";"
             if protocol_element == False:
                 body_to_str += element
             else:

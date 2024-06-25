@@ -288,7 +288,9 @@ class SVListener(SystemVerilogParserListener):
             struct_assign = Protocol(
                 assign_b,
                 ctx.getSourceInterval(),
+                ElementsTypes.ASSIGN_OUT_OF_BLOCK_ELEMENT,
             )
+            assign_name = f"Sensetive({assign_name})"
             struct_assign.addBody((assign_name, ElementsTypes.ACTION_ELEMENT))
             self.module.out_of_block_elements.addElement(struct_assign)
 
@@ -320,8 +322,7 @@ class SVListener(SystemVerilogParserListener):
             Counters_Object.getCounter(CounterTypes.B_COUNTER)
         )
         struct_call = Protocol(
-            call_b,
-            ctx.getSourceInterval(),
+            call_b, ctx.getSourceInterval(), ElementsTypes.MODULE_CALL_ELEMENT
         )
         struct_call.addBody(
             (f"call B_{call_module_name.upper()}", ElementsTypes.PROTOCOL_ELEMENT)

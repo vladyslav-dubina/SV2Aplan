@@ -1,12 +1,13 @@
 from utils.utils import generate_module_names
 from classes.actions import ActionArray
 from classes.parametrs import ParametrArray
-from classes.protocols import ProtocolArray
+from classes.protocols import ProtocolArray, Protocol
 from classes.declarations import DeclarationArray
 from classes.structure import StructureArray
 from classes.basic import Basic, BasicArray
 from classes.module_call import ModuleCallArray
 from classes.name_change import NameChangeArray
+from classes.element_types import ElementsTypes
 from typing import Tuple
 
 
@@ -44,15 +45,22 @@ class Module(Basic):
         main_protocol = ""
         main_protocol_part = ""
         main_flag = False
-        protocols = (
-            self.out_of_block_elements.getElements()
-            + self.structures.getNoAlwaysStructures()
-        )
+        protocols = self.out_of_block_elements.getElements()
         protocols.sort(key=lambda student: student.sequence)
         for index, element in enumerate(protocols):
             if index != 0:
-                main_protocol += ";"
+                if element.element_type == ElementsTypes.MODULE_CALL_ELEMENT:
+                    main_protocol += ";"
+                else:
+                    main_protocol += " || "
+
+            if element.element_type == ElementsTypes.MODULE_ASSIGN_ELEMENT:
+                main_protocol += "("
+
             main_protocol += element.identifier
+
+            if element.element_type == ElementsTypes.MODULE_CALL_ELEMENT:
+                main_protocol += ")"
 
         if len(main_protocol) > 0:
             main_flag = True
@@ -72,11 +80,21 @@ class Module(Basic):
 
         if len(always_part) > 0:
             always_flag = True
-            if len(always_list) > 1:
-                always_part = "{" + always_part + "}"
             if main_flag:
-                always_part += ";"
+                always_part += " || "
 
+        structs = self.structures.getNoAlwaysStructures()
+        struct_part = ""
+        struct_flag = False
+        for index, element in enumerate(structs):
+            if index != 0:
+                struct_part += " || "
+            struct_part += element.identifier
+            
+        if len(struct_part) > 0:
+            struct_flag = True
+            if always_flag:
+                struct_part += " || "
         # INIT PROTOCOL
 
         init_protocol = ""
@@ -94,13 +112,13 @@ class Module(Basic):
             init_flag = True
             init_protocol = f"INIT_{self.identifierUpper} = " + init_protocol + ","
             init_protocol_part = f"INIT_{self.identifierUpper}"
-            if main_flag or always_flag:
-                init_protocol_part += ";"
+            if main_flag or always_flag or struct_flag:
+                init_protocol_part += " || "
             if main_flag:
                 init_protocol += "\n"
             result = init_protocol + result
 
-        b0 = f"B_{self.identifierUpper} = ({init_protocol_part}{always_part}{main_protocol_part}),"
+        b0 = f"B_{self.identifierUpper} = ({init_protocol_part}{struct_part}{always_part}{main_protocol_part}),"
         if main_flag or init_flag:
             b0 += "\n"
         result = b0 + result

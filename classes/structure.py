@@ -1,6 +1,7 @@
 from typing import Tuple, List
 from classes.basic import Basic, BasicArray
 from classes.protocols import Protocol
+from classes.element_types import ElementsTypes
 
 
 class Structure(Basic):
@@ -13,13 +14,10 @@ class Structure(Basic):
             return None  # Повертаємо None, якщо список порожній
         return len(self.behavior) - 1
 
-    def addProtocol(self, protocol_identifier: str):
-        self.behavior.append(
-            Protocol(
-                protocol_identifier,
-                (0, 0),
-            )
-        )
+    def addProtocol(
+        self, protocol_identifier: str, element_type: ElementsTypes | None = None
+    ):
+        self.behavior.append(Protocol(protocol_identifier, (0, 0), element_type))
         return len(self.behavior) - 1
 
     def getBehInStrFormat(self):

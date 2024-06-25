@@ -80,6 +80,12 @@ def addBracketsAfterNegation(expression: str):
     return result
 
 
+def replaceArrayIndexing(expression: str):
+    pattern = r"\[(\w+)\]"
+    result = re.sub(pattern, r"(\1)", expression)
+    return result
+
+
 def addLeftValueForUnaryOrOperator(expression: str):
     prefix = expression.split("=")[0].strip()
 
@@ -188,12 +194,13 @@ def generatePythonStyleTernary(expression: str):
 
 def replace_cpp_operators(expression: str) -> str:
     replacements = {
-        r"\b&&\b": "and",
-        r"\b\|\|\b": "or",
-        r"!": "not ",
-        r"(?<!/)/(?!/)": "//",
-        r"\btrue\b": "True",
-        r"\bfalse\b": "False",
+        r"&&": " and ",
+        r"\|\|": " or ",
+        r"!": " not ",
+        r"(?<!/)/(?!/)": " // ",
+        r"\btrue\b": " True ",
+        r"\bfalse\b": " False ",
+        r"\+\+": " += 1",
     }
 
     for cpp_op, py_op in replacements.items():
