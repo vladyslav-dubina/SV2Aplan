@@ -58,17 +58,9 @@ def printWithColors(
 Counters_Object = Counters()
 
 
-def moduleCounterDeinit():
+def programCountersDeinit():
     global Counters_Object
     Counters_Object.countersDeinit()
-
-
-def generate_module_names():
-    global Counters_Object
-    index = Counters_Object.getCounter(CounterTypes.MODULE_COUNTER)
-    module_name = "module_" + str(index)
-    Counters_Object.incrieseCounter(CounterTypes.MODULE_COUNTER)
-    return (module_name, index)
 
 
 def vectorSize2AplanVectorSize(left, right):

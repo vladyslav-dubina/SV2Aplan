@@ -1,0 +1,8 @@
+B_CALL_2 = (MAIN_CALL_2),
+MAIN_CALL_2 = (ASSIGN_B_1 || (MODULE_ASSIGN_B_3;MODULE_CALL_B_4),
+ASSIGN_B_1 = Sensetive(assign_1),
+MODULE_ASSIGN_B_3 = Sensetive(assign_3),
+MODULE_CALL_B_4 = call B_CORE,
+B_CORE = (MAIN_CORE),
+MAIN_CORE = (ASSIGN_B_2),
+ASSIGN_B_2 = Sensetive(assign_2)

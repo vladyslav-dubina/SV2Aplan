@@ -1,17 +1,17 @@
 
 cond_1 = (
-		(module_1.h_1 < 8)->
-		("code_patch_core#module_1:action 'cond (h_1 < 8)';")
+		(code_patch_core.h_1 < 8)->
+		("CODE_PATCH_CORE#code_patch_core:action 'cond (h_1 < 8)';")
 		(1)),
 assign_1 = (
 		(1)->
-		("code_patch_core#module_1:action 'assign (h_1 = 0)';")
-		(module_1.h_1 = 0)),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (h_1 = 0)';")
+		(code_patch_core.h_1 = 0)),
 assign_2 = (
 		(1)->
-		("code_patch_core#module_1:action 'assign (h_1 = h_1 + 1)';")
-		(module_1.h_1 = module_1.h_1 + 1)),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (h_1 = h_1 + 1)';")
+		(code_patch_core.h_1 = code_patch_core.h_1 + 1)),
 assign_3 = (
 		(1)->
-		("code_patch_core#module_1:action 'assign (patch_match[h_1] = ( si_addr_i == ctl_pat_addr_i[h_1] ) & ctl_pat_pen_i[h_1])';")
-		(BGET(module_1.patch_match, module_1.h_1) = ( module_1.si_addr_i == module_1.ctl_pat_addr_i(module_1.h_1) ) & BGET(module_1.ctl_pat_pen_i, module_1.h_1)))
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (patch_match[h_1] = ( si_addr_i == ctl_pat_addr_i[h_1] ) & ctl_pat_pen_i[h_1])';")
+		(BGET(code_patch_core.patch_match, code_patch_core.h_1) = ( code_patch_core.si_addr_i == code_patch_core.ctl_pat_addr_i(code_patch_core.h_1) ) & BGET(code_patch_core.ctl_pat_pen_i, code_patch_core.h_1)))

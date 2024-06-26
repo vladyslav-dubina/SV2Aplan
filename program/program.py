@@ -1,6 +1,7 @@
 from utils.string_formating import removeTrailingComma
 from utils.utils import printWithColor, Color
 from classes.module import ModuleArray
+from classes.module_call import ModuleCallArray
 import os
 
 
@@ -8,6 +9,7 @@ class Program:
     def __init__(self, path_to_result: str = None) -> None:
         self.path_to_result = path_to_result
         self.modules: ModuleArray = ModuleArray()
+        self.module_calls: ModuleCallArray = ModuleCallArray()
 
     def readFileData(self, path):
         self.file_path = path

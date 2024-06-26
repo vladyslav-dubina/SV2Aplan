@@ -80,8 +80,12 @@ def regeneration_start():
             "examples/parametrs/parametrs_1/aplan",
         ),
         (
-            "examples/call/call_2.sv",
-            "examples/call/aplan",
+            "examples/call/call_1/call_2.sv",
+            "examples/call/call_1/aplan",
+        ),
+        (
+            "examples/call/call_2/call_2.sv",
+            "examples/call/call_2/aplan",
         ),
         (
             "examples/code_patch/code_patch_wb_wrapper.sv",

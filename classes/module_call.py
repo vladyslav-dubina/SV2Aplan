@@ -14,15 +14,18 @@ class ModuleCall(Basic):
 
     def __init__(
         self,
+        identifier: str,
+        object_name: str,
         source_identifier: str,
         destination_identifier: str,
         parameter_value_assignment: str,
         source_parametrs: ParametrArray,
     ):
         super().__init__(
-            "",
+            identifier,
             (0, 0),
         )
+        self.object_name = object_name
         self.source_identifier = source_identifier
         self.destination_identifier = destination_identifier
         self.paramets: ParametrArray = ParametrArray()
@@ -35,7 +38,8 @@ class ModuleCall(Basic):
                 self.paramets.addElement(source_parametr)
 
     def __repr__(self):
-        return "\tModuleCall(\n\t\t{0},\n\t\t{1},\n\t\t{2}\n\t)\n".format(
+        return "\tModuleCall(\n\t\t{0},\n\t\t{1},\n\t\t{2},\n\t\t{3}\n\t)\n".format(
+            self.identifier,
             self.source_identifier,
             self.destination_identifier,
             self.paramets,

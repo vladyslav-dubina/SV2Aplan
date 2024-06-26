@@ -8,7 +8,7 @@ from utils.utils import (
     Color,
     format_time,
     printWithColor,
-    moduleCounterDeinit,
+    programCountersDeinit,
 )
 from program.program import Program
 from translator.translator import SystemVerilogFinder
@@ -67,7 +67,7 @@ def start(path, path_to_aplan_result):
         "\n--------------------------SV TO APLAN TRANSLATOR END---------------------------\n",
         Color.CYAN,
     )
-    moduleCounterDeinit()
+    programCountersDeinit()
 
 
 if __name__ == "__main__":

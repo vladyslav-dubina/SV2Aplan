@@ -1,5 +1,5 @@
-B_MODULE_1 = (Sensetive(ALWAYS_1, module_1.Clk || !module_1.ip_resetn) || MAIN_MODULE_1),
-MAIN_MODULE_1 = (ASSERT_B_2),
+B_REGISTER_WRITE_ONCE_EXAMPLE = (Sensetive(ALWAYS_1, register_write_once_example.Clk || !register_write_once_example.ip_resetn) || MAIN_REGISTER_WRITE_ONCE_EXAMPLE),
+MAIN_REGISTER_WRITE_ONCE_EXAMPLE = (ASSERT_B_2),
 ALWAYS_1 = B_1,
 B_1 = if_1.IF_BODY_1 + !if_1.ELSE_BODY_1,
 IF_BODY_1 = Sensetive(assign_1).Sensetive(assign_2),
