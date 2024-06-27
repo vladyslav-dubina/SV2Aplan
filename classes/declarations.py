@@ -14,8 +14,10 @@ class DeclTypes(Enum):
     IF_STATEMENT = auto()
 
     def checkType(type_str: str):
-        if type_str == "int":
+        if "int" in type_str:
             return DeclTypes.INT
+        elif "reg" in type_str:
+            return DeclTypes.REG
         return DeclTypes.INT
 
 
@@ -67,7 +69,7 @@ class DeclarationArray(BasicArray):
         if isinstance(new_element, self.element_type):
             is_uniq_element = self.findElement(new_element.identifier)
             if is_uniq_element is not None:
-                return self.getElementIndex(is_uniq_element.identifier)
+                return (False, self.getElementIndex(is_uniq_element.identifier))
 
             self.elements.append(new_element)
             self.elements = sorted(
@@ -75,7 +77,7 @@ class DeclarationArray(BasicArray):
                 key=lambda element: len(element.identifier),
                 reverse=True,
             )
-            return self.getElementIndex(new_element.identifier)
+            return (True, self.getElementIndex(new_element.identifier))
         else:
             raise TypeError(
                 f"Object should be of type {self.element_type} but you passed an object of type {type(new_element)}. \n Object: {new_element}"

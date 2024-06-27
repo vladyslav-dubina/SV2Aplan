@@ -1,0 +1,5 @@
+events(
+	s_ctl_pat_addr_i:obj(x1:(Bits 32) -> Bits 7);
+	s_ctl_pat_pen_i:obj(x1:Bits 8);
+	s_si_addr_i:obj(x1:Bits 32);
+);

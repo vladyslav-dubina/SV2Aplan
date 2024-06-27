@@ -88,6 +88,10 @@ def regeneration_start():
             "examples/call/call_2/aplan",
         ),
         (
+            "examples/loops/while_1/while_1.sv",
+            "examples/loops/while_1/aplan",
+        ),
+        (
             "examples/code_patch/code_patch_wb_wrapper.sv",
             "examples/code_patch/aplan",
         ),

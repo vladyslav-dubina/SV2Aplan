@@ -10,6 +10,7 @@ from classes.processed import ProcessedElement
 from classes.element_types import ElementsTypes
 from classes.counters import CounterTypes
 from classes.name_change import NameChange
+
 from utils.string_formating import (
     addSpacesAroundOperators,
     valuesToAplanStandart,
@@ -27,7 +28,9 @@ from utils.string_formating import (
 )
 from utils.utils import (
     removeTypeFromForInit,
-    evaluateExpression,
+    extractVectorSize,
+    extractDimentionSize,
+    vectorSize2AplanVectorSize,
     Counters_Object,
     printWithColor,
     Color,
@@ -42,15 +45,6 @@ class SV2aplan:
     def __init__(self, module: Module):
         self.module = module
         self.actionList = []
-
-    def findAndChangeNamesToAgentAttrCall(self, input: str):
-        for elem in self.module.declarations.getElements():
-            input = re.sub(
-                r"\b{}\b".format(re.escape(elem.identifier)),
-                "{}.{}".format(self.module.ident_uniq_name, elem.identifier),
-                input,
-            )
-        return input
 
     def extractSensetive(self, ctx):
         res = ""
@@ -67,7 +61,7 @@ class SV2aplan:
                 if index != -1:
                     res += " && "
             elif type(child) is SystemVerilogParser.IdentifierContext:
-                res += self.findAndChangeNamesToAgentAttrCall(child.getText())
+                res += self.module.findAndChangeNamesToAgentAttrCall(child.getText())
             else:
                 res += self.extractSensetive(child)
         return res
@@ -78,8 +72,8 @@ class SV2aplan:
         expression = addLeftValueForUnaryOrOperator(expression)
         expression = addSpacesAroundOperators(expression)
         if ElementsTypes.ASSIGN_FOR_CALL_ELEMENT != expr_type:
-            expression_with_replaced_names = self.findAndChangeNamesToAgentAttrCall(
-                expression
+            expression_with_replaced_names = (
+                self.module.findAndChangeNamesToAgentAttrCall(expression)
             )
         else:
             expression_with_replaced_names = expression
@@ -244,7 +238,7 @@ class SV2aplan:
             data_type = expression.data_type().getText()
             size_expression = data_type
             data_type = DeclTypes.checkType(data_type)
-            decl_index = self.module.declarations.addElement(
+            decl_unic, decl_index = self.module.declarations.addElement(
                 Declaration(
                     data_type,
                     identifier,
@@ -274,8 +268,31 @@ class SV2aplan:
         sv_structure: Structure,
     ):
         for_decl_identifier: str | None = None
+        loop_init = "LOOP_INIT_{0};".format(
+            Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
+        )
+        loop_inc = "LOOP_INC_{0};".format(
+            Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
+        )
+
+        loop_init_flag = True
+        loop_inс_flag = True
+
         if type(ctx) is SystemVerilogParser.Loop_statementContext:
-            for_decl_identifier = self.forDeclarationToApan(ctx.for_initialization())
+            for_initialization_ctx = ctx.for_initialization()
+            for_inc_ctx = ctx.for_step()
+            if for_inc_ctx is None:
+                loop_inс_flag = False
+            if for_initialization_ctx is not None:
+                for_decl_identifier = self.forDeclarationToApan(for_initialization_ctx)
+            else:
+                loop_init_flag = False
+
+        if loop_init_flag == False:
+            loop_init = ""
+
+        if loop_inс_flag == False:
+            loop_inc = ""
 
         beh_index = sv_structure.getLastBehaviorIndex()
         if beh_index is not None:
@@ -292,9 +309,11 @@ class SV2aplan:
         beh_index = sv_structure.addProtocol(
             "LOOP_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
         )
+
         sv_structure.behavior[beh_index].addBody(
             (
-                "(LOOP_INIT_{0};LOOP_MAIN_{0})".format(
+                "({0}LOOP_MAIN_{1})".format(
+                    loop_init,
                     Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
                 ),
                 ElementsTypes.PROTOCOL_ELEMENT,
@@ -327,9 +346,10 @@ class SV2aplan:
 
         sv_structure.behavior[beh_index].addBody(
             (
-                "{1}.(LOOP_BODY_{0};LOOP_INC_{0};LOOP_MAIN_{0}) + !{1}".format(
+                "{1}.(LOOP_BODY_{0};{2}LOOP_MAIN_{0}) + !{1}".format(
                     Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
                     condition_name,
+                    loop_inc,
                 ),
                 ElementsTypes.ACTION_ELEMENT,
             )
@@ -344,22 +364,25 @@ class SV2aplan:
                 ElementsTypes.ASSIGN_ELEMENT,
                 ctx.genvar_initialization().getSourceInterval(),
             )
+            loop_init_flag = True
         elif type(ctx) is SystemVerilogParser.Loop_statementContext:
-            initialization = removeTypeFromForInit(ctx.for_initialization())
-            action_name, source_interval = self.expression2Aplan(
-                initialization,
-                ElementsTypes.ASSIGN_ELEMENT,
-                ctx.for_initialization().getSourceInterval(),
-            )
+            if loop_init_flag == True:
+                initialization = removeTypeFromForInit(ctx.for_initialization())
+                action_name, source_interval = self.expression2Aplan(
+                    initialization,
+                    ElementsTypes.ASSIGN_ELEMENT,
+                    ctx.for_initialization().getSourceInterval(),
+                )
 
-        beh_index = sv_structure.addProtocol(
-            "LOOP_INIT_{0}".format(
-                Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
+        if loop_init_flag == True:
+            beh_index = sv_structure.addProtocol(
+                "LOOP_INIT_{0}".format(
+                    Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
+                )
             )
-        )
-        sv_structure.behavior[beh_index].addBody(
-            (action_name, ElementsTypes.ACTION_ELEMENT)
-        )
+            sv_structure.behavior[beh_index].addBody(
+                (action_name, ElementsTypes.ACTION_ELEMENT)
+            )
 
         # LOOP INC
         iteration = ""
@@ -371,19 +394,23 @@ class SV2aplan:
                 ctx.genvar_iteration().getSourceInterval(),
             )
         elif type(ctx) is SystemVerilogParser.Loop_statementContext:
-            iteration = ctx.for_step().getText()
-            action_name, source_interval = self.expression2Aplan(
-                iteration,
-                ElementsTypes.ASSIGN_ELEMENT,
-                ctx.for_step().getSourceInterval(),
-            )
+            if loop_inс_flag == True:
+                iteration = ctx.for_step().getText()
+                action_name, source_interval = self.expression2Aplan(
+                    iteration,
+                    ElementsTypes.ASSIGN_ELEMENT,
+                    ctx.for_step().getSourceInterval(),
+                )
 
-        beh_index = sv_structure.addProtocol(
-            "LOOP_INC_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
-        )
-        sv_structure.behavior[beh_index].addBody(
-            (action_name, ElementsTypes.ACTION_ELEMENT)
-        )
+        if loop_inс_flag == True:
+            beh_index = sv_structure.addProtocol(
+                "LOOP_INC_{0}".format(
+                    Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
+                )
+            )
+            sv_structure.behavior[beh_index].addBody(
+                (action_name, ElementsTypes.ACTION_ELEMENT)
+            )
 
         # BODY LOOP
         sv_structure.addProtocol(
@@ -484,6 +511,22 @@ class SV2aplan:
                         ctx.getSourceInterval(),
                     )
                 )
+            elif type(child) is SystemVerilogParser.Data_declarationContext:
+                from translator.declarations.data_declaration import (
+                    dataDecaration2Aplan,
+                )
+
+                data_type = child.data_type_or_implicit().getText()
+                if len(data_type) > 0:
+                    action_name = dataDecaration2Aplan(child, self.module, False)
+
+                    beh_index = sv_structure.getLastBehaviorIndex()
+                    if beh_index is not None and action_name is not None:
+                        sv_structure.behavior[beh_index].addBody(
+                            (action_name, ElementsTypes.ACTION_ELEMENT)
+                        )
+                else:
+                    self.body2Aplan(child, sv_structure)
             elif type(child) is SystemVerilogParser.Loop_statementContext:
                 self.loop2Aplan(child, sv_structure)
             elif type(child) is SystemVerilogParser.Conditional_statementContext:
@@ -640,7 +683,9 @@ class SV2aplan:
                 expression = self.replaceGenvarToValue(
                     expression, init_var_name, current_value
                 )
-                self.module.processed_elements.addElement(ProcessedElement("action", child.getSourceInterval()))
+                self.module.processed_elements.addElement(
+                    ProcessedElement("action", child.getSourceInterval())
+                )
                 action_name, source_interval = self.expression2Aplan(
                     expression,
                     ElementsTypes.ASSIGN_ELEMENT,

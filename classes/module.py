@@ -9,6 +9,7 @@ from classes.module_call import ModuleCallArray
 from classes.name_change import NameChangeArray
 from classes.element_types import ElementsTypes
 from typing import Tuple
+import re
 
 
 class Module(Basic):
@@ -36,6 +37,15 @@ class Module(Basic):
         self.name_change = NameChangeArray()
 
         self.processed_elements = ProcessedElementArray()
+
+    def findAndChangeNamesToAgentAttrCall(self, input: str):
+        for elem in self.declarations.getElements():
+            input = re.sub(
+                r"\b{}\b".format(re.escape(elem.identifier)),
+                "{}.{}".format(self.ident_uniq_name, elem.identifier),
+                input,
+            )
+        return input
 
     def isIncludeOutOfBlockElements(self):
         if len(self.out_of_block_elements.getElements()) > 0:
@@ -116,8 +126,8 @@ class Module(Basic):
             struct_flag = True
             if always_flag:
                 struct_part += " || "
-        # INIT PROTOCOL
 
+        # INIT PROTOCOL
         init_protocol = ""
         init_protocol_part = ""
         init_protocols_array = self.declarations.getDeclarationsWithExpressions()

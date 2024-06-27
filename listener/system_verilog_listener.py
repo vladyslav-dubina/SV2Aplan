@@ -1,6 +1,5 @@
 from antlr4_verilog.systemverilog import SystemVerilogParserListener
-from antlr4_verilog.systemverilog import SystemVerilogParser
-
+from translator.declarations.data_declaration import dataDecaration2Aplan
 from translator.system_verilog_to_aplan import (
     SV2aplan,
 )
@@ -97,55 +96,7 @@ class SVListener(SystemVerilogParserListener):
             )
 
     def exitData_declaration(self, ctx):
-        data_type = ctx.data_type_or_implicit().getText()
-        aplan_vector_size = [0]
-        size_expression = data_type
-        data_type = replaceParametrsCalls(self.module.parametrs, data_type)
-        vector_size = extractVectorSize(data_type)
-        if vector_size is not None:
-            aplan_vector_size = vectorSize2AplanVectorSize(
-                vector_size[0], vector_size[1]
-            )
-
-        for elem in ctx.list_of_variable_decl_assignments().variable_decl_assignment():
-            identifier = elem.variable_identifier().identifier().getText()
-
-            unpacked_dimention = elem.variable_dimension(0)
-            dimension_size = 0
-            dimension_size_expression = ""
-            if unpacked_dimention is not None:
-                dimension = unpacked_dimention.getText()
-                dimension_size_expression = dimension
-                dimension = replaceParametrsCalls(self.module.parametrs, dimension)
-                dimension_size = extractDimentionSize(dimension)
-
-            index = data_type.find("reg")
-            is_register = False
-            if index != -1:
-                is_register = True
-
-            if is_register == True:
-                assign_name = ""
-                decl_index = self.module.declarations.addElement(
-                    Declaration(
-                        DeclTypes.REG,
-                        identifier,
-                        assign_name,
-                        size_expression,
-                        aplan_vector_size[0],
-                        dimension_size_expression,
-                        dimension_size,
-                        ctx.getSourceInterval(),
-                    )
-                )
-
-            if elem.expression() is not None:
-                if is_register == True:
-                    expression = elem.expression().getText()
-                    sv2aplan = SV2aplan(self.module)
-                    assign_name = sv2aplan.declaration2Aplan(elem)
-                    declaration = self.module.declarations.getElementByIndex(decl_index)
-                    declaration.expression = assign_name
+        dataDecaration2Aplan(ctx, self.module, True)
 
     def exitNet_declaration(self, ctx):
         data_type = ctx.data_type_or_implicit()
@@ -176,7 +127,7 @@ class SVListener(SystemVerilogParserListener):
             for elem in ctx.list_of_net_decl_assignments().net_decl_assignment():
                 identifier = elem.net_identifier().identifier().getText()
                 assign_name = ""
-                decl_index = self.module.declarations.addElement(
+                decl_unic, decl_index = self.module.declarations.addElement(
                     Declaration(
                         DeclTypes.WIRE,
                         identifier,
@@ -241,7 +192,7 @@ class SVListener(SystemVerilogParserListener):
             dimension_size,
             ctx.getSourceInterval(),
         )
-        decl_index = self.module.declarations.addElement(port)
+        decl_unic, decl_index = self.module.declarations.addElement(port)
 
         constant_expression = ctx.constant_expression()
         if constant_expression is not None:

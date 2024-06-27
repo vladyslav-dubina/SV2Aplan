@@ -105,6 +105,11 @@ def start_unit_test():
             "examples/call/call_1/aplan",
         ),
         (
+            "examples/loops/while_1/while_1.sv",
+            "examples/loops/while_1/test_result",
+            "examples/loops/while_1/aplan",
+        ),
+        (
             "examples/always/always_@*/always_@*.sv",
             "examples/always/always_@*/test_result",
             "examples/always/always_@*/aplan",
