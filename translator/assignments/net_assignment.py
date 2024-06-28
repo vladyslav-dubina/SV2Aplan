@@ -1,7 +1,6 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
-from classes.module import Module
 from classes.protocols import Protocol
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.utils import Counters_Object
