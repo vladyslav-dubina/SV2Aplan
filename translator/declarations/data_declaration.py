@@ -35,10 +35,10 @@ def dataDecaration2Aplan(
         for elem in ctx.list_of_variable_decl_assignments().variable_decl_assignment():
             original_identifier = elem.variable_identifier().identifier().getText()
             identifier = original_identifier
-            if (
-                name_space != ElementsTypes.NONE_ELEMENT
-            ):
-                identifier += f"_{Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)}"
+            if name_space != ElementsTypes.NONE_ELEMENT:
+                identifier += (
+                    f"_{Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)}"
+                )
                 Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
             unpacked_dimention = elem.variable_dimension(0)
             dimension_size = 0
