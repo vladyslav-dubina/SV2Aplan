@@ -42,7 +42,7 @@ class Module(Basic):
         for elem in self.declarations.getElements():
             input = re.sub(
                 r"\b{}\b".format(re.escape(elem.identifier)),
-                "{}.{}".format(self.ident_uniq_name, elem.unique_identifier),
+                "{}.{}".format(self.ident_uniq_name, elem.identifier),
                 input,
             )
         return input

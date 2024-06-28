@@ -11,6 +11,7 @@ class ElementsTypes(Enum):
     CONDITION_ELEMENT = auto()
     ACTION_ELEMENT = auto()
     GENERATE_ELEMENT = auto()
+    GENERATE_DECL_ELEMENT = auto()
     PROTOCOL_ELEMENT = auto()
     MODULE_CALL_ELEMENT = auto()
     MODULE_ASSIGN_ELEMENT = auto()

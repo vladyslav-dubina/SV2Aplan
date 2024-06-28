@@ -10,7 +10,6 @@ from classes.processed import ProcessedElement
 from classes.element_types import ElementsTypes
 from classes.counters import CounterTypes
 from classes.name_change import NameChange
-
 from utils.string_formating import (
     addSpacesAroundOperators,
     valuesToAplanStandart,
@@ -226,40 +225,7 @@ class SV2aplan:
         Counters_Object.incrieseCounter(counter_type)
         return (action_name, source_interval)
 
-    def forDeclarationToApan(self, ctx: SystemVerilogParser.For_initializationContext):
-        assign_name = ""
-        expression = ctx.for_variable_declaration(0)
-        if expression is not None:
-            original_identifier = expression.variable_identifier(0).getText()
-            identifier = (
-                original_identifier
-                + f"_{Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)}"
-            )
-            data_type = expression.data_type().getText()
-            size_expression = data_type
-            data_type = DeclTypes.checkType(data_type)
-            decl_unique, decl_index = self.module.declarations.addElement(
-                Declaration(
-                    data_type,
-                    identifier,
-                    identifier,
-                    assign_name,
-                    size_expression,
-                    0,
-                    "",
-                    0,
-                    expression.getSourceInterval(),
-                )
-            )
-            self.module.name_change.addElement(
-                NameChange(
-                    identifier, expression.getSourceInterval(), original_identifier
-                )
-            )
-
-            return identifier
-        return None
-
+    
     def loop2Aplan(
         self,
         ctx: (
@@ -285,7 +251,8 @@ class SV2aplan:
             if for_inc_ctx is None:
                 loop_inс_flag = False
             if for_initialization_ctx is not None:
-                for_decl_identifier = self.forDeclarationToApan(for_initialization_ctx)
+                from translator.declarations.for_declaration import forInitializationToApan
+                for_decl_identifier = forInitializationToApan(for_initialization_ctx, self.module)
             else:
                 loop_init_flag = False
 
@@ -508,7 +475,6 @@ class SV2aplan:
                 self.module.declarations.addElement(
                     Declaration(
                         data_type,
-                        identifier,
                         identifier,
                         assign_name,
                         size_expression,
@@ -796,8 +762,3 @@ class SV2aplan:
 
         return
 
-    def declaration2Aplan(self, ctx):
-        assign_name, source_interval = self.expression2Aplan(
-            ctx.getText(), ElementsTypes.ASSIGN_ELEMENT, ctx.getSourceInterval()
-        )
-        return assign_name

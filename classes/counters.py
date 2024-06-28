@@ -16,6 +16,7 @@ class CounterTypes(Enum):
     CONDITION_COUNTER = auto()
     NONE_COUNTER = auto()
     SEQUENCE_COUNTER = auto()
+    UNIQ_NAMES_COUNTER = auto()
 
 
 class Counters:
@@ -31,7 +32,8 @@ class Counters:
         self.loop_counter = 1
         self.cond_counter = 1
         self.sequence = 0
-        
+        self.uniq_names_counter = 1
+     
     def selectCounter(self, element_type: ElementsTypes):
         if element_type is ElementsTypes.ASSIGN_ELEMENT:
             return CounterTypes.ASSIGNMENT_COUNTER
@@ -70,7 +72,9 @@ class Counters:
             self.cond_counter += 1
         if counter_type is CounterTypes.SEQUENCE_COUNTER:
             self.sequence += 1
-
+        if counter_type is CounterTypes.UNIQ_NAMES_COUNTER:
+            self.uniq_names_counter += 1
+            
     def decrieseCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
             self.assignment_counter -= 1
@@ -94,6 +98,8 @@ class Counters:
             self.cond_counter -= 1
         if counter_type is CounterTypes.SEQUENCE_COUNTER:
             self.sequence -= 1
+        if counter_type is CounterTypes.UNIQ_NAMES_COUNTER:
+            self.uniq_names_counter -= 1
 
     def getCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
@@ -119,6 +125,8 @@ class Counters:
         if counter_type is CounterTypes.SEQUENCE_COUNTER:
             self.incrieseCounter(CounterTypes.SEQUENCE_COUNTER)
             return self.sequence
+        if counter_type is CounterTypes.UNIQ_NAMES_COUNTER:
+            return self.uniq_names_counter 
 
     def countersDeinit(self):
         self.module_counter = 1
@@ -132,3 +140,4 @@ class Counters:
         self.loop_counter = 1
         self.cond_counter = 1
         self.sequence = 0
+        self.uniq_names_counter  = 1

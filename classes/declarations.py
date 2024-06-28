@@ -1,6 +1,7 @@
 from typing import Tuple, List
 from enum import Enum, auto
 from classes.basic import Basic, BasicArray
+from classes.element_types import ElementsTypes
 from utils.string_formating import replaceParametrsCalls
 from utils.utils import extractVectorSize, vectorSize2AplanVectorSize
 
@@ -26,16 +27,15 @@ class Declaration(Basic):
         self,
         data_type: DeclTypes,
         identifier: str,
-        unique_identifier:str,
         expression: str,
         size_expression: str,
         size: int,
         dimension_expression: str,
         dimension_size: int,
         source_interval: Tuple[int, int],
+        element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT,
     ):
         super().__init__(identifier, source_interval)
-        self.unique_identifier = unique_identifier
         self.data_type = data_type
         self.expression = expression
         self.size = size
@@ -67,9 +67,24 @@ class DeclarationArray(BasicArray):
     def __init__(self):
         super().__init__(Declaration)
 
+    def findElementWithSource(
+        self,
+        identifier: str,
+        source_interval: Tuple[int, int],
+    ):
+        for element in self.elements:
+            if (
+                element.identifier == identifier
+                or element.source_interval == source_interval
+            ):
+                return element
+        return None
+
     def addElement(self, new_element: Declaration):
         if isinstance(new_element, self.element_type):
-            is_uniq_element = self.findElement(new_element.identifier)
+            is_uniq_element = self.findElementWithSource(
+                new_element.identifier, new_element.source_interval
+            )
             if is_uniq_element is not None:
                 return (False, self.getElementIndex(is_uniq_element.identifier))
 

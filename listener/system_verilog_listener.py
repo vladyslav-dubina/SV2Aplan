@@ -1,5 +1,9 @@
 from antlr4_verilog.systemverilog import SystemVerilogParserListener
+from translator.declarations.ansi_port_declaration import ansiPortDeclaration2Aplan
 from translator.declarations.data_declaration import dataDecaration2Aplan
+from translator.declarations.genvar_declaration import genvarDeclaration2Aplan
+from translator.declarations.module_declaration import moduleDeclaration2Aplan
+from translator.declarations.net_declaration import netDeclaration2Aplan
 from translator.system_verilog_to_aplan import (
     SV2aplan,
 )
@@ -35,22 +39,19 @@ class SVListener(SystemVerilogParserListener):
         self.module_call: ModuleCall | None = module_call
 
     def enterModule_declaration(self, ctx):
-        if ctx.module_ansi_header() is not None:
-            identifier = ctx.module_ansi_header().module_identifier().getText()
-            local_module_call: ModuleCall = None
-            uniq_name = identifier
-            if self.module_call is not None:
-                local_module_call = self.module_call
-            else:
-                local_module_call = self.program.module_calls.findElement(identifier)
-            if local_module_call is not None:
-                if identifier == local_module_call.identifier:
-                    identifier = local_module_call.identifier
-                    uniq_name = local_module_call.object_name
-            index = self.program.modules.addElement(
-                Module(identifier, ctx.getSourceInterval(), uniq_name)
-            )
-            self.module = self.program.modules.getElementByIndex(index)
+        self.module = moduleDeclaration2Aplan(ctx, self.program, self.module_call)
+
+    def exitGenvar_declaration(self, ctx):
+        genvarDeclaration2Aplan(ctx, self.module)
+
+    def exitData_declaration(self, ctx):
+        dataDecaration2Aplan(ctx, self.module, True)
+
+    def exitNet_declaration(self, ctx):
+        netDeclaration2Aplan(ctx, self.module)
+
+    def exitAnsi_port_declaration(self, ctx):
+        ansiPortDeclaration2Aplan(ctx, self.module)
 
     def exitParam_assignment(self, ctx):
         identifier = ctx.parameter_identifier().getText()
@@ -77,135 +78,6 @@ class SVListener(SystemVerilogParserListener):
             if source_parametr is not None:
                 parametr = self.module.parametrs.getElementByIndex(parametr_index)
                 parametr.value = source_parametr.value
-
-    def exitGenvar_declaration(self, ctx):
-        assign_name = ""
-        for element in ctx.list_of_genvar_identifiers().genvar_identifier():
-            identifier = element.identifier().getText()
-            self.module.declarations.addElement(
-                Declaration(
-                    DeclTypes.INT,
-                    identifier,
-                    identifier,
-                    assign_name,
-                    "",
-                    0,
-                    "",
-                    0,
-                    ctx.getSourceInterval(),
-                )
-            )
-
-    def exitData_declaration(self, ctx):
-        dataDecaration2Aplan(ctx, self.module, True)
-
-    def exitNet_declaration(self, ctx):
-        data_type = ctx.data_type_or_implicit()
-
-        unpacked_dimention = ctx.unpacked_dimension(0)
-        dimension_size = 0
-        dimension_size_expression = ""
-        if unpacked_dimention is not None:
-            dimension = unpacked_dimention.getText()
-            dimension_size_expression = dimension
-            dimension = replaceParametrsCalls(self.module.parametrs, dimension)
-            dimension_size = extractDimentionSize(dimension)
-
-        aplan_vector_size = [0]
-        size_expression = ""
-        if data_type:
-            size_expression = data_type.getText()
-            data_type = replaceParametrsCalls(
-                self.module.parametrs, data_type.getText()
-            )
-            vector_size = extractVectorSize(data_type)
-            if vector_size is not None:
-                aplan_vector_size = vectorSize2AplanVectorSize(
-                    vector_size[0], vector_size[1]
-                )
-
-        if ctx.net_type().getText() == "wire":
-            for elem in ctx.list_of_net_decl_assignments().net_decl_assignment():
-                identifier = elem.net_identifier().identifier().getText()
-                assign_name = ""
-                decl_unique, decl_index = self.module.declarations.addElement(
-                    Declaration(
-                        DeclTypes.WIRE,
-                        identifier,
-                        identifier,
-                        assign_name,
-                        size_expression,
-                        aplan_vector_size[0],
-                        dimension_size_expression,
-                        dimension_size,
-                        ctx.getSourceInterval(),
-                    )
-                )
-
-                if elem.expression():
-                    expression = elem.expression().getText()
-                    if expression:
-                        sv2aplan = SV2aplan(self.module)
-                        assign_name = sv2aplan.declaration2Aplan(elem)
-                        declaration = self.module.declarations.getElementByIndex(
-                            decl_index
-                        )
-                        declaration.expression = assign_name
-
-    def exitAnsi_port_declaration(self, ctx):
-        header = ctx.net_port_header().getText()
-        unpacked_dimention = ctx.unpacked_dimension(0)
-        dimension_size = 0
-        dimension_size_expression = ""
-        if unpacked_dimention is not None:
-            dimension = unpacked_dimention.getText()
-            dimension_size_expression = dimension
-            dimension = replaceParametrsCalls(self.module.parametrs, dimension)
-            dimension_size = extractDimentionSize(dimension)
-
-        data_type = DeclTypes.INPORT
-        index = header.find("output")
-        if index != -1:
-            data_type = DeclTypes.OUTPORT
-
-        index = header.find("input")
-        if index != -1:
-            data_type = DeclTypes.INPORT
-
-        size_expression = header
-        header = replaceParametrsCalls(self.module.parametrs, header)
-        vector_size = extractVectorSize(header)
-        aplan_vector_size = [0]
-
-        if vector_size is not None:
-            aplan_vector_size = vectorSize2AplanVectorSize(
-                vector_size[0], vector_size[1]
-            )
-
-        assign_name = ""
-        identifier = ctx.port_identifier().getText()
-        port = Declaration(
-            data_type,
-            identifier,
-            identifier,
-            assign_name,
-            size_expression,
-            aplan_vector_size[0],
-            dimension_size_expression,
-            dimension_size,
-            ctx.getSourceInterval(),
-        )
-        decl_unique, decl_index = self.module.declarations.addElement(port)
-
-        constant_expression = ctx.constant_expression()
-        if constant_expression is not None:
-            expression = constant_expression.getText()
-            sv2aplan = SV2aplan(self.module)
-            assign_name, source_interval = sv2aplan.expression2Aplan(
-                expression, ElementsTypes.ASSIGN_ELEMENT, ctx.getSourceInterval()
-            )
-            declaration = self.module.declarations.getElementByIndex(decl_index)
-            declaration.expression = assign_name
 
     def enterLoop_generate_construct(self, ctx):
         sv2aplan = SV2aplan(self.module)
