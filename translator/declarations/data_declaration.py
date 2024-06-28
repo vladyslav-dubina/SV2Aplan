@@ -1,8 +1,8 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
-from classes.module import Module
 from classes.name_change import NameChange
+from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replaceParametrsCalls
 from utils.utils import (
@@ -14,10 +14,11 @@ from utils.utils import (
 )
 
 
-def dataDecaration2Aplan(
+def dataDecaration2AplanImpl(
+    self: SV2aplan,
     ctx: SystemVerilogParser.Data_declarationContext,
-    module: Module,
     listener: bool,
+    sv_structure: Structure | None = None,
     name_space: ElementsTypes = ElementsTypes.NONE_ELEMENT,
 ):
     data_type = ctx.data_type_or_implicit().getText()
@@ -25,7 +26,7 @@ def dataDecaration2Aplan(
         data_check_type = DeclTypes.checkType(data_type)
         aplan_vector_size = [0]
         size_expression = data_type
-        data_type = replaceParametrsCalls(module.parametrs, data_type)
+        data_type = replaceParametrsCalls(self.module.parametrs, data_type)
         vector_size = extractVectorSize(data_type)
         if vector_size is not None:
             aplan_vector_size = vectorSize2AplanVectorSize(
@@ -46,11 +47,11 @@ def dataDecaration2Aplan(
             if unpacked_dimention is not None:
                 dimension = unpacked_dimention.getText()
                 dimension_size_expression = dimension
-                dimension = replaceParametrsCalls(module.parametrs, dimension)
+                dimension = replaceParametrsCalls(self.module.parametrs, dimension)
                 dimension_size = extractDimentionSize(dimension)
 
             assign_name = ""
-            decl_unique, decl_index = module.declarations.addElement(
+            decl_unique, decl_index = self.module.declarations.addElement(
                 Declaration(
                     data_check_type,
                     identifier,
@@ -62,25 +63,36 @@ def dataDecaration2Aplan(
                     elem.getSourceInterval(),
                 )
             )
+
             if listener == False:
-                module.name_change.addElement(
+                self.module.name_change.addElement(
                     NameChange(identifier, ctx.getSourceInterval(), original_identifier)
                 )
 
             if elem.expression() is not None:
                 expression = elem.expression().getText()
-                sv2aplan = SV2aplan(module)
-                assign_name, source_interval = sv2aplan.expression2Aplan(
-                    elem.getText(),
-                    ElementsTypes.ASSIGN_ELEMENT,
-                    elem.getSourceInterval(),
-                )
                 if listener == False:
-                    return assign_name
+                    if sv_structure is not None:
+                        beh_index = sv_structure.getLastBehaviorIndex()
+                        assign_name, source_interval = self.expression2Aplan(
+                            elem.getText(),
+                            ElementsTypes.ASSIGN_ELEMENT,
+                            elem.getSourceInterval(),
+                        )
+                        if beh_index is not None and assign_name is not None:
+                            sv_structure.behavior[beh_index].addBody(
+                                (assign_name, ElementsTypes.ACTION_ELEMENT)
+                            )
                 else:
                     if decl_unique:
-                        declaration = module.declarations.getElementByIndex(decl_index)
+                        assign_name, source_interval = self.expression2Aplan(
+                            elem.getText(),
+                            ElementsTypes.ASSIGN_ELEMENT,
+                            elem.getSourceInterval(),
+                        )
+                        declaration = self.module.declarations.getElementByIndex(
+                            decl_index
+                        )
                         declaration.expression = assign_name
 
-            if listener == False:
-                module.name_change.deleteElement(identifier)
+        return identifier

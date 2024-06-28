@@ -13,7 +13,7 @@ always_comb begin
    do begin
       assign patch_match[h] = (si_addr_i == ctl_pat_addr_i[h]) & ctl_pat_pen_i[h];
       h++;
-   end while (h < 8)
+   end while (h < 8);
 end
 
 endmodule

@@ -1,7 +1,7 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
-from classes.declarations import Declaration, DeclTypes
 from classes.actions import Action
+from classes.module_call import ModuleCall
 from classes.structure import Structure
 from classes.protocols import Protocol
 from classes.always import Always
@@ -9,7 +9,7 @@ from classes.module import Module
 from classes.processed import ProcessedElement
 from classes.element_types import ElementsTypes
 from classes.counters import CounterTypes
-from classes.name_change import NameChange
+from program.program import Program
 from utils.string_formating import (
     addSpacesAroundOperators,
     valuesToAplanStandart,
@@ -23,13 +23,9 @@ from utils.string_formating import (
     replaceParametrsCalls,
     addEqueToBGET,
     replace_cpp_operators,
-    replaceArrayIndexing,
 )
 from utils.utils import (
     removeTypeFromForInit,
-    extractVectorSize,
-    extractDimentionSize,
-    vectorSize2AplanVectorSize,
     Counters_Object,
     printWithColor,
     Color,
@@ -43,7 +39,6 @@ class SV2aplan:
 
     def __init__(self, module: Module):
         self.module = module
-        self.actionList = []
 
     def extractSensetive(self, ctx):
         res = ""
@@ -97,6 +92,101 @@ class SV2aplan:
             self.module.parametrs, expression_with_replaced_names
         )
         return (expression, expression_with_replaced_names)
+
+    # ---------------------------------------------------------------------------------
+    def netAssignment2Aplan(self, ctx: SystemVerilogParser.Net_assignmentContext):
+        from translator.assignments.net_assignment import netAssignment2AplanImpl
+
+        netAssignment2AplanImpl(self, ctx)
+
+    # ---------------------------------------------------------------------------------
+    def paramAssignment2Aplan(
+        self, ctx: SystemVerilogParser.Param_assignmentContext, module_call: ModuleCall
+    ):
+        from translator.assignments.param_assignment import paramAssignment2AplanImpl
+
+        paramAssignment2AplanImpl(self, ctx, module_call)
+
+    # ---------------------------------------------------------------------------------
+    def blockAssignment2Aplan(
+        self,
+        ctx: (
+            SystemVerilogParser.Variable_decl_assignmentContext
+            | SystemVerilogParser.Nonblocking_assignmentContext
+            | SystemVerilogParser.Net_assignmentContext
+            | SystemVerilogParser.Variable_assignmentContext
+        ),
+        sv_structure: Structure,
+    ):
+        from translator.assignments.in_block_assignments import (
+            blockAssignment2AplanImpl,
+        )
+
+        blockAssignment2AplanImpl(self, ctx, self.module, sv_structure)
+
+    # ---------------------------------------------------------------------------------
+
+    # =============================DECLARATIONS========================================
+    def genvarDeclaration2Aplan(
+        self, ctx: SystemVerilogParser.Genvar_declarationContext
+    ):
+        from translator.declarations.genvar_declaration import (
+            genvarDeclaration2AplanImpl,
+        )
+
+        genvarDeclaration2AplanImpl(self, ctx)
+
+    # ---------------------------------------------------------------------------------
+    def ansiPortDeclaration2Aplan(
+        self, ctx: SystemVerilogParser.Ansi_port_declarationContext
+    ):
+        from translator.declarations.ansi_port_declaration import (
+            ansiPortDeclaration2AplanImpl,
+        )
+
+        ansiPortDeclaration2AplanImpl(self, ctx)
+
+    # ---------------------------------------------------------------------------------
+    def dataDecaration2Aplan(
+        self,
+        ctx: SystemVerilogParser.Data_declarationContext,
+        listener: bool,
+        sv_structure: Structure | None = None,
+        name_space: ElementsTypes = ElementsTypes.NONE_ELEMENT,
+    ):
+        from translator.declarations.data_declaration import dataDecaration2AplanImpl
+
+        return dataDecaration2AplanImpl(self, ctx, listener, sv_structure, name_space)
+
+    # ---------------------------------------------------------------------------------
+    def netDeclaration2Aplan(self, ctx: SystemVerilogParser.Net_declarationContext):
+        from translator.declarations.net_declaration import (
+            netDeclaration2AplanImpl,
+        )
+
+        netDeclaration2AplanImpl(self, ctx)
+
+    # ---------------------------------------------------------------------------------
+
+    def forInitializationToApan(self, ctx: SystemVerilogParser.Net_declarationContext):
+        from translator.declarations.for_declaration import (
+            forInitializationToApanImpl,
+        )
+
+        return forInitializationToApanImpl(self, ctx)
+
+    # ---------------------------------------------------------------------------------
+
+    def forDeclarationToApan(self, ctx: SystemVerilogParser.Net_declarationContext):
+        from translator.declarations.for_declaration import (
+            forDeclarationToApanImpl,
+        )
+
+        forDeclarationToApanImpl(self, ctx)
+
+    # ---------------------------------------------------------------------------------
+
+    # ===================================================================================
 
     def moduleCall2Aplan(
         self,
@@ -225,7 +315,6 @@ class SV2aplan:
         Counters_Object.incrieseCounter(counter_type)
         return (action_name, source_interval)
 
-    
     def loop2Aplan(
         self,
         ctx: (
@@ -251,8 +340,9 @@ class SV2aplan:
             if for_inc_ctx is None:
                 loop_inс_flag = False
             if for_initialization_ctx is not None:
-                from translator.declarations.for_declaration import forInitializationToApan
-                for_decl_identifier = forInitializationToApan(for_initialization_ctx, self.module)
+                for_decl_identifier = self.forInitializationToApan(
+                    for_initialization_ctx
+                )
             else:
                 loop_init_flag = False
 
@@ -386,22 +476,24 @@ class SV2aplan:
                 Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
             )
         )
-
+        names_for_change = [for_decl_identifier]
         if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
-            self.body2Aplan(
+            names_for_change += self.body2Aplan(
                 ctx.generate_block(), sv_structure, ElementsTypes.LOOP_ELEMENT
             )
         elif type(ctx) is SystemVerilogParser.Loop_statementContext:
-            self.body2Aplan(
+            names_for_change += self.body2Aplan(
                 ctx.statement_or_null(), sv_structure, ElementsTypes.LOOP_ELEMENT
             )
 
         Counters_Object.incrieseCounter(CounterTypes.LOOP_COUNTER)
-        self.module.name_change.deleteElement(for_decl_identifier)
+        for element in names_for_change:
+            self.module.name_change.deleteElement(element)
 
     def body2Aplan(self, ctx, sv_structure: Structure, name_space: ElementsTypes):
+        names_for_change = []
         if ctx.getChildCount() == 0:
-            return
+            return names_for_change
         for child in ctx.getChildren():
             # Assert handler
             if (
@@ -428,6 +520,7 @@ class SV2aplan:
                     sv_structure.behavior[beh_index - 1].addBody(
                         (assert_b, ElementsTypes.PROTOCOL_ELEMENT)
                     )
+            # ---------------------------------------------------------------------------
             # Assign handler
             elif (
                 type(child) is SystemVerilogParser.Variable_decl_assignmentContext
@@ -435,75 +528,25 @@ class SV2aplan:
                 or type(child) is SystemVerilogParser.Net_assignmentContext
                 or type(child) is SystemVerilogParser.Variable_assignmentContext
             ):
-                action_name, source_interval = self.expression2Aplan(
-                    child.getText(),
-                    ElementsTypes.ASSIGN_ELEMENT,
-                    child.getSourceInterval(),
-                )
-                beh_index = sv_structure.getLastBehaviorIndex()
-
-                if type(child) is SystemVerilogParser.Nonblocking_assignmentContext:
-                    action_name = "Sensetive(" + action_name + ")"
-                if beh_index is not None:
-                    sv_structure.behavior[beh_index].addBody(
-                        (action_name, ElementsTypes.ACTION_ELEMENT)
-                    )
-                else:
-                    Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-                    b_index = sv_structure.addProtocol(
-                        "B_{}".format(
-                            Counters_Object.getCounter(CounterTypes.B_COUNTER)
-                        )
-                    )
-                    sv_structure.behavior[b_index].addBody(
-                        (action_name, ElementsTypes.ACTION_ELEMENT)
-                    )
+                self.blockAssignment2Aplan(child, sv_structure)
+            # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.For_variable_declarationContext:
-                assign_name = ""
-                data_type = ctx.data_type().getText()
-                size_expression = data_type
-                sv2aplan = SV2aplan(self.module)
-                if ctx.expression(0) is not None:
-                    action_txt = f"{ctx.variable_identifier(0).getText()}={ctx.expression(0).getText()}"
-                    assign_name, source_interval = sv2aplan.expression2Aplan(
-                        action_txt,
-                        ElementsTypes.ASSIGN_ELEMENT,
-                        ctx.getSourceInterval(),
-                    )
-                data_type = DeclTypes.checkType(data_type)
-                identifier = ctx.variable_identifier(0).getText()
-                self.module.declarations.addElement(
-                    Declaration(
-                        data_type,
-                        identifier,
-                        assign_name,
-                        size_expression,
-                        0,
-                        "",
-                        0,
-                        ctx.getSourceInterval(),
-                    )
-                )
+                self.forDeclarationToApan(child)
+            # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Data_declarationContext:
-                from translator.declarations.data_declaration import (
-                    dataDecaration2Aplan,
-                )
-
                 data_type = child.data_type_or_implicit().getText()
                 if len(data_type) > 0:
-                    action_name = dataDecaration2Aplan(
-                        child, self.module, False, name_space
+                    identifier = self.dataDecaration2Aplan(
+                        child, False, sv_structure, name_space
                     )
-
-                    beh_index = sv_structure.getLastBehaviorIndex()
-                    if beh_index is not None and action_name is not None:
-                        sv_structure.behavior[beh_index].addBody(
-                            (action_name, ElementsTypes.ACTION_ELEMENT)
-                        )
+                    if identifier is not None:
+                        names_for_change.append(identifier)
                 else:
-                    self.body2Aplan(child, sv_structure, name_space)
+                    names_for_change += self.body2Aplan(child, sv_structure, name_space)
+            # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Loop_statementContext:
                 self.loop2Aplan(child, sv_structure)
+            # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Conditional_statementContext:
                 predicate = child.cond_predicate()
                 statements = child.statement_or_null()
@@ -630,20 +673,24 @@ class SV2aplan:
                     )
                     Counters_Object.incrieseCounter(CounterTypes.BODY_COUNTER)
                     if index == 0:
-                        self.body2Aplan(
+                        names_for_change += self.body2Aplan(
                             element["statement"],
                             sv_structure,
                             ElementsTypes.IF_STATEMENT_ELEMENT,
                         )
                     else:
-                        self.body2Aplan(
+                        names_for_change += self.body2Aplan(
                             element["statement"],
                             sv_structure,
                             ElementsTypes.ELSE_BODY_ELEMENT,
                         )
-
+                    for element in names_for_change:
+                        self.module.name_change.deleteElement(element)
+            # ---------------------------------------------------------------------------
             else:
-                self.body2Aplan(child, sv_structure, name_space)
+                names_for_change += self.body2Aplan(child, sv_structure, name_space)
+
+        return names_for_change
 
     def replaceGenvarToValue(self, expression: str, genvar: str, value: int):
         expression = re.sub(
@@ -756,9 +803,9 @@ class SV2aplan:
             ctx.getSourceInterval(),
         )
         always.addProtocol(always_name)
-        # always.addProtocol(always_name)
-        self.body2Aplan(always_body, always, ElementsTypes.ALWAYS_ELEMENT)
+        names_for_change = self.body2Aplan(
+            always_body, always, ElementsTypes.ALWAYS_ELEMENT
+        )
+        for element in names_for_change:
+            self.module.name_change.deleteElement(element)
         self.module.structures.addElement(always)
-
-        return
-

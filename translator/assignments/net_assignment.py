@@ -7,12 +7,13 @@ from translator.system_verilog_to_aplan import SV2aplan
 from utils.utils import Counters_Object
 
 
-def netAssignment2Aplan(ctx: SystemVerilogParser.Net_assignmentContext, module: Module):
-    sv2aplan = SV2aplan(module)
-    if not module.processed_elements.isInProcessedElementAlready(
+def netAssignment2AplanImpl(
+    self: SV2aplan, ctx: SystemVerilogParser.Net_assignmentContext
+):
+    if not self.module.processed_elements.isInProcessedElementAlready(
         ctx.getSourceInterval()
     ):
-        assign_name, source_interval = sv2aplan.expression2Aplan(
+        assign_name, source_interval = self.expression2Aplan(
             ctx.getText(), ElementsTypes.ASSIGN_ELEMENT, ctx.getSourceInterval()
         )
         if source_interval != ctx.getSourceInterval():
@@ -27,4 +28,4 @@ def netAssignment2Aplan(ctx: SystemVerilogParser.Net_assignmentContext, module: 
             )
             assign_name = f"Sensetive({assign_name})"
             struct_assign.addBody((assign_name, ElementsTypes.ACTION_ELEMENT))
-            module.out_of_block_elements.addElement(struct_assign)
+            self.module.out_of_block_elements.addElement(struct_assign)

@@ -1,32 +1,19 @@
 from antlr4_verilog.systemverilog import SystemVerilogParserListener
-from translator.assignments.net_assignment import netAssignment2Aplan
-from translator.assignments.param_assignment import paramAssignment2Aplan
-from translator.declarations.ansi_port_declaration import ansiPortDeclaration2Aplan
-from translator.declarations.data_declaration import dataDecaration2Aplan
-from translator.declarations.genvar_declaration import genvarDeclaration2Aplan
 from translator.declarations.module_declaration import moduleDeclaration2Aplan
-from translator.declarations.net_declaration import netDeclaration2Aplan
 from translator.system_verilog_to_aplan import (
     SV2aplan,
 )
-from classes.declarations import Declaration, DeclTypes
 from classes.protocols import Protocol
 from classes.element_types import ElementsTypes
 from classes.module import Module
 from classes.counters import CounterTypes
-from classes.parametrs import Parametr
 from classes.module import Module
 from classes.module_call import ModuleCall
 from utils.string_formating import (
-    replaceParametrsCalls,
     replace_filename,
 )
 from utils.utils import (
     Counters_Object,
-    extractVectorSize,
-    vectorSize2AplanVectorSize,
-    is_numeric_string,
-    extractDimentionSize,
 )
 
 
@@ -38,42 +25,41 @@ class SVListener(SystemVerilogParserListener):
 
         self.module: Module = None
         self.program: Program = program
+        self.sv2aplan: SV2aplan = SV2aplan(None)
         self.module_call: ModuleCall | None = module_call
 
     def enterModule_declaration(self, ctx):
         self.module = moduleDeclaration2Aplan(ctx, self.program, self.module_call)
+        self.sv2aplan = SV2aplan(self.module)
 
     def exitGenvar_declaration(self, ctx):
-        genvarDeclaration2Aplan(ctx, self.module)
+        self.sv2aplan.genvarDeclaration2Aplan(ctx)
 
     def exitData_declaration(self, ctx):
-        dataDecaration2Aplan(ctx, self.module, True)
+        self.sv2aplan.dataDecaration2Aplan(ctx, True)
 
     def exitNet_declaration(self, ctx):
-        netDeclaration2Aplan(ctx, self.module)
+        self.sv2aplan.netDeclaration2Aplan(ctx)
 
     def exitAnsi_port_declaration(self, ctx):
-        ansiPortDeclaration2Aplan(ctx, self.module)
+        self.sv2aplan.ansiPortDeclaration2Aplan(ctx)
 
     def exitNet_assignment(self, ctx):
-        netAssignment2Aplan(ctx, self.module)
+        self.sv2aplan.netAssignment2Aplan(ctx)
 
     def exitParam_assignment(self, ctx):
-        paramAssignment2Aplan(ctx, self.module, self.module_call)
+        self.sv2aplan.paramAssignment2Aplan(ctx, self.module_call)
 
     def enterLoop_generate_construct(self, ctx):
-        sv2aplan = SV2aplan(self.module)
-        sv2aplan.generate2Aplan(ctx)
+        self.sv2aplan.generate2Aplan(ctx)
 
     def enterAlways_construct(self, ctx):
-        sv2aplan = SV2aplan(self.module)
-        sv2aplan.always2Aplan(ctx)
+        self.sv2aplan.always2Aplan(ctx)
 
     def exitAssert_property_statement(self, ctx):
         expression = ctx.property_spec()
         if expression is not None:
-            sv2aplan = SV2aplan(self.module)
-            assert_name, source_interval = sv2aplan.expression2Aplan(
+            assert_name, source_interval = self.sv2aplan.expression2Aplan(
                 expression.getText(),
                 ElementsTypes.ASSERT_ELEMENT,
                 ctx.getSourceInterval(),
@@ -136,8 +122,7 @@ class SVListener(SystemVerilogParserListener):
             self.program.module_calls.addElement(module_call)
 
         self.program.file_path = previous_file_path
-        sv2aplan = SV2aplan(self.module)
-        sv2aplan.moduleCall2Aplan(ctx, call_module_name)
+        self.sv2aplan.moduleCall2Aplan(ctx, call_module_name)
         Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
         call_b = "MODULE_CALL_B_{}".format(
             Counters_Object.getCounter(CounterTypes.B_COUNTER)
