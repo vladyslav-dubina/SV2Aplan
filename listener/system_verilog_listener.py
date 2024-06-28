@@ -1,4 +1,6 @@
 from antlr4_verilog.systemverilog import SystemVerilogParserListener
+from translator.assignments.net_assignment import netAssignment2Aplan
+from translator.assignments.param_assignment import paramAssignment2Aplan
 from translator.declarations.ansi_port_declaration import ansiPortDeclaration2Aplan
 from translator.declarations.data_declaration import dataDecaration2Aplan
 from translator.declarations.genvar_declaration import genvarDeclaration2Aplan
@@ -53,31 +55,11 @@ class SVListener(SystemVerilogParserListener):
     def exitAnsi_port_declaration(self, ctx):
         ansiPortDeclaration2Aplan(ctx, self.module)
 
+    def exitNet_assignment(self, ctx):
+        netAssignment2Aplan(ctx, self.module)
+
     def exitParam_assignment(self, ctx):
-        identifier = ctx.parameter_identifier().getText()
-        expression = ctx.constant_param_expression()
-        expression_str = ""
-        value = 0
-        if expression is not None:
-            numeric_string = is_numeric_string(expression.getText())
-            if numeric_string is None:
-                expression_str = expression.getText()
-            else:
-                value = numeric_string
-        parametr_index = self.module.parametrs.addElement(
-            Parametr(
-                identifier,
-                ctx.getSourceInterval(),
-                value,
-                expression_str,
-            )
-        )
-        self.module.parametrs.evaluateParametrExpressionByIndex(parametr_index)
-        if self.module_call is not None:
-            source_parametr = self.module_call.paramets.findElement(identifier)
-            if source_parametr is not None:
-                parametr = self.module.parametrs.getElementByIndex(parametr_index)
-                parametr.value = source_parametr.value
+        paramAssignment2Aplan(ctx, self.module, self.module_call)
 
     def enterLoop_generate_construct(self, ctx):
         sv2aplan = SV2aplan(self.module)
@@ -108,28 +90,6 @@ class SVListener(SystemVerilogParserListener):
                 ("{0}.Delta + !{0}.0".format(assert_name), ElementsTypes.ACTION_ELEMENT)
             )
             self.module.out_of_block_elements.addElement(struct_assert)
-
-    def exitNet_assignment(self, ctx):
-        sv2aplan = SV2aplan(self.module)
-        if not self.module.processed_elements.isInProcessedElementAlready(
-            ctx.getSourceInterval()
-        ):
-            assign_name, source_interval = sv2aplan.expression2Aplan(
-                ctx.getText(), ElementsTypes.ASSIGN_ELEMENT, ctx.getSourceInterval()
-            )
-            if source_interval != ctx.getSourceInterval():
-                Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-                assign_b = "ASSIGN_B_{}".format(
-                    Counters_Object.getCounter(CounterTypes.B_COUNTER)
-                )
-                struct_assign = Protocol(
-                    assign_b,
-                    ctx.getSourceInterval(),
-                    ElementsTypes.ASSIGN_OUT_OF_BLOCK_ELEMENT,
-                )
-                assign_name = f"Sensetive({assign_name})"
-                struct_assign.addBody((assign_name, ElementsTypes.ACTION_ELEMENT))
-                self.module.out_of_block_elements.addElement(struct_assign)
 
     def exitModule_instantiation(self, ctx):
         from translator.translator import SystemVerilogFinder
