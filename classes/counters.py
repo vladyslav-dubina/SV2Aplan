@@ -1,5 +1,7 @@
 from enum import Enum, auto
 
+from classes.element_types import ElementsTypes
+
 
 class CounterTypes(Enum):
     ASSIGNMENT_COUNTER = auto()
@@ -29,6 +31,21 @@ class Counters:
         self.loop_counter = 1
         self.cond_counter = 1
         self.sequence = 0
+        
+    def selectCounter(self, element_type: ElementsTypes):
+        if element_type is ElementsTypes.ASSIGN_ELEMENT:
+            return CounterTypes.ASSIGNMENT_COUNTER
+        if element_type is ElementsTypes.IF_STATEMENT_ELEMENT:
+            return CounterTypes.IF_COUNTER
+        if element_type is ElementsTypes.ALWAYS_ELEMENT:
+            return CounterTypes.ALWAYS_COUNTER
+        if element_type is ElementsTypes.ASSERT_ELEMENT:
+            return CounterTypes.ASSERT_COUNTER
+        if element_type is ElementsTypes.ELSE_BODY_ELEMENT:
+            return CounterTypes.ELSE_BODY_COUNTER
+        if element_type is ElementsTypes.LOOP_ELEMENT:
+            return CounterTypes.LOOP_COUNTER
+        return CounterTypes.NONE_COUNTER
 
     def incrieseCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:

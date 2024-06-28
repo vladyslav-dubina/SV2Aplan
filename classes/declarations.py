@@ -26,6 +26,7 @@ class Declaration(Basic):
         self,
         data_type: DeclTypes,
         identifier: str,
+        unique_identifier:str,
         expression: str,
         size_expression: str,
         size: int,
@@ -34,6 +35,7 @@ class Declaration(Basic):
         source_interval: Tuple[int, int],
     ):
         super().__init__(identifier, source_interval)
+        self.unique_identifier = unique_identifier
         self.data_type = data_type
         self.expression = expression
         self.size = size

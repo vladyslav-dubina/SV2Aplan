@@ -86,6 +86,7 @@ class SVListener(SystemVerilogParserListener):
                 Declaration(
                     DeclTypes.INT,
                     identifier,
+                    identifier,
                     assign_name,
                     "",
                     0,
@@ -127,9 +128,10 @@ class SVListener(SystemVerilogParserListener):
             for elem in ctx.list_of_net_decl_assignments().net_decl_assignment():
                 identifier = elem.net_identifier().identifier().getText()
                 assign_name = ""
-                decl_unic, decl_index = self.module.declarations.addElement(
+                decl_unique, decl_index = self.module.declarations.addElement(
                     Declaration(
                         DeclTypes.WIRE,
+                        identifier,
                         identifier,
                         assign_name,
                         size_expression,
@@ -181,10 +183,11 @@ class SVListener(SystemVerilogParserListener):
             )
 
         assign_name = ""
-
+        identifier = ctx.port_identifier().getText()
         port = Declaration(
             data_type,
-            ctx.port_identifier().getText(),
+            identifier,
+            identifier,
             assign_name,
             size_expression,
             aplan_vector_size[0],
@@ -192,7 +195,7 @@ class SVListener(SystemVerilogParserListener):
             dimension_size,
             ctx.getSourceInterval(),
         )
-        decl_unic, decl_index = self.module.declarations.addElement(port)
+        decl_unique, decl_index = self.module.declarations.addElement(port)
 
         constant_expression = ctx.constant_expression()
         if constant_expression is not None:

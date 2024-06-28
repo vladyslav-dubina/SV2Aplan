@@ -238,9 +238,10 @@ class SV2aplan:
             data_type = expression.data_type().getText()
             size_expression = data_type
             data_type = DeclTypes.checkType(data_type)
-            decl_unic, decl_index = self.module.declarations.addElement(
+            decl_unique, decl_index = self.module.declarations.addElement(
                 Declaration(
                     data_type,
+                    identifier,
                     identifier,
                     assign_name,
                     size_expression,
@@ -420,14 +421,18 @@ class SV2aplan:
         )
 
         if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
-            self.body2Aplan(ctx.generate_block(), sv_structure)
+            self.body2Aplan(
+                ctx.generate_block(), sv_structure, ElementsTypes.LOOP_ELEMENT
+            )
         elif type(ctx) is SystemVerilogParser.Loop_statementContext:
-            self.body2Aplan(ctx.statement_or_null(), sv_structure)
+            self.body2Aplan(
+                ctx.statement_or_null(), sv_structure, ElementsTypes.LOOP_ELEMENT
+            )
 
         Counters_Object.incrieseCounter(CounterTypes.LOOP_COUNTER)
         self.module.name_change.deleteElement(for_decl_identifier)
 
-    def body2Aplan(self, ctx, sv_structure: Structure):
+    def body2Aplan(self, ctx, sv_structure: Structure, name_space: ElementsTypes):
         if ctx.getChildCount() == 0:
             return
         for child in ctx.getChildren():
@@ -499,10 +504,12 @@ class SV2aplan:
                         ctx.getSourceInterval(),
                     )
                 data_type = DeclTypes.checkType(data_type)
+                identifier = ctx.variable_identifier(0).getText()
                 self.module.declarations.addElement(
                     Declaration(
                         data_type,
-                        ctx.variable_identifier(0).getText(),
+                        identifier,
+                        identifier,
                         assign_name,
                         size_expression,
                         0,
@@ -518,7 +525,9 @@ class SV2aplan:
 
                 data_type = child.data_type_or_implicit().getText()
                 if len(data_type) > 0:
-                    action_name = dataDecaration2Aplan(child, self.module, False)
+                    action_name = dataDecaration2Aplan(
+                        child, self.module, False, name_space
+                    )
 
                     beh_index = sv_structure.getLastBehaviorIndex()
                     if beh_index is not None and action_name is not None:
@@ -526,7 +535,7 @@ class SV2aplan:
                             (action_name, ElementsTypes.ACTION_ELEMENT)
                         )
                 else:
-                    self.body2Aplan(child, sv_structure)
+                    self.body2Aplan(child, sv_structure, name_space)
             elif type(child) is SystemVerilogParser.Loop_statementContext:
                 self.loop2Aplan(child, sv_structure)
             elif type(child) is SystemVerilogParser.Conditional_statementContext:
@@ -654,10 +663,21 @@ class SV2aplan:
                         )
                     )
                     Counters_Object.incrieseCounter(CounterTypes.BODY_COUNTER)
-                    self.body2Aplan(element["statement"], sv_structure)
+                    if index == 0:
+                        self.body2Aplan(
+                            element["statement"],
+                            sv_structure,
+                            ElementsTypes.IF_STATEMENT_ELEMENT,
+                        )
+                    else:
+                        self.body2Aplan(
+                            element["statement"],
+                            sv_structure,
+                            ElementsTypes.ELSE_BODY_ELEMENT,
+                        )
 
             else:
-                self.body2Aplan(child, sv_structure)
+                self.body2Aplan(child, sv_structure, name_space)
 
     def replaceGenvarToValue(self, expression: str, genvar: str, value: int):
         expression = re.sub(
@@ -771,7 +791,7 @@ class SV2aplan:
         )
         always.addProtocol(always_name)
         # always.addProtocol(always_name)
-        self.body2Aplan(always_body, always)
+        self.body2Aplan(always_body, always, ElementsTypes.ALWAYS_ELEMENT)
         self.module.structures.addElement(always)
 
         return

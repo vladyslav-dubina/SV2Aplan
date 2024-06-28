@@ -47,7 +47,7 @@ class Program:
         for module in self.modules.getElements():
             for elem in module.declarations.getInputPorts():
                 evt += "\ts_{0}:obj(x1:{1});\n".format(
-                    elem.identifier, elem.getAplanDecltype()
+                    elem.unique_identifier, elem.getAplanDecltype()
                 )
         evt += ");"
         self.writeToFile(self.path_to_result + "project.evt_descript", evt)
@@ -79,7 +79,7 @@ class Program:
             for index, elem in enumerate(decls):
                 if index > 0:
                     env += ",\n"
-                env += "\t\t\t{0}:{1}".format(elem.identifier, elem.getAplanDecltype())
+                env += "\t\t\t{0}:{1}".format(elem.unique_identifier, elem.getAplanDecltype())
                 if index + 1 == len(decls):
                     env += "\n"
 
