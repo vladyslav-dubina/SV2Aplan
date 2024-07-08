@@ -184,7 +184,6 @@ class SV2aplan:
 
         forDeclarationToApanImpl(self, ctx)
 
-    # ==================================================================================
     # ====================================CALLS=========================================
     def moduleCall2Apan(
         self,
@@ -197,7 +196,6 @@ class SV2aplan:
 
         moduleCall2AplanImpl(self, ctx, program)
 
-    # ==================================================================================
     # ===================================ASSERTS=======================================
     def assertPropertyStatement2Aplan(
         self, ctx: SystemVerilogParser.Assert_property_statementContext
