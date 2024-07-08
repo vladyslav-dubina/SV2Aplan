@@ -151,7 +151,7 @@ class Module(Basic):
                 init_protocol += "\n"
             result = init_protocol + result
 
-        b0 = f"B_{self.ident_uniq_name_upper} = ({init_protocol_part}{struct_part}{always_part}{main_protocol_part}),"
+        b0 = f"B_{self.ident_uniq_name_upper} = {{{init_protocol_part}{struct_part}{always_part}{main_protocol_part}}},"
         if main_flag or init_flag:
             b0 += "\n"
         result = b0 + result
@@ -165,6 +165,12 @@ class ModuleArray(BasicArray):
     def __init__(self):
         super().__init__(Module)
         self.module_instantiations: ModuleCallArray = ModuleCallArray()
+
+    def findModuleByUтiqIdentifier(self, ident_uniq_name: str):
+        for element in self.elements:
+            if element.ident_uniq_name == ident_uniq_name:
+                return element
+        return None
 
     def __repr__(self):
         return f"ModulesArray(\n{self.elements!r}\n)"

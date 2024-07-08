@@ -3,7 +3,6 @@ import time
 import traceback
 import sys
 import os
-import glob
 from utils.utils import (
     Color,
     format_time,

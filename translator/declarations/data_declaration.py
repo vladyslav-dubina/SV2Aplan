@@ -74,7 +74,11 @@ def dataDecaration2AplanImpl(
                 if listener == False:
                     if sv_structure is not None:
                         beh_index = sv_structure.getLastBehaviorIndex()
-                        assign_name, source_interval = self.expression2Aplan(
+                        (
+                            assign_name,
+                            source_interval,
+                            uniq_action,
+                        ) = self.expression2Aplan(
                             elem.getText(),
                             ElementsTypes.ASSIGN_ELEMENT,
                             elem.getSourceInterval(),
@@ -85,7 +89,11 @@ def dataDecaration2AplanImpl(
                             )
                 else:
                     if decl_unique:
-                        assign_name, source_interval = self.expression2Aplan(
+                        (
+                            assign_name,
+                            source_interval,
+                            uniq_action,
+                        ) = self.expression2Aplan(
                             elem.getText(),
                             ElementsTypes.ASSIGN_ELEMENT,
                             elem.getSourceInterval(),

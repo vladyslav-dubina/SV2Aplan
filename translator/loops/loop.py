@@ -76,14 +76,14 @@ def loop2AplanImpl(
     condition_name = ""
     if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
         condition = ctx.genvar_expression().getText()
-        condition_name, source_interval = self.expression2Aplan(
+        condition_name, source_interval, uniq_action = self.expression2Aplan(
             condition,
             ElementsTypes.CONDITION_ELEMENT,
             ctx.genvar_expression().getSourceInterval(),
         )
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
         condition = ctx.expression().getText()
-        condition_name, source_interval = self.expression2Aplan(
+        condition_name, source_interval, uniq_action = self.expression2Aplan(
             condition,
             ElementsTypes.CONDITION_ELEMENT,
             ctx.expression().getSourceInterval(),
@@ -104,7 +104,7 @@ def loop2AplanImpl(
     initialization = ""
     if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
         initialization = ctx.genvar_initialization().getText()
-        action_name, source_interval = self.expression2Aplan(
+        action_name, source_interval, uniq_action = self.expression2Aplan(
             initialization,
             ElementsTypes.ASSIGN_ELEMENT,
             ctx.genvar_initialization().getSourceInterval(),
@@ -113,7 +113,7 @@ def loop2AplanImpl(
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
         if loop_init_flag == True:
             initialization = removeTypeFromForInit(ctx.for_initialization())
-            action_name, source_interval = self.expression2Aplan(
+            action_name, source_interval, uniq_action = self.expression2Aplan(
                 initialization,
                 ElementsTypes.ASSIGN_ELEMENT,
                 ctx.for_initialization().getSourceInterval(),
@@ -133,7 +133,7 @@ def loop2AplanImpl(
     iteration = ""
     if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
         iteration = ctx.genvar_iteration().getText()
-        action_name, source_interval = self.expression2Aplan(
+        action_name, source_interval, uniq_action = self.expression2Aplan(
             iteration,
             ElementsTypes.ASSIGN_ELEMENT,
             ctx.genvar_iteration().getSourceInterval(),
@@ -141,7 +141,7 @@ def loop2AplanImpl(
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
         if loop_inс_flag == True:
             iteration = ctx.for_step().getText()
-            action_name, source_interval = self.expression2Aplan(
+            action_name, source_interval, uniq_action = self.expression2Aplan(
                 iteration,
                 ElementsTypes.ASSIGN_ELEMENT,
                 ctx.for_step().getSourceInterval(),

@@ -10,7 +10,7 @@ from utils.utils import Counters_Object
 def blockAssignment2AplanImpl(
     self: SV2aplan, ctx, module: Module, sv_structure: Structure
 ):
-    action_name, source_interval = self.expression2Aplan(
+    action_name, source_interval, uniq_action = self.expression2Aplan(
         ctx.getText(),
         ElementsTypes.ASSIGN_ELEMENT,
         ctx.getSourceInterval(),

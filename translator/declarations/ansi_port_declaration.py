@@ -58,7 +58,7 @@ def ansiPortDeclaration2AplanImpl(
     constant_expression = ctx.constant_expression()
     if constant_expression is not None:
         expression = constant_expression.getText()
-        assign_name, source_interval = self.expression2Aplan(
+        assign_name, source_interval, uniq_action = self.expression2Aplan(
             expression, ElementsTypes.ASSIGN_ELEMENT, ctx.getSourceInterval()
         )
         declaration = self.module.declarations.getElementByIndex(decl_index)

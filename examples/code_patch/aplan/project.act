@@ -5,45 +5,53 @@ assign_1 = (
 		(code_patch_wb_wrapper.bus_read = code_patch_wb_wrapper.wb_si_cyc_i & code_patch_wb_wrapper.wb_si_stb_i & !(code_patch_wb_wrapper.wb_si_we_i))),
 assign_20 = (
 		(1)->
-		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (core.si_addr_i = code_patch_wb_wrapper.wb_si_adr_i; core.si_data_o = code_patch_wb_wrapper.wb_si_dat_o; core.si_read_i = code_patch_wb_wrapper.bus_read; core.mi_addr_o = code_patch_wb_wrapper.wb_mi_adr_o; core.mi_data_i = code_patch_wb_wrapper.wb_mi_dat_i; core.cfg_pat_gen_i = code_patch_wb_wrapper.cfg_pat_gen_i; core.cfg_addr_or_data_i = code_patch_wb_wrapper.cfg_addr_or_data_i; core.ctl_pat_addr_i = code_patch_wb_wrapper.ctl_pat_addr_i; core.ctl_pat_data_i = code_patch_wb_wrapper.ctl_pat_data_i; core.ctl_pat_pen_i = code_patch_wb_wrapper.ctl_pat_pen_i; core.ctl_pat_nopg_i = code_patch_wb_wrapper.ctl_pat_nopg_i; core.nopg_o = code_patch_wb_wrapper.no_pg_gen_ack)';")
-		(core.si_addr_i = code_patch_wb_wrapper.wb_si_adr_i; core.si_data_o = code_patch_wb_wrapper.wb_si_dat_o; core.si_read_i = code_patch_wb_wrapper.bus_read; core.mi_addr_o = code_patch_wb_wrapper.wb_mi_adr_o; core.mi_data_i = code_patch_wb_wrapper.wb_mi_dat_i; core.cfg_pat_gen_i = code_patch_wb_wrapper.cfg_pat_gen_i; core.cfg_addr_or_data_i = code_patch_wb_wrapper.cfg_addr_or_data_i; core.ctl_pat_addr_i = code_patch_wb_wrapper.ctl_pat_addr_i; core.ctl_pat_data_i = code_patch_wb_wrapper.ctl_pat_data_i; core.ctl_pat_pen_i = code_patch_wb_wrapper.ctl_pat_pen_i; core.ctl_pat_nopg_i = code_patch_wb_wrapper.ctl_pat_nopg_i; core.nopg_o = code_patch_wb_wrapper.no_pg_gen_ack)),
-assign_21 = (
+		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (core.si_addr_i = code_patch_wb_wrapper.wb_si_adr_i; core.si_data_o = code_patch_wb_wrapper.wb_si_dat_o; core.si_read_i = code_patch_wb_wrapper.bus_read; core.mi_addr_o = code_patch_wb_wrapper.wb_mi_adr_o; core.mi_data_i = code_patch_wb_wrapper.wb_mi_dat_i; core.cfg_pat_gen_i = code_patch_wb_wrapper.cfg_pat_gen_i; core.cfg_addr_or_data_i = code_patch_wb_wrapper.cfg_addr_or_data_i; core.ctl_pat_pen_i = code_patch_wb_wrapper.ctl_pat_pen_i; core.ctl_pat_nopg_i = code_patch_wb_wrapper.ctl_pat_nopg_i; core.nopg_o = code_patch_wb_wrapper.no_pg_gen_ack)';")
+		(core.si_addr_i = code_patch_wb_wrapper.wb_si_adr_i; core.si_data_o = code_patch_wb_wrapper.wb_si_dat_o; core.si_read_i = code_patch_wb_wrapper.bus_read; core.mi_addr_o = code_patch_wb_wrapper.wb_mi_adr_o; core.mi_data_i = code_patch_wb_wrapper.wb_mi_dat_i; core.cfg_pat_gen_i = code_patch_wb_wrapper.cfg_pat_gen_i; core.cfg_addr_or_data_i = code_patch_wb_wrapper.cfg_addr_or_data_i; core.ctl_pat_pen_i = code_patch_wb_wrapper.ctl_pat_pen_i; core.ctl_pat_nopg_i = code_patch_wb_wrapper.ctl_pat_nopg_i; core.nopg_o = code_patch_wb_wrapper.no_pg_gen_ack)),
+assign_array_21 = ( Exist (a:Bits (16)) (
+		(0 <= a < 2)->
+		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign_array (core.ctl_pat_addr_i[a] = code_patch_wb_wrapper.ctl_pat_addr_i[a])';")
+		(core.ctl_pat_addr_i(a) = code_patch_wb_wrapper.ctl_pat_addr_i(a)))),
+assign_array_22 = ( Exist (a:Bits (16)) (
+		(0 <= a < 2)->
+		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign_array (core.ctl_pat_data_i[a] = code_patch_wb_wrapper.ctl_pat_data_i[a])';")
+		(core.ctl_pat_data_i(a) = code_patch_wb_wrapper.ctl_pat_data_i(a)))),
+assign_23 = (
 		(1)->
 		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_si_ack_o = wb_mi_ack_i | no_pg_gen_ack)';")
 		(code_patch_wb_wrapper.wb_si_ack_o = code_patch_wb_wrapper.wb_mi_ack_i | code_patch_wb_wrapper.no_pg_gen_ack)),
-assign_22 = (
+assign_24 = (
 		(1)->
 		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_mi_dat_o = wb_si_dat_i)';")
 		(code_patch_wb_wrapper.wb_mi_dat_o = code_patch_wb_wrapper.wb_si_dat_i)),
-assign_23 = (
+assign_25 = (
 		(1)->
 		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_mi_sel_o = wb_si_sel_i)';")
 		(code_patch_wb_wrapper.wb_mi_sel_o = code_patch_wb_wrapper.wb_si_sel_i)),
-assign_24 = (
+assign_26 = (
 		(1)->
 		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_mi_we_o = wb_si_we_i)';")
 		(code_patch_wb_wrapper.wb_mi_we_o = code_patch_wb_wrapper.wb_si_we_i)),
-assign_25 = (
+assign_27 = (
 		(1)->
 		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_mi_cyc_o = wb_si_cyc_i & !no_pg_gen_ack)';")
 		(code_patch_wb_wrapper.wb_mi_cyc_o = code_patch_wb_wrapper.wb_si_cyc_i & !(code_patch_wb_wrapper.no_pg_gen_ack))),
-assign_26 = (
+assign_28 = (
 		(1)->
 		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_mi_stb_o = wb_si_stb_i & !no_pg_gen_ack)';")
 		(code_patch_wb_wrapper.wb_mi_stb_o = code_patch_wb_wrapper.wb_si_stb_i & !(code_patch_wb_wrapper.no_pg_gen_ack))),
-assign_27 = (
+assign_29 = (
 		(1)->
 		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_si_stall_o = wb_mi_stall_i)';")
 		(code_patch_wb_wrapper.wb_si_stall_o = code_patch_wb_wrapper.wb_mi_stall_i)),
-assign_28 = (
+assign_30 = (
 		(1)->
 		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_si_rty_o = wb_mi_rty_i)';")
 		(code_patch_wb_wrapper.wb_si_rty_o = code_patch_wb_wrapper.wb_mi_rty_i)),
-assign_29 = (
+assign_31 = (
 		(1)->
 		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_si_err_o = wb_mi_err_i)';")
 		(code_patch_wb_wrapper.wb_si_err_o = code_patch_wb_wrapper.wb_mi_err_i)),
-assign_30 = (
+assign_32 = (
 		(1)->
 		("CODE_PATCH_WB_WRAPPER#code_patch_wb_wrapper:action 'assign (wb_mi_lock_o = wb_si_lock_i)';")
 		(code_patch_wb_wrapper.wb_mi_lock_o = code_patch_wb_wrapper.wb_si_lock_i)),

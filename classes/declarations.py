@@ -43,6 +43,20 @@ class Declaration(Basic):
         self.dimension_expression = dimension_expression
         self.dimension_size = dimension_size
 
+    def getAplanDecltypeForParametrs(self):
+        if self.data_type == DeclTypes.INT:
+            return "int"
+        elif (
+            self.data_type == DeclTypes.INPORT
+            or self.data_type == DeclTypes.OUTPORT
+            or self.data_type == DeclTypes.WIRE
+            or self.data_type == DeclTypes.REG
+        ):
+            if self.size > 0:
+                return f"Bits ({self.size})"
+            else:
+                return "bool"
+
     def getAplanDecltype(self):
         if self.data_type == DeclTypes.INT:
             return "int"

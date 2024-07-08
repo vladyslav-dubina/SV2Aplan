@@ -1,5 +1,7 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
+from classes.action_parametr import ActionParametrArray
+from classes.action_precondition import ActionPreconditionArray
 from classes.actions import Action
 from classes.module_call import ModuleCall
 from classes.structure import Structure
@@ -65,7 +67,10 @@ class SV2aplan:
         expression = doubleOperators2Aplan(expression)
         expression = addLeftValueForUnaryOrOperator(expression)
         expression = addSpacesAroundOperators(expression)
-        if ElementsTypes.ASSIGN_FOR_CALL_ELEMENT != expr_type:
+        if (
+            ElementsTypes.ASSIGN_FOR_CALL_ELEMENT != expr_type
+            and ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT != expr_type
+        ):
             expression_with_replaced_names = (
                 self.module.findAndChangeNamesToAgentAttrCall(expression)
             )
@@ -237,6 +242,9 @@ class SV2aplan:
         input: str | List[str],
         element_type: ElementsTypes,
         source_interval: Tuple[int, int],
+        input_parametrs: (
+            Tuple[ActionParametrArray, ActionPreconditionArray] | None
+        ) = None,
     ):
         name_part = ""
         counter_type = CounterTypes.NONE_COUNTER
@@ -253,12 +261,18 @@ class SV2aplan:
         ):
             name_part = "assign"
             counter_type = CounterTypes.ASSIGNMENT_COUNTER
+        elif element_type == ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT:
+            name_part = "assign_array"
+            counter_type = CounterTypes.ASSIGNMENT_COUNTER
 
         action_name = "{0}_{1}".format(
             name_part, Counters_Object.getCounter(counter_type)
         )
 
-        if element_type != ElementsTypes.ASSIGN_FOR_CALL_ELEMENT:
+        if (
+            element_type != ElementsTypes.ASSIGN_FOR_CALL_ELEMENT
+            and element_type != ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT
+        ):
             input = self.module.name_change.changeNamesInStr(input)
             expression, expression_with_replaced_names = self.prepareExpressionString(
                 input, element_type
@@ -278,20 +292,35 @@ class SV2aplan:
             )
         elif element_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT:
             action.precondition.body.append("1")
-            descroption = ""
+            description = ""
             for index, input_str in enumerate(input):
                 if index != 0:
-                    descroption += "; "
+                    description += "; "
                 (
                     expression,
                     expression_with_replaced_names,
                 ) = self.prepareExpressionString(input_str, element_type)
                 action.postcondition.body.append(expression_with_replaced_names)
-                descroption += expression
+                description += expression
 
             action.description.body.append(
-                f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({descroption})'"
+                f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({description})'"
             )
+        elif element_type == ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT:
+            if input_parametrs is not None:
+                parametrs, precondition = input_parametrs
+                action.precondition.body.append(str(precondition))
+
+                (
+                    expression,
+                    expression_with_replaced_names,
+                ) = self.prepareExpressionString(input, element_type)
+                action.postcondition.body.append(expression_with_replaced_names)
+                action.parametrs = parametrs
+
+                action.description.body.append(
+                    f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
+                )
         else:
             action.precondition.body.append(expression_with_replaced_names)
             action.postcondition.body.append("1")
@@ -300,14 +329,16 @@ class SV2aplan:
             )
 
         action_check_result, source_interval = self.module.actions.isUniqAction(action)
+        uniq = False
         if action_check_result is None:
+            uniq = True
             self.module.actions.addElement(action)
         else:
             Counters_Object.decrieseCounter(counter_type)
             action_name = action_check_result
 
         Counters_Object.incrieseCounter(counter_type)
-        return (action_name, source_interval)
+        return (action_name, source_interval, uniq)
 
     def loop2Aplan(
         self,

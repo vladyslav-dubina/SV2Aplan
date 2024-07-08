@@ -57,7 +57,7 @@ def netDeclaration2AplanImpl(
             if elem.expression():
                 expression = elem.expression().getText()
                 if expression:
-                    assign_name, source_interval = self.expression2Aplan(
+                    assign_name, source_interval, uniq_action = self.expression2Aplan(
                         elem.getText(),
                         ElementsTypes.ASSIGN_ELEMENT,
                         elem.getSourceInterval(),

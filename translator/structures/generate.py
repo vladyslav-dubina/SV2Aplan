@@ -40,7 +40,7 @@ def generateBodyToAplan(
             self.module.processed_elements.addElement(
                 ProcessedElement("action", child.getSourceInterval())
             )
-            action_name, source_interval = self.expression2Aplan(
+            action_name, source_interval, uniq_action = self.expression2Aplan(
                 expression,
                 ElementsTypes.ASSIGN_ELEMENT,
                 child.getSourceInterval(),

@@ -54,7 +54,7 @@ def forDeclarationToApanImpl(
         action_txt = (
             f"{ctx.variable_identifier(0).getText()}={ctx.expression(0).getText()}"
         )
-        assign_name, source_interval = self.expression2Aplan(
+        assign_name, source_interval, uniq_action = self.expression2Aplan(
             action_txt,
             ElementsTypes.ASSIGN_ELEMENT,
             ctx.getSourceInterval(),

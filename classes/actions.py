@@ -1,4 +1,5 @@
 from typing import Tuple, List
+from classes.action_parametr import ActionParametrArray
 from classes.basic import Basic, BasicArray
 from utils.string_formating import removeTrailingComma
 
@@ -22,6 +23,7 @@ class Action(Basic):
         identifier: str,
         number: int,
         source_interval: Tuple[int, int],
+        parametrs: ActionParametrArray | None = None,
     ):
         self.number = number
         identifier_tmp = identifier + "_" + str(number)
@@ -29,9 +31,13 @@ class Action(Basic):
         self.precondition: ActionParts = ActionParts()
         self.postcondition: ActionParts = ActionParts()
         self.description: ActionParts = ActionParts()
+        self.parametrs: ActionParametrArray | None = parametrs
 
     def getBody(self):
-        return f""" = (\n\t\t({self.precondition})->\n\t\t("{self.description};")\n\t\t({self.postcondition}))"""
+        if self.parametrs is None:
+            return f""" = (\n\t\t({self.precondition})->\n\t\t("{self.description};")\n\t\t({self.postcondition}))"""
+        else:
+            return f""" = ( Exist ({self.parametrs}) (\n\t\t({self.precondition})->\n\t\t("{self.description};")\n\t\t({self.postcondition})))"""
 
     def getActionName(self):
         return "{0}_{1}".format(self.identifier, self.number)
@@ -44,9 +50,7 @@ class Action(Basic):
 
     def __eq__(self, other):
         if isinstance(other, Action):
-            return (
-                self.getBody() == other.getBody()
-            )
+            return self.getBody() == other.getBody()
         return False
 
 

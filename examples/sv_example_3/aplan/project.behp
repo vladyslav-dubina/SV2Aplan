@@ -1,4 +1,4 @@
-B_REGISTER_WRITE_ONCE_EXAMPLE = (INIT_REGISTER_WRITE_ONCE_EXAMPLE || Sensetive(ALWAYS_1, register_write_once_example.Clk || !register_write_once_example.ip_resetn) || MAIN_REGISTER_WRITE_ONCE_EXAMPLE),
+B_REGISTER_WRITE_ONCE_EXAMPLE = {INIT_REGISTER_WRITE_ONCE_EXAMPLE || Sensetive(ALWAYS_1, register_write_once_example.Clk || !register_write_once_example.ip_resetn) || MAIN_REGISTER_WRITE_ONCE_EXAMPLE},
 INIT_REGISTER_WRITE_ONCE_EXAMPLE = assign_1,
 MAIN_REGISTER_WRITE_ONCE_EXAMPLE = (ASSERT_B_2),
 ALWAYS_1 = B_1,
