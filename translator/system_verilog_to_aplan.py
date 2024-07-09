@@ -243,7 +243,10 @@ class SV2aplan:
         element_type: ElementsTypes,
         source_interval: Tuple[int, int],
         input_parametrs: (
-            Tuple[ActionParametrArray, ActionPreconditionArray] | None
+            Tuple[
+                str | None, ActionParametrArray | None, ActionPreconditionArray | None
+            ]
+            | None
         ) = None,
     ):
         name_part = ""
@@ -302,13 +305,17 @@ class SV2aplan:
                 ) = self.prepareExpressionString(input_str, element_type)
                 action.postcondition.body.append(expression_with_replaced_names)
                 description += expression
+            obj_def, parametrs, precondition = input_parametrs
+            body = ""
+            if obj_def is not None:
+                body = f"{obj_def}:action '{name_part} ({description})'"
+            else:
+                body = f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({description})'"
+            action.description.body.append(body)
 
-            action.description.body.append(
-                f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({description})'"
-            )
         elif element_type == ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT:
             if input_parametrs is not None:
-                parametrs, precondition = input_parametrs
+                obj_def, parametrs, precondition = input_parametrs
                 action.precondition.body.append(str(precondition))
 
                 (
@@ -319,7 +326,7 @@ class SV2aplan:
                 action.parametrs = parametrs
 
                 action.description.body.append(
-                    f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
+                    f"{obj_def}:action '{name_part} ({expression})'"
                 )
         else:
             action.precondition.body.append(expression_with_replaced_names)

@@ -17,6 +17,7 @@ def moduleCallAssign2Aplan(
     self: SV2aplan,
     ctx: SystemVerilogParser.Module_instantiationContext,
     destination_module_name: str,
+    destination_identifier: str,
 ):
     for hierarchical_instance in ctx.hierarchical_instance():
         instance = hierarchical_instance.name_of_instance().getText()
@@ -98,11 +99,12 @@ def moduleCallAssign2Aplan(
                             precond_array,
                         )
                     )
-
+            obj_def = f"{destination_identifier.upper()}#{destination_module_name};{self.module.identifier_upper}#{self.module.ident_uniq_name}"
             action_name, source_interval, uniq_action = self.expression2Aplan(
                 assign_str_list,
                 ElementsTypes.ASSIGN_FOR_CALL_ELEMENT,
                 ctx.getSourceInterval(),
+                (obj_def, None, None),
             )
 
             action_2 = ""
@@ -113,6 +115,7 @@ def moduleCallAssign2Aplan(
                     ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT,
                     ctx.getSourceInterval(),
                     (
+                        obj_def,
                         parametrs,
                         predicates,
                     ),
@@ -173,7 +176,7 @@ def moduleCall2AplanImpl(
         program.module_calls.addElement(module_call)
 
     program.file_path = previous_file_path
-    moduleCallAssign2Aplan(self, ctx, call_module_name)
+    moduleCallAssign2Aplan(self, ctx, call_module_name, destination_identifier)
     Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
     call_b = "MODULE_CALL_B_{}".format(
         Counters_Object.getCounter(CounterTypes.B_COUNTER)
