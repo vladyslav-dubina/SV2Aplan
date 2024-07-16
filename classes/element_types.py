@@ -4,6 +4,7 @@ from enum import Enum, auto
 class ElementsTypes(Enum):
     ASSERT_ELEMENT = auto()
     IF_STATEMENT_ELEMENT = auto()
+    CASE_ELEMENT = auto()
     ELSE_BODY_ELEMENT = auto()
     ASSIGN_ELEMENT = auto()
     ASSIGN_FOR_CALL_ELEMENT = auto()

@@ -49,6 +49,7 @@ class SV2aplan:
             | SystemVerilogParser.Nonblocking_assignmentContext
             | SystemVerilogParser.Net_assignmentContext
             | SystemVerilogParser.Variable_assignmentContext
+            | SystemVerilogParser.Operator_assignmentContext
         ),
         sv_structure: Structure,
     ):
@@ -165,8 +166,19 @@ class SV2aplan:
 
         ifStatement2AplanImpl(self, ctx, sv_structure, names_for_change)
 
-    # ==================================================================================
+    # =================================CASE STATEMENT===================================
 
+    def case2Aplan(
+        self,
+        ctx: SystemVerilogParser.Case_statementContext,
+        sv_structure: Structure,
+        names_for_change: List[str],
+    ):
+        from translator.case_statement.case_statement import caseStatement2AplanImpl
+
+        caseStatement2AplanImpl(self, ctx, sv_structure, names_for_change)
+
+    # ==================================================================================
     def expression2Aplan(
         self,
         input: str | List[str],
@@ -224,6 +236,7 @@ class SV2aplan:
                 or type(child) is SystemVerilogParser.Nonblocking_assignmentContext
                 or type(child) is SystemVerilogParser.Net_assignmentContext
                 or type(child) is SystemVerilogParser.Variable_assignmentContext
+                or type(child) is SystemVerilogParser.Operator_assignmentContext
             ):
                 self.blockAssignment2Aplan(child, sv_structure)
             # ---------------------------------------------------------------------------
@@ -246,6 +259,9 @@ class SV2aplan:
                     self.repeat2Aplan(child, sv_structure)
                 else:
                     self.loop2Aplan(child, sv_structure)
+            # ---------------------------------------------------------------------------
+            elif type(child) is SystemVerilogParser.Case_statementContext:
+                self.case2Aplan(child, sv_structure, names_for_change)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Conditional_statementContext:
                 self.ifStatement2Aplan(child, sv_structure, names_for_change)

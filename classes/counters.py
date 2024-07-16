@@ -6,6 +6,7 @@ from classes.element_types import ElementsTypes
 class CounterTypes(Enum):
     ASSIGNMENT_COUNTER = auto()
     IF_COUNTER = auto()
+    CASE_COUNTER = auto()
     ALWAYS_COUNTER = auto()
     B_COUNTER = auto()
     ASSERT_COUNTER = auto()
@@ -35,6 +36,7 @@ class Counters:
         self.sequence = 0
         self.uniq_names_counter = 1
         self.repeat_counter = 1
+        self.case_counter = 1
 
     def selectCounter(self, element_type: ElementsTypes):
         if element_type is ElementsTypes.ASSIGN_ELEMENT:
@@ -51,6 +53,8 @@ class Counters:
             return CounterTypes.LOOP_COUNTER
         if element_type is ElementsTypes.REPEAT_ELEMENT:
             return CounterTypes.REPEAT_COUNTER
+        if element_type is ElementsTypes.CASE_ELEMENT:
+            return CounterTypes.CASE_COUNTER
         return CounterTypes.NONE_COUNTER
 
     def incrieseCounter(self, counter_type: CounterTypes):
@@ -80,6 +84,8 @@ class Counters:
             self.uniq_names_counter += 1
         if counter_type is CounterTypes.REPEAT_COUNTER:
             self.repeat_counter += 1
+        if counter_type is CounterTypes.CASE_COUNTER:
+            self.case_counter += 1
 
     def decrieseCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
@@ -108,6 +114,8 @@ class Counters:
             self.uniq_names_counter -= 1
         if counter_type is CounterTypes.REPEAT_COUNTER:
             self.repeat_counter -= 1
+        if counter_type is CounterTypes.CASE_COUNTER:
+            self.case_counter == 1
 
     def getCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
@@ -137,6 +145,8 @@ class Counters:
             return self.uniq_names_counter
         if counter_type is CounterTypes.REPEAT_COUNTER:
             return self.repeat_counter
+        if counter_type is CounterTypes.CASE_COUNTER:
+            return self.case_counter
 
     def countersDeinit(self):
         self.module_counter = 1
@@ -152,3 +162,4 @@ class Counters:
         self.sequence = 0
         self.uniq_names_counter = 1
         self.repeat_counter = 1
+        self.case_counter = 1

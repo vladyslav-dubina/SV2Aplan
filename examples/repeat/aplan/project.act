@@ -15,15 +15,19 @@ repeat_iteration_1 = (
 		(1)->
 		("REPEAT_EXAMPLE#repeat_example:action 'repeat_iteration (repeat_var_1 = repeat_var_1 + 1)';")
 		(repeat_example.repeat_var_1 = repeat_example.repeat_var_1 + 1)),
+assign_4 = (
+		(1)->
+		("REPEAT_EXAMPLE#repeat_example:action 'assign (start = 1)';")
+		(repeat_example.start = 1)),
 if_1 = (
 		(!(repeat_example.reset_n))->
 		("REPEAT_EXAMPLE#repeat_example:action 'if (!reset_n)';")
 		(1)),
-assign_4 = (
+assign_5 = (
 		(1)->
 		("REPEAT_EXAMPLE#repeat_example:action 'assign (count <= 0)';")
 		(repeat_example.count = 0)),
-assign_5 = (
+assign_6 = (
 		(1)->
 		("REPEAT_EXAMPLE#repeat_example:action 'assign (done <= 0)';")
 		(repeat_example.done = 0)),
@@ -35,11 +39,11 @@ if_3 = (
 		(repeat_example.count < 10)->
 		("REPEAT_EXAMPLE#repeat_example:action 'if (count < 10)';")
 		(1)),
-assign_6 = (
+assign_7 = (
 		(1)->
 		("REPEAT_EXAMPLE#repeat_example:action 'assign (count <= count + 1)';")
 		(repeat_example.count = repeat_example.count + 1)),
-assign_7 = (
+assign_8 = (
 		(1)->
 		("REPEAT_EXAMPLE#repeat_example:action 'assign (done <= 1)';")
 		(repeat_example.done = 1))

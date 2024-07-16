@@ -76,6 +76,10 @@ def regeneration_start():
             "examples/always/always_without_sensetive/aplan",
         ),
         (
+            "examples/case/case.sv",
+            "examples/case/aplan",
+        ),
+        (
             "examples/if_statemens/if_statement_1/if_statement_1.sv",
             "examples/if_statemens/if_statement_1/aplan",
         ),

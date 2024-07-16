@@ -95,6 +95,11 @@ def start_unit_test():
             "examples/always/always_without_sensetive/aplan",
         ),
         (
+            "examples/case/case.sv",
+            "examples/case/test_result",
+            "examples/case/aplan",
+        ),
+        (
             "examples/if_statemens/if_statement_1/if_statement_1.sv",
             "examples/if_statemens/if_statement_1/test_result",
             "examples/if_statemens/if_statement_1/aplan",

@@ -1,0 +1,5 @@
+events(
+	s_mode:obj(x1:Bits 2);
+	s_a:obj(x1:Bits 4);
+	s_b:obj(x1:Bits 4);
+);

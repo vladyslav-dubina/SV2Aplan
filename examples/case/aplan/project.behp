@@ -1,0 +1,12 @@
+B_CASE_EXAMPLE = {ALWAYS_COMB_1},
+ALWAYS_COMB_1 = B_1,
+B_1 = case_1.CASE_BODY_1 + !case_1.ELSE_BODY_1,
+CASE_BODY_1 = assign_1,
+ELSE_BODY_1 = case_2.CASE_BODY_2 + !case_2.ELSE_BODY_2,
+CASE_BODY_2 = assign_2,
+ELSE_BODY_2 = case_3.CASE_BODY_3 + !case_3.ELSE_BODY_3,
+CASE_BODY_3 = assign_3,
+ELSE_BODY_3 = case_4.CASE_BODY_4 + !case_4.ELSE_BODY_4,
+CASE_BODY_4 = assign_4,
+ELSE_BODY_4 = CASE_BODY_5,
+CASE_BODY_5 = assign_5
