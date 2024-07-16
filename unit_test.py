@@ -65,29 +65,9 @@ def start_unit_test():
 
     test_definitions = [
         (
-            "examples/if_statemens/if_statement_1/if_statement_1.sv",
-            "examples/if_statemens/if_statement_1/test_result",
-            "examples/if_statemens/if_statement_1/aplan",
-        ),
-        (
-            "examples/if_statemens/if_statement_2/if_statement_2.sv",
-            "examples/if_statemens/if_statement_2/test_result",
-            "examples/if_statemens/if_statement_2/aplan",
-        ),
-        (
-            "examples/assert/assert.sv",
-            "examples/assert/test_result",
-            "examples/assert/aplan",
-        ),
-        (
-            "examples/loops/loop_1/loop_1.sv",
-            "examples/loops/loop_1/test_result",
-            "examples/loops/loop_1/aplan",
-        ),
-        (
-            "examples/loops/loop_2/loop_2.sv",
-            "examples/loops/loop_2/test_result",
-            "examples/loops/loop_2/aplan",
+            "examples/initial/initial.sv",
+            "examples/initial/test_result",
+            "examples/initial/aplan",
         ),
         (
             "examples/assigns/assign_1/assign_1.sv",
@@ -100,9 +80,39 @@ def start_unit_test():
             "examples/parametrs/parametrs_1/aplan",
         ),
         (
-            "examples/call/call_1/call_2.sv",
-            "examples/call/call_1/test_result",
-            "examples/call/call_1/aplan",
+            "examples/assert/assert.sv",
+            "examples/assert/test_result",
+            "examples/assert/aplan",
+        ),
+        (
+            "examples/always/always_@*/always_@*.sv",
+            "examples/always/always_@*/test_result",
+            "examples/always/always_@*/aplan",
+        ),
+        (
+            "examples/always/always_without_sensetive/always_without_sensetive.sv",
+            "examples/always/always_without_sensetive/test_result",
+            "examples/always/always_without_sensetive/aplan",
+        ),
+        (
+            "examples/if_statemens/if_statement_1/if_statement_1.sv",
+            "examples/if_statemens/if_statement_1/test_result",
+            "examples/if_statemens/if_statement_1/aplan",
+        ),
+        (
+            "examples/if_statemens/if_statement_2/if_statement_2.sv",
+            "examples/if_statemens/if_statement_2/test_result",
+            "examples/if_statemens/if_statement_2/aplan",
+        ),
+        (
+            "examples/loops/loop_1/loop_1.sv",
+            "examples/loops/loop_1/test_result",
+            "examples/loops/loop_1/aplan",
+        ),
+        (
+            "examples/loops/loop_2/loop_2.sv",
+            "examples/loops/loop_2/test_result",
+            "examples/loops/loop_2/aplan",
         ),
         (
             "examples/loops/while_1/while_1.sv",
@@ -115,14 +125,9 @@ def start_unit_test():
             "examples/loops/while_2/aplan",
         ),
         (
-            "examples/always/always_@*/always_@*.sv",
-            "examples/always/always_@*/test_result",
-            "examples/always/always_@*/aplan",
-        ),
-        (
-            "examples/always/always_without_sensetive/always_without_sensetive.sv",
-            "examples/always/always_without_sensetive/test_result",
-            "examples/always/always_without_sensetive/aplan",
+            "examples/call/call_1/call_2.sv",
+            "examples/call/call_1/test_result",
+            "examples/call/call_1/aplan",
         ),
         (
             "examples/sv_example_1/sv_example_1.sv",
