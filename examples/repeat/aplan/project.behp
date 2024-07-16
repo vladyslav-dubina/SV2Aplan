@@ -1,0 +1,12 @@
+B_REPEAT_EXAMPLE = {INIT_REPEAT_EXAMPLE || REPEAT_EXAMPLE_INITITAL || Sensetive(ALWAYS_FF_1, repeat_example.clk || !repeat_example.reset_n)},
+INIT_REPEAT_EXAMPLE = assign_3,
+REPEAT_EXAMPLE_INITITAL = assign_1.assign_2.Sensetive(repeat_iteration_1, repeat_example.clk && (repeat_example.repeat_var_1 < 5)),
+ALWAYS_FF_1 = B_1,
+B_1 = if_1.IF_BODY_1 + !if_1.ELSE_BODY_1,
+IF_BODY_1 = Sensetive(assign_4).Sensetive(assign_5),
+ELSE_BODY_1 = if_2.IF_BODY_2 + !if_2,
+IF_BODY_2 = B_2,
+B_2 = if_3.IF_BODY_3 + !if_3.ELSE_BODY_2,
+IF_BODY_3 = Sensetive(assign_6),
+ELSE_BODY_2 = IF_BODY_4,
+IF_BODY_4 = Sensetive(assign_7)

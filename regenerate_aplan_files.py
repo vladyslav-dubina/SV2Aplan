@@ -84,6 +84,10 @@ def regeneration_start():
             "examples/loops/loop_2/aplan",
         ),
         (
+            "examples/repeat/repeat.sv",
+            "examples/repeat/aplan",
+        ),
+        (
             "examples/call/call_1/call_2.sv",
             "examples/call/call_1/aplan",
         ),
