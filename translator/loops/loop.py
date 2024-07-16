@@ -26,20 +26,14 @@ def loop2AplanImpl(
     loop_inс_flag = True
 
     if type(ctx) is SystemVerilogParser.Loop_statementContext:
-        for_initialization_ctx = ctx.for_initialization()
-        for_inc_ctx = ctx.for_step()
-        if for_inc_ctx is None:
+        if ctx.WHILE() or ctx.DO():
             loop_inс_flag = False
-        if for_initialization_ctx is not None:
-            for_decl_identifier = self.forInitializationToApan(for_initialization_ctx)
-        else:
             loop_init_flag = False
-
-    if loop_init_flag == False:
-        loop_init = ""
-
-    if loop_inс_flag == False:
-        loop_inc = ""
+            loop_init = ""
+            loop_inc = ""
+        if ctx.FOR():
+            for_initialization_ctx = ctx.for_initialization()
+            for_decl_identifier = self.forInitializationToApan(for_initialization_ctx)
 
     beh_index = sv_structure.getLastBehaviorIndex()
     if beh_index is not None:

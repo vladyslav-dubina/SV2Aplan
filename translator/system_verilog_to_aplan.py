@@ -233,7 +233,10 @@ class SV2aplan:
                     names_for_change += self.body2Aplan(child, sv_structure, name_space)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Loop_statementContext:
-                self.loop2Aplan(child, sv_structure)
+                if child.REPEAT():
+                    print(child.getText())
+                else:
+                    self.loop2Aplan(child, sv_structure)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Conditional_statementContext:
                 self.ifStatement2Aplan(child, sv_structure, names_for_change)
