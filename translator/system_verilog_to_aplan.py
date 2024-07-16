@@ -7,37 +7,17 @@ from classes.structure import Structure
 from classes.module import Module
 from classes.element_types import ElementsTypes
 from program.program import Program
-from utils.utils import (
-    Counters_Object,
-)
 from typing import Tuple, List
 
 
 class SV2aplan:
-    global Counters_Object
-
     def __init__(self, module: Module):
         self.module = module
 
     def extractSensetive(self, ctx):
-        res = ""
-        for child in ctx.getChildren():
-            if type(child) is SystemVerilogParser.Edge_identifierContext:
-                index = child.getText().find("negedge")
-                if index != -1:
-                    res += "!"
-            elif type(child) is Tree.TerminalNodeImpl:
-                index = child.getText().find("or")
-                if index != -1:
-                    res += " || "
-                index = child.getText().find("and")
-                if index != -1:
-                    res += " && "
-            elif type(child) is SystemVerilogParser.IdentifierContext:
-                res += self.module.findAndChangeNamesToAgentAttrCall(child.getText())
-            else:
-                res += self.extractSensetive(child)
-        return res
+        from translator.sensetive.sensetive import extractSensetiveImpl
+
+        return extractSensetiveImpl(self, ctx)
 
     def prepareExpressionString(self, expression: str, expr_type: ElementsTypes):
         from translator.expression.expression import prepareExpressionStringImpl
