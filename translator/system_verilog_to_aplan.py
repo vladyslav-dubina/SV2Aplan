@@ -252,3 +252,8 @@ class SV2aplan:
         from translator.structures.always import always2AplanImpl
 
         always2AplanImpl(self, ctx)
+
+    def initial2Aplan(self, ctx: SystemVerilogParser.Initial_constructContext):
+        from translator.structures.initial import initital2AplanImpl
+
+        initital2AplanImpl(self, ctx)

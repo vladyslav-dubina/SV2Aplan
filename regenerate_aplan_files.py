@@ -52,24 +52,12 @@ def regeneration_start():
 
     test_definitions = [
         (
-            "examples/if_statemens/if_statement_1/if_statement_1.sv",
-            "examples/if_statemens/if_statement_1/aplan",
-        ),
-        (
-            "examples/if_statemens/if_statement_2/if_statement_2.sv",
-            "examples/if_statemens/if_statement_2/aplan",
+            "examples/initial/initial.sv",
+            "examples/initial/aplan",
         ),
         (
             "examples/assert/assert.sv",
             "examples/assert/aplan",
-        ),
-        (
-            "examples/loops/loop_1/loop_1.sv",
-            "examples/loops/loop_1/aplan",
-        ),
-        (
-            "examples/loops/loop_2/loop_2.sv",
-            "examples/loops/loop_2/aplan",
         ),
         (
             "examples/assigns/assign_1/assign_1.sv",
@@ -78,6 +66,22 @@ def regeneration_start():
         (
             "examples/parametrs/parametrs_1/parametrs_1.sv",
             "examples/parametrs/parametrs_1/aplan",
+        ),
+        (
+            "examples/if_statemens/if_statement_1/if_statement_1.sv",
+            "examples/if_statemens/if_statement_1/aplan",
+        ),
+        (
+            "examples/if_statemens/if_statement_2/if_statement_2.sv",
+            "examples/if_statemens/if_statement_2/aplan",
+        ),
+        (
+            "examples/loops/loop_1/loop_1.sv",
+            "examples/loops/loop_1/aplan",
+        ),
+        (
+            "examples/loops/loop_2/loop_2.sv",
+            "examples/loops/loop_2/aplan",
         ),
         (
             "examples/call/call_1/call_2.sv",

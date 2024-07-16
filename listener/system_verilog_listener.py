@@ -50,3 +50,6 @@ class SVListener(SystemVerilogParserListener):
 
     def exitModule_instantiation(self, ctx):
         self.sv2aplan.moduleCall2Apan(ctx, self.program)
+
+    def exitInitial_construct(self, ctx):
+        self.sv2aplan.initial2Aplan(ctx)

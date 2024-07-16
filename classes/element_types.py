@@ -18,4 +18,5 @@ class ElementsTypes(Enum):
     MODULE_ASSIGN_ELEMENT = auto()
     LOOP_ELEMENT = auto()
     ALWAYS_ELEMENT = auto()
+    INITIAL_ELEMENT= auto()
     NONE_ELEMENT = auto()

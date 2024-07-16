@@ -1,0 +1,9 @@
+
+assign_1 = (
+		(1)->
+		("REPEAT_EXAMPLE#repeat_example:action 'assign (done = 0)';")
+		(repeat_example.done = 0)),
+assign_2 = (
+		(1)->
+		("REPEAT_EXAMPLE#repeat_example:action 'assign (start = 0)';")
+		(repeat_example.start = 0))
