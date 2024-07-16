@@ -2,38 +2,15 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
 from classes.action_parametr import ActionParametrArray
 from classes.action_precondition import ActionPreconditionArray
-from classes.actions import Action
 from classes.module_call import ModuleCall
 from classes.structure import Structure
-from classes.protocols import Protocol
-from classes.always import Always
 from classes.module import Module
-from classes.processed import ProcessedElement
 from classes.element_types import ElementsTypes
-from classes.counters import CounterTypes
 from program.program import Program
-from utils.string_formating import (
-    addSpacesAroundOperators,
-    valuesToAplanStandart,
-    addBracketsAfterTilda,
-    addBracketsAfterNegation,
-    addLeftValueForUnaryOrOperator,
-    parallelAssignment2Assignment,
-    vectorSizes2AplanStandart,
-    notConcreteIndex2AplanStandart,
-    doubleOperators2Aplan,
-    replaceParametrsCalls,
-    addEqueToBGET,
-    replace_cpp_operators,
-)
 from utils.utils import (
-    removeTypeFromForInit,
     Counters_Object,
-    printWithColor,
-    Color,
 )
 from typing import Tuple, List
-import re
 
 
 class SV2aplan:
@@ -63,42 +40,14 @@ class SV2aplan:
         return res
 
     def prepareExpressionString(self, expression: str, expr_type: ElementsTypes):
-        expression = valuesToAplanStandart(expression)
-        expression = doubleOperators2Aplan(expression)
-        expression = addLeftValueForUnaryOrOperator(expression)
-        expression = addSpacesAroundOperators(expression)
-        if (
-            ElementsTypes.ASSIGN_FOR_CALL_ELEMENT != expr_type
-            and ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT != expr_type
-        ):
-            expression_with_replaced_names = (
-                self.module.findAndChangeNamesToAgentAttrCall(expression)
-            )
-        else:
-            expression_with_replaced_names = expression
+        from translator.expression.expression import prepareExpressionStringImpl
 
-        expression_with_replaced_names = addBracketsAfterNegation(
-            expression_with_replaced_names
-        )
-        expression_with_replaced_names = addBracketsAfterTilda(
-            expression_with_replaced_names
-        )
-        expression_with_replaced_names = vectorSizes2AplanStandart(
-            expression_with_replaced_names
-        )
-        if ElementsTypes.ASSIGN_ELEMENT == expr_type:
-            expression_with_replaced_names = parallelAssignment2Assignment(
-                expression_with_replaced_names
-            )
-        expression_with_replaced_names = notConcreteIndex2AplanStandart(
-            expression_with_replaced_names, self.module
-        )
-        expression_with_replaced_names = replaceParametrsCalls(
-            self.module.parametrs, expression_with_replaced_names
-        )
-        return (expression, expression_with_replaced_names)
+        return prepareExpressionStringImpl(self, expression, expr_type)
 
     # ---------------------------------------------------------------------------------
+
+    # =============================ASSIGNMENTS=========================================
+
     def netAssignment2Aplan(self, ctx: SystemVerilogParser.Net_assignmentContext):
         from translator.assignments.net_assignment import netAssignment2AplanImpl
 
@@ -132,6 +81,7 @@ class SV2aplan:
     # ---------------------------------------------------------------------------------
 
     # =============================DECLARATIONS========================================
+
     def genvarDeclaration2Aplan(
         self, ctx: SystemVerilogParser.Genvar_declarationContext
     ):
@@ -249,103 +199,11 @@ class SV2aplan:
             | None
         ) = None,
     ):
-        name_part = ""
-        counter_type = CounterTypes.NONE_COUNTER
+        from translator.expression.expression import expression2AplanImpl
 
-        if element_type == ElementsTypes.ASSERT_ELEMENT:
-            name_part = "assert"
-            counter_type = CounterTypes.ASSERT_COUNTER
-        elif element_type == ElementsTypes.CONDITION_ELEMENT:
-            name_part = "cond"
-            counter_type = CounterTypes.CONDITION_COUNTER
-        elif (
-            element_type == ElementsTypes.ASSIGN_ELEMENT
-            or element_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT
-        ):
-            name_part = "assign"
-            counter_type = CounterTypes.ASSIGNMENT_COUNTER
-        elif element_type == ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT:
-            name_part = "assign_array"
-            counter_type = CounterTypes.ASSIGNMENT_COUNTER
-
-        action_name = "{0}_{1}".format(
-            name_part, Counters_Object.getCounter(counter_type)
+        return expression2AplanImpl(
+            self, input, element_type, source_interval, input_parametrs
         )
-
-        if (
-            element_type != ElementsTypes.ASSIGN_FOR_CALL_ELEMENT
-            and element_type != ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT
-        ):
-            input = self.module.name_change.changeNamesInStr(input)
-            expression, expression_with_replaced_names = self.prepareExpressionString(
-                input, element_type
-            )
-
-        action = Action(
-            name_part,
-            Counters_Object.getCounter(counter_type),
-            source_interval,
-        )
-
-        if element_type == ElementsTypes.ASSIGN_ELEMENT:
-            action.precondition.body.append("1")
-            action.postcondition.body.append(expression_with_replaced_names)
-            action.description.body.append(
-                f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
-            )
-        elif element_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT:
-            action.precondition.body.append("1")
-            description = ""
-            for index, input_str in enumerate(input):
-                if index != 0:
-                    description += "; "
-                (
-                    expression,
-                    expression_with_replaced_names,
-                ) = self.prepareExpressionString(input_str, element_type)
-                action.postcondition.body.append(expression_with_replaced_names)
-                description += expression
-            obj_def, parametrs, precondition = input_parametrs
-            body = ""
-            if obj_def is not None:
-                body = f"{obj_def}:action '{name_part} ({description})'"
-            else:
-                body = f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({description})'"
-            action.description.body.append(body)
-
-        elif element_type == ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT:
-            if input_parametrs is not None:
-                obj_def, parametrs, precondition = input_parametrs
-                action.precondition.body.append(str(precondition))
-
-                (
-                    expression,
-                    expression_with_replaced_names,
-                ) = self.prepareExpressionString(input, element_type)
-                action.postcondition.body.append(expression_with_replaced_names)
-                action.parametrs = parametrs
-
-                action.description.body.append(
-                    f"{obj_def}:action '{name_part} ({expression})'"
-                )
-        else:
-            action.precondition.body.append(expression_with_replaced_names)
-            action.postcondition.body.append("1")
-            action.description.body.append(
-                f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
-            )
-
-        action_check_result, source_interval = self.module.actions.isUniqAction(action)
-        uniq = False
-        if action_check_result is None:
-            uniq = True
-            self.module.actions.addElement(action)
-        else:
-            Counters_Object.decrieseCounter(counter_type)
-            action_name = action_check_result
-
-        Counters_Object.incrieseCounter(counter_type)
-        return (action_name, source_interval, uniq)
 
     def loop2Aplan(
         self,
@@ -410,41 +268,7 @@ class SV2aplan:
 
         generate2AplanImpl(self, ctx)
 
-    def always2Aplan(self, ctx):
-        sensetive = None
+    def always2Aplan(self, ctx: SystemVerilogParser.Always_constructContext):
+        from translator.structures.always import always2AplanImpl
 
-        always_keyword = ctx.always_keyword().getText()
-        statement_item = ctx.statement().statement_item()
-        if statement_item.procedural_timing_control_statement() is not None:
-            event_expression = (
-                statement_item.procedural_timing_control_statement()
-                .procedural_timing_control()
-                .event_control()
-                .event_expression()
-            )
-            if event_expression is not None:
-                sensetive = self.extractSensetive(event_expression)
-            always_body = (
-                statement_item.procedural_timing_control_statement().statement_or_null()
-            )
-        else:
-            always_body = statement_item
-
-        Counters_Object.incrieseCounter(CounterTypes.ALWAYS_COUNTER)
-        always_name = (
-            always_keyword.upper()
-            + "_"
-            + str(Counters_Object.getCounter(CounterTypes.ALWAYS_COUNTER))
-        )
-        always = Always(
-            always_name,
-            sensetive,
-            ctx.getSourceInterval(),
-        )
-        always.addProtocol(always_name)
-        names_for_change = self.body2Aplan(
-            always_body, always, ElementsTypes.ALWAYS_ELEMENT
-        )
-        for element in names_for_change:
-            self.module.name_change.deleteElement(element)
-        self.module.structures.addElement(always)
+        always2AplanImpl(self, ctx)
