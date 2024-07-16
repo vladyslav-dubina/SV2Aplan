@@ -3,7 +3,7 @@ from classes.module import Module
 from classes.module_call import ModuleCall
 from classes.parametrs import Parametr
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.utils import is_numeric_string
+from utils.utils import isNumericString
 
 
 def paramAssignment2AplanImpl(
@@ -16,7 +16,7 @@ def paramAssignment2AplanImpl(
     expression_str = ""
     value = 0
     if expression is not None:
-        numeric_string = is_numeric_string(expression.getText())
+        numeric_string = isNumericString(expression.getText())
         if numeric_string is None:
             expression_str = expression.getText()
         else:

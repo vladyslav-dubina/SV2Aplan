@@ -17,6 +17,7 @@ class CounterTypes(Enum):
     NONE_COUNTER = auto()
     SEQUENCE_COUNTER = auto()
     UNIQ_NAMES_COUNTER = auto()
+    REPEAT_COUNTER = auto()
 
 
 class Counters:
@@ -33,6 +34,7 @@ class Counters:
         self.cond_counter = 1
         self.sequence = 0
         self.uniq_names_counter = 1
+        self.repeat_counter = 1
 
     def selectCounter(self, element_type: ElementsTypes):
         if element_type is ElementsTypes.ASSIGN_ELEMENT:
@@ -47,6 +49,8 @@ class Counters:
             return CounterTypes.ELSE_BODY_COUNTER
         if element_type is ElementsTypes.LOOP_ELEMENT:
             return CounterTypes.LOOP_COUNTER
+        if element_type is ElementsTypes.REPEAT_ELEMENT:
+            return CounterTypes.REPEAT_COUNTER
         return CounterTypes.NONE_COUNTER
 
     def incrieseCounter(self, counter_type: CounterTypes):
@@ -74,6 +78,8 @@ class Counters:
             self.sequence += 1
         if counter_type is CounterTypes.UNIQ_NAMES_COUNTER:
             self.uniq_names_counter += 1
+        if counter_type is CounterTypes.REPEAT_COUNTER:
+            self.repeat_counter += 1
 
     def decrieseCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
@@ -100,6 +106,8 @@ class Counters:
             self.sequence -= 1
         if counter_type is CounterTypes.UNIQ_NAMES_COUNTER:
             self.uniq_names_counter -= 1
+        if counter_type is CounterTypes.REPEAT_COUNTER:
+            self.repeat_counter -= 1
 
     def getCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
@@ -127,6 +135,8 @@ class Counters:
             return self.sequence
         if counter_type is CounterTypes.UNIQ_NAMES_COUNTER:
             return self.uniq_names_counter
+        if counter_type is CounterTypes.REPEAT_COUNTER:
+            return self.repeat_counter
 
     def countersDeinit(self):
         self.module_counter = 1
@@ -141,3 +151,4 @@ class Counters:
         self.cond_counter = 1
         self.sequence = 0
         self.uniq_names_counter = 1
+        self.repeat_counter = 1

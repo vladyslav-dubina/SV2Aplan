@@ -75,6 +75,9 @@ def expression2AplanImpl(
     elif element_type == ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT:
         name_part = "assign_array"
         counter_type = CounterTypes.ASSIGNMENT_COUNTER
+    elif element_type == ElementsTypes.REPEAT_ELEMENT:
+        name_part = "repeat_iteration"
+        counter_type = CounterTypes.REPEAT_COUNTER
 
     action_name = "{0}_{1}".format(name_part, Counters_Object.getCounter(counter_type))
 
@@ -93,7 +96,7 @@ def expression2AplanImpl(
         source_interval,
     )
 
-    if element_type == ElementsTypes.ASSIGN_ELEMENT:
+    if element_type == ElementsTypes.ASSIGN_ELEMENT or element_type == ElementsTypes.REPEAT_ELEMENT:
         action.precondition.body.append("1")
         action.postcondition.body.append(expression_with_replaced_names)
         action.description.body.append(

@@ -106,6 +106,6 @@ def extractVectorSize(s: str):
         return result
 
 
-def is_numeric_string(s):
+def isNumericString(s):
     match = re.fullmatch(r"\d+", s)
     return match.group(0) if match else None

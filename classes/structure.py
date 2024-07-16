@@ -51,14 +51,6 @@ class StructureArray(BasicArray):
         else:
             super().__init__(element_type)
 
-    def isIncludeAlways(self):
-        from classes.always import Always
-
-        for element in self.elements:
-            if isinstance(element, Always):
-                return True
-        return False
-
     def getAlwaysList(self):
         from classes.always import Always
 

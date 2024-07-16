@@ -185,6 +185,15 @@ class SV2aplan:
             self, input, element_type, source_interval, input_parametrs
         )
 
+    def repeat2Aplan(
+        self,
+        ctx: SystemVerilogParser.Loop_statementContext,
+        sv_structure: Structure,
+    ):
+        from translator.loops.repeat import repeat2AplanImpl
+
+        repeat2AplanImpl(self, ctx, sv_structure)
+
     def loop2Aplan(
         self,
         ctx: (
@@ -234,7 +243,7 @@ class SV2aplan:
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Loop_statementContext:
                 if child.REPEAT():
-                    print(child.getText())
+                    self.repeat2Aplan(child, sv_structure)
                 else:
                     self.loop2Aplan(child, sv_structure)
             # ---------------------------------------------------------------------------

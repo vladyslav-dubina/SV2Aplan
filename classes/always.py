@@ -1,5 +1,5 @@
 from typing import Tuple
-from classes.structure import Structure, StructureArray
+from classes.structure import Structure
 
 
 class Always(Structure):
@@ -23,10 +23,3 @@ class Always(Structure):
     def __repr__(self):
         return f"\tAlways({self.identifier!r}, {self.sensetive!r}, {self.sequence!r})\n"
 
-
-class AlwaysArray(StructureArray):
-    def __init__(self):
-        super().__init__(Always)
-
-    def __repr__(self):
-        return f"AlwaysArray(\n{self.elements!r}\n)"

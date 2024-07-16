@@ -19,4 +19,5 @@ class ElementsTypes(Enum):
     LOOP_ELEMENT = auto()
     ALWAYS_ELEMENT = auto()
     INITIAL_ELEMENT= auto()
+    REPEAT_ELEMENT = auto()
     NONE_ELEMENT = auto()
