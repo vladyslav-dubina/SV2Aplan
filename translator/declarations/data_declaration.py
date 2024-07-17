@@ -21,6 +21,40 @@ def dataDecaration2AplanImpl(
     sv_structure: Structure | None = None,
     name_space: ElementsTypes = ElementsTypes.NONE_ELEMENT,
 ):
+    """The function `dataDecaration2AplanImpl` processes SystemVerilog data declarations and converts them
+    to Aplan format, handling variable assignments and expressions.
+
+    Parameters
+    ----------
+    self : SV2aplan
+        The `self` parameter in the `dataDecaration2AplanImpl` method refers to the instance of the
+    `SV2aplan` class to which the method belongs. It is a common convention in Python to use `self` as
+    the first parameter in instance methods to refer to the
+    ctx : SystemVerilogParser.Data_declarationContext
+        The `ctx` parameter in the `dataDecaration2AplanImpl` function is of type
+    `SystemVerilogParser.Data_declarationContext`. It represents the context of a data declaration in
+    SystemVerilog code. This context provides information about the data type, variable names,
+    dimensions, and expressions
+    listener : bool
+        The `listener` parameter in the `dataDecaration2AplanImpl` function is a boolean flag that
+    indicates whether a listener is being used or not. It is used to control certain behavior within the
+    function based on whether a listener is active or not.
+    sv_structure : Structure | None
+        The `sv_structure` parameter is an optional parameter of type `Structure`. It is used to pass
+    information about the structure of the SystemVerilog code being translated to Aplan. This parameter
+    allows the translation process to keep track of the structure of the code, such as behaviors and
+    actions within the code
+    name_space : ElementsTypes
+        The `name_space` parameter in the `dataDecaration2AplanImpl` function is used to specify the
+    namespace or scope of the elements being processed. It is of type `ElementsTypes` which is an enum
+    representing different types of elements. By providing a `name_space` value,
+
+    Returns
+    -------
+        The function `dataDecaration2AplanImpl` is returning the identifier of the last variable
+    declaration processed in the given context `ctx`.
+
+    """
     data_type = ctx.data_type_or_implicit().getText()
     if len(data_type) > 0:
         data_check_type = DeclTypes.checkType(data_type)

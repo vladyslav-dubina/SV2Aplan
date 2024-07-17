@@ -15,6 +15,22 @@ def netDeclaration2AplanImpl(
     self: SV2aplan,
     ctx: SystemVerilogParser.Net_declarationContext,
 ):
+    """The function `netDeclaration2AplanImpl` processes SystemVerilog net declarations and adds them
+    to a module's declarations in Aplan format.
+
+    Parameters
+    ----------
+    self : SV2aplan
+        The `self` parameter in the `netDeclaration2AplanImpl` function refers to the instance of the
+    `SV2aplan` class to which the method belongs. It is a common convention in Python to use `self` as
+    the first parameter in instance methods to refer to the instance itself
+    ctx : SystemVerilogParser.Net_declarationContext
+        The `ctx` parameter in the `netDeclaration2AplanImpl` function is of type
+    `SystemVerilogParser.Net_declarationContext`. This parameter represents the context of a net
+    declaration in a SystemVerilog code snippet. It contains information about the data type,
+    dimensions, and assignments associated with the
+
+    """
     data_type = ctx.data_type_or_implicit()
 
     unpacked_dimention = ctx.unpacked_dimension(0)

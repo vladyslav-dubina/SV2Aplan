@@ -14,6 +14,22 @@ def ansiPortDeclaration2AplanImpl(
     self: SV2aplan,
     ctx: SystemVerilogParser.Ansi_port_declarationContext,
 ):
+    """The function `ansiPortDeclaration2AplanImpl` processes ANSI port declarations in SystemVerilog and adds them
+    to a module's declarations in Aplan format.
+
+    Parameters
+    ----------
+    self : SV2aplan
+        The `self` parameter in Python is a reference to the current instance of the class. In this
+    context, it is used within a method of the `SV2aplan` class to refer to the current instance of that
+    class. It allows you to access the attributes and methods of the class within
+    ctx : SystemVerilogParser.Ansi_port_declarationContext
+        The `ctx` parameter in the `ansiPortDeclaration2AplanImpl` function is of type
+    `SystemVerilogParser.Ansi_port_declarationContext`. It represents the context of an ANSI port
+    declaration in SystemVerilog code. This context provides access to various elements and properties
+    of the ANSI port
+
+    """
     header = ctx.net_port_header().getText()
     unpacked_dimention = ctx.unpacked_dimension(0)
     dimension_size = 0
