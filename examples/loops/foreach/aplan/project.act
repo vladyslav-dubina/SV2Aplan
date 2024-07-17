@@ -1,0 +1,21 @@
+
+assign_1 = (
+		(1)->
+		("FOREACH_EXAMPLE#foreach_example:action 'assign (sum = 0)';")
+		(foreach_example.sum = 0)),
+cond_1 = (
+		(foreach_example.i_1 < 8)->
+		("FOREACH_EXAMPLE#foreach_example:action 'cond (i_1 < 8)';")
+		(1)),
+assign_2 = (
+		(1)->
+		("FOREACH_EXAMPLE#foreach_example:action 'assign (i_1 = 0)';")
+		(foreach_example.i_1 = 0)),
+assign_3 = (
+		(1)->
+		("FOREACH_EXAMPLE#foreach_example:action 'assign (i_1 = i_1 + 1)';")
+		(foreach_example.i_1 = foreach_example.i_1 + 1)),
+assign_4 = (
+		(1)->
+		("FOREACH_EXAMPLE#foreach_example:action 'assign (sum = sum + data[i_1])';")
+		(foreach_example.sum = foreach_example.sum + BGET(foreach_example.data, foreach_example.i_1)))

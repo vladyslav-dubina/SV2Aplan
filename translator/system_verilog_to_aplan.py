@@ -104,21 +104,71 @@ class SV2aplan:
 
     # ---------------------------------------------------------------------------------
 
-    def forInitializationToApan(self, ctx: SystemVerilogParser.Net_declarationContext):
+    def loopVarsToAplan(self, ctx: SystemVerilogParser.Loop_variablesContext):
         from translator.declarations.for_declaration import (
-            forInitializationToApanImpl,
+            loopVars2AplanImpl,
         )
 
-        return forInitializationToApanImpl(self, ctx)
+        return loopVars2AplanImpl(self, ctx)
 
     # ---------------------------------------------------------------------------------
 
-    def forDeclarationToApan(self, ctx: SystemVerilogParser.Net_declarationContext):
+    def loopVarsDeclarationsToAplan(
+        self, vars_names: List[str], source_intervals: List[Tuple[int, int]]
+    ):
         from translator.declarations.for_declaration import (
-            forDeclarationToApanImpl,
+            loopVarsDeclarations2AplanImpl,
         )
 
-        forDeclarationToApanImpl(self, ctx)
+        return loopVarsDeclarations2AplanImpl(self, vars_names, source_intervals)
+
+    # ---------------------------------------------------------------------------------
+
+    def loopVarsToIteration2Aplan(
+        self, vars_names: List[str], source_intervals: List[Tuple[int, int]]
+    ):
+        from translator.declarations.for_declaration import (
+            loopVarsToIteration2AplanImpl,
+        )
+
+        return loopVarsToIteration2AplanImpl(self, vars_names, source_intervals)
+
+    # ---------------------------------------------------------------------------------
+
+    def loopVarsAndArrayIdentifierToCondition2Aplan(
+        self,
+        vars_names: List[str],
+        ctx: SystemVerilogParser.Ps_or_hierarchical_array_identifierContext,
+    ):
+        from translator.declarations.for_declaration import (
+            loopVarsAndArrayIdentifierToCondition2AplanImpl,
+        )
+
+        return loopVarsAndArrayIdentifierToCondition2AplanImpl(
+            self, vars_names, ctx
+        )
+
+    # ---------------------------------------------------------------------------------
+
+    def forInitialization2Apan(
+        self, ctx: SystemVerilogParser.For_initializationContext
+    ):
+        from translator.declarations.for_declaration import (
+            forInitialization2ApanImpl,
+        )
+
+        return forInitialization2ApanImpl(self, ctx)
+
+    # ---------------------------------------------------------------------------------
+
+    def forDeclaration2Apan(
+        self, ctx: SystemVerilogParser.For_variable_declarationContext
+    ):
+        from translator.declarations.for_declaration import (
+            forDeclaration2ApanImpl,
+        )
+
+        forDeclaration2ApanImpl(self, ctx)
 
     # ====================================CALLS=========================================
     def moduleCall2Apan(
@@ -241,7 +291,7 @@ class SV2aplan:
                 self.blockAssignment2Aplan(child, sv_structure)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.For_variable_declarationContext:
-                self.forDeclarationToApan(child)
+                self.forDeclaration2Apan(child)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Data_declarationContext:
                 data_type = child.data_type_or_implicit().getText()

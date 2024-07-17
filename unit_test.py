@@ -130,6 +130,11 @@ def start_unit_test():
             "examples/loops/while_2/aplan",
         ),
         (
+            "examples/loops/foreach/foreach.sv",
+            "examples/loops/foreach/test_result",
+            "examples/loops/foreach/aplan",
+        ),
+        (
             "examples/call/call_1/call_2.sv",
             "examples/call/call_1/test_result",
             "examples/call/call_1/aplan",

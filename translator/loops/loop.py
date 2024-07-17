@@ -14,7 +14,7 @@ def loop2AplanImpl(
     ),
     sv_structure: Structure,
 ):
-    for_decl_identifier: str | None = None
+    for_decl_identifier = []
     loop_init = "LOOP_INIT_{0};".format(
         Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
     )
@@ -31,9 +31,15 @@ def loop2AplanImpl(
             loop_init_flag = False
             loop_init = ""
             loop_inc = ""
-        if ctx.FOR():
+        elif ctx.FOR():
             for_initialization_ctx = ctx.for_initialization()
-            for_decl_identifier = self.forInitializationToApan(for_initialization_ctx)
+            for_decl_identifier.append(
+                self.forInitialization2Apan(for_initialization_ctx)
+            )
+        elif ctx.FOREACH():
+            for_decl_identifier, source_intervals_list = self.loopVarsToAplan(
+                ctx.loop_variables()
+            )
 
     beh_index = sv_structure.getLastBehaviorIndex()
     if beh_index is not None:
@@ -76,23 +82,28 @@ def loop2AplanImpl(
             ctx.genvar_expression().getSourceInterval(),
         )
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
-        condition = ctx.expression().getText()
-        condition_name, source_interval, uniq_action = self.expression2Aplan(
-            condition,
-            ElementsTypes.CONDITION_ELEMENT,
-            ctx.expression().getSourceInterval(),
-        )
+        if ctx.FOREACH():
+            condition_name = self.loopVarsAndArrayIdentifierToCondition2Aplan(
+                for_decl_identifier, ctx.ps_or_hierarchical_array_identifier()
+            )
+        else:
+            condition = ctx.expression().getText()
+            condition_name, source_interval, uniq_action = self.expression2Aplan(
+                condition,
+                ElementsTypes.CONDITION_ELEMENT,
+                ctx.expression().getSourceInterval(),
+            )
 
-    sv_structure.behavior[beh_index].addBody(
-        (
-            "{1}.(LOOP_BODY_{0};{2}LOOP_MAIN_{0}) + !{1}".format(
-                Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
-                condition_name,
-                loop_inc,
-            ),
-            ElementsTypes.ACTION_ELEMENT,
+        sv_structure.behavior[beh_index].addBody(
+            (
+                "{1}.(LOOP_BODY_{0};{2}LOOP_MAIN_{0}) + !{1}".format(
+                    Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
+                    condition_name,
+                    loop_inc,
+                ),
+                ElementsTypes.ACTION_ELEMENT,
+            )
         )
-    )
 
     # LOOP INIT
     initialization = ""
@@ -105,13 +116,18 @@ def loop2AplanImpl(
         )
         loop_init_flag = True
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
-        if loop_init_flag == True:
-            initialization = removeTypeFromForInit(ctx.for_initialization())
-            action_name, source_interval, uniq_action = self.expression2Aplan(
-                initialization,
-                ElementsTypes.ASSIGN_ELEMENT,
-                ctx.for_initialization().getSourceInterval(),
+        if ctx.FOREACH():
+            action_names_list = self.loopVarsDeclarationsToAplan(
+                for_decl_identifier, source_intervals_list
             )
+        else:
+            if loop_init_flag == True:
+                initialization = removeTypeFromForInit(ctx.for_initialization())
+                action_name, source_interval, uniq_action = self.expression2Aplan(
+                    initialization,
+                    ElementsTypes.ASSIGN_ELEMENT,
+                    ctx.for_initialization().getSourceInterval(),
+                )
 
     if loop_init_flag == True:
         beh_index = sv_structure.addProtocol(
@@ -119,12 +135,17 @@ def loop2AplanImpl(
                 Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
             )
         )
-        sv_structure.behavior[beh_index].addBody(
-            (action_name, ElementsTypes.ACTION_ELEMENT)
-        )
+        if ctx.FOREACH():
+            for element in action_names_list:
+                sv_structure.behavior[beh_index].addBody(
+                    (element, ElementsTypes.ACTION_ELEMENT)
+                )
+        else:
+            sv_structure.behavior[beh_index].addBody(
+                (action_name, ElementsTypes.ACTION_ELEMENT)
+            )
 
     # LOOP INC
-    iteration = ""
     if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
         iteration = ctx.genvar_iteration().getText()
         action_name, source_interval, uniq_action = self.expression2Aplan(
@@ -133,34 +154,49 @@ def loop2AplanImpl(
             ctx.genvar_iteration().getSourceInterval(),
         )
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
-        if loop_inс_flag == True:
-            iteration = ctx.for_step().getText()
-            action_name, source_interval, uniq_action = self.expression2Aplan(
-                iteration,
-                ElementsTypes.ASSIGN_ELEMENT,
-                ctx.for_step().getSourceInterval(),
+        if ctx.FOREACH():
+            action_names_list = self.loopVarsToIteration2Aplan(
+                for_decl_identifier, source_intervals_list
             )
+        else:
+            if loop_inс_flag == True:
+                iteration = ctx.for_step().getText()
+                action_name, source_interval, uniq_action = self.expression2Aplan(
+                    iteration,
+                    ElementsTypes.ASSIGN_ELEMENT,
+                    ctx.for_step().getSourceInterval(),
+                )
 
     if loop_inс_flag == True:
         beh_index = sv_structure.addProtocol(
             "LOOP_INC_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
         )
-        sv_structure.behavior[beh_index].addBody(
-            (action_name, ElementsTypes.ACTION_ELEMENT)
-        )
+        if ctx.FOREACH():
+            for element in action_names_list:
+                sv_structure.behavior[beh_index].addBody(
+                    (element, ElementsTypes.ACTION_ELEMENT)
+                )
+        else:
+            sv_structure.behavior[beh_index].addBody(
+                (action_name, ElementsTypes.ACTION_ELEMENT)
+            )
 
     # BODY LOOP
     sv_structure.addProtocol(
         "LOOP_BODY_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
     )
-    names_for_change = [for_decl_identifier]
+    names_for_change = for_decl_identifier
     if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
         names_for_change += self.body2Aplan(
             ctx.generate_block(), sv_structure, ElementsTypes.LOOP_ELEMENT
         )
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
+        if ctx.FOREACH():
+            body_statement = ctx.statement()
+        else:
+            body_statement = ctx.statement_or_null()
         names_for_change += self.body2Aplan(
-            ctx.statement_or_null(), sv_structure, ElementsTypes.LOOP_ELEMENT
+            body_statement, sv_structure, ElementsTypes.LOOP_ELEMENT
         )
 
     Counters_Object.incrieseCounter(CounterTypes.LOOP_COUNTER)

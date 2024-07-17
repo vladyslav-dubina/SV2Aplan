@@ -116,6 +116,10 @@ def regeneration_start():
             "examples/loops/while_2/aplan",
         ),
         (
+            "examples/loops/foreach/foreach.sv",
+            "examples/loops/foreach/aplan",
+        ),
+        (
             "examples/code_patch/code_patch_wb_wrapper.sv",
             "examples/code_patch/aplan",
         ),
