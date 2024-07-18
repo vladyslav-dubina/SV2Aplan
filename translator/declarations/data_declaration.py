@@ -71,6 +71,7 @@ def dataDecaration2AplanImpl(
             original_identifier = elem.variable_identifier().identifier().getText()
             identifier = original_identifier
             if name_space != ElementsTypes.NONE_ELEMENT:
+                print(identifier, "+")
                 identifier += (
                     f"_{Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)}"
                 )
@@ -85,18 +86,23 @@ def dataDecaration2AplanImpl(
                 dimension_size = extractDimentionSize(dimension)
 
             assign_name = ""
-            decl_unique, decl_index = self.module.declarations.addElement(
-                Declaration(
-                    data_check_type,
-                    identifier,
-                    assign_name,
-                    size_expression,
-                    aplan_vector_size[0],
-                    dimension_size_expression,
-                    dimension_size,
-                    elem.getSourceInterval(),
-                )
+            new_decl = Declaration(
+                data_check_type,
+                identifier,
+                assign_name,
+                size_expression,
+                aplan_vector_size[0],
+                dimension_size_expression,
+                dimension_size,
+                elem.getSourceInterval(),
             )
+            decl_unique, decl_index = self.module.declarations.addElement(new_decl)
+            if listener == False and (
+                name_space != ElementsTypes.NONE_ELEMENT
+                or name_space != ElementsTypes.LOOP_ELEMENT
+                or name_space != ElementsTypes.GENERATE_ELEMENT
+            ):
+                self.module.declarations.elements[decl_index] = new_decl
 
             if listener == False:
                 self.module.name_change.addElement(
@@ -135,6 +141,7 @@ def dataDecaration2AplanImpl(
                         declaration = self.module.declarations.getElementByIndex(
                             decl_index
                         )
+                        print(declaration)
                         declaration.expression = assign_name
 
         return identifier

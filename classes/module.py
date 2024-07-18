@@ -11,6 +11,8 @@ from classes.element_types import ElementsTypes
 from typing import Tuple
 import re
 
+from classes.tasks import TaskArray
+
 
 class Module(Basic):
     def __init__(
@@ -37,6 +39,8 @@ class Module(Basic):
         self.name_change = NameChangeArray()
 
         self.processed_elements = ProcessedElementArray()
+
+        self.tasks = TaskArray()
 
     def findAndChangeNamesToAgentAttrCall(self, input: str):
         for elem in self.declarations.getElements():

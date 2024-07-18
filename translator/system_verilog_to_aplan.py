@@ -286,6 +286,11 @@ class SV2aplan:
             ):
                 self.blockAssignment2Aplan(child, sv_structure)
             # ---------------------------------------------------------------------------
+            # Task and function handler
+            elif type(child) is SystemVerilogParser.Tf_callContext:
+                pass
+            # print(child.getText())
+            # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.For_variable_declarationContext:
                 self.forDeclaration2Apan(child)
             # ---------------------------------------------------------------------------
@@ -295,6 +300,7 @@ class SV2aplan:
                     identifier = self.dataDecaration2Aplan(
                         child, False, sv_structure, name_space
                     )
+                    print(child.getText(), name_space, identifier)
                     if identifier is not None:
                         names_for_change.append(identifier)
                 else:
@@ -328,3 +334,8 @@ class SV2aplan:
         from translator.structures.initial import initital2AplanImpl
 
         initital2AplanImpl(self, ctx)
+
+    def taskDeclaration2Aplan(self, ctx: SystemVerilogParser.Task_declarationContext):
+        from translator.task_and_function.task import taskDeclaration2AplanImpl
+
+        taskDeclaration2AplanImpl(self, ctx)

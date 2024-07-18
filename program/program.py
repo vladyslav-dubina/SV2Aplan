@@ -77,6 +77,7 @@ class Program:
             env += "\t\t{0} : obj (\n".format(module.identifier)
             decls = module.declarations.getElements()
             for index, elem in enumerate(decls):
+                print(elem)
                 if index > 0:
                     env += ",\n"
                 env += "\t\t\t{0}:{1}".format(elem.identifier, elem.getAplanDecltype())

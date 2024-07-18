@@ -20,6 +20,7 @@ class CounterTypes(Enum):
     UNIQ_NAMES_COUNTER = auto()
     REPEAT_COUNTER = auto()
     FOREVER_COUNTER = auto()
+    TASK_COUNTER = auto()
 
 
 class Counters:
@@ -39,6 +40,7 @@ class Counters:
         self.repeat_counter = 1
         self.case_counter = 1
         self.forever_counter = 1
+        self.task_counter = 1
 
     def selectCounter(self, element_type: ElementsTypes):
         if element_type is ElementsTypes.ASSIGN_ELEMENT:
@@ -59,6 +61,8 @@ class Counters:
             return CounterTypes.CASE_COUNTER
         if element_type is ElementsTypes.FOREVER_ELEMENT:
             return CounterTypes.FOREVER_COUNTER
+        if element_type is ElementsTypes.TASK_ELEMENT:
+            return CounterTypes.TASK_COUNTER
         return CounterTypes.NONE_COUNTER
 
     def incrieseCounter(self, counter_type: CounterTypes):
@@ -92,6 +96,8 @@ class Counters:
             self.case_counter += 1
         if counter_type is CounterTypes.FOREVER_COUNTER:
             self.forever_counter += 1
+        if counter_type is CounterTypes.TASK_COUNTER:
+            self.task_counter += 1
 
     def decrieseCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
@@ -124,6 +130,8 @@ class Counters:
             self.case_counter -= 1
         if counter_type is CounterTypes.FOREVER_COUNTER:
             self.forever_counter -= 1
+        if counter_type is CounterTypes.TASK_COUNTER:
+            self.task_counter -= 1
 
     def getCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
@@ -157,6 +165,8 @@ class Counters:
             return self.case_counter
         if counter_type is CounterTypes.FOREVER_COUNTER:
             return self.forever_counter
+        if counter_type is CounterTypes.TASK_COUNTER:
+            return self.task_counter
 
     def countersDeinit(self):
         self.module_counter = 1
@@ -174,3 +184,4 @@ class Counters:
         self.repeat_counter = 1
         self.case_counter = 1
         self.forever_counter = 1
+        self.task_counter = 1

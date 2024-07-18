@@ -9,10 +9,14 @@ class ActionParametr(Basic):
         self,
         identifier: str,
         type: str,
+        source_interval: Tuple[int, int] = (0, 0),
+        action_name: str = "",
     ):
+        if len(action_name) > 0:
+            action_name += "_"
         self.type = type
-        self.uniq_identifier = ""
-        super().__init__(identifier, (0, 0))
+        self.uniq_identifier = action_name + ""
+        super().__init__(identifier, source_interval)
 
     def __str__(self) -> str:
         return f"{self.uniq_identifier}:{self.type}"

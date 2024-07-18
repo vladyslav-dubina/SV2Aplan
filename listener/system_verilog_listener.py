@@ -1,4 +1,7 @@
-from antlr4_verilog.systemverilog import SystemVerilogParserListener
+from antlr4_verilog.systemverilog import (
+    SystemVerilogParserListener,
+    SystemVerilogParser,
+)
 from translator.declarations.module_declaration import moduleDeclaration2Aplan
 from translator.system_verilog_to_aplan import (
     SV2aplan,
@@ -53,3 +56,6 @@ class SVListener(SystemVerilogParserListener):
 
     def exitInitial_construct(self, ctx):
         self.sv2aplan.initial2Aplan(ctx)
+
+    def exitTask_declaration(self, ctx: SystemVerilogParser.Task_declarationContext):
+        self.sv2aplan.taskDeclaration2Aplan(ctx)
