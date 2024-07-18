@@ -100,6 +100,10 @@ def regeneration_start():
             "examples/repeat/aplan",
         ),
         (
+            "examples/loops/forever/forever.sv",
+            "examples/loops/forever/aplan",
+        ),
+        (
             "examples/call/call_1/call_2.sv",
             "examples/call/call_1/aplan",
         ),

@@ -5,7 +5,7 @@ from classes.element_types import ElementsTypes
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replaceParametrsCalls
-from utils.utils import Counters_Object, isNumericString
+from utils.utils import Counters_Object
 
 
 def repeat2AplanImpl(

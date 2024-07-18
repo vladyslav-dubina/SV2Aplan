@@ -38,7 +38,9 @@ class Protocol(Basic):
                     body_to_str += " || "
                 else:
                     prev_element, prev_element_type = self.body[index - 1]
-                    if prev_element_type == ElementsTypes.ACTION_ELEMENT and (
+                    if element_type == ElementsTypes.FOREVER_ELEMENT:
+                        body_to_str += ";"
+                    elif prev_element_type == ElementsTypes.ACTION_ELEMENT and (
                         element_type == ElementsTypes.ACTION_ELEMENT
                         or element_type == ElementsTypes.PROTOCOL_ELEMENT
                     ):
@@ -46,7 +48,10 @@ class Protocol(Basic):
                     else:
                         protocol_element = True
                         body_to_str += ";"
-            if protocol_element == False:
+
+            if element_type == ElementsTypes.FOREVER_ELEMENT:
+                body_to_str += "{" + element + "}"
+            elif protocol_element == False:
                 body_to_str += element
             else:
                 body_to_str += "(" + element + ")"

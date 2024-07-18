@@ -144,9 +144,7 @@ class SV2aplan:
             loopVarsAndArrayIdentifierToCondition2AplanImpl,
         )
 
-        return loopVarsAndArrayIdentifierToCondition2AplanImpl(
-            self, vars_names, ctx
-        )
+        return loopVarsAndArrayIdentifierToCondition2AplanImpl(self, vars_names, ctx)
 
     # ---------------------------------------------------------------------------------
 
@@ -247,15 +245,6 @@ class SV2aplan:
             self, input, element_type, source_interval, input_parametrs
         )
 
-    def repeat2Aplan(
-        self,
-        ctx: SystemVerilogParser.Loop_statementContext,
-        sv_structure: Structure,
-    ):
-        from translator.loops.repeat import repeat2AplanImpl
-
-        repeat2AplanImpl(self, ctx, sv_structure)
-
     def loop2Aplan(
         self,
         ctx: (
@@ -265,8 +254,15 @@ class SV2aplan:
         sv_structure: Structure,
     ):
         from translator.loops.loop import loop2AplanImpl
+        from translator.loops.repeat import repeat2AplanImpl
+        from translator.loops.forever import forever2AplanImpl
 
-        loop2AplanImpl(self, ctx, sv_structure)
+        if ctx.REPEAT():
+            repeat2AplanImpl(self, ctx, sv_structure)
+        elif ctx.FOREVER():
+            forever2AplanImpl(self, ctx, sv_structure)
+        else:
+            loop2AplanImpl(self, ctx, sv_structure)
 
     def body2Aplan(self, ctx, sv_structure: Structure, name_space: ElementsTypes):
         names_for_change = []
@@ -305,10 +301,7 @@ class SV2aplan:
                     names_for_change += self.body2Aplan(child, sv_structure, name_space)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Loop_statementContext:
-                if child.REPEAT():
-                    self.repeat2Aplan(child, sv_structure)
-                else:
-                    self.loop2Aplan(child, sv_structure)
+                self.loop2Aplan(child, sv_structure)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Case_statementContext:
                 self.case2Aplan(child, sv_structure, names_for_change)

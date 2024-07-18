@@ -19,6 +19,7 @@ class CounterTypes(Enum):
     SEQUENCE_COUNTER = auto()
     UNIQ_NAMES_COUNTER = auto()
     REPEAT_COUNTER = auto()
+    FOREVER_COUNTER = auto()
 
 
 class Counters:
@@ -37,6 +38,7 @@ class Counters:
         self.uniq_names_counter = 1
         self.repeat_counter = 1
         self.case_counter = 1
+        self.forever_counter = 1
 
     def selectCounter(self, element_type: ElementsTypes):
         if element_type is ElementsTypes.ASSIGN_ELEMENT:
@@ -55,6 +57,8 @@ class Counters:
             return CounterTypes.REPEAT_COUNTER
         if element_type is ElementsTypes.CASE_ELEMENT:
             return CounterTypes.CASE_COUNTER
+        if element_type is ElementsTypes.FOREVER_ELEMENT:
+            return CounterTypes.FOREVER_COUNTER
         return CounterTypes.NONE_COUNTER
 
     def incrieseCounter(self, counter_type: CounterTypes):
@@ -86,6 +90,8 @@ class Counters:
             self.repeat_counter += 1
         if counter_type is CounterTypes.CASE_COUNTER:
             self.case_counter += 1
+        if counter_type is CounterTypes.FOREVER_COUNTER:
+            self.forever_counter += 1
 
     def decrieseCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
@@ -115,7 +121,9 @@ class Counters:
         if counter_type is CounterTypes.REPEAT_COUNTER:
             self.repeat_counter -= 1
         if counter_type is CounterTypes.CASE_COUNTER:
-            self.case_counter == 1
+            self.case_counter -= 1
+        if counter_type is CounterTypes.FOREVER_COUNTER:
+            self.forever_counter -= 1
 
     def getCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
@@ -147,6 +155,8 @@ class Counters:
             return self.repeat_counter
         if counter_type is CounterTypes.CASE_COUNTER:
             return self.case_counter
+        if counter_type is CounterTypes.FOREVER_COUNTER:
+            return self.forever_counter
 
     def countersDeinit(self):
         self.module_counter = 1
@@ -163,3 +173,4 @@ class Counters:
         self.uniq_names_counter = 1
         self.repeat_counter = 1
         self.case_counter = 1
+        self.forever_counter = 1

@@ -124,7 +124,7 @@ class Module(Basic):
 
         if len(struct_part) > 0:
             struct_flag = True
-            if always_flag:
+            if always_flag or main_flag:
                 struct_part += " || "
 
         # INIT PROTOCOL

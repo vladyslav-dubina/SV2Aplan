@@ -135,6 +135,11 @@ def start_unit_test():
             "examples/loops/foreach/aplan",
         ),
         (
+            "examples/loops/forever/forever.sv",
+            "examples/loops/forever/test_result",
+            "examples/loops/forever/aplan",
+        ),
+        (
             "examples/call/call_1/call_2.sv",
             "examples/call/call_1/test_result",
             "examples/call/call_1/aplan",
