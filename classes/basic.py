@@ -29,7 +29,7 @@ class BasicArray:
     def addElement(self, new_element: Basic):
         if isinstance(new_element, self.element_type):
             self.elements.append(new_element)
-            return len(self.elements) - 1
+            return self.getLen() - 1
         else:
             raise TypeError(
                 f"Object should be of type {self.element_type} but you passed an object of type {type(new_element)}. \n Object: {new_element}"

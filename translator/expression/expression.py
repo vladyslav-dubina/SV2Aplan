@@ -176,7 +176,7 @@ def expression2AplanImpl(
         action_name = action_check_result
 
     if self.inside_the_task == True and action_name is not None:
-        action_parametrs_count = action.parametrs.parametrsCount()
+        action_parametrs_count = action.parametrs.getLen()
         action_name = f"{action_name}{action.parametrs.getIdentifiersListString(action_parametrs_count)}"
 
     Counters_Object.incrieseCounter(counter_type)

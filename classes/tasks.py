@@ -2,11 +2,8 @@ import re
 from typing import Tuple, List
 from classes.action_parametr import ActionParametrArray
 from classes.basic import Basic, BasicArray
-from classes.actions import Action, ActionParts
+from classes.actions import ActionParts
 from classes.structure import Structure
-from utils.string_formating import removeTrailingComma
-from classes.counters import CounterTypes
-from utils.utils import Counters_Object
 
 
 class Task(Basic):

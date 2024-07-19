@@ -32,9 +32,6 @@ class ActionParametrArray(BasicArray):
     def __init__(self):
         super().__init__(ActionParametr)
 
-    def parametrsCount(self):
-        return len(self.elements)
-
     def generateParametrNameByIndex(self, index):
         alphabet = "abcdefghijklmnopqrstuvwxyz"
         base = len(alphabet)
@@ -53,7 +50,7 @@ class ActionParametrArray(BasicArray):
 
     def getIdentifiersListString(self, parametrs_count):
         result = ""
-        if parametrs_count <= self.parametrsCount():
+        if parametrs_count <= self.getLen():
             for index in range(parametrs_count):
                 if index == 0:
                     result += "("
@@ -61,11 +58,11 @@ class ActionParametrArray(BasicArray):
                 if index != 0:
                     result += ", "
                 result += self.elements[index].identifier
-                if index == len(self.elements) - 1:
+                if index == self.getLen() - 1:
                     result += ")"
         else:
             raise ValueError(
-                f"The number of arguments passed {self.parametrsCount()} is different from the number expected {parametrs_count}"
+                f"The number of arguments passed {self.getLen()} is different from the number expected {parametrs_count}"
             )
         return result
 
