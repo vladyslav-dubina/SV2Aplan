@@ -13,13 +13,20 @@ module task_example;
         end
     endtask
 
+    task calculate(input int in_a, input int in_b, output int out_result_add, output int out_result_sub);
+        int temp_sum;
+        begin
+            add(in_a, in_b, temp_sum);
+            subtract(in_a, in_b, out_result_sub);
+            out_result_add = temp_sum;
+        end
+    endtask
+
     initial begin
         a = 10;
         b = 5;
 
-        add(a, b, result_add);
-
-        subtract(a, b, result_sub);
+        calculate(a, b, result_add, result_sub);
     end
 
 endmodule

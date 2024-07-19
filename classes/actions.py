@@ -1,5 +1,5 @@
 from typing import Tuple, List
-from classes.action_parametr import ActionParametrArray
+from classes.action_parametr import ActionParametr, ActionParametrArray
 from classes.basic import Basic, BasicArray
 from utils.string_formating import removeTrailingComma
 
@@ -23,7 +23,7 @@ class Action(Basic):
         identifier: str,
         number: int,
         source_interval: Tuple[int, int],
-        parametrs: ActionParametrArray | None = None,
+        exist_parametrs: ActionParametrArray | None = None,
     ):
         self.number = number
         identifier_tmp = identifier + "_" + str(number)
@@ -31,16 +31,27 @@ class Action(Basic):
         self.precondition: ActionParts = ActionParts()
         self.postcondition: ActionParts = ActionParts()
         self.description: ActionParts = ActionParts()
-        self.parametrs: ActionParametrArray | None = parametrs
+        self.exist_parametrs: ActionParametrArray | None = exist_parametrs
+        self.parametrs: ActionParametrArray = ActionParametrArray()
 
     def getBody(self):
-        if self.parametrs is None:
-            return f""" = (\n\t\t({self.precondition})->\n\t\t("{self.description};")\n\t\t({self.postcondition}))"""
+        if self.exist_parametrs is not None:
+            return f""" = ( Exist ({self.exist_parametrs}) (\n\t\t({self.precondition})->\n\t\t("{self.description};")\n\t\t({self.postcondition})))"""
+        elif self.parametrs.getLen() > 0:
+            return f"""({self.parametrs}) = (\n\t\t({self.precondition})->\n\t\t("{self.description};")\n\t\t({self.postcondition}))"""
         else:
-            return f""" = ( Exist ({self.parametrs}) (\n\t\t({self.precondition})->\n\t\t("{self.description};")\n\t\t({self.postcondition})))"""
+            return f""" = (\n\t\t({self.precondition})->\n\t\t("{self.description};")\n\t\t({self.postcondition}))"""
 
     def getActionName(self):
         return "{0}_{1}".format(self.identifier, self.number)
+
+    def findParametrInBodyAndSetParametrs(self, task):
+        for task_parametr in task.parametrs.getElements():
+            if task_parametr.identifier in str(self.precondition):
+                self.parametrs.addElement(task_parametr)
+
+            if task_parametr.identifier in str(self.postcondition):
+                self.parametrs.addElement(task_parametr)
 
     def __str__(self):
         return "{0}{1},".format(self.identifier, self.getBody())

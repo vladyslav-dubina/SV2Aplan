@@ -47,6 +47,7 @@ def addSpacesAroundOperators(expression: str):
 
     spaced_expression = re.sub(f"({pattern})", r" \1 ", expression)
     spaced_expression = re.sub(r"\s+", " ", spaced_expression).strip()
+    spaced_expression = re.sub(r",\s*", ", ", spaced_expression)
 
     return spaced_expression
 

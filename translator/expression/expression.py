@@ -6,45 +6,59 @@ from classes.actions import Action
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.string_formating import addBracketsAfterNegation, addBracketsAfterTilda, addLeftValueForUnaryOrOperator, addSpacesAroundOperators, doubleOperators2Aplan, notConcreteIndex2AplanStandart, parallelAssignment2Assignment, replaceParametrsCalls, valuesToAplanStandart, vectorSizes2AplanStandart
+from utils.string_formating import (
+    addBracketsAfterNegation,
+    addBracketsAfterTilda,
+    addLeftValueForUnaryOrOperator,
+    addSpacesAroundOperators,
+    doubleOperators2Aplan,
+    notConcreteIndex2AplanStandart,
+    parallelAssignment2Assignment,
+    replaceParametrsCalls,
+    valuesToAplanStandart,
+    vectorSizes2AplanStandart,
+)
 from utils.utils import Counters_Object
 
 
-def prepareExpressionStringImpl(self: SV2aplan, expression: str, expr_type: ElementsTypes):
-        expression = valuesToAplanStandart(expression)
-        expression = doubleOperators2Aplan(expression)
-        expression = addLeftValueForUnaryOrOperator(expression)
-        expression = addSpacesAroundOperators(expression)
-        if (
-            ElementsTypes.ASSIGN_FOR_CALL_ELEMENT != expr_type
-            and ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT != expr_type
-        ):
-            expression_with_replaced_names = (
-                self.module.findAndChangeNamesToAgentAttrCall(expression)
-            )
-        else:
-            expression_with_replaced_names = expression
+def prepareExpressionStringImpl(
+    self: SV2aplan, expression: str, expr_type: ElementsTypes
+):
+    expression = valuesToAplanStandart(expression)
+    expression = doubleOperators2Aplan(expression)
+    expression = addLeftValueForUnaryOrOperator(expression)
+    expression = addSpacesAroundOperators(expression)
+    if (
+        ElementsTypes.ASSIGN_FOR_CALL_ELEMENT != expr_type
+        and ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT != expr_type
+    ):
+        expression_with_replaced_names = self.module.findAndChangeNamesToAgentAttrCall(
+            expression
+        )
+    else:
+        expression_with_replaced_names = expression
 
-        expression_with_replaced_names = addBracketsAfterNegation(
+    expression_with_replaced_names = addBracketsAfterNegation(
+        expression_with_replaced_names
+    )
+    expression_with_replaced_names = addBracketsAfterTilda(
+        expression_with_replaced_names
+    )
+    expression_with_replaced_names = vectorSizes2AplanStandart(
+        expression_with_replaced_names
+    )
+    if ElementsTypes.ASSIGN_ELEMENT == expr_type:
+        expression_with_replaced_names = parallelAssignment2Assignment(
             expression_with_replaced_names
         )
-        expression_with_replaced_names = addBracketsAfterTilda(
-            expression_with_replaced_names
-        )
-        expression_with_replaced_names = vectorSizes2AplanStandart(
-            expression_with_replaced_names
-        )
-        if ElementsTypes.ASSIGN_ELEMENT == expr_type:
-            expression_with_replaced_names = parallelAssignment2Assignment(
-                expression_with_replaced_names
-            )
-        expression_with_replaced_names = notConcreteIndex2AplanStandart(
-            expression_with_replaced_names, self.module
-        )
-        expression_with_replaced_names = replaceParametrsCalls(
-            self.module.parametrs, expression_with_replaced_names
-        )
-        return (expression, expression_with_replaced_names)
+    expression_with_replaced_names = notConcreteIndex2AplanStandart(
+        expression_with_replaced_names, self.module
+    )
+    expression_with_replaced_names = replaceParametrsCalls(
+        self.module.parametrs, expression_with_replaced_names
+    )
+    return (expression, expression_with_replaced_names)
+
 
 def expression2AplanImpl(
     self: SV2aplan,
@@ -96,7 +110,10 @@ def expression2AplanImpl(
         source_interval,
     )
 
-    if element_type == ElementsTypes.ASSIGN_ELEMENT or element_type == ElementsTypes.REPEAT_ELEMENT:
+    if (
+        element_type == ElementsTypes.ASSIGN_ELEMENT
+        or element_type == ElementsTypes.REPEAT_ELEMENT
+    ):
         action.precondition.body.append("1")
         action.postcondition.body.append(expression_with_replaced_names)
         action.description.body.append(
@@ -132,7 +149,7 @@ def expression2AplanImpl(
                 expression_with_replaced_names,
             ) = self.prepareExpressionString(input, element_type)
             action.postcondition.body.append(expression_with_replaced_names)
-            action.parametrs = parametrs
+            action.exist_parametrs = parametrs
 
             action.description.body.append(
                 f"{obj_def}:action '{name_part} ({expression})'"
@@ -144,6 +161,11 @@ def expression2AplanImpl(
             f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
         )
 
+    if self.inside_the_task == True:
+        task = self.module.tasks.getLastTask()
+        if task is not None:
+            action.findParametrInBodyAndSetParametrs(task)
+
     action_check_result, source_interval = self.module.actions.isUniqAction(action)
     uniq = False
     if action_check_result is None:
@@ -152,6 +174,10 @@ def expression2AplanImpl(
     else:
         Counters_Object.decrieseCounter(counter_type)
         action_name = action_check_result
+
+    if self.inside_the_task == True and action_name is not None:
+        action_parametrs_count = action.parametrs.parametrsCount()
+        action_name = f"{action_name}{action.parametrs.getIdentifiersListString(action_parametrs_count)}"
 
     Counters_Object.incrieseCounter(counter_type)
     return (action_name, source_interval, uniq)

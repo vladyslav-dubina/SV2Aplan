@@ -1,0 +1,21 @@
+
+assign_1(var x;var y;var z) = (
+		(1)->
+		("TASK_EXAMPLE#task_example:action 'assign (z = x + y)';")
+		(z = x + y)),
+assign_2(var x;var y;var z) = (
+		(1)->
+		("TASK_EXAMPLE#task_example:action 'assign (z = x - y)';")
+		(z = x - y)),
+assign_3(var out_result_add) = (
+		(1)->
+		("TASK_EXAMPLE#task_example:action 'assign (out_result_add = temp_sum_1)';")
+		(out_result_add = task_example.temp_sum_1)),
+assign_4 = (
+		(1)->
+		("TASK_EXAMPLE#task_example:action 'assign (a = 10)';")
+		(task_example.a = 10)),
+assign_5 = (
+		(1)->
+		("TASK_EXAMPLE#task_example:action 'assign (b = 5)';")
+		(task_example.b = 5))

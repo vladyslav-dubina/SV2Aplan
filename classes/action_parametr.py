@@ -19,7 +19,10 @@ class ActionParametr(Basic):
         super().__init__(identifier, source_interval)
 
     def __str__(self) -> str:
-        return f"{self.uniq_identifier}:{self.type}"
+        if "var" in self.type:
+            return f"{self.type} {self.identifier}"
+        else:
+            return f"{self.uniq_identifier}:{self.type}"
 
     def __repr__(self):
         return f"\ActionParametr({self.identifier!r}, {self.type!r})\n"
@@ -28,6 +31,9 @@ class ActionParametr(Basic):
 class ActionParametrArray(BasicArray):
     def __init__(self):
         super().__init__(ActionParametr)
+
+    def parametrsCount(self):
+        return len(self.elements)
 
     def generateParametrNameByIndex(self, index):
         alphabet = "abcdefghijklmnopqrstuvwxyz"
@@ -44,6 +50,24 @@ class ActionParametrArray(BasicArray):
                 name = alphabet[next_index] + name[1:]
 
         return name
+
+    def getIdentifiersListString(self, parametrs_count):
+        result = ""
+        if parametrs_count <= self.parametrsCount():
+            for index in range(parametrs_count):
+                if index == 0:
+                    result += "("
+
+                if index != 0:
+                    result += ", "
+                result += self.elements[index].identifier
+                if index == len(self.elements) - 1:
+                    result += ")"
+        else:
+            raise ValueError(
+                f"The number of arguments passed {self.parametrsCount()} is different from the number expected {parametrs_count}"
+            )
+        return result
 
     def generateUniqNamesForParamets(
         self,

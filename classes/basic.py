@@ -53,14 +53,17 @@ class BasicArray:
                 return index
         return None
 
+    def getElementByIndex(self, index):
+        return self.elements[index]
+
     def removeElement(self, element):
         self.elements.remove(element)
 
     def getElements(self):
         return self.elements
 
-    def getElementByIndex(self, index):
-        return self.elements[index]
+    def getLen(self):
+        return len(self.elements)
 
     def __repr__(self):
         return f"ElementArray(\n{self.elements!r}\t)"

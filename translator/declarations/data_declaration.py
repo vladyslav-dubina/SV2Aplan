@@ -71,7 +71,6 @@ def dataDecaration2AplanImpl(
             original_identifier = elem.variable_identifier().identifier().getText()
             identifier = original_identifier
             if name_space != ElementsTypes.NONE_ELEMENT:
-                print(identifier, "+")
                 identifier += (
                     f"_{Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)}"
                 )
@@ -141,7 +140,6 @@ def dataDecaration2AplanImpl(
                         declaration = self.module.declarations.getElementByIndex(
                             decl_index
                         )
-                        print(declaration)
                         declaration.expression = assign_name
 
         return identifier

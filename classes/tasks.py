@@ -19,31 +19,15 @@ class Task(Basic):
         self.initial_parametrs: ActionParametrArray = ActionParametrArray()
         self.structure: Structure | None = None
         self.postcondition: ActionParts = ActionParts()
-        self.parametrs = []
-
-    def generateAction(
-        self, precondition: ActionParts, description: ActionParts, parametrs: List[str]
-    ):
-        action = Action(
-            self.identifier,
-            Counters_Object.getCounter(CounterTypes.TASK_COUNTER),
-            self.source_interval,
-        )
-        action.precondition = precondition
-        action.description = description
-        self.replaseParametrs(parametrs)
-        action.postcondition = self.postcondition
-        Counters_Object.incrieseCounter(CounterTypes.TASK_COUNTER)
-        return action
-
-    def getActionName(self):
-        return "{0}_{1}".format(self.identifier, self.number)
+        self.parametrs: ActionParametrArray = ActionParametrArray()
 
     def __str__(self):
-        return "{0}{1},".format(self.identifier, self.getBody())
+        return "{0}({1}),".format(self.structure.identifier, self.parametrs)
 
     def __repr__(self):
-        return f"\Task({self.identifier!r}, {self.number!r}, {self.sequence!r} {self.postcondition!r})\n"
+        return (
+            f"\Task({self.identifier!r},  {self.sequence!r} {self.postcondition!r})\n"
+        )
 
 
 class TaskArray(BasicArray):
@@ -57,7 +41,10 @@ class TaskArray(BasicArray):
         return None, (None, None)
 
     def getLastTask(self):
-        return len(self.getElements()) - 1
+        index = len(self.getElements()) - 1
+        if index >= 0:
+            return self.getElementByIndex(index)
+        return None
 
     def __repr__(self):
         return f"TaskArray(\n{self.elements!r}\t)"

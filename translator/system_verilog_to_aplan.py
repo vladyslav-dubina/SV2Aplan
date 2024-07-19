@@ -13,6 +13,7 @@ from typing import Tuple, List
 class SV2aplan:
     def __init__(self, module: Module):
         self.module = module
+        self.inside_the_task = False
 
     def extractSensetive(self, ctx):
         from translator.sensetive.sensetive import extractSensetiveImpl
@@ -180,6 +181,13 @@ class SV2aplan:
 
         moduleCall2AplanImpl(self, ctx, program)
 
+    def taskCall2Aplan(
+        self, ctx: SystemVerilogParser.Tf_callContext, sv_structure: Structure
+    ):
+        from translator.task_and_function.task import taskCall2AplanImpl
+
+        taskCall2AplanImpl(self, ctx, sv_structure)
+
     # ===================================ASSERTS=======================================
     def assertPropertyStatement2Aplan(
         self, ctx: SystemVerilogParser.Assert_property_statementContext
@@ -288,8 +296,9 @@ class SV2aplan:
             # ---------------------------------------------------------------------------
             # Task and function handler
             elif type(child) is SystemVerilogParser.Tf_callContext:
-                pass
-            # print(child.getText())
+
+                self.taskCall2Aplan(child, sv_structure)
+
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.For_variable_declarationContext:
                 self.forDeclaration2Apan(child)
@@ -300,7 +309,6 @@ class SV2aplan:
                     identifier = self.dataDecaration2Aplan(
                         child, False, sv_structure, name_space
                     )
-                    print(child.getText(), name_space, identifier)
                     if identifier is not None:
                         names_for_change.append(identifier)
                 else:

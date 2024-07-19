@@ -5,13 +5,18 @@ from classes.element_types import ElementsTypes
 
 
 class Structure(Basic):
-    def __init__(self, identifier: str, source_interval: Tuple[int, int]):
-        super().__init__(identifier, source_interval)
+    def __init__(
+        self,
+        identifier: str,
+        source_interval: Tuple[int, int],
+        element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT,
+    ):
+        super().__init__(identifier, source_interval, element_type)
         self.behavior: List[Protocol] = []
 
     def getLastBehaviorIndex(self):
         if not self.behavior:
-            return None  # Повертаємо None, якщо список порожній
+            return None
         return len(self.behavior) - 1
 
     def addProtocol(
@@ -65,7 +70,10 @@ class StructureArray(BasicArray):
 
         result: List[Structure] = []
         for element in self.elements:
-            if isinstance(element, Always) == False:
+            if (
+                isinstance(element, Always) == False
+                and element.element_type is not ElementsTypes.TASK_ELEMENT
+            ):
                 result.append(element)
         return result
 

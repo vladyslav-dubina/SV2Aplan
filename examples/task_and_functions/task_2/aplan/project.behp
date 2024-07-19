@@ -1,0 +1,5 @@
+B_TASK_EXAMPLE = {TASK_EXAMPLE_INITITAL},
+ADD(var x;var y;var z) = assign_1(x, y, z),
+SUBTRACT(var x;var y;var z) = assign_2(x, y, z),
+CALCULATE(var in_a;var in_b;var out_result_add;var out_result_sub) = ADD(in_a, in_b, temp_sum);(SUBTRACT(in_a, in_b, out_result_sub));(assign_3(out_result_add)),
+TASK_EXAMPLE_INITITAL = assign_4.assign_5.CALCULATE(task_example.a, task_example.b, task_example.result_add, task_example.result_sub)
