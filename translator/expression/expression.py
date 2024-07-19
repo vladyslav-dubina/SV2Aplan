@@ -161,6 +161,11 @@ def expression2AplanImpl(
             f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
         )
 
+    if self.inside_the_function == True:
+        task = self.module.tasks.getLastTask()
+        if task is not None:
+            action.findReturnAndReplaceToParametr(task)
+
     if self.inside_the_task == True:
         task = self.module.tasks.getLastTask()
         if task is not None:

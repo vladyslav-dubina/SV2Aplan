@@ -8,16 +8,34 @@ from translator.system_verilog_to_aplan import SV2aplan
 from utils.utils import Counters_Object
 
 
-def taskDeclaration2AplanImpl(
-    self: SV2aplan, ctx: SystemVerilogParser.Task_declarationContext
+def taskOrFunctionDeclaration2AplanImpl(
+    self: SV2aplan,
+    ctx: (
+        SystemVerilogParser.Task_declarationContext
+        | SystemVerilogParser.Function_declarationContext
+    ),
 ):
-    taskBodyDeclaration2AplanImpl(self, ctx.task_body_declaration())
+    if isinstance(ctx, SystemVerilogParser.Task_declarationContext):
+        body = ctx.task_body_declaration()
+    elif isinstance(ctx, SystemVerilogParser.Function_declarationContext):
+        body = ctx.function_body_declaration()
+    taskOrFunctionBodyDeclaration2AplanImpl(self, body)
 
 
-def taskBodyDeclaration2AplanImpl(
-    self: SV2aplan, ctx: SystemVerilogParser.Task_body_declarationContext
+def taskOrFunctionBodyDeclaration2AplanImpl(
+    self: SV2aplan,
+    ctx: (
+        SystemVerilogParser.Task_body_declarationContext
+        | SystemVerilogParser.Function_body_declarationContext
+    ),
 ):
-    identifier = ctx.task_identifier(0).getText()
+    if isinstance(ctx, SystemVerilogParser.Task_body_declarationContext):
+        identifier = ctx.task_identifier(0).getText()
+        body = ctx.statement_or_null(0)
+    elif isinstance(ctx, SystemVerilogParser.Function_body_declarationContext):
+        identifier = ctx.function_identifier(0).getText()
+        return_var_name = f"return_{identifier}"
+        body = ctx.function_statement_or_null(0)
 
     task = Task(identifier, ctx.getSourceInterval())
 
@@ -25,6 +43,14 @@ def taskBodyDeclaration2AplanImpl(
         task.parametrs.addElement(
             ActionParametr(
                 element.port_identifier().getText(),
+                "var",
+            )
+        )
+
+    if isinstance(ctx, SystemVerilogParser.Function_body_declarationContext):
+        task.parametrs.addElement(
+            ActionParametr(
+                return_var_name,
                 "var",
             )
         )
@@ -46,10 +72,21 @@ def taskBodyDeclaration2AplanImpl(
         )
 
     self.inside_the_task = True
+    if isinstance(ctx, SystemVerilogParser.Function_body_declarationContext):
+        task.parametrs.addElement(
+            ActionParametr(
+                return_var_name,
+                "var",
+            )
+        )
+        self.inside_the_function = True
+
     names_for_change += self.body2Aplan(
-        ctx.statement_or_null(0), task_structure, ElementsTypes.TASK_ELEMENT
+        body, task_structure, ElementsTypes.TASK_ELEMENT
     )
     self.inside_the_task = False
+    if isinstance(ctx, SystemVerilogParser.Function_body_declarationContext):
+        self.inside_the_function = False
 
     for element in names_for_change:
         self.module.name_change.deleteElement(element)

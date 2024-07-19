@@ -14,6 +14,7 @@ class SV2aplan:
     def __init__(self, module: Module):
         self.module = module
         self.inside_the_task = False
+        self.inside_the_function = False
 
     def extractSensetive(self, ctx):
         from translator.sensetive.sensetive import extractSensetiveImpl
@@ -184,7 +185,7 @@ class SV2aplan:
     def taskCall2Aplan(
         self, ctx: SystemVerilogParser.Tf_callContext, sv_structure: Structure
     ):
-        from translator.task_and_function.task import taskCall2AplanImpl
+        from translator.task_and_function.task_function import taskCall2AplanImpl
 
         taskCall2AplanImpl(self, ctx, sv_structure)
 
@@ -343,7 +344,13 @@ class SV2aplan:
 
         initital2AplanImpl(self, ctx)
 
-    def taskDeclaration2Aplan(self, ctx: SystemVerilogParser.Task_declarationContext):
-        from translator.task_and_function.task import taskDeclaration2AplanImpl
+    def taskOrFunctionDeclaration2Aplan(
+        self,
+        ctx: (
+            SystemVerilogParser.Task_declarationContext
+            | SystemVerilogParser.Function_declarationContext
+        ),
+    ):
+        from translator.task_and_function.task_function import taskOrFunctionDeclaration2AplanImpl
 
-        taskDeclaration2AplanImpl(self, ctx)
+        taskOrFunctionDeclaration2AplanImpl(self, ctx)

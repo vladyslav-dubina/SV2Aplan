@@ -32,6 +32,25 @@ class ActionParametrArray(BasicArray):
     def __init__(self):
         super().__init__(ActionParametr)
 
+    def isUniqParametr(self, parametr: ActionParametr):
+        for element in self.elements:
+            if element == parametr:
+                return (element.identifier, element.source_interval)
+        return None, (None, None)
+
+    def addElement(self, new_element: ActionParametr):
+        if isinstance(new_element, self.element_type):
+            is_uniq_element = self.findElement(new_element.identifier)
+            if is_uniq_element is not None:
+                return (False, self.getElementIndex(is_uniq_element.identifier))
+
+            self.elements.append(new_element)
+            return (True, self.getElementIndex(new_element.identifier))
+        else:
+            raise TypeError(
+                f"Object should be of type {self.element_type} but you passed an object of type {type(new_element)}. \n Object: {new_element}"
+            )
+
     def generateParametrNameByIndex(self, index):
         alphabet = "abcdefghijklmnopqrstuvwxyz"
         base = len(alphabet)

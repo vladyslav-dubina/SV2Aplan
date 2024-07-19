@@ -1,7 +1,9 @@
+import re
 from typing import Tuple, List
 from classes.action_parametr import ActionParametr, ActionParametrArray
 from classes.basic import Basic, BasicArray
 from utils.string_formating import removeTrailingComma
+from utils.utils import isVariablePresent
 
 
 class ActionParts:
@@ -45,12 +47,46 @@ class Action(Basic):
     def getActionName(self):
         return "{0}_{1}".format(self.identifier, self.number)
 
+    def findReturnAndReplaceToParametr(self, task):
+        return_var_name = f"return_{task.identifier}"
+        for index, element in enumerate(self.precondition.body):
+            if isVariablePresent(element, task.identifier):
+                element = re.sub(
+                    r"\b{}\b".format(re.escape(task.identifier)),
+                    "{}".format(return_var_name),
+                    element,
+                )
+                self.postcondition.body[index] = element
+                task.parametrs.addElement(
+                    ActionParametr(
+                        return_var_name,
+                        "var",
+                    )
+                )
+        for index, element in enumerate(self.postcondition.body):
+
+            if isVariablePresent(element, task.identifier):
+                element = re.sub(
+                    r"\b{}\b".format(re.escape(task.identifier)),
+                    "{}".format(return_var_name),
+                    element,
+                )
+                self.postcondition.body[index] = element
+                print(element)
+                print(self.postcondition.body)
+                task.parametrs.addElement(
+                    ActionParametr(
+                        return_var_name,
+                        "var",
+                    )
+                )
+
     def findParametrInBodyAndSetParametrs(self, task):
         for task_parametr in task.parametrs.getElements():
-            if task_parametr.identifier in str(self.precondition):
+            if isVariablePresent(str(self.precondition), task_parametr.identifier):
                 self.parametrs.addElement(task_parametr)
 
-            if task_parametr.identifier in str(self.postcondition):
+            if isVariablePresent(str(self.postcondition), task_parametr.identifier):
                 self.parametrs.addElement(task_parametr)
 
     def __str__(self):

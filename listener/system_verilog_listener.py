@@ -58,4 +58,9 @@ class SVListener(SystemVerilogParserListener):
         self.sv2aplan.initial2Aplan(ctx)
 
     def exitTask_declaration(self, ctx: SystemVerilogParser.Task_declarationContext):
-        self.sv2aplan.taskDeclaration2Aplan(ctx)
+        self.sv2aplan.taskOrFunctionDeclaration2Aplan(ctx)
+
+    def exitFunction_declaration(
+        self, ctx: SystemVerilogParser.Function_declarationContext
+    ):
+        self.sv2aplan.taskOrFunctionDeclaration2Aplan(ctx)

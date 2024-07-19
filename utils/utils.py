@@ -234,3 +234,8 @@ def extractVectorSize(s: str):
 def isNumericString(s):
     match = re.fullmatch(r"\d+", s)
     return match.group(0) if match else None
+
+
+def isVariablePresent(expression: str, variable: str) -> bool:
+    pattern = rf'\b{re.escape(variable)}\b'
+    return re.search(pattern, expression) is not None
