@@ -120,6 +120,10 @@ def regeneration_start():
             "examples/task_and_functions/function_2/aplan",
         ),
         (
+            "examples/task_and_functions/function_3/function_3.sv",
+            "examples/task_and_functions/function_3/aplan",
+        ),
+        (
             "examples/call/call_1/call_2.sv",
             "examples/call/call_1/aplan",
         ),

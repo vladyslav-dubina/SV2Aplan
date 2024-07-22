@@ -1,0 +1,4 @@
+B_TASK_EXAMPLE = {TASK_EXAMPLE_INITITAL},
+ADD(var x; var y; var return_add) = assign_1(x, y, return_add),
+SUBTRACT(var x; var y; var return_subtract) = assign_2(x, y, return_subtract),
+TASK_EXAMPLE_INITITAL = assign_3.assign_4.ADD(task_example.a_1,task_example.b_2,task_example.add_call_result_1);(SUBTRACT(task_example.a_1,task_example.b_2,task_example.subtract_call_result_2));(assign_5)
