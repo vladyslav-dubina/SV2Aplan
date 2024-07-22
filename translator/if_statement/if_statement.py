@@ -69,6 +69,12 @@ def ifStatement2AplanImpl(
                 Counters_Object.decrieseCounter(CounterTypes.IF_COUNTER)
                 action_name = if_check_result
 
+        protocol_params = ""
+        if self.inside_the_task == True:
+            task = self.module.tasks.getLastTask()
+            if task is not None:
+                protocol_params = "({0})".format(task.parametrs)
+
         local_if_counter = Counters_Object.getCounter(CounterTypes.IF_COUNTER)
         if element["predicate"] is None:
             local_if_counter -= 1
@@ -85,12 +91,15 @@ def ifStatement2AplanImpl(
                     )
                 )
             sv_structure.addProtocol(
-                "B_{0}".format(Counters_Object.getCounter(CounterTypes.B_COUNTER))
+                "B_{0}{1}".format(
+                    Counters_Object.getCounter(CounterTypes.B_COUNTER), protocol_params
+                )
             )
         else:
             sv_structure.addProtocol(
-                "ELSE_BODY_{0}".format(
-                    Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER)
+                "ELSE_BODY_{0}{1}".format(
+                    Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER),
+                    protocol_params,
                 )
             )
             Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
@@ -98,19 +107,22 @@ def ifStatement2AplanImpl(
         beh_index = sv_structure.getLastBehaviorIndex()
         if beh_index is not None:
             if element["predicate"] is None:
-                body = "IF_BODY_{0}".format(
+                body = "IF_BODY_{0}{1}".format(
                     Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
+                    protocol_params,
                 )
             elif index == len(predicate_statements_list) - 1:
-                body = "{0}.IF_BODY_{1} + !{0}".format(
+                body = "{0}.IF_BODY_{1}{2} + !{0}".format(
                     action_name,
                     Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
+                    protocol_params,
                 )
             else:
-                body = "{0}.IF_BODY_{1} + !{0}.ELSE_BODY_{2}".format(
+                body = "{0}.IF_BODY_{1}{3} + !{0}.ELSE_BODY_{2}{3}".format(
                     action_name,
                     Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
                     Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER),
+                    protocol_params,
                 )
 
             sv_structure.behavior[beh_index].addBody(
@@ -118,7 +130,9 @@ def ifStatement2AplanImpl(
             )
 
         sv_structure.addProtocol(
-            "IF_BODY_{0}".format(Counters_Object.getCounter(CounterTypes.BODY_COUNTER))
+            "IF_BODY_{0}{1}".format(
+                Counters_Object.getCounter(CounterTypes.BODY_COUNTER), protocol_params
+            )
         )
         Counters_Object.incrieseCounter(CounterTypes.BODY_COUNTER)
         if index == 0:

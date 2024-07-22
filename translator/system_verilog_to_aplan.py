@@ -6,6 +6,7 @@ from classes.module_call import ModuleCall
 from classes.structure import Structure
 from classes.module import Module
 from classes.element_types import ElementsTypes
+from classes.tasks import Task
 from program.program import Program
 from typing import Tuple, List
 
@@ -189,6 +190,20 @@ class SV2aplan:
 
         taskCall2AplanImpl(self, ctx, sv_structure)
 
+    def funtionCall2Aplan(
+        self,
+        task: Task,
+        sv_structure: Structure,
+        function_result_var: str,
+        function_call: str,
+        source_interval: Tuple[int, int],
+    ):
+        from translator.task_and_function.task_function import funtionCall2AplanImpl
+
+        funtionCall2AplanImpl(
+            self, task, sv_structure, function_result_var, function_call, source_interval
+        )
+
     # ===================================ASSERTS=======================================
     def assertPropertyStatement2Aplan(
         self, ctx: SystemVerilogParser.Assert_property_statementContext
@@ -247,11 +262,17 @@ class SV2aplan:
             ]
             | None
         ) = None,
+        sv_structure: Structure | None = None,
     ):
         from translator.expression.expression import expression2AplanImpl
 
         return expression2AplanImpl(
-            self, input, element_type, source_interval, input_parametrs
+            self,
+            input,
+            element_type,
+            source_interval,
+            input_parametrs,
+            sv_structure,
         )
 
     def loop2Aplan(
@@ -297,7 +318,6 @@ class SV2aplan:
             # ---------------------------------------------------------------------------
             # Task and function handler
             elif type(child) is SystemVerilogParser.Tf_callContext:
-
                 self.taskCall2Aplan(child, sv_structure)
 
             # ---------------------------------------------------------------------------
@@ -351,6 +371,8 @@ class SV2aplan:
             | SystemVerilogParser.Function_declarationContext
         ),
     ):
-        from translator.task_and_function.task_function import taskOrFunctionDeclaration2AplanImpl
+        from translator.task_and_function.task_function import (
+            taskOrFunctionDeclaration2AplanImpl,
+        )
 
         taskOrFunctionDeclaration2AplanImpl(self, ctx)

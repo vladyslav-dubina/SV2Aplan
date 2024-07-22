@@ -68,25 +68,36 @@ def caseStatement2AplanImpl(
                 else:
                     action_name = case_check_result
 
+            protocol_params = ""
+            if self.inside_the_task == True:
+                task = self.module.tasks.getLastTask()
+                if task is not None:
+                    protocol_params = "({0})".format(task.parametrs)
+
             if index == 0:
                 Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
                 beh_index = sv_structure.getLastBehaviorIndex()
                 if beh_index is not None:
                     sv_structure.behavior[beh_index].addBody(
                         (
-                            "B_{0}".format(
-                                Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                            "B_{0}{1}".format(
+                                Counters_Object.getCounter(CounterTypes.B_COUNTER),
+                                protocol_params,
                             ),
                             ElementsTypes.PROTOCOL_ELEMENT,
                         )
                     )
                 sv_structure.addProtocol(
-                    "B_{0}".format(Counters_Object.getCounter(CounterTypes.B_COUNTER))
+                    "B_{0}{1}".format(
+                        Counters_Object.getCounter(CounterTypes.B_COUNTER),
+                        protocol_params,
+                    )
                 )
             else:
                 sv_structure.addProtocol(
-                    "ELSE_BODY_{0}".format(
-                        Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER)
+                    "ELSE_BODY_{0}{1}".format(
+                        Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER),
+                        protocol_params,
                     )
                 )
                 Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
@@ -94,19 +105,22 @@ def caseStatement2AplanImpl(
             beh_index = sv_structure.getLastBehaviorIndex()
             if beh_index is not None:
                 if case_item.DEFAULT():
-                    body = "CASE_BODY_{0}".format(
+                    body = "CASE_BODY_{0}{1}".format(
                         Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
+                        protocol_params,
                     )
                 elif index == len(case_item_list) - 1:
-                    body = "{0}.CASE_BODY_{1} + !{0}".format(
+                    body = "{0}.CASE_BODY_{1}{2} + !{0}".format(
                         action_name,
                         Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
+                        protocol_params,
                     )
                 else:
-                    body = "{0}.CASE_BODY_{1} + !{0}.ELSE_BODY_{2}".format(
+                    body = "{0}.CASE_BODY_{1}{3} + !{0}.ELSE_BODY_{2}{3}".format(
                         action_name,
                         Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
                         Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER),
+                        protocol_params,
                     )
 
                 sv_structure.behavior[beh_index].addBody(
@@ -114,8 +128,9 @@ def caseStatement2AplanImpl(
                 )
 
             sv_structure.addProtocol(
-                "CASE_BODY_{0}".format(
-                    Counters_Object.getCounter(CounterTypes.BODY_COUNTER)
+                "CASE_BODY_{0}{1}".format(
+                    Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
+                    protocol_params,
                 )
             )
 

@@ -1,11 +1,13 @@
+from typing import Tuple
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.action_parametr import ActionParametr
 from classes.counters import CounterTypes
+from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from classes.structure import Structure
 from classes.tasks import Task
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.utils import Counters_Object
+from utils.utils import Counters_Object, extractParameters
 
 
 def taskOrFunctionDeclaration2AplanImpl(
@@ -32,12 +34,14 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
     if isinstance(ctx, SystemVerilogParser.Task_body_declarationContext):
         identifier = ctx.task_identifier(0).getText()
         body = ctx.statement_or_null(0)
+        task_Type = ElementsTypes.TASK_ELEMENT
     elif isinstance(ctx, SystemVerilogParser.Function_body_declarationContext):
         identifier = ctx.function_identifier(0).getText()
         return_var_name = f"return_{identifier}"
         body = ctx.function_statement_or_null(0)
+        task_Type = ElementsTypes.FUNCTION_ELEMENT
 
-    task = Task(identifier, ctx.getSourceInterval())
+    task = Task(identifier, ctx.getSourceInterval(), task_Type)
 
     for element in ctx.tf_port_list().tf_port_item():
         task.parametrs.addElement(
@@ -62,6 +66,7 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
     task_structure = Structure(
         task_name, ctx.getSourceInterval(), ElementsTypes.TASK_ELEMENT
     )
+    task.structure = task_structure
 
     task_structure.addProtocol(task_call_name, ElementsTypes.TASK_ELEMENT)
     self.module.tasks.addElement(task)
@@ -72,6 +77,7 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
         )
 
     self.inside_the_task = True
+
     if isinstance(ctx, SystemVerilogParser.Function_body_declarationContext):
         task.parametrs.addElement(
             ActionParametr(
@@ -84,14 +90,15 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
     names_for_change += self.body2Aplan(
         body, task_structure, ElementsTypes.TASK_ELEMENT
     )
+
     self.inside_the_task = False
+
     if isinstance(ctx, SystemVerilogParser.Function_body_declarationContext):
         self.inside_the_function = False
 
     for element in names_for_change:
         self.module.name_change.deleteElement(element)
 
-    task.structure = task_structure
     self.module.structures.addElement(task_structure)
 
 
@@ -128,3 +135,53 @@ def taskCall2AplanImpl(
             sv_structure.behavior[b_index].addBody(
                 (task_call, ElementsTypes.PROTOCOL_ELEMENT)
             )
+
+
+def funtionCall2AplanImpl(
+    self: SV2aplan,
+    task: Task,
+    sv_structure: Structure,
+    function_result_var: str,
+    function_call: str,
+    source_interval: Tuple[int, int],
+):
+    parametrs = extractParameters(function_call, task.identifier)
+    parametrs_str = ""
+
+    new_decl = Declaration(
+        DeclTypes.INT,
+        function_result_var,
+        "",
+        "",
+        0,
+        "",
+        0,
+        source_interval,
+    )
+    decl_unique, decl_index = self.module.declarations.addElement(new_decl)
+
+    for element in parametrs:
+        parametrs_str += element
+        parametrs_str += ","
+    parametrs_str += "{0}.{1}".format(self.module.ident_uniq_name, function_result_var)
+    task_call = "{0}({1})".format(task.structure.identifier, parametrs_str)
+
+    beh_index = sv_structure.getLastBehaviorIndex()
+
+    if beh_index is not None:
+        sv_structure.behavior[beh_index].addBody(
+            (task_call, ElementsTypes.PROTOCOL_ELEMENT)
+        )
+    else:
+        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+        b_index = sv_structure.addProtocol(
+            "B_{}({1})".format(
+                Counters_Object.getCounter(CounterTypes.B_COUNTER),
+                parametrs_str,
+            )
+        )
+        sv_structure.behavior[b_index].addBody(
+            (task_call, ElementsTypes.PROTOCOL_ELEMENT)
+        )
+
+    Counters_Object.incrieseCounter(CounterTypes.TASK_COUNTER)

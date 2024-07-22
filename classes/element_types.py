@@ -23,4 +23,5 @@ class ElementsTypes(Enum):
     INITIAL_ELEMENT = auto()
     REPEAT_ELEMENT = auto()
     TASK_ELEMENT = auto()
+    FUNCTION_ELEMENT = auto()
     NONE_ELEMENT = auto()

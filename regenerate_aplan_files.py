@@ -112,6 +112,14 @@ def regeneration_start():
             "examples/task_and_functions/task_2/aplan",
         ),
         (
+            "examples/task_and_functions/function_1/function_1.sv",
+            "examples/task_and_functions/function_1/aplan",
+        ),
+        (
+            "examples/task_and_functions/function_2/function_2.sv",
+            "examples/task_and_functions/function_2/aplan",
+        ),
+        (
             "examples/call/call_1/call_2.sv",
             "examples/call/call_1/aplan",
         ),

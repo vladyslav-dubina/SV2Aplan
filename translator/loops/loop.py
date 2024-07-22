@@ -14,12 +14,21 @@ def loop2AplanImpl(
     ),
     sv_structure: Structure,
 ):
+
+    protocol_params = ""
+    if self.inside_the_task == True:
+        task = self.module.tasks.getLastTask()
+        if task is not None:
+            protocol_params = "({0})".format(task.parametrs)
+
     for_decl_identifier = []
-    loop_init = "LOOP_INIT_{0};".format(
-        Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
+    loop_init = "LOOP_INIT_{0}{1};".format(
+        Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
+        protocol_params,
     )
-    loop_inc = "LOOP_INC_{0};".format(
-        Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
+    loop_inc = "LOOP_INC_{0}{1};".format(
+        Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
+        protocol_params,
     )
 
     loop_init_flag = True
@@ -45,8 +54,9 @@ def loop2AplanImpl(
     if beh_index is not None:
         sv_structure.behavior[beh_index].addBody(
             (
-                "LOOP_{0}".format(
-                    Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
+                "LOOP_{0}{1}".format(
+                    Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
+                    protocol_params,
                 ),
                 ElementsTypes.PROTOCOL_ELEMENT,
             )
@@ -54,14 +64,17 @@ def loop2AplanImpl(
 
     # LOOP
     beh_index = sv_structure.addProtocol(
-        "LOOP_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
+        "LOOP_{0}{1}".format(
+            Counters_Object.getCounter(CounterTypes.LOOP_COUNTER), protocol_params
+        )
     )
 
     sv_structure.behavior[beh_index].addBody(
         (
-            "({0}LOOP_MAIN_{1})".format(
+            "({0}LOOP_MAIN_{1}{2})".format(
                 loop_init,
                 Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
+                protocol_params,
             ),
             ElementsTypes.PROTOCOL_ELEMENT,
         )
@@ -69,7 +82,9 @@ def loop2AplanImpl(
 
     # LOOP MAIN
     beh_index = sv_structure.addProtocol(
-        "LOOP_MAIN_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
+        "LOOP_MAIN_{0}{1}".format(
+            Counters_Object.getCounter(CounterTypes.LOOP_COUNTER), protocol_params
+        )
     )
 
     # LOOP CONDITION
@@ -80,6 +95,7 @@ def loop2AplanImpl(
             condition,
             ElementsTypes.CONDITION_ELEMENT,
             ctx.genvar_expression().getSourceInterval(),
+            source_interval=sv_structure,
         )
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
         if ctx.FOREACH():
@@ -92,14 +108,16 @@ def loop2AplanImpl(
                 condition,
                 ElementsTypes.CONDITION_ELEMENT,
                 ctx.expression().getSourceInterval(),
+                sv_structure=sv_structure,
             )
 
         sv_structure.behavior[beh_index].addBody(
             (
-                "{1}.(LOOP_BODY_{0};{2}LOOP_MAIN_{0}) + !{1}".format(
+                "{1}.(LOOP_BODY_{0}{3};{2}LOOP_MAIN_{0}{3}) + !{1}".format(
                     Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
                     condition_name,
                     loop_inc,
+                    protocol_params,
                 ),
                 ElementsTypes.ACTION_ELEMENT,
             )
@@ -113,6 +131,7 @@ def loop2AplanImpl(
             initialization,
             ElementsTypes.ASSIGN_ELEMENT,
             ctx.genvar_initialization().getSourceInterval(),
+            sv_structure=sv_structure,
         )
         loop_init_flag = True
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
@@ -127,12 +146,13 @@ def loop2AplanImpl(
                     initialization,
                     ElementsTypes.ASSIGN_ELEMENT,
                     ctx.for_initialization().getSourceInterval(),
+                    sv_structure=sv_structure,
                 )
 
     if loop_init_flag == True:
         beh_index = sv_structure.addProtocol(
-            "LOOP_INIT_{0}".format(
-                Counters_Object.getCounter(CounterTypes.LOOP_COUNTER)
+            "LOOP_INIT_{0}{1}".format(
+                Counters_Object.getCounter(CounterTypes.LOOP_COUNTER), protocol_params
             )
         )
         if ctx.FOREACH():
@@ -152,6 +172,7 @@ def loop2AplanImpl(
             iteration,
             ElementsTypes.ASSIGN_ELEMENT,
             ctx.genvar_iteration().getSourceInterval(),
+            sv_structure=sv_structure,
         )
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
         if ctx.FOREACH():
@@ -165,11 +186,15 @@ def loop2AplanImpl(
                     iteration,
                     ElementsTypes.ASSIGN_ELEMENT,
                     ctx.for_step().getSourceInterval(),
+                    sv_structure=sv_structure,
                 )
 
     if loop_inс_flag == True:
         beh_index = sv_structure.addProtocol(
-            "LOOP_INC_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
+            "LOOP_INC_{0}{1}".format(
+                Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
+                protocol_params,
+            )
         )
         if ctx.FOREACH():
             for element in action_names_list:
@@ -183,7 +208,10 @@ def loop2AplanImpl(
 
     # BODY LOOP
     sv_structure.addProtocol(
-        "LOOP_BODY_{0}".format(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
+        "LOOP_BODY_{0}{1}".format(
+            Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
+            protocol_params,
+        )
     )
     names_for_change = for_decl_identifier
     if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:

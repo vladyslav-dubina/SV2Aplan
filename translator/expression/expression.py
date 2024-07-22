@@ -5,6 +5,7 @@ from classes.action_precondition import ActionPreconditionArray
 from classes.actions import Action
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
+from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import (
     addBracketsAfterNegation,
@@ -18,7 +19,10 @@ from utils.string_formating import (
     valuesToAplanStandart,
     vectorSizes2AplanStandart,
 )
-from utils.utils import Counters_Object
+from utils.utils import (
+    Counters_Object,
+    isFunctionCallPresentAndReplace,
+)
 
 
 def prepareExpressionStringImpl(
@@ -69,6 +73,7 @@ def expression2AplanImpl(
         Tuple[str | None, ActionParametrArray | None, ActionPreconditionArray | None]
         | None
     ) = None,
+    sv_structure: Structure | None = None,
 ):
 
     name_part = ""
@@ -103,6 +108,33 @@ def expression2AplanImpl(
         expression, expression_with_replaced_names = self.prepareExpressionString(
             input, element_type
         )
+
+    functions_list = self.module.tasks.getFunctions()
+
+    for function in functions_list:
+        function_result_var = "{0}_call_result_{1}".format(
+            function.identifier,
+            Counters_Object.getCounter(CounterTypes.TASK_COUNTER),
+        )
+        function_result_var_for_replase = "{0}.{1}".format(
+            self.module.ident_uniq_name, function_result_var
+        )
+
+        is_present, expression_with_replaced_names, function_call = (
+            isFunctionCallPresentAndReplace(
+                expression_with_replaced_names,
+                function.identifier,
+                function_result_var_for_replase,
+            )
+        )
+        if is_present:
+            self.funtionCall2Aplan(
+                function,
+                sv_structure,
+                function_result_var,
+                function_call,
+                source_interval,
+            )
 
     action = Action(
         name_part,

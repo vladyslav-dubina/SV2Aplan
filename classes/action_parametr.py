@@ -95,7 +95,7 @@ class ActionParametrArray(BasicArray):
         result = ""
         for index, element in enumerate(self.getElements()):
             if index != 0:
-                result += ";"
+                result += "; "
             result += str(element)
         return result
 

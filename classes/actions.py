@@ -72,8 +72,6 @@ class Action(Basic):
                     element,
                 )
                 self.postcondition.body[index] = element
-                print(element)
-                print(self.postcondition.body)
                 task.parametrs.addElement(
                     ActionParametr(
                         return_var_name,

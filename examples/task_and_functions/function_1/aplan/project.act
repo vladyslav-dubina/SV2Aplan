@@ -1,0 +1,25 @@
+
+assign_1(var x; var y; var return_add) = (
+		(1)->
+		("FUNCTION_EXAMPLE#function_example:action 'assign (add = x + y)';")
+		(return_add = x + y)),
+assign_2(var x; var y; var return_multiply) = (
+		(1)->
+		("FUNCTION_EXAMPLE#function_example:action 'assign (multiply = x * y)';")
+		(return_multiply = x * y)),
+assign_3 = (
+		(1)->
+		("FUNCTION_EXAMPLE#function_example:action 'assign (a_1 = 10)';")
+		(function_example.a_1 = 10)),
+assign_4 = (
+		(1)->
+		("FUNCTION_EXAMPLE#function_example:action 'assign (b_2 = 5)';")
+		(function_example.b_2 = 5)),
+assign_5 = (
+		(1)->
+		("FUNCTION_EXAMPLE#function_example:action 'assign (result_add_3 = add ( a_1, b_2 ))';")
+		(function_example.result_add_3 = function_example.add_call_result_1)),
+assign_6 = (
+		(1)->
+		("FUNCTION_EXAMPLE#function_example:action 'assign (result_mul_4 = multiply ( a_1, b_2 ))';")
+		(function_example.result_mul_4 = function_example.multiply_call_result_2))

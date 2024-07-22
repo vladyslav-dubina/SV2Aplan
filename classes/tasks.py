@@ -3,6 +3,7 @@ from typing import Tuple, List
 from classes.action_parametr import ActionParametrArray
 from classes.basic import Basic, BasicArray
 from classes.actions import ActionParts
+from classes.element_types import ElementsTypes
 from classes.structure import Structure
 
 
@@ -11,8 +12,9 @@ class Task(Basic):
         self,
         identifier: str,
         source_interval: Tuple[int, int],
+        element_type: ElementsTypes = ElementsTypes.TASK_ELEMENT,
     ):
-        super().__init__(identifier, source_interval)
+        super().__init__(identifier, source_interval, element_type)
         self.initial_parametrs: ActionParametrArray = ActionParametrArray()
         self.structure: Structure | None = None
         self.postcondition: ActionParts = ActionParts()
@@ -23,7 +25,7 @@ class Task(Basic):
 
     def __repr__(self):
         return (
-            f"\Task({self.identifier!r},  {self.sequence!r} {self.postcondition!r})\n"
+            f"\Task({self.identifier!r},  {self.sequence!r}, {self.postcondition!r})\n"
         )
 
 
@@ -36,6 +38,14 @@ class TaskArray(BasicArray):
             if element == task:
                 return (element.identifier, element.source_interval)
         return None, (None, None)
+
+    def getFunctions(self):
+        result: List[Task] = []
+        for element in self.getElements():
+            if element.element_type == ElementsTypes.FUNCTION_ELEMENT:
+                result.append(element)
+
+        return result
 
     def getLastTask(self):
         index = len(self.getElements()) - 1

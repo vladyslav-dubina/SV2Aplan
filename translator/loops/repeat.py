@@ -26,6 +26,7 @@ def repeat2AplanImpl(
         assing_expr,
         ElementsTypes.ASSIGN_ELEMENT,
         ctx.getSourceInterval(),
+        sv_structure=sv_structure,
     )
     uniq, decl_index = self.module.declarations.addElement(
         Declaration(
@@ -53,6 +54,7 @@ def repeat2AplanImpl(
         increase_expr,
         ElementsTypes.REPEAT_ELEMENT,
         ctx.getSourceInterval(),
+        sv_structure=sv_structure
     )
 
     protocol_call = "Sensetive({0}, {1})".format(assign_name, sensetive)

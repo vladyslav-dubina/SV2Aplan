@@ -40,9 +40,17 @@ def assertInBlock2AplanImpl(
         ctx.expression().getText(),
         ElementsTypes.ASSERT_ELEMENT,
         ctx.expression().getSourceInterval(),
+        sv_structure=sv_structure,
     )
     Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-    assert_b = "ASSERT_B_{}".format(Counters_Object.getCounter(CounterTypes.B_COUNTER))
+    protocol_params = ""
+    if self.inside_the_task == True:
+        task = self.module.tasks.getLastTask()
+        if task is not None:
+            protocol_params = "({0})".format(task.parametrs)
+    assert_b = "ASSERT_B_{0}{1}".format(
+        Counters_Object.getCounter(CounterTypes.B_COUNTER), protocol_params
+    )
     beh_index = sv_structure.addProtocol(assert_b)
     sv_structure.behavior[beh_index].addBody(
         (

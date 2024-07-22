@@ -44,6 +44,7 @@ def generateBodyToAplan(
                 expression,
                 ElementsTypes.ASSIGN_ELEMENT,
                 child.getSourceInterval(),
+                sv_structure=sv_structure
             )
             action_name = f"Sensetive({action_name})"
             sv_structure.behavior[0].addBody(

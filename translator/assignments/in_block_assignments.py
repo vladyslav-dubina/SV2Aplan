@@ -14,6 +14,7 @@ def blockAssignment2AplanImpl(
         ctx.getText(),
         ElementsTypes.ASSIGN_ELEMENT,
         ctx.getSourceInterval(),
+        sv_structure=sv_structure,
     )
     beh_index = sv_structure.getLastBehaviorIndex()
 
@@ -25,8 +26,15 @@ def blockAssignment2AplanImpl(
         )
     else:
         Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+        protocol_params = ""
+        if self.inside_the_task == True:
+            task = self.module.tasks.getLastTask()
+            if task is not None:
+                protocol_params = "({0})".format(task.parametrs)
         b_index = sv_structure.addProtocol(
-            "B_{}".format(Counters_Object.getCounter(CounterTypes.B_COUNTER))
+            "B_{0}{1}".format(
+                Counters_Object.getCounter(CounterTypes.B_COUNTER), protocol_params
+            )
         )
         sv_structure.behavior[b_index].addBody(
             (action_name, ElementsTypes.ACTION_ELEMENT)

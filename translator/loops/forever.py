@@ -41,7 +41,13 @@ def forever2AplanImpl(
             )
         )
 
-    beh_index = sv_structure.addProtocol("{0}".format(forever_name))
+    protocol_params = ""
+    if self.inside_the_task == True:
+        task = self.module.tasks.getLastTask()
+        if task is not None:
+            protocol_params = "({0})".format(task.parametrs)
+
+    beh_index = sv_structure.addProtocol("{0}{1}".format(forever_name, protocol_params))
 
     names_for_change = self.body2Aplan(
         ctx.statement_or_null(), sv_structure, ElementsTypes.FOREVER_ELEMENT

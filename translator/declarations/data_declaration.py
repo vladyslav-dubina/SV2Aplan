@@ -121,6 +121,7 @@ def dataDecaration2AplanImpl(
                             elem.getText(),
                             ElementsTypes.ASSIGN_ELEMENT,
                             elem.getSourceInterval(),
+                            sv_structure=sv_structure,
                         )
                         if beh_index is not None and assign_name is not None:
                             sv_structure.behavior[beh_index].addBody(
@@ -136,6 +137,7 @@ def dataDecaration2AplanImpl(
                             elem.getText(),
                             ElementsTypes.ASSIGN_ELEMENT,
                             elem.getSourceInterval(),
+                            sv_structure=sv_structure,
                         )
                         declaration = self.module.declarations.getElementByIndex(
                             decl_index

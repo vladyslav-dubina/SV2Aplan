@@ -237,5 +237,76 @@ def isNumericString(s):
 
 
 def isVariablePresent(expression: str, variable: str) -> bool:
-    pattern = rf'\b{re.escape(variable)}\b'
+    pattern = rf"\b{re.escape(variable)}\b"
     return re.search(pattern, expression) is not None
+
+
+def isFunctionCallPresentAndReplace(
+    expression: str, variable: str, replacement: str
+) -> Tuple[bool, str, str]:
+    """
+    The function `isFunctionCallPresentAndReplace` checks if the given variable is present in the expression.
+    If the variable is present, it replaces the variable with the specified replacement.
+    Additionally, if the variable is a function name, it replaces the entire function call with the replacement.
+
+    Parameters
+    ----------
+    expression : str
+        The input expression to be checked and possibly modified.
+    variable : str
+        The variable to search for in the expression.
+    replacement : str
+        The value to replace the variable with if found.
+
+    Returns
+    -------
+    bool
+        The function returns True if the variable is found in the expression, otherwise False.
+    str
+        The modified expression with the variable replaced by the replacement if the variable is found.
+    str
+        The modified function call if the variable is a function name in the expression, otherwise an empty string.
+    """
+    pattern = rf"\b{re.escape(variable)}\b"
+    function_call_pattern = rf"\b{re.escape(variable)}\s*\([^)]*\)"
+
+    function_call_match = re.search(function_call_pattern, expression)
+    is_present = function_call_match is not None
+
+    modified_expression = expression
+    function_call = ""
+
+    if is_present:
+        function_call = function_call_match.group(0)
+        modified_expression = re.sub(re.escape(function_call), replacement, expression)
+
+    return is_present, modified_expression, function_call
+
+
+def extractParameters(expression: str, function_name: str) -> list:
+    """
+    The function `extract_parameters` extracts parameters from a given function call expression.
+
+    Parameters
+    ----------
+    expression : str
+        The input expression containing the function call.
+    function_name : str
+        The name of the function to extract parameters from.
+
+    Returns
+    -------
+    list
+        A list of parameters extracted from the function call.
+    """
+    pattern = rf"{re.escape(function_name)}\s*\(([^)]*)\)"
+
+    match = re.search(pattern, expression)
+    if not match:
+        return []
+
+    params_str = match.group(1)
+
+    params = [param.strip() for param in params_str.split(",")]
+
+    return params
