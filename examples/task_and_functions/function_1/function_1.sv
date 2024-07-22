@@ -8,7 +8,7 @@ module function_example;
 
     function int multiply(input int x, input int y);
         begin
-            multiply = x * y;
+            return x * y;
         end
     endfunction
 

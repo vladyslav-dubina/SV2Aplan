@@ -5,6 +5,7 @@ import shutil
 import os
 from sv2aplan_tool import start
 from utils.utils import Color, format_time, printWithColor, switchRemovePrints
+from examples import examples_list
 
 
 def run_generation(test_number, source_file, result_path):
@@ -50,123 +51,8 @@ def regeneration_start():
         Color.GREEN,
     )
 
-    test_definitions = [
-        (
-            "examples/initial/initial.sv",
-            "examples/initial/aplan",
-        ),
-        (
-            "examples/assert/assert.sv",
-            "examples/assert/aplan",
-        ),
-        (
-            "examples/assigns/assign_1/assign_1.sv",
-            "examples/assigns/assign_1/aplan",
-        ),
-        (
-            "examples/struct/enum/enum.sv",
-            "examples/struct/enum/aplan",
-        ),
-        (
-            "examples/parametrs/parametrs_1/parametrs_1.sv",
-            "examples/parametrs/parametrs_1/aplan",
-        ),
-        (
-            "examples/always/always_@*/always_@*.sv",
-            "examples/always/always_@*/aplan",
-        ),
-        (
-            "examples/always/always_without_sensetive/always_without_sensetive.sv",
-            "examples/always/always_without_sensetive/aplan",
-        ),
-        (
-            "examples/case/case.sv",
-            "examples/case/aplan",
-        ),
-        (
-            "examples/if_statemens/if_statement_1/if_statement_1.sv",
-            "examples/if_statemens/if_statement_1/aplan",
-        ),
-        (
-            "examples/if_statemens/if_statement_2/if_statement_2.sv",
-            "examples/if_statemens/if_statement_2/aplan",
-        ),
-        (
-            "examples/loops/loop_1/loop_1.sv",
-            "examples/loops/loop_1/aplan",
-        ),
-        (
-            "examples/loops/loop_2/loop_2.sv",
-            "examples/loops/loop_2/aplan",
-        ),
-        (
-            "examples/repeat/repeat.sv",
-            "examples/repeat/aplan",
-        ),
-        (
-            "examples/loops/forever/forever.sv",
-            "examples/loops/forever/aplan",
-        ),
-        (
-            "examples/task_and_functions/task_1/task_1.sv",
-            "examples/task_and_functions/task_1/aplan",
-        ),
-        (
-            "examples/task_and_functions/task_2/task_2.sv",
-            "examples/task_and_functions/task_2/aplan",
-        ),
-        (
-            "examples/task_and_functions/function_1/function_1.sv",
-            "examples/task_and_functions/function_1/aplan",
-        ),
-        (
-            "examples/task_and_functions/function_2/function_2.sv",
-            "examples/task_and_functions/function_2/aplan",
-        ),
-        (
-            "examples/task_and_functions/function_3/function_3.sv",
-            "examples/task_and_functions/function_3/aplan",
-        ),
-        (
-            "examples/call/call_1/call_2.sv",
-            "examples/call/call_1/aplan",
-        ),
-        (
-            "examples/call/call_2/call_2.sv",
-            "examples/call/call_2/aplan",
-        ),
-        (
-            "examples/loops/while_1/while_1.sv",
-            "examples/loops/while_1/aplan",
-        ),
-        (
-            "examples/loops/while_2/while_2.sv",
-            "examples/loops/while_2/aplan",
-        ),
-        (
-            "examples/loops/foreach/foreach.sv",
-            "examples/loops/foreach/aplan",
-        ),
-        (
-            "examples/code_patch/code_patch_wb_wrapper.sv",
-            "examples/code_patch/aplan",
-        ),
-        (
-            "examples/sv_example_1/sv_example_1.sv",
-            "examples/sv_example_1/aplan",
-        ),
-        (
-            "examples/sv_example_2/sv_example_2.sv",
-            "examples/sv_example_2/aplan",
-        ),
-        (
-            "examples/sv_example_3/sv_example_3.sv",
-            "examples/sv_example_3/aplan",
-        ),
-    ]
-
-    for test_number, data in enumerate(test_definitions):
-        source_file, result_path = data
+    for test_number, data in enumerate(examples_list):
+        source_file, unused_path, result_path = data
         if run_generation(test_number + 1, source_file, result_path):
             failed_generations.append(test_number + 1)
 
