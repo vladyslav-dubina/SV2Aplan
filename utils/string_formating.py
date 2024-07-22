@@ -41,7 +41,6 @@ def addSpacesAroundOperators(expression: str):
         r"\)",
         r"=",
         r"\?",
-        r":",
     ]
     pattern = "|".join(operators)
 

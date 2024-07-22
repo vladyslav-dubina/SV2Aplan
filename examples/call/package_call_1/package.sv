@@ -1,4 +1,3 @@
-// package.sv
 package my_package;
 
     typedef enum logic [1:0] {

@@ -59,7 +59,22 @@ class Program:
         # ----------------------------------
         # Types
         # ----------------------------------
-        env += "\ttypes : obj (Nil);\n"
+        env += "\ttypes : obj (\n"
+        sub_env = ""
+        for module in self.modules.getElements():
+            decls = module.declarations.getElementsForTypes()
+
+            for index, elem in enumerate(decls):
+                if index > 0:
+                    sub_env += ",\n"
+                sub_env += "\t\t\t{0}:({1})".format(elem.identifier, elem.expression)
+                if index + 1 == len(decls):
+                    sub_env += "\n"
+        if len(sub_env) > 0:
+            env += sub_env
+        else:
+            env += "Nil"
+        env += "\t);\n"
 
         # ----------------------------------
         # Attributes
@@ -75,14 +90,20 @@ class Program:
 
         for module in self.modules.getElements():
             env += "\t\t{0} : obj (\n".format(module.identifier)
-            decls = module.declarations.getElements()
+            sub_env = ""
+            decls = module.declarations.getElementsForAgent()
             for index, elem in enumerate(decls):
                 if index > 0:
-                    env += ",\n"
-                env += "\t\t\t{0}:{1}".format(elem.identifier, elem.getAplanDecltype())
+                    sub_env += ",\n"
+                sub_env += "\t\t\t{0}:{1}".format(
+                    elem.identifier, elem.getAplanDecltype()
+                )
                 if index + 1 == len(decls):
-                    env += "\n"
-
+                    sub_env += "\n"
+            if len(sub_env) > 0:
+                env += sub_env
+            else:
+                env += "\t\t\tNil\n"
             env += "\t\t),\n"
         env += "\t\tENVIRONMENT:obj(Nil)\n"
         env += "\t);\n"

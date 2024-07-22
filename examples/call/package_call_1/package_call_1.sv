@@ -1,8 +1,7 @@
-// main.sv
 `include "package.sv"
+//import my_package::*;
 
 module main;
-
     my_package::state_t current_state;
     int sum;
     

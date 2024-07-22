@@ -21,6 +21,7 @@ class CounterTypes(Enum):
     REPEAT_COUNTER = auto()
     FOREVER_COUNTER = auto()
     TASK_COUNTER = auto()
+    ENUM_COUNTER = auto()
 
 
 class Counters:
@@ -41,6 +42,7 @@ class Counters:
         self.case_counter = 1
         self.forever_counter = 1
         self.task_counter = 1
+        self.enum_counter = 1
 
     def selectCounter(self, element_type: ElementsTypes):
         if element_type is ElementsTypes.ASSIGN_ELEMENT:
@@ -98,6 +100,8 @@ class Counters:
             self.forever_counter += 1
         if counter_type is CounterTypes.TASK_COUNTER:
             self.task_counter += 1
+        if counter_type is CounterTypes.ENUM_COUNTER:
+            self.enum_counter += 1
 
     def decrieseCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
@@ -132,6 +136,8 @@ class Counters:
             self.forever_counter -= 1
         if counter_type is CounterTypes.TASK_COUNTER:
             self.task_counter -= 1
+        if counter_type is CounterTypes.ENUM_COUNTER:
+            self.enum_counter -= 1
 
     def getCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
@@ -167,6 +173,8 @@ class Counters:
             return self.forever_counter
         if counter_type is CounterTypes.TASK_COUNTER:
             return self.task_counter
+        if counter_type is CounterTypes.ENUM_COUNTER:
+            return self.enum_counter
 
     def countersDeinit(self):
         self.module_counter = 1
@@ -185,3 +193,4 @@ class Counters:
         self.case_counter = 1
         self.forever_counter = 1
         self.task_counter = 1
+        self.enum_counter = 1

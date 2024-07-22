@@ -20,6 +20,9 @@ class SVListener(SystemVerilogParserListener):
         self.sv2aplan: SV2aplan = SV2aplan(None)
         self.module_call: ModuleCall | None = module_call
 
+    def exitFile_path_spec(self, ctx:SystemVerilogParser.File_path_specContext):
+        print("tata")
+
     def enterModule_declaration(
         self, ctx: SystemVerilogParser.Module_declarationContext
     ):

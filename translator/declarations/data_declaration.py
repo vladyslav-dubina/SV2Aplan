@@ -153,41 +153,26 @@ def dataDecaration2AplanImpl(
     if type_declaration is not None:
         data_type = type_declaration.data_type()
         if data_type.ENUM():
-            base_type = data_type.enum_base_type()
-            base_type = base_type.getText()
-            data_check_type = DeclTypes.checkType(base_type)
-            aplan_vector_size = [0]
-            size_expression = base_type
-            base_type = replaceParametrsCalls(self.module.parametrs, base_type)
-            vector_size = extractVectorSize(base_type)
-            if vector_size is not None:
-                aplan_vector_size = vectorSize2AplanVectorSize(
-                    vector_size[0], vector_size[1]
-                )
-
+            enum_type_identifier = "ENUM_{}".format(
+                Counters_Object.getCounter(CounterTypes.ENUM_COUNTER)
+            )
+            elements = ""
             for index, enum_name_decl in enumerate(data_type.enum_name_declaration()):
+                if index != 0:
+                    elements += ","
                 identifier = enum_name_decl.enum_identifier().getText()
-                assign_txt = "{0}={1}".format(identifier, index)
-                (
-                    assign_name,
-                    source_interval,
-                    uniq_action,
-                ) = self.expression2Aplan(
-                    assign_txt,
-                    ElementsTypes.ASSIGN_ELEMENT,
-                    enum_name_decl.getSourceInterval(),
-                    sv_structure=sv_structure,
-                )
+                elements += identifier
 
-                new_decl = Declaration(
-                    data_check_type,
-                    identifier,
-                    assign_name,
-                    size_expression,
-                    aplan_vector_size[0],
-                    "",
-                    0,
-                    enum_name_decl.getSourceInterval(),
-                )
+            new_decl = Declaration(
+                DeclTypes.ENUM_TYPE,
+                enum_type_identifier,
+                elements,
+                "",
+                0,
+                "",
+                0,
+                enum_name_decl.getSourceInterval(),
+            )
 
-                decl_unique, decl_index = self.module.declarations.addElement(new_decl)
+            decl_unique, decl_index = self.module.declarations.addElement(new_decl)
+            Counters_Object.incrieseCounter(CounterTypes.ENUM_COUNTER)

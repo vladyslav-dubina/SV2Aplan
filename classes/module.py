@@ -41,6 +41,7 @@ class Module(Basic):
         self.processed_elements = ProcessedElementArray()
 
         self.tasks = TaskArray()
+        
 
     def findAndChangeNamesToAgentAttrCall(self, input: str):
         for elem in self.declarations.getElements():

@@ -10,10 +10,12 @@ class DeclTypes(Enum):
     WIRE = auto()
     INT = auto()
     REG = auto()
-    LOGIC = auto() 
+    LOGIC = auto()
     INPORT = auto()
     OUTPORT = auto()
     IF_STATEMENT = auto()
+    ENUM = auto()
+    ENUM_TYPE = auto()
 
     def checkType(type_str: str):
         if "int" in type_str:
@@ -21,7 +23,7 @@ class DeclTypes(Enum):
         elif "reg" in type_str:
             return DeclTypes.REG
         elif "logic" in type_str:
-             return DeclTypes.LOGIC
+            return DeclTypes.LOGIC
         return DeclTypes.INT
 
 
@@ -60,6 +62,8 @@ class Declaration(Basic):
                 return f"Bits ({self.size})"
             else:
                 return "bool"
+        elif self.data_type == DeclTypes.ENUM_TYPE:
+            return ""
 
     def getAplanDecltype(self):
         if self.data_type == DeclTypes.INT:
@@ -77,6 +81,8 @@ class Declaration(Basic):
                 return "Bits " + str(self.size)
             else:
                 return "bool"
+        elif self.data_type == DeclTypes.ENUM_TYPE:
+            return ""
 
     def __repr__(self):
         return f"\tDeclaration({self.data_type!r}, {self.identifier!r}, {self.expression!r}, {self.size!r}, {self.sequence!r})\n"
@@ -173,6 +179,20 @@ class DeclarationArray(BasicArray):
             if element.dimension_size > 0:
                 return element
         return None
+
+    def getElementsForAgent(self):
+        result: List[Declaration] = []
+        for element in self.elements:
+            if element.data_type != DeclTypes.ENUM_TYPE:
+                result.append(element)
+        return result
+    
+    def getElementsForTypes(self):
+        result: List[Declaration] = []
+        for element in self.elements:
+            if element.data_type == DeclTypes.ENUM_TYPE:
+                result.append(element)
+        return result
 
     def __repr__(self):
         return f"DeclarationsArray(\n{self.elements!r}\n)"
