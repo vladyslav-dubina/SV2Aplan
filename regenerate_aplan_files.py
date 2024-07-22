@@ -64,6 +64,10 @@ def regeneration_start():
             "examples/assigns/assign_1/aplan",
         ),
         (
+            "examples/struct/enum/enum.sv",
+            "examples/struct/enum/aplan",
+        ),
+        (
             "examples/parametrs/parametrs_1/parametrs_1.sv",
             "examples/parametrs/parametrs_1/aplan",
         ),

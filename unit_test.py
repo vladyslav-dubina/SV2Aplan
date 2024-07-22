@@ -75,6 +75,11 @@ def start_unit_test():
             "examples/assigns/assign_1/aplan",
         ),
         (
+            "examples/struct/enum/enum.sv",
+            "examples/struct/enum/test_result",
+            "examples/struct/enum/aplan",
+        ),
+        (
             "examples/parametrs/parametrs_1/parametrs_1.sv",
             "examples/parametrs/parametrs_1/test_result",
             "examples/parametrs/parametrs_1/aplan",

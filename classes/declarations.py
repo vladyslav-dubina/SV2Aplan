@@ -10,6 +10,7 @@ class DeclTypes(Enum):
     WIRE = auto()
     INT = auto()
     REG = auto()
+    LOGIC = auto() 
     INPORT = auto()
     OUTPORT = auto()
     IF_STATEMENT = auto()
@@ -19,6 +20,8 @@ class DeclTypes(Enum):
             return DeclTypes.INT
         elif "reg" in type_str:
             return DeclTypes.REG
+        elif "logic" in type_str:
+             return DeclTypes.LOGIC
         return DeclTypes.INT
 
 
@@ -51,6 +54,7 @@ class Declaration(Basic):
             or self.data_type == DeclTypes.OUTPORT
             or self.data_type == DeclTypes.WIRE
             or self.data_type == DeclTypes.REG
+            or self.data_type == DeclTypes.LOGIC
         ):
             if self.size > 0:
                 return f"Bits ({self.size})"
@@ -65,6 +69,7 @@ class Declaration(Basic):
             or self.data_type == DeclTypes.OUTPORT
             or self.data_type == DeclTypes.WIRE
             or self.data_type == DeclTypes.REG
+            or self.data_type == DeclTypes.LOGIC
         ):
             if self.dimension_size > 0:
                 return f"(Bits {self.size}) -> Bits {self.dimension_size}"

@@ -1,0 +1,13 @@
+
+assign_1 = (
+		(1)->
+		("MAIN#main:action 'assign (IDLE = 0)';")
+		(IDLE = 0)),
+assign_2 = (
+		(1)->
+		("MAIN#main:action 'assign (RUNNING = 1)';")
+		(RUNNING = 1)),
+assign_3 = (
+		(1)->
+		("MAIN#main:action 'assign (STOPPED = 2)';")
+		(STOPPED = 2))
