@@ -89,7 +89,10 @@ class SV2aplan:
     # ---------------------------------------------------------------------------------
     def dataDecaration2Aplan(
         self,
-        ctx: SystemVerilogParser.Data_declarationContext,
+        ctx: (
+            SystemVerilogParser.Data_declarationContext
+            | SystemVerilogParser.Local_parameter_declarationContext
+        ),
         listener: bool,
         sv_structure: Structure | None = None,
         name_space: ElementsTypes = ElementsTypes.NONE_ELEMENT,

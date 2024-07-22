@@ -128,7 +128,7 @@ class DeclarationArray(BasicArray):
     def getDeclarationsWithExpressions(self):
         result = []
         for element in self.elements:
-            if len(element.expression) > 0:
+            if len(element.expression) > 0 and element.data_type != DeclTypes.ENUM_TYPE:
                 result.append(element)
         return result
 
@@ -186,7 +186,7 @@ class DeclarationArray(BasicArray):
             if element.data_type != DeclTypes.ENUM_TYPE:
                 result.append(element)
         return result
-    
+
     def getElementsForTypes(self):
         result: List[Declaration] = []
         for element in self.elements:

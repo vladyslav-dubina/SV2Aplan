@@ -16,7 +16,10 @@ from utils.utils import (
 
 def dataDecaration2AplanImpl(
     self: SV2aplan,
-    ctx: SystemVerilogParser.Data_declarationContext,
+    ctx: (
+        SystemVerilogParser.Data_declarationContext
+        | SystemVerilogParser.Local_parameter_declarationContext
+    ),
     listener: bool,
     sv_structure: Structure | None = None,
     name_space: ElementsTypes = ElementsTypes.NONE_ELEMENT,
@@ -68,16 +71,38 @@ def dataDecaration2AplanImpl(
                 aplan_vector_size = vectorSize2AplanVectorSize(
                     vector_size[0], vector_size[1]
                 )
+            if isinstance(ctx, SystemVerilogParser.Data_declarationContext):
+                declaration = (
+                    ctx.list_of_variable_decl_assignments().variable_decl_assignment()
+                )
+            elif isinstance(
+                ctx, SystemVerilogParser.Local_parameter_declarationContext
+            ):
+                declaration = ctx.list_of_param_assignments().param_assignment()
 
-            for (
-                elem
-            ) in ctx.list_of_variable_decl_assignments().variable_decl_assignment():
-                original_identifier = elem.variable_identifier().identifier().getText()
+            for elem in declaration:
+                if isinstance(ctx, SystemVerilogParser.Data_declarationContext):
+                    original_identifier = (
+                        elem.variable_identifier().identifier().getText()
+                    )
+                elif isinstance(
+                    ctx, SystemVerilogParser.Local_parameter_declarationContext
+                ):
+                    original_identifier = (
+                        elem.parameter_identifier().identifier().getText()
+                    )
+
                 identifier = original_identifier
                 if name_space != ElementsTypes.NONE_ELEMENT:
                     identifier += f"_{Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)}"
                     Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
-                unpacked_dimention = elem.variable_dimension(0)
+
+                if isinstance(ctx, SystemVerilogParser.Data_declarationContext):
+                    unpacked_dimention = elem.variable_dimension(0)
+                elif isinstance(
+                    ctx, SystemVerilogParser.Local_parameter_declarationContext
+                ):
+                    unpacked_dimention = elem.unpacked_dimension(0)
                 dimension_size = 0
                 dimension_size_expression = ""
                 if unpacked_dimention is not None:
@@ -112,8 +137,15 @@ def dataDecaration2AplanImpl(
                         )
                     )
 
-                if elem.expression() is not None:
-                    expression = elem.expression().getText()
+                if isinstance(ctx, SystemVerilogParser.Data_declarationContext):
+                    expression = elem.expression()
+                elif isinstance(
+                    ctx, SystemVerilogParser.Local_parameter_declarationContext
+                ):
+                    expression = elem.constant_param_expression()
+
+                if expression is not None:
+                    expression = expression.getText()
                     if listener == False:
                         if sv_structure is not None:
                             beh_index = sv_structure.getLastBehaviorIndex()
@@ -156,7 +188,9 @@ def dataDecaration2AplanImpl(
             for type_identifier in type_declaration.type_identifier():
                 enum_type_identifier = "{0}".format(type_identifier.getText())
                 elements = ""
-                for index, enum_name_decl in enumerate(data_type.enum_name_declaration()):
+                for index, enum_name_decl in enumerate(
+                    data_type.enum_name_declaration()
+                ):
                     if index != 0:
                         elements += ","
                     identifier = enum_name_decl.enum_identifier().getText()
