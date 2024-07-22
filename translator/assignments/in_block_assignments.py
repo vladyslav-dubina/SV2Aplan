@@ -10,8 +10,14 @@ from utils.utils import Counters_Object
 def blockAssignment2AplanImpl(
     self: SV2aplan, ctx, module: Module, sv_structure: Structure
 ):
+    if isinstance(ctx, SystemVerilogParser.ExpressionContext):
+        task = self.module.tasks.getLastTask()
+        if task is not None:
+            body = "{0}={1}".format(task.identifier, ctx.getText())
+    else:
+        body = ctx.getText()
     action_name, source_interval, uniq_action = self.expression2Aplan(
-        ctx.getText(),
+        body,
         ElementsTypes.ASSIGN_ELEMENT,
         ctx.getSourceInterval(),
         sv_structure=sv_structure,

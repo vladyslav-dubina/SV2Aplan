@@ -50,12 +50,20 @@ class Action(Basic):
     def findReturnAndReplaceToParametr(self, task):
         return_var_name = f"return_{task.identifier}"
         for index, element in enumerate(self.precondition.body):
-            if isVariablePresent(element, task.identifier):
+            if isVariablePresent(element, task.identifier) or isVariablePresent(
+                element, "return"
+            ):
                 element = re.sub(
                     r"\b{}\b".format(re.escape(task.identifier)),
                     "{}".format(return_var_name),
                     element,
                 )
+                element = re.sub(
+                    r"\b{}\b".format(re.escape("return")),
+                    "{} = ".format(return_var_name),
+                    element,
+                )
+                print(element)
                 self.postcondition.body[index] = element
                 task.parametrs.addElement(
                     ActionParametr(
@@ -64,11 +72,17 @@ class Action(Basic):
                     )
                 )
         for index, element in enumerate(self.postcondition.body):
-
-            if isVariablePresent(element, task.identifier):
+            if isVariablePresent(element, task.identifier) or isVariablePresent(
+                element, "return"
+            ):
                 element = re.sub(
                     r"\b{}\b".format(re.escape(task.identifier)),
                     "{}".format(return_var_name),
+                    element,
+                )
+                element = re.sub(
+                    r"\b{}\b".format(re.escape("return")),
+                    "{} = ".format(return_var_name),
                     element,
                 )
                 self.postcondition.body[index] = element

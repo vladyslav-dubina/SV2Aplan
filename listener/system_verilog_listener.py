@@ -2,7 +2,7 @@ from antlr4_verilog.systemverilog import (
     SystemVerilogParserListener,
     SystemVerilogParser,
 )
-from translator.declarations.module_declaration import moduleDeclaration2Aplan
+from translator.declarations.module_declaration import moduleOrPackageDeclaration2Aplan
 from translator.system_verilog_to_aplan import (
     SV2aplan,
 )
@@ -20,8 +20,20 @@ class SVListener(SystemVerilogParserListener):
         self.sv2aplan: SV2aplan = SV2aplan(None)
         self.module_call: ModuleCall | None = module_call
 
-    def enterModule_declaration(self, ctx):
-        self.module = moduleDeclaration2Aplan(ctx, self.program, self.module_call)
+    def enterModule_declaration(
+        self, ctx: SystemVerilogParser.Module_declarationContext
+    ):
+        self.module = moduleOrPackageDeclaration2Aplan(
+            ctx, self.program, self.module_call
+        )
+        self.sv2aplan = SV2aplan(self.module)
+
+    def enterPackage_declaration(
+        self, ctx: SystemVerilogParser.Package_declarationContext
+    ):
+        self.module = moduleOrPackageDeclaration2Aplan(
+            ctx, self.program, self.module_call
+        )
         self.sv2aplan = SV2aplan(self.module)
 
     def exitGenvar_declaration(self, ctx):

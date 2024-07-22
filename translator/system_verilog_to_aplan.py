@@ -53,6 +53,7 @@ class SV2aplan:
             | SystemVerilogParser.Net_assignmentContext
             | SystemVerilogParser.Variable_assignmentContext
             | SystemVerilogParser.Operator_assignmentContext
+            | SystemVerilogParser.ExpressionContext
         ),
         sv_structure: Structure,
     ):
@@ -201,7 +202,12 @@ class SV2aplan:
         from translator.task_and_function.task_function import funtionCall2AplanImpl
 
         funtionCall2AplanImpl(
-            self, task, sv_structure, function_result_var, function_call, source_interval
+            self,
+            task,
+            sv_structure,
+            function_result_var,
+            function_call,
+            source_interval,
         )
 
     # ===================================ASSERTS=======================================
@@ -305,6 +311,10 @@ class SV2aplan:
                 is SystemVerilogParser.Simple_immediate_assert_statementContext
             ):
                 self.assertInBlock2Aplan(child, sv_structure)
+            # ---------------------------------------------------------------------------
+            elif type(child) is SystemVerilogParser.Jump_statementContext:
+                if child.RETURN:
+                    self.blockAssignment2Aplan(child.expression(), sv_structure)
             # ---------------------------------------------------------------------------
             # Assign handler
             elif (
