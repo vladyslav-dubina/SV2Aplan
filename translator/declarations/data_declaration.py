@@ -153,26 +153,24 @@ def dataDecaration2AplanImpl(
     if type_declaration is not None:
         data_type = type_declaration.data_type()
         if data_type.ENUM():
-            enum_type_identifier = "ENUM_{}".format(
-                Counters_Object.getCounter(CounterTypes.ENUM_COUNTER)
-            )
-            elements = ""
-            for index, enum_name_decl in enumerate(data_type.enum_name_declaration()):
-                if index != 0:
-                    elements += ","
-                identifier = enum_name_decl.enum_identifier().getText()
-                elements += identifier
+            for type_identifier in type_declaration.type_identifier():
+                enum_type_identifier = "{0}".format(type_identifier.getText())
+                elements = ""
+                for index, enum_name_decl in enumerate(data_type.enum_name_declaration()):
+                    if index != 0:
+                        elements += ","
+                    identifier = enum_name_decl.enum_identifier().getText()
+                    elements += identifier
 
-            new_decl = Declaration(
-                DeclTypes.ENUM_TYPE,
-                enum_type_identifier,
-                elements,
-                "",
-                0,
-                "",
-                0,
-                enum_name_decl.getSourceInterval(),
-            )
+                new_decl = Declaration(
+                    DeclTypes.ENUM_TYPE,
+                    enum_type_identifier,
+                    elements,
+                    "",
+                    0,
+                    "",
+                    0,
+                    enum_name_decl.getSourceInterval(),
+                )
 
-            decl_unique, decl_index = self.module.declarations.addElement(new_decl)
-            Counters_Object.incrieseCounter(CounterTypes.ENUM_COUNTER)
+                decl_unique, decl_index = self.module.declarations.addElement(new_decl)

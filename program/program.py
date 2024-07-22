@@ -73,7 +73,7 @@ class Program:
         if len(sub_env) > 0:
             env += sub_env
         else:
-            env += "Nil"
+            env += "\t\t\tNil\n"
         env += "\t);\n"
 
         # ----------------------------------

@@ -29,7 +29,7 @@ if_3 = (
 		(1)),
 assign_5 = (
 		(1)->
-		("REGISTER_WRITE_ONCE_EXAMPLE#register_write_once_example:action 'assign (Data_out[15 : 1] <= Data_out[15 : 1])';")
+		("REGISTER_WRITE_ONCE_EXAMPLE#register_write_once_example:action 'assign (Data_out[15:1] <= Data_out[15:1])';")
 		(register_write_once_example.Data_out(1,15) = register_write_once_example.Data_out(1,15))),
 assign_6 = (
 		(1)->
