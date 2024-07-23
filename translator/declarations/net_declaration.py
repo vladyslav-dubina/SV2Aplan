@@ -60,9 +60,11 @@ def netDeclaration2AplanImpl(
         size_expression = data_type
 
     if data_type is not None:
-        data_check_type = DeclTypes.checkType(
-            data_type, self.module.declarations.getElementsForTypes()
-        )
+        types = self.module.declarations.getElementsForTypes()
+        for package in self.packages.getElements():
+            types += package.declarations.getElementsForTypes()
+        data_check_type = DeclTypes.checkType(data_type, types)
+        print(data_check_type, data_type, size_expression)
         for elem in ctx.list_of_net_decl_assignments().net_decl_assignment():
             identifier = elem.net_identifier().identifier().getText()
             assign_name = ""

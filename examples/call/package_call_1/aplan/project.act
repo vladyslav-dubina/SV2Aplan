@@ -6,7 +6,7 @@ assign_3 = (
 assign_4 = (
 		(1)->
 		("MAIN#main:action 'assign (current_state = RUNNING)';")
-		(current_state = RUNNING)),
+		(main.current_state = RUNNING)),
 assign_5 = (
 		(1)->
 		("MAIN#main:action 'assign (MAX_COUNT = MAX_COUNT + 1)';")
