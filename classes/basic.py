@@ -53,6 +53,15 @@ class BasicArray:
                 return index
         return None
 
+    def getElement(
+        self,
+        identifier: str,
+    ):
+        for element in self.elements:
+            if element.identifier == identifier:
+                return element
+        return None
+
     def getElementByIndex(self, index):
         return self.elements[index]
 
