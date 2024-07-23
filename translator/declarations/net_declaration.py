@@ -64,7 +64,7 @@ def netDeclaration2AplanImpl(
         for package in self.packages.getElements():
             types += package.declarations.getElementsForTypes()
         data_check_type = DeclTypes.checkType(data_type, types)
-        print(data_check_type, data_type, size_expression)
+
         for elem in ctx.list_of_net_decl_assignments().net_decl_assignment():
             identifier = elem.net_identifier().identifier().getText()
             assign_name = ""

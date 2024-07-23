@@ -62,9 +62,10 @@ def dataDecaration2AplanImpl(
     if data_type is not None:
         data_type = data_type.getText()
         if len(data_type) > 0:
-            data_check_type = DeclTypes.checkType(
-                data_type, self.module.declarations.getElementsForTypes()
-            )
+            types = self.module.declarations.getElementsForTypes()
+            for package in self.packages.getElements():
+                types += package.declarations.getElementsForTypes()
+            data_check_type = DeclTypes.checkType(data_type, types)
             aplan_vector_size = [0]
             size_expression = data_type
             data_type = replaceParametrsCalls(self.module.parametrs, data_type)
