@@ -26,6 +26,8 @@ class DeclTypes(Enum):
             return DeclTypes.REG
         elif "logic" in type_str:
             return DeclTypes.LOGIC
+        elif "wire" in type_str:
+            return DeclTypes.WIRE
         else:
             for type in types:
                 if type_str in type.identifier:

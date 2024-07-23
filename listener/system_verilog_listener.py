@@ -86,3 +86,6 @@ class SVListener(SystemVerilogParserListener):
         self, ctx: SystemVerilogParser.Package_import_declarationContext
     ):
         self.sv2aplan.packageImport2Apan(ctx, self.program)
+
+    def exitNet_declaration(self, ctx: SystemVerilogParser.Net_declarationContext):
+        self.sv2aplan.netDeclaration2Aplan(ctx)
