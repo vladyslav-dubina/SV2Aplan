@@ -12,8 +12,10 @@ def netAssignment2AplanImpl(
     if not self.module.processed_elements.isInProcessedElementAlready(
         ctx.getSourceInterval()
     ):
-        assign_name, source_interval, uniq_action = self.expression2Aplan(
-            ctx.getText(), ElementsTypes.ASSIGN_ELEMENT, ctx.getSourceInterval()
+        action_pointer, assign_name, source_interval, uniq_action = (
+            self.expression2Aplan(
+                ctx.getText(), ElementsTypes.ASSIGN_ELEMENT, ctx.getSourceInterval()
+            )
         )
         if source_interval != ctx.getSourceInterval():
             Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)

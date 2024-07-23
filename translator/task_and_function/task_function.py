@@ -147,7 +147,7 @@ def funtionCall2AplanImpl(
 ):
     parametrs = extractParameters(function_call, task.identifier)
     parametrs_str = ""
-
+    
     new_decl = Declaration(
         DeclTypes.INT,
         function_result_var,

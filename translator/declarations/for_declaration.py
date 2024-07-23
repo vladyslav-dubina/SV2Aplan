@@ -97,10 +97,12 @@ def loopVarsDeclarations2AplanImpl(
     assign_names: List[str] = []
     for index, identifier in enumerate(vars_names):
         action_txt = f"{identifier}=0"
-        assign_name, source_interval, uniq_action = self.expression2Aplan(
-            action_txt,
-            ElementsTypes.ASSIGN_ELEMENT,
-            source_intervals[index],
+        action_pointer, assign_name, source_interval, uniq_action = (
+            self.expression2Aplan(
+                action_txt,
+                ElementsTypes.ASSIGN_ELEMENT,
+                source_intervals[index],
+            )
         )
         assign_names.append(assign_name)
 
@@ -135,10 +137,12 @@ def loopVarsToIteration2AplanImpl(
     assign_names: List[str] = []
     for index, identifier in enumerate(vars_names):
         action_txt = f"{identifier}={identifier}+1"
-        assign_name, source_interval, uniq_action = self.expression2Aplan(
-            action_txt,
-            ElementsTypes.ASSIGN_ELEMENT,
-            source_intervals[index],
+        action_pointer, assign_name, source_interval, uniq_action = (
+            self.expression2Aplan(
+                action_txt,
+                ElementsTypes.ASSIGN_ELEMENT,
+                source_intervals[index],
+            )
         )
         assign_names.append(assign_name)
 
@@ -181,10 +185,12 @@ def loopVarsAndArrayIdentifierToCondition2AplanImpl(
         if index != 0:
             condition += "&&"
         condition = "{0}<{1}".format(element, decl.size)
-    condition_name, source_interval, uniq_action = self.expression2Aplan(
-        condition,
-        ElementsTypes.CONDITION_ELEMENT,
-        ctx.getSourceInterval(),
+    action_pointer, condition_name, source_interval, uniq_action = (
+        self.expression2Aplan(
+            condition,
+            ElementsTypes.CONDITION_ELEMENT,
+            ctx.getSourceInterval(),
+        )
     )
     return condition_name
 
@@ -271,14 +277,16 @@ def forDeclaration2ApanImpl(
         action_txt = (
             f"{ctx.variable_identifier(0).getText()}={ctx.expression(0).getText()}"
         )
-        assign_name, source_interval, uniq_action = self.expression2Aplan(
-            action_txt,
-            ElementsTypes.ASSIGN_ELEMENT,
-            ctx.getSourceInterval(),
+        action_pointer, assign_name, source_interval, uniq_action = (
+            self.expression2Aplan(
+                action_txt,
+                ElementsTypes.ASSIGN_ELEMENT,
+                ctx.getSourceInterval(),
+            )
         )
     data_type = DeclTypes.checkType(data_type)
     identifier = ctx.variable_identifier(0).getText()
-    self.module.declarations.addElement(
+    decl_unique, decl_index = self.module.declarations.addElement(
         Declaration(
             data_type,
             identifier,
@@ -288,5 +296,7 @@ def forDeclaration2ApanImpl(
             "",
             0,
             ctx.getSourceInterval(),
+            ElementsTypes.NONE_ELEMENT,
+            action_pointer
         )
     )

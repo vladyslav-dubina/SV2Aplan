@@ -160,7 +160,7 @@ class Program:
                 behaviour += module.out_of_block_elements.getProtocolsInStrFormat()
             else:
                 behaviour = removeTrailingComma(behaviour)
-                behaviour += "\n"
+                #behaviour += "\n"
         self.writeToFile(self.path_to_result + "project.behp", behaviour)
         printWithColor(".beh file created \n", Color.PURPLE)
 

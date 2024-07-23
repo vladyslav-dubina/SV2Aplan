@@ -6,7 +6,7 @@ import os
 from sv2aplan_tool import start
 from utils.utils import Color, format_time, printWithColor, switchRemovePrints
 from utils.compare_files import compareAplanByPathes
-from examples import examples_list
+from examples_list import examples_list
 
 
 def remove_directory(directory_path):

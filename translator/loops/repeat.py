@@ -22,7 +22,7 @@ def repeat2AplanImpl(
 
     assing_expr = "{0}={1}".format(identifier, 0)
 
-    assign_name, source_interval, uniq_action = self.expression2Aplan(
+    action_pointer, assign_name, source_interval, uniq_action = self.expression2Aplan(
         assing_expr,
         ElementsTypes.ASSIGN_ELEMENT,
         ctx.getSourceInterval(),
@@ -38,6 +38,8 @@ def repeat2AplanImpl(
             "",
             0,
             ctx.getSourceInterval(),
+            ElementsTypes.NONE_ELEMENT,
+            action_pointer,
         )
     )
 
@@ -50,11 +52,11 @@ def repeat2AplanImpl(
     )
 
     increase_expr = "{0}={0}+1".format(identifier)
-    assign_name, source_interval, uniq_action = self.expression2Aplan(
+    action_pointer, assign_name, source_interval, uniq_action = self.expression2Aplan(
         increase_expr,
         ElementsTypes.REPEAT_ELEMENT,
         ctx.getSourceInterval(),
-        sv_structure=sv_structure
+        sv_structure=sv_structure,
     )
 
     protocol_call = "Sensetive({0}, {1})".format(assign_name, sensetive)

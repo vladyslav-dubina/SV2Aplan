@@ -1,5 +1,6 @@
 from typing import Tuple, List
 from enum import Enum, auto
+from classes.actions import Action
 from classes.basic import Basic, BasicArray
 from classes.element_types import ElementsTypes
 from utils.string_formating import replaceParametrsCalls
@@ -39,14 +40,16 @@ class Declaration(Basic):
         dimension_size: int,
         source_interval: Tuple[int, int],
         element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT,
+        action: Action | None = None,
     ):
-        super().__init__(identifier, source_interval)
+        super().__init__(identifier, source_interval, element_type)
         self.data_type = data_type
         self.expression = expression
         self.size = size
         self.size_expression = size_expression
         self.dimension_expression = dimension_expression
         self.dimension_size = dimension_size
+        self.action: Action | None = action
 
     def getAplanDecltypeForParametrs(self):
         if self.data_type == DeclTypes.INT:

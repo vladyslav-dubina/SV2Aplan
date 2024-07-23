@@ -47,58 +47,64 @@ class Action(Basic):
     def getActionName(self):
         return "{0}_{1}".format(self.identifier, self.number)
 
-    def findReturnAndReplaceToParametr(self, task):
+    def findReturnAndReplaceToParametrImpl(self, task, element, index, flag):
         return_var_name = f"return_{task.identifier}"
+        if isVariablePresent(element, task.identifier) or isVariablePresent(
+            element, "return"
+        ):
+            element = re.sub(
+                r"\b{}\b".format(re.escape(task.identifier)),
+                "{}".format(return_var_name),
+                element,
+            )
+            element = re.sub(
+                r"\b{}\b".format(re.escape("return")),
+                "{} = ".format(return_var_name),
+                element,
+            )
+            if flag:
+                self.precondition.body[index] = element
+            else:
+                self.postcondition.body[index] = element
+            task.parametrs.addElement(
+                ActionParametr(
+                    return_var_name,
+                    "var",
+                )
+            )
+
+    def findReturnAndReplaceToParametr(self, task, packages):
+
+        if task is None and packages is None:
+            return
+
         for index, element in enumerate(self.precondition.body):
-            if isVariablePresent(element, task.identifier) or isVariablePresent(
-                element, "return"
-            ):
-                element = re.sub(
-                    r"\b{}\b".format(re.escape(task.identifier)),
-                    "{}".format(return_var_name),
-                    element,
-                )
-                element = re.sub(
-                    r"\b{}\b".format(re.escape("return")),
-                    "{} = ".format(return_var_name),
-                    element,
-                )
-                self.postcondition.body[index] = element
-                task.parametrs.addElement(
-                    ActionParametr(
-                        return_var_name,
-                        "var",
-                    )
-                )
+            if task is not None:
+                self.findReturnAndReplaceToParametrImpl(task, element, index, True)
+            if packages is not None:
+                for package in packages.getElements():
+                    for package_task in package.tasks.getElements():
+                        self.findReturnAndReplaceToParametrImpl(
+                            package_task, element, index, True
+                        )
         for index, element in enumerate(self.postcondition.body):
-            if isVariablePresent(element, task.identifier) or isVariablePresent(
-                element, "return"
-            ):
-                element = re.sub(
-                    r"\b{}\b".format(re.escape(task.identifier)),
-                    "{}".format(return_var_name),
-                    element,
-                )
-                element = re.sub(
-                    r"\b{}\b".format(re.escape("return")),
-                    "{} = ".format(return_var_name),
-                    element,
-                )
-                self.postcondition.body[index] = element
-                task.parametrs.addElement(
-                    ActionParametr(
-                        return_var_name,
-                        "var",
-                    )
-                )
+            if task is not None:
+                self.findReturnAndReplaceToParametrImpl(task, element, index, False)
+            if packages is not None:
+                for package in packages.getElements():
+                    for package_task in package.tasks.getElements():
+                        self.findReturnAndReplaceToParametrImpl(
+                            package_task, element, index, False
+                        )
 
     def findParametrInBodyAndSetParametrs(self, task):
-        for task_parametr in task.parametrs.getElements():
-            if isVariablePresent(str(self.precondition), task_parametr.identifier):
-                self.parametrs.addElement(task_parametr)
+        if task is not None:
+            for task_parametr in task.parametrs.getElements():
+                if isVariablePresent(str(self.precondition), task_parametr.identifier):
+                    self.parametrs.addElement(task_parametr)
 
-            if isVariablePresent(str(self.postcondition), task_parametr.identifier):
-                self.parametrs.addElement(task_parametr)
+                if isVariablePresent(str(self.postcondition), task_parametr.identifier):
+                    self.parametrs.addElement(task_parametr)
 
     def __str__(self):
         return "{0}{1},".format(self.identifier, self.getBody())
@@ -119,8 +125,8 @@ class ActionArray(BasicArray):
     def isUniqAction(self, action: Action):
         for element in self.elements:
             if element == action:
-                return (element.identifier, element.source_interval)
-        return None, (None, None)
+                return (element, element.source_interval)
+        return None, None, (None, None)
 
     def getActionsInStrFormat(self):
         result = ""

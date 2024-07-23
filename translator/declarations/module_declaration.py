@@ -1,4 +1,5 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
+from classes.element_types import ElementsTypes
 from classes.module import Module
 from program.program import Program
 from classes.module_call import ModuleCall
@@ -46,7 +47,12 @@ def moduleOrPackageDeclaration2Aplan(
                     identifier = local_module_call.identifier
                     uniq_name = local_module_call.object_name
             index = program.modules.addElement(
-                Module(identifier, ctx.getSourceInterval(), uniq_name)
+                Module(
+                    identifier,
+                    ctx.getSourceInterval(),
+                    uniq_name,
+                    ElementsTypes.PACKAGE_ELEMENT,
+                )
             )
             module = program.modules.getElementByIndex(index)
     return module

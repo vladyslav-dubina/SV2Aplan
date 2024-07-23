@@ -150,6 +150,7 @@ def dataDecaration2AplanImpl(
                         if sv_structure is not None:
                             beh_index = sv_structure.getLastBehaviorIndex()
                             (
+                                action_pointer,
                                 assign_name,
                                 source_interval,
                                 uniq_action,
@@ -166,6 +167,7 @@ def dataDecaration2AplanImpl(
                     else:
                         if decl_unique:
                             (
+                                action_pointer,
                                 assign_name,
                                 source_interval,
                                 uniq_action,
@@ -179,6 +181,7 @@ def dataDecaration2AplanImpl(
                                 decl_index
                             )
                             declaration.expression = assign_name
+                            declaration.action = action_pointer
 
             return identifier
     type_declaration = ctx.type_declaration()

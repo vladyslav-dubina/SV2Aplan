@@ -31,7 +31,6 @@ def netDeclaration2AplanImpl(
 
     """
     data_type = ctx.data_type_or_implicit()
-
     unpacked_dimention = ctx.unpacked_dimension(0)
     dimension_size = 0
     dimension_size_expression = ""
@@ -51,31 +50,37 @@ def netDeclaration2AplanImpl(
             aplan_vector_size = vectorSize2AplanVectorSize(
                 vector_size[0], vector_size[1]
             )
-
-    if ctx.net_type().getText() == "wire":
-        for elem in ctx.list_of_net_decl_assignments().net_decl_assignment():
-            identifier = elem.net_identifier().identifier().getText()
-            assign_name = ""
-            decl_unique, decl_index = self.module.declarations.addElement(
-                Declaration(
-                    DeclTypes.WIRE,
-                    identifier,
-                    assign_name,
-                    size_expression,
-                    aplan_vector_size[0],
-                    dimension_size_expression,
-                    dimension_size,
-                    elem.getSourceInterval(),
-                )
-            )
-
-            if elem.expression():
-                expression = elem.expression().getText()
-                if expression:
-                    assign_name, source_interval, uniq_action = self.expression2Aplan(
-                        elem.getText(),
-                        ElementsTypes.ASSIGN_ELEMENT,
+    net_type = ctx.net_type()
+    if net_type is not None:
+        if net_type.getText() == "wire":
+            for elem in ctx.list_of_net_decl_assignments().net_decl_assignment():
+                identifier = elem.net_identifier().identifier().getText()
+                assign_name = ""
+                decl_unique, decl_index = self.module.declarations.addElement(
+                    Declaration(
+                        DeclTypes.WIRE,
+                        identifier,
+                        assign_name,
+                        size_expression,
+                        aplan_vector_size[0],
+                        dimension_size_expression,
+                        dimension_size,
                         elem.getSourceInterval(),
                     )
-                    declaration = self.module.declarations.getElementByIndex(decl_index)
-                    declaration.expression = assign_name
+                )
+
+                if elem.expression():
+                    expression = elem.expression().getText()
+                    if expression:
+                        action_pointer, assign_name, source_interval, uniq_action = (
+                            self.expression2Aplan(
+                                elem.getText(),
+                                ElementsTypes.ASSIGN_ELEMENT,
+                                elem.getSourceInterval(),
+                            )
+                        )
+                        declaration = self.module.declarations.getElementByIndex(
+                            decl_index
+                        )
+                        declaration.expression = assign_name
+                        declaration.action = action_pointer

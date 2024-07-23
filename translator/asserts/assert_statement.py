@@ -12,10 +12,12 @@ def assertPropertyStatement2AplanImpl(
 ):
     expression = ctx.property_spec()
     if expression is not None:
-        assert_name, source_interval, uniq_action = self.expression2Aplan(
-            expression.getText(),
-            ElementsTypes.ASSERT_ELEMENT,
-            ctx.getSourceInterval(),
+        action_pointer, assert_name, source_interval, uniq_action = (
+            self.expression2Aplan(
+                expression.getText(),
+                ElementsTypes.ASSERT_ELEMENT,
+                ctx.getSourceInterval(),
+            )
         )
         Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
         assert_b = "ASSERT_B_{}".format(
@@ -36,7 +38,7 @@ def assertInBlock2AplanImpl(
     ctx: SystemVerilogParser.Simple_immediate_assert_statementContext,
     sv_structure: Structure,
 ):
-    assert_name, source_interval, uniq_action = self.expression2Aplan(
+    action_pointer, assert_name, source_interval, uniq_action = self.expression2Aplan(
         ctx.expression().getText(),
         ElementsTypes.ASSERT_ELEMENT,
         ctx.expression().getSourceInterval(),

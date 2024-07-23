@@ -60,6 +60,7 @@ def caseStatement2AplanImpl(
                 case_action.postcondition.body.append("1")
 
                 (
+                    action_pointer,
                     case_check_result,
                     source_interval,
                 ) = self.module.actions.isUniqAction(case_action)

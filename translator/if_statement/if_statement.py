@@ -60,6 +60,7 @@ def ifStatement2AplanImpl(
             if_action.postcondition.body.append("1")
 
             (
+                action_pointer,
                 if_check_result,
                 source_interval,
             ) = self.module.actions.isUniqAction(if_action)

@@ -16,7 +16,7 @@ def blockAssignment2AplanImpl(
             body = "{0}={1}".format(task.identifier, ctx.getText())
     else:
         body = ctx.getText()
-    action_name, source_interval, uniq_action = self.expression2Aplan(
+    action_pointer, action_name, source_interval, uniq_action = self.expression2Aplan(
         body,
         ElementsTypes.ASSIGN_ELEMENT,
         ctx.getSourceInterval(),

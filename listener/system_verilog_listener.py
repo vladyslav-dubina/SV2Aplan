@@ -26,7 +26,7 @@ class SVListener(SystemVerilogParserListener):
         self.module = moduleOrPackageDeclaration2Aplan(
             ctx, self.program, self.module_call
         )
-        self.sv2aplan = SV2aplan(self.module)
+        self.sv2aplan = SV2aplan(self.module, self.program.modules.getPackeges())
 
     def enterPackage_declaration(
         self, ctx: SystemVerilogParser.Package_declarationContext
@@ -34,7 +34,7 @@ class SVListener(SystemVerilogParserListener):
         self.module = moduleOrPackageDeclaration2Aplan(
             ctx, self.program, self.module_call
         )
-        self.sv2aplan = SV2aplan(self.module)
+        self.sv2aplan = SV2aplan(self.module, self.program.modules.getPackeges())
 
     def exitGenvar_declaration(self, ctx):
         self.sv2aplan.genvarDeclaration2Aplan(ctx)
@@ -81,3 +81,8 @@ class SVListener(SystemVerilogParserListener):
         self, ctx: SystemVerilogParser.Function_declarationContext
     ):
         self.sv2aplan.taskOrFunctionDeclaration2Aplan(ctx)
+
+    def exitPackage_import_declaration(
+        self, ctx: SystemVerilogParser.Package_import_declarationContext
+    ):
+        self.sv2aplan.packageImport2Apan(ctx, self.program)

@@ -2,7 +2,7 @@ from classes.processed import ProcessedElementArray
 from classes.actions import ActionArray
 from classes.parametrs import ParametrArray
 from classes.protocols import ProtocolArray
-from classes.declarations import DeclarationArray
+from classes.declarations import DeclTypes, DeclarationArray
 from classes.structure import StructureArray
 from classes.basic import Basic, BasicArray
 from classes.module_call import ModuleCallArray
@@ -16,12 +16,13 @@ from classes.tasks import TaskArray
 
 class Module(Basic):
     def __init__(
-        self, identifier: str, source_interval: Tuple[int, int], ident_uniq_name
+        self,
+        identifier: str,
+        source_interval: Tuple[int, int],
+        ident_uniq_name,
+        element_type: ElementsTypes = ElementsTypes.MODULE_ELEMENT,
     ):
-        super().__init__(
-            identifier.upper(),
-            source_interval,
-        )
+        super().__init__(identifier.upper(), source_interval, element_type)
         self.ident_uniq_name = ident_uniq_name
         self.identifier_upper = self.identifier.upper()
         self.ident_uniq_name_upper = self.ident_uniq_name.upper()
@@ -41,21 +42,44 @@ class Module(Basic):
         self.processed_elements = ProcessedElementArray()
 
         self.tasks = TaskArray()
-        
 
-    def findAndChangeNamesToAgentAttrCall(self, input: str):
+    def findAndChangeNamesToAgentAttrCall(self, input: str, packages):
         for elem in self.declarations.getElements():
             input = re.sub(
                 r"\b{}\b".format(re.escape(elem.identifier)),
                 "{}.{}".format(self.ident_uniq_name, elem.identifier),
                 input,
             )
+
+        if packages is not None:
+            for package in packages.getElements():
+                for elem in package.declarations.getElements():
+                    input = re.sub(
+                        r"\b{}\b".format(re.escape(elem.identifier)),
+                        "{}.{}".format(package.ident_uniq_name, elem.identifier),
+                        input,
+                    )
+
         return input
 
     def isIncludeOutOfBlockElements(self):
         if len(self.out_of_block_elements.getElements()) > 0:
             return True
         return False
+
+    def findElementByIdentifier(self, identifier: str):
+        result = []
+
+        for element in self.declarations.getElements():
+            if element.identifier == identifier:
+                result.append(element)
+                if (
+                    element.data_type is not DeclTypes.ENUM_TYPE
+                    and len(element.expression) > 0
+                ):
+                    result.append(element.action)
+
+        return result
 
     def getBehInitProtocols(self):
         result = ""
@@ -155,10 +179,14 @@ class Module(Basic):
             if main_flag:
                 init_protocol += "\n"
             result = init_protocol + result
+        b_body = f"{init_protocol_part}{struct_part}{always_part}{main_protocol_part}"
+        b0 = ""
 
-        b0 = f"B_{self.ident_uniq_name_upper} = {{{init_protocol_part}{struct_part}{always_part}{main_protocol_part}}},"
-        if main_flag or init_flag:
-            b0 += "\n"
+        if len(b_body) > 0:
+            b0 = f"B_{self.ident_uniq_name_upper} = {{{b_body}}},"
+            if main_flag or init_flag:
+                b0 += "\n"
+
         result = b0 + result
         return result
 
@@ -171,7 +199,14 @@ class ModuleArray(BasicArray):
         super().__init__(Module)
         self.module_instantiations: ModuleCallArray = ModuleCallArray()
 
-    def findModuleByUтiqIdentifier(self, ident_uniq_name: str):
+    def getPackeges(self):
+        result: ModuleArray = ModuleArray()
+        for element in self.getElements():
+            if element.element_type is ElementsTypes.PACKAGE_ELEMENT:
+                result.addElement(element)
+        return result
+
+    def findModuleByUniqIdentifier(self, ident_uniq_name: str):
         for element in self.elements:
             if element.ident_uniq_name == ident_uniq_name:
                 return element

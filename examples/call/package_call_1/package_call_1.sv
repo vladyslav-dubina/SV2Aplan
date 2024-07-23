@@ -1,6 +1,4 @@
 
-//import my_package::*;
-
 module main;
     import my_package::*;
 
@@ -12,6 +10,7 @@ module main;
         sum = add(5, 7);
 
         current_state = RUNNING;
+        MAX_COUNT = MAX_COUNT + 1;
     end
 
 endmodule

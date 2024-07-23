@@ -5,6 +5,7 @@ from classes.action_precondition import ActionPreconditionArray
 from classes.actions import Action
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
+from classes.module import ModuleArray
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import (
@@ -26,7 +27,9 @@ from utils.utils import (
 
 
 def prepareExpressionStringImpl(
-    self: SV2aplan, expression: str, expr_type: ElementsTypes
+    self: SV2aplan,
+    expression: str,
+    expr_type: ElementsTypes,
 ):
     expression = valuesToAplanStandart(expression)
     expression = doubleOperators2Aplan(expression)
@@ -37,7 +40,7 @@ def prepareExpressionStringImpl(
         and ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT != expr_type
     ):
         expression_with_replaced_names = self.module.findAndChangeNamesToAgentAttrCall(
-            expression
+            expression, self.packages
         )
     else:
         expression_with_replaced_names = expression
@@ -110,6 +113,8 @@ def expression2AplanImpl(
         )
 
     functions_list = self.module.tasks.getFunctions()
+    for package in self.packages.getElements():
+        functions_list += package.tasks.getFunctions()
 
     for function in functions_list:
         function_result_var = "{0}_call_result_{1}".format(
@@ -192,18 +197,20 @@ def expression2AplanImpl(
         action.description.body.append(
             f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
         )
-
-    if self.inside_the_function == True:
+    if self.inside_the_function == True or self.packages:
         task = self.module.tasks.getLastTask()
-        if task is not None:
-            action.findReturnAndReplaceToParametr(task)
+
+    action.findReturnAndReplaceToParametr(task, self.packages)
 
     if self.inside_the_task == True:
         task = self.module.tasks.getLastTask()
-        if task is not None:
-            action.findParametrInBodyAndSetParametrs(task)
 
-    action_check_result, source_interval = self.module.actions.isUniqAction(action)
+    action.findParametrInBodyAndSetParametrs(task)
+
+    action_pointer, action_check_result, source_interval = (
+        self.module.actions.isUniqAction(action)
+    )
+
     uniq = False
     if action_check_result is None:
         uniq = True
@@ -217,4 +224,4 @@ def expression2AplanImpl(
         action_name = f"{action_name}{action.parametrs.getIdentifiersListString(action_parametrs_count)}"
 
     Counters_Object.incrieseCounter(counter_type)
-    return (action_name, source_interval, uniq)
+    return (action_pointer, action_name, source_interval, uniq)

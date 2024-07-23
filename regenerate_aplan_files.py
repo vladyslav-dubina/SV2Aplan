@@ -5,7 +5,7 @@ import shutil
 import os
 from sv2aplan_tool import start
 from utils.utils import Color, format_time, printWithColor, switchRemovePrints
-from examples import examples_list
+from examples_list import examples_list
 
 
 def run_generation(test_number, source_file, result_path):

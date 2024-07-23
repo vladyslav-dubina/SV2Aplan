@@ -4,7 +4,7 @@ from classes.action_parametr import ActionParametrArray
 from classes.action_precondition import ActionPreconditionArray
 from classes.module_call import ModuleCall
 from classes.structure import Structure
-from classes.module import Module
+from classes.module import Module, ModuleArray
 from classes.element_types import ElementsTypes
 from classes.tasks import Task
 from program.program import Program
@@ -12,8 +12,9 @@ from typing import Tuple, List
 
 
 class SV2aplan:
-    def __init__(self, module: Module):
+    def __init__(self, module: Module, packages: ModuleArray | None = None):
         self.module = module
+        self.packages: ModuleArray = ModuleArray()
         self.inside_the_task = False
         self.inside_the_function = False
 
@@ -186,6 +187,17 @@ class SV2aplan:
         )
 
         moduleCall2AplanImpl(self, ctx, program)
+
+    def packageImport2Apan(
+        self,
+        ctx: SystemVerilogParser.Package_import_declarationContext,
+        program: Program,
+    ):
+        from translator.import_stmt.package_import import (
+            packageImport2ApanImpl,
+        )
+
+        packageImport2ApanImpl(self, ctx, program)
 
     def taskCall2Aplan(
         self, ctx: SystemVerilogParser.Tf_callContext, sv_structure: Structure

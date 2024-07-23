@@ -15,7 +15,7 @@ class SystemVerilogFinder:
         self.tree = parser.source_text()
         self.walker = ParseTreeWalker()
 
-    def startTranslate(self, program: Program, module_call: ModuleCall | None):
+    def startTranslate(self, program: Program, module_call: ModuleCall | None = None):
         printWithColor(f"Tranlation process start... \n", Color.ORANGE)
 
         listener = SVListener(program, module_call)

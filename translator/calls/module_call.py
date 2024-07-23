@@ -4,7 +4,6 @@ from classes.action_parametr import ActionParametr, ActionParametrArray
 from classes.action_precondition import ActionPrecondition, ActionPreconditionArray
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
-from classes.module import Module
 from classes.module_call import ModuleCall
 from classes.protocols import Protocol
 from program.program import Program
@@ -100,25 +99,29 @@ def moduleCallAssign2Aplan(
                         )
                     )
             obj_def = f"{destination_identifier.upper()}#{destination_module_name};{self.module.identifier_upper}#{self.module.ident_uniq_name}"
-            action_name, source_interval, uniq_action = self.expression2Aplan(
-                assign_str_list,
-                ElementsTypes.ASSIGN_FOR_CALL_ELEMENT,
-                ctx.getSourceInterval(),
-                (obj_def, None, None),
+            action_pointer, action_name, source_interval, uniq_action = (
+                self.expression2Aplan(
+                    assign_str_list,
+                    ElementsTypes.ASSIGN_FOR_CALL_ELEMENT,
+                    ctx.getSourceInterval(),
+                    (obj_def, None, None),
+                )
             )
 
             action_2 = ""
             for element in assign_arr_str_list:
                 expression, parametrs, predicates = element
-                action_name_2, source_interval, uniq_action = self.expression2Aplan(
-                    expression,
-                    ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT,
-                    ctx.getSourceInterval(),
-                    (
-                        obj_def,
-                        parametrs,
-                        predicates,
-                    ),
+                action_pointer_2, action_name_2, source_interval, uniq_action = (
+                    self.expression2Aplan(
+                        expression,
+                        ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT,
+                        ctx.getSourceInterval(),
+                        (
+                            obj_def,
+                            parametrs,
+                            predicates,
+                        ),
+                    )
                 )
                 if uniq_action:
                     action_2 += f".Sensetive({action_name_2})"
