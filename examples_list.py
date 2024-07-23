@@ -10,9 +10,14 @@ examples_list = [
         "examples/assigns/assign_1/aplan",
     ),
     (
-        "examples/struct/enum/enum.sv",
-        "examples/struct/enum/test_result",
-        "examples/struct/enum/aplan",
+        "examples/struct/enum_1/enum_1.sv",
+        "examples/struct/enum_1/test_result",
+        "examples/struct/enum_1/aplan",
+    ),
+    (
+        "examples/struct/enum_2/enum_2.sv",
+        "examples/struct/enum_2/test_result",
+        "examples/struct/enum_2/aplan",
     ),
     (
         "examples/parametrs/parametrs_1/parametrs_1.sv",

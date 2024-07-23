@@ -17,15 +17,22 @@ class DeclTypes(Enum):
     IF_STATEMENT = auto()
     ENUM = auto()
     ENUM_TYPE = auto()
+    NONE = auto()
 
-    def checkType(type_str: str):
+    def checkType(type_str: str, types):
         if "int" in type_str:
             return DeclTypes.INT
         elif "reg" in type_str:
             return DeclTypes.REG
         elif "logic" in type_str:
             return DeclTypes.LOGIC
-        return DeclTypes.INT
+        else:
+            for type in types:
+                if type_str in type.identifier:
+                    if type.data_type is DeclTypes.ENUM_TYPE:
+                        return DeclTypes.ENUM
+
+        return DeclTypes.NONE
 
 
 class Declaration(Basic):
@@ -67,6 +74,8 @@ class Declaration(Basic):
                 return "bool"
         elif self.data_type == DeclTypes.ENUM_TYPE:
             return ""
+        elif self.data_type == DeclTypes.ENUM:
+            return f"{self.size_expression}"
 
     def getAplanDecltype(self):
         if self.data_type == DeclTypes.INT:
@@ -86,6 +95,8 @@ class Declaration(Basic):
                 return "bool"
         elif self.data_type == DeclTypes.ENUM_TYPE:
             return ""
+        elif self.data_type == DeclTypes.ENUM:
+            return f"{self.size_expression}"
 
     def __repr__(self):
         return f"\tDeclaration({self.data_type!r}, {self.identifier!r}, {self.expression!r}, {self.size!r}, {self.sequence!r})\n"

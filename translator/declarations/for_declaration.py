@@ -41,7 +41,7 @@ def loopVars2AplanImpl(self: SV2aplan, ctx: SystemVerilogParser.Loop_variablesCo
         Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
         data_type = "int"
         size_expression = data_type
-        data_type = DeclTypes.checkType(data_type)
+        data_type = DeclTypes.checkType(data_type, self.packages)
         assign_name = ""
         decl_unique, decl_index = self.module.declarations.addElement(
             Declaration(
@@ -97,12 +97,15 @@ def loopVarsDeclarations2AplanImpl(
     assign_names: List[str] = []
     for index, identifier in enumerate(vars_names):
         action_txt = f"{identifier}=0"
-        action_pointer, assign_name, source_interval, uniq_action = (
-            self.expression2Aplan(
-                action_txt,
-                ElementsTypes.ASSIGN_ELEMENT,
-                source_intervals[index],
-            )
+        (
+            action_pointer,
+            assign_name,
+            source_interval,
+            uniq_action,
+        ) = self.expression2Aplan(
+            action_txt,
+            ElementsTypes.ASSIGN_ELEMENT,
+            source_intervals[index],
         )
         assign_names.append(assign_name)
 
@@ -137,12 +140,15 @@ def loopVarsToIteration2AplanImpl(
     assign_names: List[str] = []
     for index, identifier in enumerate(vars_names):
         action_txt = f"{identifier}={identifier}+1"
-        action_pointer, assign_name, source_interval, uniq_action = (
-            self.expression2Aplan(
-                action_txt,
-                ElementsTypes.ASSIGN_ELEMENT,
-                source_intervals[index],
-            )
+        (
+            action_pointer,
+            assign_name,
+            source_interval,
+            uniq_action,
+        ) = self.expression2Aplan(
+            action_txt,
+            ElementsTypes.ASSIGN_ELEMENT,
+            source_intervals[index],
         )
         assign_names.append(assign_name)
 
@@ -185,12 +191,15 @@ def loopVarsAndArrayIdentifierToCondition2AplanImpl(
         if index != 0:
             condition += "&&"
         condition = "{0}<{1}".format(element, decl.size)
-    action_pointer, condition_name, source_interval, uniq_action = (
-        self.expression2Aplan(
-            condition,
-            ElementsTypes.CONDITION_ELEMENT,
-            ctx.getSourceInterval(),
-        )
+    (
+        action_pointer,
+        condition_name,
+        source_interval,
+        uniq_action,
+    ) = self.expression2Aplan(
+        condition,
+        ElementsTypes.CONDITION_ELEMENT,
+        ctx.getSourceInterval(),
     )
     return condition_name
 
@@ -229,7 +238,7 @@ def forInitialization2ApanImpl(
         Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
         data_type = expression.data_type().getText()
         size_expression = data_type
-        data_type = DeclTypes.checkType(data_type)
+        data_type = DeclTypes.checkType(data_type, self.packages)
         decl_unique, decl_index = self.module.declarations.addElement(
             Declaration(
                 data_type,
@@ -277,12 +286,15 @@ def forDeclaration2ApanImpl(
         action_txt = (
             f"{ctx.variable_identifier(0).getText()}={ctx.expression(0).getText()}"
         )
-        action_pointer, assign_name, source_interval, uniq_action = (
-            self.expression2Aplan(
-                action_txt,
-                ElementsTypes.ASSIGN_ELEMENT,
-                ctx.getSourceInterval(),
-            )
+        (
+            action_pointer,
+            assign_name,
+            source_interval,
+            uniq_action,
+        ) = self.expression2Aplan(
+            action_txt,
+            ElementsTypes.ASSIGN_ELEMENT,
+            ctx.getSourceInterval(),
         )
     data_type = DeclTypes.checkType(data_type)
     identifier = ctx.variable_identifier(0).getText()
@@ -297,6 +309,6 @@ def forDeclaration2ApanImpl(
             0,
             ctx.getSourceInterval(),
             ElementsTypes.NONE_ELEMENT,
-            action_pointer
+            action_pointer,
         )
     )

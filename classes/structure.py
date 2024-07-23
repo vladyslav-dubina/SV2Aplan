@@ -40,9 +40,11 @@ class Structure(Basic):
 
     def __str__(self):
         result = ""
-        for element in self.behavior:
-            result += "\n"
-            result += str(element)
+
+        if len(self.behavior) >= 1:
+            for element in self.behavior:
+                result += "\n"
+                result += str(element)
         return result
 
     def __repr__(self):
@@ -61,7 +63,7 @@ class StructureArray(BasicArray):
 
         result: List[Always] = []
         for element in self.elements:
-            if isinstance(element, Always):
+            if isinstance(element, Always) and len(element.behavior) >= 1:
                 result.append(element)
         return result
 
@@ -73,6 +75,7 @@ class StructureArray(BasicArray):
             if (
                 isinstance(element, Always) == False
                 and element.element_type is not ElementsTypes.TASK_ELEMENT
+                and len(element.behavior) >= 1
             ):
                 result.append(element)
         return result
