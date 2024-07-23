@@ -147,6 +147,11 @@ def dataDecaration2AplanImpl(
                 ):
                     expression = elem.constant_param_expression()
 
+                declaration = self.module.declarations.getElementByIndex(decl_index)
+
+                if sv_structure is not None:
+                    sv_structure.elements.addElement(declaration)
+
                 if expression is not None:
                     expression = expression.getText()
                     if listener == False:
@@ -179,9 +184,6 @@ def dataDecaration2AplanImpl(
                                 ElementsTypes.ASSIGN_ELEMENT,
                                 elem.getSourceInterval(),
                                 sv_structure=sv_structure,
-                            )
-                            declaration = self.module.declarations.getElementByIndex(
-                                decl_index
                             )
                             declaration.expression = assign_name
                             declaration.action = action_pointer

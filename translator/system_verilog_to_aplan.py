@@ -112,34 +112,48 @@ class SV2aplan:
 
     # ---------------------------------------------------------------------------------
 
-    def loopVarsToAplan(self, ctx: SystemVerilogParser.Loop_variablesContext):
+    def loopVarsToAplan(
+        self,
+        ctx: SystemVerilogParser.Loop_variablesContext,
+        sv_structure: Structure,
+    ):
         from translator.declarations.for_declaration import (
             loopVars2AplanImpl,
         )
 
-        return loopVars2AplanImpl(self, ctx)
+        return loopVars2AplanImpl(self, ctx, sv_structure)
 
     # ---------------------------------------------------------------------------------
 
     def loopVarsDeclarationsToAplan(
-        self, vars_names: List[str], source_intervals: List[Tuple[int, int]]
+        self,
+        vars_names: List[str],
+        source_intervals: List[Tuple[int, int]],
+        sv_structure: Structure,
     ):
         from translator.declarations.for_declaration import (
             loopVarsDeclarations2AplanImpl,
         )
 
-        return loopVarsDeclarations2AplanImpl(self, vars_names, source_intervals)
+        return loopVarsDeclarations2AplanImpl(
+            self, vars_names, source_intervals, sv_structure
+        )
 
     # ---------------------------------------------------------------------------------
 
     def loopVarsToIteration2Aplan(
-        self, vars_names: List[str], source_intervals: List[Tuple[int, int]]
+        self,
+        vars_names: List[str],
+        source_intervals: List[Tuple[int, int]],
+        sv_structure: Structure,
     ):
         from translator.declarations.for_declaration import (
             loopVarsToIteration2AplanImpl,
         )
 
-        return loopVarsToIteration2AplanImpl(self, vars_names, source_intervals)
+        return loopVarsToIteration2AplanImpl(
+            self, vars_names, source_intervals, sv_structure
+        )
 
     # ---------------------------------------------------------------------------------
 
@@ -147,34 +161,41 @@ class SV2aplan:
         self,
         vars_names: List[str],
         ctx: SystemVerilogParser.Ps_or_hierarchical_array_identifierContext,
+        sv_structure: Structure,
     ):
         from translator.declarations.for_declaration import (
             loopVarsAndArrayIdentifierToCondition2AplanImpl,
         )
 
-        return loopVarsAndArrayIdentifierToCondition2AplanImpl(self, vars_names, ctx)
+        return loopVarsAndArrayIdentifierToCondition2AplanImpl(
+            self, vars_names, ctx, sv_structure
+        )
 
     # ---------------------------------------------------------------------------------
 
     def forInitialization2Apan(
-        self, ctx: SystemVerilogParser.For_initializationContext
+        self,
+        ctx: SystemVerilogParser.For_initializationContext,
+        sv_structure: Structure,
     ):
         from translator.declarations.for_declaration import (
             forInitialization2ApanImpl,
         )
 
-        return forInitialization2ApanImpl(self, ctx)
+        return forInitialization2ApanImpl(self, ctx, sv_structure)
 
     # ---------------------------------------------------------------------------------
 
     def forDeclaration2Apan(
-        self, ctx: SystemVerilogParser.For_variable_declarationContext
+        self,
+        ctx: SystemVerilogParser.For_variable_declarationContext,
+        sv_structure: Structure,
     ):
         from translator.declarations.for_declaration import (
             forDeclaration2ApanImpl,
         )
 
-        forDeclaration2ApanImpl(self, ctx)
+        forDeclaration2ApanImpl(self, ctx, sv_structure)
 
     # ====================================CALLS=========================================
     def moduleCall2Apan(
@@ -347,7 +368,7 @@ class SV2aplan:
 
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.For_variable_declarationContext:
-                self.forDeclaration2Apan(child)
+                self.forDeclaration2Apan(child, sv_structure)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Data_declarationContext:
                 data_type = child.data_type_or_implicit().getText()

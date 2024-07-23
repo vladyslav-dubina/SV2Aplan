@@ -40,14 +40,18 @@ def generateBodyToAplan(
             self.module.processed_elements.addElement(
                 ProcessedElement("action", child.getSourceInterval())
             )
-            action_pointer, action_name, source_interval, uniq_action = (
-                self.expression2Aplan(
-                    expression,
-                    ElementsTypes.ASSIGN_ELEMENT,
-                    child.getSourceInterval(),
-                    sv_structure=sv_structure,
-                )
+            (
+                action_pointer,
+                action_name,
+                source_interval,
+                uniq_action,
+            ) = self.expression2Aplan(
+                expression,
+                ElementsTypes.ASSIGN_ELEMENT,
+                child.getSourceInterval(),
+                sv_structure=sv_structure,
             )
+
             action_name = f"Sensetive({action_name})"
             sv_structure.behavior[0].addBody(
                 (action_name, ElementsTypes.ACTION_ELEMENT)

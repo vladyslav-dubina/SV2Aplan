@@ -69,7 +69,6 @@ class Module(Basic):
 
     def findElementByIdentifier(self, identifier: str):
         result = []
-
         for element in self.declarations.getElements():
             if element.identifier == identifier:
                 result.append(element)
@@ -78,6 +77,13 @@ class Module(Basic):
                     and len(element.expression) > 0
                 ):
                     result.append(element.action)
+
+        for element in self.tasks.getElements():
+            if element.identifier == identifier:
+                result.append(element)
+                result.append(element.structure)
+                for struct_element in element.structure.elements.getElements():
+                    result.append(struct_element)
 
         return result
 

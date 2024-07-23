@@ -1,0 +1,4 @@
+B_MAIN = {INIT_MAIN || MAIN_INITITAL},
+INIT_MAIN = assign_5,
+ADD(var a; var b; var return_add) = assign_4(a, b, return_add),
+MAIN_INITITAL = ADD(5,7,main.add_call_result_1);(assign_7).assign_8.assign_9

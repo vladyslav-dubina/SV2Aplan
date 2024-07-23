@@ -14,7 +14,6 @@ def loop2AplanImpl(
     ),
     sv_structure: Structure,
 ):
-
     protocol_params = ""
     if self.inside_the_task == True:
         task = self.module.tasks.getLastTask()
@@ -43,11 +42,11 @@ def loop2AplanImpl(
         elif ctx.FOR():
             for_initialization_ctx = ctx.for_initialization()
             for_decl_identifier.append(
-                self.forInitialization2Apan(for_initialization_ctx)
+                self.forInitialization2Apan(for_initialization_ctx, sv_structure)
             )
         elif ctx.FOREACH():
             for_decl_identifier, source_intervals_list = self.loopVarsToAplan(
-                ctx.loop_variables()
+                ctx.loop_variables(), sv_structure
             )
 
     beh_index = sv_structure.getLastBehaviorIndex()
@@ -91,28 +90,36 @@ def loop2AplanImpl(
     condition_name = ""
     if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
         condition = ctx.genvar_expression().getText()
-        action_pointer, condition_name, source_interval, uniq_action = (
-            self.expression2Aplan(
-                condition,
-                ElementsTypes.CONDITION_ELEMENT,
-                ctx.genvar_expression().getSourceInterval(),
-                source_interval=sv_structure,
-            )
+        (
+            action_pointer,
+            condition_name,
+            source_interval,
+            uniq_action,
+        ) = self.expression2Aplan(
+            condition,
+            ElementsTypes.CONDITION_ELEMENT,
+            ctx.genvar_expression().getSourceInterval(),
+            source_interval=sv_structure,
         )
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
         if ctx.FOREACH():
             condition_name = self.loopVarsAndArrayIdentifierToCondition2Aplan(
-                for_decl_identifier, ctx.ps_or_hierarchical_array_identifier()
+                for_decl_identifier,
+                ctx.ps_or_hierarchical_array_identifier(),
+                sv_structure,
             )
         else:
             condition = ctx.expression().getText()
-            action_pointer, condition_name, source_interval, uniq_action = (
-                self.expression2Aplan(
-                    condition,
-                    ElementsTypes.CONDITION_ELEMENT,
-                    ctx.expression().getSourceInterval(),
-                    sv_structure=sv_structure,
-                )
+            (
+                action_pointer,
+                condition_name,
+                source_interval,
+                uniq_action,
+            ) = self.expression2Aplan(
+                condition,
+                ElementsTypes.CONDITION_ELEMENT,
+                ctx.expression().getSourceInterval(),
+                sv_structure=sv_structure,
             )
 
         sv_structure.behavior[beh_index].addBody(
@@ -131,30 +138,36 @@ def loop2AplanImpl(
     initialization = ""
     if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
         initialization = ctx.genvar_initialization().getText()
-        action_pointer, action_name, source_interval, uniq_action = (
-            self.expression2Aplan(
-                initialization,
-                ElementsTypes.ASSIGN_ELEMENT,
-                ctx.genvar_initialization().getSourceInterval(),
-                sv_structure=sv_structure,
-            )
+        (
+            action_pointer,
+            action_name,
+            source_interval,
+            uniq_action,
+        ) = self.expression2Aplan(
+            initialization,
+            ElementsTypes.ASSIGN_ELEMENT,
+            ctx.genvar_initialization().getSourceInterval(),
+            sv_structure=sv_structure,
         )
         loop_init_flag = True
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
         if ctx.FOREACH():
             action_names_list = self.loopVarsDeclarationsToAplan(
-                for_decl_identifier, source_intervals_list
+                for_decl_identifier, source_intervals_list, sv_structure
             )
         else:
             if loop_init_flag == True:
                 initialization = removeTypeFromForInit(ctx.for_initialization())
-                action_pointer, action_name, source_interval, uniq_action = (
-                    self.expression2Aplan(
-                        initialization,
-                        ElementsTypes.ASSIGN_ELEMENT,
-                        ctx.for_initialization().getSourceInterval(),
-                        sv_structure=sv_structure,
-                    )
+                (
+                    action_pointer,
+                    action_name,
+                    source_interval,
+                    uniq_action,
+                ) = self.expression2Aplan(
+                    initialization,
+                    ElementsTypes.ASSIGN_ELEMENT,
+                    ctx.for_initialization().getSourceInterval(),
+                    sv_structure=sv_structure,
                 )
 
     if loop_init_flag == True:
@@ -176,29 +189,37 @@ def loop2AplanImpl(
     # LOOP INC
     if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
         iteration = ctx.genvar_iteration().getText()
-        action_pointer, action_name, source_interval, uniq_action = (
-            self.expression2Aplan(
-                iteration,
-                ElementsTypes.ASSIGN_ELEMENT,
-                ctx.genvar_iteration().getSourceInterval(),
-                sv_structure=sv_structure,
-            )
+        (
+            action_pointer,
+            action_name,
+            source_interval,
+            uniq_action,
+        ) = self.expression2Aplan(
+            iteration,
+            ElementsTypes.ASSIGN_ELEMENT,
+            ctx.genvar_iteration().getSourceInterval(),
+            sv_structure=sv_structure,
         )
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
         if ctx.FOREACH():
             action_names_list = self.loopVarsToIteration2Aplan(
-                for_decl_identifier, source_intervals_list
+                for_decl_identifier,
+                source_intervals_list,
+                sv_structure,
             )
         else:
             if loop_inс_flag == True:
                 iteration = ctx.for_step().getText()
-                action_pointer, action_name, source_interval, uniq_action = (
-                    self.expression2Aplan(
-                        iteration,
-                        ElementsTypes.ASSIGN_ELEMENT,
-                        ctx.for_step().getSourceInterval(),
-                        sv_structure=sv_structure,
-                    )
+                (
+                    action_pointer,
+                    action_name,
+                    source_interval,
+                    uniq_action,
+                ) = self.expression2Aplan(
+                    iteration,
+                    ElementsTypes.ASSIGN_ELEMENT,
+                    ctx.for_step().getSourceInterval(),
+                    sv_structure=sv_structure,
                 )
 
     if loop_inс_flag == True:

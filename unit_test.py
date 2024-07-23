@@ -18,6 +18,7 @@ def remove_directory(directory_path):
 
 
 def run_test(test_number, source_file, result_path, aplan_code_path):
+    result = False
     printWithColor(
         f"\n------------------------------------ TEST {test_number} ------------------------------------\n",
         Color.PURPLE,
@@ -26,16 +27,20 @@ def run_test(test_number, source_file, result_path, aplan_code_path):
     try:
         printWithColor(f"Source file : {source_file} \n", Color.BLUE)
         switchRemovePrints(True)
-        start(source_file, result_path)
+        result = start(source_file, result_path)
         switchRemovePrints(False)
+
+        if result:
+            printWithColor(f"Test {test_number} finished with error: \n", Color.RED)
+
         differences_found = compareAplanByPathes(aplan_code_path, result_path)
         if differences_found:
             printWithColor(f"Test {test_number} found differences.\n", Color.RED)
-            return True
+            result = True
     except Exception as e:
         printWithColor(f"Test {test_number} finished with error: \n", Color.RED)
         traceback.print_exception(type(e), e, e.__traceback__, file=sys.stderr)
-        return True
+        result = True
     finally:
         remove_directory(result_path)
         test_end_time = time.time()
@@ -48,7 +53,7 @@ def run_test(test_number, source_file, result_path, aplan_code_path):
             "\n--------------------------------------------------------------------------------\n",
             Color.CYAN,
         )
-    return False
+    return result
 
 
 def start_unit_test():

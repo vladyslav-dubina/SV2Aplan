@@ -4,11 +4,16 @@ from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from classes.name_change import NameChange
+from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.utils import Counters_Object
 
 
-def loopVars2AplanImpl(self: SV2aplan, ctx: SystemVerilogParser.Loop_variablesContext):
+def loopVars2AplanImpl(
+    self: SV2aplan,
+    ctx: SystemVerilogParser.Loop_variablesContext,
+    sv_structure: Structure,
+):
     """This function processes loop variables in SystemVerilog code by generating unique identifiers and
     adding declarations to the module.
 
@@ -56,6 +61,9 @@ def loopVars2AplanImpl(self: SV2aplan, ctx: SystemVerilogParser.Loop_variablesCo
             )
         )
 
+        declaration = self.module.declarations.getElementByIndex(decl_index)
+        sv_structure.elements.addElement(declaration)
+
         self.module.name_change.addElement(
             NameChange(
                 identifier,
@@ -73,6 +81,7 @@ def loopVarsDeclarations2AplanImpl(
     self: SV2aplan,
     vars_names: List[str],
     source_intervals: List[Tuple[int, int]],
+    sv_structure: Structure,
 ):
     """The function `loopVarsDeclarations2AplanImpl` takes a list of variable names and source intervals,
     creates assignment actions for each variable, and returns a list of assign names.
@@ -106,6 +115,7 @@ def loopVarsDeclarations2AplanImpl(
             action_txt,
             ElementsTypes.ASSIGN_ELEMENT,
             source_intervals[index],
+            sv_structure=sv_structure,
         )
         assign_names.append(assign_name)
 
@@ -116,6 +126,7 @@ def loopVarsToIteration2AplanImpl(
     self: SV2aplan,
     vars_names: List[str],
     source_intervals: List[Tuple[int, int]],
+    sv_structure: Structure,
 ):
     """The function `loopVarsToIteration2AplanImpl` takes a list of variable names and source intervals,
     generates assignment actions for each variable, and returns a list of assignment names.
@@ -149,6 +160,7 @@ def loopVarsToIteration2AplanImpl(
             action_txt,
             ElementsTypes.ASSIGN_ELEMENT,
             source_intervals[index],
+            sv_structure=sv_structure,
         )
         assign_names.append(assign_name)
 
@@ -159,6 +171,7 @@ def loopVarsAndArrayIdentifierToCondition2AplanImpl(
     self: SV2aplan,
     vars_names: List[str],
     ctx: SystemVerilogParser.Ps_or_hierarchical_array_identifierContext,
+    sv_structure: Structure,
 ):
     """This function generates a condition based on variable names and array identifier size in
     SystemVerilog.
@@ -200,6 +213,7 @@ def loopVarsAndArrayIdentifierToCondition2AplanImpl(
         condition,
         ElementsTypes.CONDITION_ELEMENT,
         ctx.getSourceInterval(),
+        sv_structure=sv_structure,
     )
     return condition_name
 
@@ -207,6 +221,7 @@ def loopVarsAndArrayIdentifierToCondition2AplanImpl(
 def forInitialization2ApanImpl(
     self: SV2aplan,
     ctx: SystemVerilogParser.For_initializationContext,
+    sv_structure: Structure,
 ):
     """This function initializes a variable in SystemVerilog code with a unique identifier and data type.
 
@@ -251,6 +266,10 @@ def forInitialization2ApanImpl(
                 expression.getSourceInterval(),
             )
         )
+
+        declaration = self.module.declarations.getElementByIndex(decl_index)
+        sv_structure.elements.addElement(declaration)
+
         self.module.name_change.addElement(
             NameChange(identifier, expression.getSourceInterval(), original_identifier)
         )
@@ -262,6 +281,7 @@ def forInitialization2ApanImpl(
 def forDeclaration2ApanImpl(
     self: SV2aplan,
     ctx: SystemVerilogParser.For_variable_declarationContext,
+    sv_structure: Structure,
 ):
     """This function processes a SystemVerilog for loop variable declaration and adds it to a module's
     declarations.
@@ -295,7 +315,9 @@ def forDeclaration2ApanImpl(
             action_txt,
             ElementsTypes.ASSIGN_ELEMENT,
             ctx.getSourceInterval(),
+            sv_structure=sv_structure,
         )
+
     data_type = DeclTypes.checkType(data_type)
     identifier = ctx.variable_identifier(0).getText()
     decl_unique, decl_index = self.module.declarations.addElement(
@@ -312,3 +334,5 @@ def forDeclaration2ApanImpl(
             action_pointer,
         )
     )
+    declaration = self.module.declarations.getElementByIndex(decl_index)
+    sv_structure.elements.addElement(declaration)

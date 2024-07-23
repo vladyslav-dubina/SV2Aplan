@@ -2,10 +2,15 @@ from typing import List, Tuple
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.action_parametr import ActionParametr, ActionParametrArray
 from classes.action_precondition import ActionPrecondition, ActionPreconditionArray
+from classes.actions import Action
 from classes.counters import CounterTypes
+from classes.declarations import Declaration
 from classes.element_types import ElementsTypes
 from classes.module_call import ModuleCall
+from classes.parametrs import Parametr
 from classes.protocols import Protocol
+from classes.structure import Structure
+from classes.tasks import Task
 from program.program import Program
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replace_filename
@@ -32,7 +37,7 @@ def packageImport2ApanImpl(
                 finder = SystemVerilogFinder()
                 finder.setUp(file_data)
                 finder.startTranslate(program)
-                
+
             finally:
                 program.file_path = previous_file_path
                 package = program.modules.findModuleByUniqIdentifier(package_identifier)
@@ -41,7 +46,24 @@ def packageImport2ApanImpl(
                     identifier = element.identifier()
 
                     if identifier is not None:
-                        package.findElementByIdentifier(element.identifier)
+                        identifier = identifier.getText()
+                        result = package.findElementByIdentifier(identifier)
+                        for module_element in result:
+                            if isinstance(module_element, Declaration):
+                                self.module.declarations.addElement(module_element)
+                            elif isinstance(module_element, Action):
+                                self.module.actions.addElement(module_element)
+                            elif isinstance(module_element, Structure):
+                                self.module.structures.addElement(module_element)
+                            elif isinstance(module_element, Task):
+                                self.module.tasks.addElement(module_element)
+                            elif isinstance(module_element, Protocol):
+                                self.module.out_of_block_elements.addElement(
+                                    module_element
+                                )
+                            elif isinstance(module_element, Parametr):
+                                self.module.parametrs.addElement(module_element)
+
                         program.modules.removeElement(
                             package
                         )  # remove after take all needed elements

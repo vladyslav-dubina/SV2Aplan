@@ -24,6 +24,7 @@ def is_sv_file(path: str):
 
 
 def start(path, path_to_aplan_result):
+    result = False
     printWithColor(
         "\n-------------------------SV TO APLAN TRANSLATOR START-------------------------\n",
         Color.CYAN,
@@ -47,6 +48,7 @@ def start(path, path_to_aplan_result):
         program.createResDir()
         program.createAplanFiles()
     except Exception as e:
+        result = True
         printWithColor("Program finished with error: \n", Color.RED)
         traceback.print_exception(type(e), e, e.__traceback__, file=sys.stderr)
     printWithColor(
@@ -67,6 +69,7 @@ def start(path, path_to_aplan_result):
         Color.CYAN,
     )
     programCountersDeinit()
+    return result
 
 
 if __name__ == "__main__":

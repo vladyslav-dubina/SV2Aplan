@@ -13,6 +13,7 @@ class Structure(Basic):
     ):
         super().__init__(identifier, source_interval, element_type)
         self.behavior: List[Protocol] = []
+        self.elements: BasicArray = BasicArray(Basic)
 
     def getLastBehaviorIndex(self):
         if not self.behavior:

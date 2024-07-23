@@ -147,7 +147,7 @@ def funtionCall2AplanImpl(
 ):
     parametrs = extractParameters(function_call, task.identifier)
     parametrs_str = ""
-    
+
     new_decl = Declaration(
         DeclTypes.INT,
         function_result_var,
@@ -158,6 +158,7 @@ def funtionCall2AplanImpl(
         0,
         source_interval,
     )
+    sv_structure.elements.addElement(new_decl)
     decl_unique, decl_index = self.module.declarations.addElement(new_decl)
 
     for element in parametrs:

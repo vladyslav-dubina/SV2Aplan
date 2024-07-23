@@ -13,7 +13,6 @@ def repeat2AplanImpl(
     ctx: SystemVerilogParser.Loop_statementContext,
     sv_structure: Structure,
 ):
-
     identifier = "repeat_var_{0}".format(
         Counters_Object.getCounter(CounterTypes.REPEAT_COUNTER)
     )
@@ -28,6 +27,7 @@ def repeat2AplanImpl(
         ctx.getSourceInterval(),
         sv_structure=sv_structure,
     )
+
     uniq, decl_index = self.module.declarations.addElement(
         Declaration(
             DeclTypes.INT,
@@ -44,6 +44,8 @@ def repeat2AplanImpl(
     )
 
     decl = self.module.declarations.getElementByIndex(decl_index)
+
+    sv_structure.elements.addElement(decl)
 
     sensetive = self.extractSensetive(ctx.statement_or_null())
 

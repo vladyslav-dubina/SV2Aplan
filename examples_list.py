@@ -115,9 +115,14 @@ examples_list = [
         "examples/call/call_1/aplan",
     ),
     (
-        "examples/call/package_call_1/package_call_1.sv",
-        "examples/call/package_call_1/test_result",
-        "examples/call/package_call_1/aplan",
+        "examples/call/package_import_1/package_import_1.sv",
+        "examples/call/package_import_1/test_result",
+        "examples/call/package_import_1/aplan",
+    ),
+    (
+        "examples/call/package_import_2/package_import_2.sv",
+        "examples/call/package_import_2/test_result",
+        "examples/call/package_import_2/aplan",
     ),
     (
         "examples/sv_example_1/sv_example_1.sv",

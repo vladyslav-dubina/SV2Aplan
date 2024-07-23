@@ -1,0 +1,17 @@
+
+assign_4(var a; var b; var return_add) = (
+		(1)->
+		("MY_PACKAGE#my_package:action 'assign (add = a + b)';")
+		(return_add = a + b)),
+assign_7 = (
+		(1)->
+		("MAIN#main:action 'assign (sum = add ( 5, 7 ))';")
+		(main.sum = main.add_call_result_1)),
+assign_8 = (
+		(1)->
+		("MAIN#main:action 'assign (current_state = RUNNING)';")
+		(main.current_state = RUNNING)),
+assign_9 = (
+		(1)->
+		("MAIN#main:action 'assign (sum = sum + MAX_COUNT)';")
+		(main.sum = main.sum + main.my_package.MAX_COUNT))

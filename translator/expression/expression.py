@@ -78,7 +78,6 @@ def expression2AplanImpl(
     ) = None,
     sv_structure: Structure | None = None,
 ):
-
     name_part = ""
     counter_type = CounterTypes.NONE_COUNTER
 
@@ -125,12 +124,14 @@ def expression2AplanImpl(
             self.module.ident_uniq_name, function_result_var
         )
 
-        is_present, expression_with_replaced_names, function_call = (
-            isFunctionCallPresentAndReplace(
-                expression_with_replaced_names,
-                function.identifier,
-                function_result_var_for_replase,
-            )
+        (
+            is_present,
+            expression_with_replaced_names,
+            function_call,
+        ) = isFunctionCallPresentAndReplace(
+            expression_with_replaced_names,
+            function.identifier,
+            function_result_var_for_replase,
         )
         if is_present:
             self.funtionCall2Aplan(
@@ -207,17 +208,23 @@ def expression2AplanImpl(
 
     action.findParametrInBodyAndSetParametrs(task)
 
-    action_pointer, action_check_result, source_interval = (
-        self.module.actions.isUniqAction(action)
-    )
+    (
+        action_pointer,
+        action_check_result,
+        source_interval,
+    ) = self.module.actions.isUniqAction(action)
 
     uniq = False
     if action_check_result is None:
         uniq = True
         self.module.actions.addElement(action)
+        if sv_structure is not None:
+            sv_structure.elements.addElement(action)
     else:
         Counters_Object.decrieseCounter(counter_type)
         action_name = action_check_result
+        if sv_structure is not None:
+            sv_structure.elements.addElement(action_pointer)
 
     if self.inside_the_task == True and action_name is not None:
         action_parametrs_count = action.parametrs.getLen()
