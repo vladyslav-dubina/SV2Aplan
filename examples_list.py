@@ -109,7 +109,7 @@ examples_list = [
         "examples/call/call_1/test_result",
         "examples/call/call_1/aplan",
     ),
-        (
+    (
         "examples/call/package_call_1/package_call_1.sv",
         "examples/call/package_call_1/test_result",
         "examples/call/package_call_1/aplan",
