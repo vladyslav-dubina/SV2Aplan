@@ -74,7 +74,6 @@ class Action(Basic):
             )
 
     def findReturnAndReplaceToParametr(self, task, packages):
-
         if task is None and packages is None:
             return
 
@@ -125,7 +124,7 @@ class ActionArray(BasicArray):
     def isUniqAction(self, action: Action):
         for element in self.elements:
             if element == action:
-                return (element, element.source_interval)
+                return (element, element.identifier, element.source_interval)
         return None, None, (None, None)
 
     def getActionsInStrFormat(self):
