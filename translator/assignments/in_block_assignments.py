@@ -22,26 +22,27 @@ def blockAssignment2AplanImpl(
         ctx.getSourceInterval(),
         sv_structure=sv_structure,
     )
-    beh_index = sv_structure.getLastBehaviorIndex()
+    if action_name is not None:
+        beh_index = sv_structure.getLastBehaviorIndex()
 
-    if type(ctx) is SystemVerilogParser.Nonblocking_assignmentContext:
-        action_name = "Sensetive(" + action_name + ")"
-    if beh_index is not None:
-        sv_structure.behavior[beh_index].addBody(
-            (action_name, ElementsTypes.ACTION_ELEMENT)
-        )
-    else:
-        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-        protocol_params = ""
-        if self.inside_the_task == True:
-            task = self.module.tasks.getLastTask()
-            if task is not None:
-                protocol_params = "({0})".format(task.parametrs)
-        b_index = sv_structure.addProtocol(
-            "B_{0}{1}".format(
-                Counters_Object.getCounter(CounterTypes.B_COUNTER), protocol_params
+        if type(ctx) is SystemVerilogParser.Nonblocking_assignmentContext:
+            action_name = "Sensetive(" + action_name + ")"
+        if beh_index is not None:
+            sv_structure.behavior[beh_index].addBody(
+                (action_name, ElementsTypes.ACTION_ELEMENT)
             )
-        )
-        sv_structure.behavior[b_index].addBody(
-            (action_name, ElementsTypes.ACTION_ELEMENT)
-        )
+        else:
+            Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+            protocol_params = ""
+            if self.inside_the_task == True:
+                task = self.module.tasks.getLastTask()
+                if task is not None:
+                    protocol_params = "({0})".format(task.parametrs)
+            b_index = sv_structure.addProtocol(
+                "B_{0}{1}".format(
+                    Counters_Object.getCounter(CounterTypes.B_COUNTER), protocol_params
+                )
+            )
+            sv_structure.behavior[b_index].addBody(
+                (action_name, ElementsTypes.ACTION_ELEMENT)
+            )

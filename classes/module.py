@@ -43,22 +43,52 @@ class Module(Basic):
 
         self.tasks = TaskArray()
 
-    def findAndChangeNamesToAgentAttrCall(self, input: str, packages):
-        for elem in self.declarations.getElements():
-            input = re.sub(
-                r"\b{}\b".format(re.escape(elem.identifier)),
-                "{}.{}".format(self.ident_uniq_name, elem.identifier),
-                input,
-            )
+    def copy(self):
+        module = Module(
+            self.identifier,
+            self.source_interval,
+            self.ident_uniq_name,
+            self.element_type,
+        )
 
-        if packages is not None:
-            for package in packages.getElements():
-                for elem in package.declarations.getElements():
-                    input = re.sub(
-                        r"\b{}\b".format(re.escape(elem.identifier)),
-                        "{}.{}".format(package.ident_uniq_name, elem.identifier),
-                        input,
-                    )
+        module.declarations = self.declarations
+        module.actions = self.actions
+        module.structures = self.structures
+        module.out_of_block_elements = self.out_of_block_elements
+        module.parametrs = self.parametrs
+        module.name_change = self.name_change
+        module.processed_elements = self.processed_elements
+        module.tasks = self.tasks
+        return module
+
+    def replaceNamesInActions(self):
+        for action in self.actions.getElements():
+            for index, body in enumerate(action.precondition.body):
+                action.precondition.body[
+                    index
+                ] = self.findAndChangeNamesToAgentAttrCall(body)
+            for index, body in enumerate(action.postcondition.body):
+                action.postcondition.body[
+                    index
+                ] = self.findAndChangeNamesToAgentAttrCall(body)
+
+    def findAndChangeNamesToAgentAttrCall(self, input: str, packages=None):
+        if self.element_type is not ElementsTypes.CLASS_ELEMENT:
+            for elem in self.declarations.getElements():
+                input = re.sub(
+                    r"\b{}\b".format(re.escape(elem.identifier)),
+                    "{}.{}".format(self.ident_uniq_name, elem.identifier),
+                    input,
+                )
+
+            if packages is not None:
+                for package in packages:
+                    for elem in package.declarations.getElements():
+                        input = re.sub(
+                            r"\b{}\b".format(re.escape(elem.identifier)),
+                            "{}.{}".format(package.ident_uniq_name, elem.identifier),
+                            input,
+                        )
 
         return input
 
@@ -197,7 +227,7 @@ class Module(Basic):
         return result
 
     def __repr__(self):
-        return f"\tModule({self.identifier!r}\n)"
+        return f"\tModule({self.identifier!r}, {self.ident_uniq_name!r}, {self.element_type!r}\n)"
 
 
 class ModuleArray(BasicArray):
@@ -205,18 +235,37 @@ class ModuleArray(BasicArray):
         super().__init__(Module)
         self.module_instantiations: ModuleCallArray = ModuleCallArray()
 
-    def getPackeges(self):
-        result: ModuleArray = ModuleArray()
-        for element in self.getElements():
-            if element.element_type is ElementsTypes.PACKAGE_ELEMENT:
-                result.addElement(element)
-        return result
-
     def findModuleByUniqIdentifier(self, ident_uniq_name: str):
         for element in self.elements:
             if element.ident_uniq_name == ident_uniq_name:
                 return element
         return None
+
+    def getElementsIE(
+        self,
+        include: ElementsTypes | None = None,
+        exclude: ElementsTypes | None = None,
+        exclude_ident_uniq_name: str | None = None,
+    ):
+        result: ModuleArray = ModuleArray()
+        elements = self.elements
+
+        if include is None and exclude is None:
+            return self
+
+        for element in elements:
+            if include is not None and element.element_type is not include:
+                continue
+            if exclude is not None and element.element_type is exclude:
+                continue
+            if (
+                exclude_ident_uniq_name is not None
+                and element.ident_uniq_name is exclude_ident_uniq_name
+            ):
+                continue
+            result.addElement(element)
+
+        return result
 
     def __repr__(self):
         return f"ModulesArray(\n{self.elements!r}\n)"

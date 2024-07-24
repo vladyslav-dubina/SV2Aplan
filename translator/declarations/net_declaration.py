@@ -1,6 +1,8 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
+from program.program import Program
+from translator.declarations.object_declaration import objectDeclaration2AplanImpl
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replaceParametrsCalls
 from utils.utils import (
@@ -11,8 +13,7 @@ from utils.utils import (
 
 
 def netDeclaration2AplanImpl(
-    self: SV2aplan,
-    ctx: SystemVerilogParser.Net_declarationContext,
+    self: SV2aplan, ctx: SystemVerilogParser.Net_declarationContext
 ):
     """The function `netDeclaration2AplanImpl` processes SystemVerilog net declarations and adds them
     to a module's declarations in Aplan format.
@@ -61,39 +62,61 @@ def netDeclaration2AplanImpl(
 
     if data_type is not None:
         types = self.module.declarations.getElementsForTypes()
-        for package in self.packages.getElements():
+        types += self.program.modules.getElementsIE(
+            include=ElementsTypes.CLASS_ELEMENT
+        ).getElements()
+
+        packages = self.program.modules.getElementsIE(
+            include=ElementsTypes.PACKAGE_ELEMENT
+        )
+        packages += self.program.modules.getElementsIE(
+            include=ElementsTypes.CLASS_ELEMENT
+        )
+        for package in packages.getElements():
             types += package.declarations.getElementsForTypes()
+
         data_check_type = DeclTypes.checkType(data_type, types)
 
         for elem in ctx.list_of_net_decl_assignments().net_decl_assignment():
             identifier = elem.net_identifier().identifier().getText()
-            assign_name = ""
-            decl_unique, decl_index = self.module.declarations.addElement(
-                Declaration(
-                    data_check_type,
-                    identifier,
-                    assign_name,
+            if data_check_type is DeclTypes.CLASS:
+                objectDeclaration2AplanImpl(
+                    self,
                     size_expression,
-                    aplan_vector_size[0],
-                    dimension_size_expression,
-                    dimension_size,
-                    elem.getSourceInterval(),
+                    identifier,
+                    ctx.getSourceInterval(),
+                    self.program,
                 )
-            )
-
-            if elem.expression():
-                expression = elem.expression().getText()
-                if expression:
-                    (
-                        action_pointer,
+            else:
+                assign_name = ""
+                decl_unique, decl_index = self.module.declarations.addElement(
+                    Declaration(
+                        data_check_type,
+                        identifier,
                         assign_name,
-                        source_interval,
-                        uniq_action,
-                    ) = self.expression2Aplan(
-                        elem.getText(),
-                        ElementsTypes.ASSIGN_ELEMENT,
+                        size_expression,
+                        aplan_vector_size[0],
+                        dimension_size_expression,
+                        dimension_size,
                         elem.getSourceInterval(),
                     )
-                    declaration = self.module.declarations.getElementByIndex(decl_index)
-                    declaration.expression = assign_name
-                    declaration.action = action_pointer
+                )
+
+                if elem.expression():
+                    expression = elem.expression().getText()
+                    if expression:
+                        (
+                            action_pointer,
+                            assign_name,
+                            source_interval,
+                            uniq_action,
+                        ) = self.expression2Aplan(
+                            elem.getText(),
+                            ElementsTypes.ASSIGN_ELEMENT,
+                            elem.getSourceInterval(),
+                        )
+                        declaration = self.module.declarations.getElementByIndex(
+                            decl_index
+                        )
+                        declaration.expression = assign_name
+                        declaration.action = action_pointer

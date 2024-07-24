@@ -12,25 +12,29 @@ def assertPropertyStatement2AplanImpl(
 ):
     expression = ctx.property_spec()
     if expression is not None:
-        action_pointer, assert_name, source_interval, uniq_action = (
-            self.expression2Aplan(
-                expression.getText(),
-                ElementsTypes.ASSERT_ELEMENT,
-                ctx.getSourceInterval(),
-            )
-        )
-        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-        assert_b = "ASSERT_B_{}".format(
-            Counters_Object.getCounter(CounterTypes.B_COUNTER)
-        )
-        struct_assert = Protocol(
-            assert_b,
+        (
+            action_pointer,
+            assert_name,
+            source_interval,
+            uniq_action,
+        ) = self.expression2Aplan(
+            expression.getText(),
+            ElementsTypes.ASSERT_ELEMENT,
             ctx.getSourceInterval(),
         )
-        struct_assert.addBody(
-            ("{0}.Delta + !{0}.0".format(assert_name), ElementsTypes.ACTION_ELEMENT)
-        )
-        self.module.out_of_block_elements.addElement(struct_assert)
+        if assert_name is not None:
+            Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+            assert_b = "ASSERT_B_{}".format(
+                Counters_Object.getCounter(CounterTypes.B_COUNTER)
+            )
+            struct_assert = Protocol(
+                assert_b,
+                ctx.getSourceInterval(),
+            )
+            struct_assert.addBody(
+                ("{0}.Delta + !{0}.0".format(assert_name), ElementsTypes.ACTION_ELEMENT)
+            )
+            self.module.out_of_block_elements.addElement(struct_assert)
 
 
 def assertInBlock2AplanImpl(
@@ -44,23 +48,24 @@ def assertInBlock2AplanImpl(
         ctx.expression().getSourceInterval(),
         sv_structure=sv_structure,
     )
-    Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-    protocol_params = ""
-    if self.inside_the_task == True:
-        task = self.module.tasks.getLastTask()
-        if task is not None:
-            protocol_params = "({0})".format(task.parametrs)
-    assert_b = "ASSERT_B_{0}{1}".format(
-        Counters_Object.getCounter(CounterTypes.B_COUNTER), protocol_params
-    )
-    beh_index = sv_structure.addProtocol(assert_b)
-    sv_structure.behavior[beh_index].addBody(
-        (
-            "{0}.Delta + !{0}.0".format(assert_name),
-            ElementsTypes.ACTION_ELEMENT,
+    if assert_name is not None:
+        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+        protocol_params = ""
+        if self.inside_the_task == True:
+            task = self.module.tasks.getLastTask()
+            if task is not None:
+                protocol_params = "({0})".format(task.parametrs)
+        assert_b = "ASSERT_B_{0}{1}".format(
+            Counters_Object.getCounter(CounterTypes.B_COUNTER), protocol_params
         )
-    )
-    if beh_index != 0:
-        sv_structure.behavior[beh_index - 1].addBody(
-            (assert_b, ElementsTypes.PROTOCOL_ELEMENT)
+        beh_index = sv_structure.addProtocol(assert_b)
+        sv_structure.behavior[beh_index].addBody(
+            (
+                "{0}.Delta + !{0}.0".format(assert_name),
+                ElementsTypes.ACTION_ELEMENT,
+            )
         )
+        if beh_index != 0:
+            sv_structure.behavior[beh_index - 1].addBody(
+                (assert_b, ElementsTypes.PROTOCOL_ELEMENT)
+            )

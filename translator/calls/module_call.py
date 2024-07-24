@@ -6,7 +6,6 @@ from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.module_call import ModuleCall
 from classes.protocols import Protocol
-from program.program import Program
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replace_filename
 from utils.utils import Color, Counters_Object, printWithColor
@@ -99,29 +98,35 @@ def moduleCallAssign2Aplan(
                         )
                     )
             obj_def = f"{destination_identifier.upper()}#{destination_module_name};{self.module.identifier_upper}#{self.module.ident_uniq_name}"
-            action_pointer, action_name, source_interval, uniq_action = (
-                self.expression2Aplan(
-                    assign_str_list,
-                    ElementsTypes.ASSIGN_FOR_CALL_ELEMENT,
-                    ctx.getSourceInterval(),
-                    (obj_def, None, None),
-                )
+            (
+                action_pointer,
+                action_name,
+                source_interval,
+                uniq_action,
+            ) = self.expression2Aplan(
+                assign_str_list,
+                ElementsTypes.ASSIGN_FOR_CALL_ELEMENT,
+                ctx.getSourceInterval(),
+                (obj_def, None, None),
             )
 
             action_2 = ""
             for element in assign_arr_str_list:
                 expression, parametrs, predicates = element
-                action_pointer_2, action_name_2, source_interval, uniq_action = (
-                    self.expression2Aplan(
-                        expression,
-                        ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT,
-                        ctx.getSourceInterval(),
-                        (
-                            obj_def,
-                            parametrs,
-                            predicates,
-                        ),
-                    )
+                (
+                    action_pointer_2,
+                    action_name_2,
+                    source_interval,
+                    uniq_action,
+                ) = self.expression2Aplan(
+                    expression,
+                    ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT,
+                    ctx.getSourceInterval(),
+                    (
+                        obj_def,
+                        parametrs,
+                        predicates,
+                    ),
                 )
                 if uniq_action:
                     action_2 += f".Sensetive({action_name_2})"
@@ -135,7 +140,6 @@ def moduleCallAssign2Aplan(
 def moduleCall2AplanImpl(
     self: SV2aplan,
     ctx: SystemVerilogParser.Module_instantiationContext,
-    program: Program,
 ):
     from translator.translator import SystemVerilogFinder
 
@@ -169,16 +173,18 @@ def moduleCall2AplanImpl(
     call_module_name = object_name
 
     try:
-        previous_file_path = program.file_path
-        file_path = replace_filename(program.file_path, f"{destination_identifier}.sv")
-        file_data = program.readFileData(file_path)
+        previous_file_path = self.program.file_path
+        file_path = replace_filename(
+            self.program.file_path, f"{destination_identifier}.sv"
+        )
+        file_data = self.program.readFileData(file_path)
         finder = SystemVerilogFinder()
         finder.setUp(file_data)
-        finder.startTranslate(program, module_call)
+        finder.startTranslate(self.program, module_call)
     except Exception as e:
-        program.module_calls.addElement(module_call)
+        self.program.module_calls.addElement(module_call)
 
-    program.file_path = previous_file_path
+    self.program.file_path = previous_file_path
     moduleCallAssign2Aplan(self, ctx, call_module_name, destination_identifier)
     Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
     call_b = "MODULE_CALL_B_{}".format(

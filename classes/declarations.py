@@ -3,6 +3,7 @@ from enum import Enum, auto
 from classes.actions import Action
 from classes.basic import Basic, BasicArray
 from classes.element_types import ElementsTypes
+
 from utils.string_formating import replaceParametrsCalls
 from utils.utils import extractVectorSize, vectorSize2AplanVectorSize
 
@@ -14,12 +15,16 @@ class DeclTypes(Enum):
     LOGIC = auto()
     INPORT = auto()
     OUTPORT = auto()
+    STRING = auto()
     IF_STATEMENT = auto()
     ENUM = auto()
     ENUM_TYPE = auto()
+    CLASS = auto()
     NONE = auto()
 
     def checkType(type_str: str, types):
+        from classes.module import Module
+
         if "int" in type_str:
             return DeclTypes.INT
         elif "reg" in type_str:
@@ -28,11 +33,17 @@ class DeclTypes(Enum):
             return DeclTypes.LOGIC
         elif "wire" in type_str:
             return DeclTypes.WIRE
+        elif "string" in type_str:
+            return DeclTypes.STRING
         else:
             for type in types:
-                if type_str in type.identifier:
-                    if type.data_type is DeclTypes.ENUM_TYPE:
-                        return DeclTypes.ENUM
+                if isinstance(type, Module):
+                    if type_str in type.ident_uniq_name:
+                        return DeclTypes.CLASS
+                else:
+                    if type_str in type.identifier:
+                        if type.data_type is DeclTypes.ENUM_TYPE:
+                            return DeclTypes.ENUM
 
         return DeclTypes.NONE
 
@@ -76,6 +87,10 @@ class Declaration(Basic):
                 return "bool"
         elif self.data_type == DeclTypes.ENUM_TYPE:
             return ""
+        elif self.data_type == DeclTypes.CLASS:
+            return f"{self.size_expression}"
+        elif self.data_type == DeclTypes.STRING:
+            return "string"
         elif self.data_type == DeclTypes.ENUM:
             return f"{self.size_expression}"
 
@@ -97,6 +112,10 @@ class Declaration(Basic):
                 return "bool"
         elif self.data_type == DeclTypes.ENUM_TYPE:
             return ""
+        elif self.data_type == DeclTypes.CLASS:
+            return f"{self.size_expression}"
+        elif self.data_type == DeclTypes.STRING:
+            return "string"
         elif self.data_type == DeclTypes.ENUM:
             return f"{self.size_expression}"
 

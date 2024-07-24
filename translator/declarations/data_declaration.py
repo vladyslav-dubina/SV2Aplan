@@ -63,7 +63,13 @@ def dataDecaration2AplanImpl(
         data_type = data_type.getText()
         if len(data_type) > 0:
             types = self.module.declarations.getElementsForTypes()
-            for package in self.packages.getElements():
+            packages = self.program.modules.getElementsIE(
+                include=ElementsTypes.PACKAGE_ELEMENT
+            )
+            packages += self.program.modules.getElementsIE(
+                include=ElementsTypes.CLASS_ELEMENT
+            )
+            for package in packages.getElements():
                 types += package.declarations.getElementsForTypes()
             data_check_type = DeclTypes.checkType(data_type, types)
             aplan_vector_size = [0]

@@ -47,6 +47,24 @@ class TaskArray(BasicArray):
 
         return result
 
+    def getElementsIE(
+        self, include: ElementsTypes | None = None, exclude: ElementsTypes | None = None
+    ):
+        result: TaskArray = TaskArray()
+        elements = self.elements
+
+        if include is None and exclude is None:
+            return self
+
+        for element in elements:
+            if include is not None and element.element_type is not include:
+                continue
+            if exclude is not None and element.element_type is exclude:
+                continue
+            result.addElement(element)
+
+        return result
+
     def getLastTask(self):
         index = len(self.getElements()) - 1
         if index >= 0:

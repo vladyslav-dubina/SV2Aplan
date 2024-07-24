@@ -2,13 +2,23 @@ from antlr4_verilog.systemverilog import (
     SystemVerilogParserListener,
     SystemVerilogParser,
 )
-from translator.declarations.module_declaration import moduleOrPackageDeclaration2Aplan
+from classes.element_types import ElementsTypes
+from translator.declarations.module_declaration import (
+    modulePackageClassDeclaration2Aplan,
+)
 from translator.system_verilog_to_aplan import (
     SV2aplan,
 )
 from classes.module import Module
 from classes.module import Module
 from classes.module_call import ModuleCall
+
+
+def body_run(ctx):
+    if ctx.getChildCount() == 0:
+        return
+    for child in ctx.getChildren():
+        body_run(child)
 
 
 class SVListener(SystemVerilogParserListener):
@@ -23,18 +33,27 @@ class SVListener(SystemVerilogParserListener):
     def enterModule_declaration(
         self, ctx: SystemVerilogParser.Module_declarationContext
     ):
-        self.module = moduleOrPackageDeclaration2Aplan(
+        self.module = modulePackageClassDeclaration2Aplan(
             ctx, self.program, self.module_call
         )
-        self.sv2aplan = SV2aplan(self.module, self.program.modules.getPackeges())
+        self.sv2aplan = SV2aplan(
+            self.module,
+            self.program,
+        )
 
     def enterPackage_declaration(
         self, ctx: SystemVerilogParser.Package_declarationContext
     ):
-        self.module = moduleOrPackageDeclaration2Aplan(
+        self.module = modulePackageClassDeclaration2Aplan(
             ctx, self.program, self.module_call
         )
-        self.sv2aplan = SV2aplan(self.module, self.program.modules.getPackeges())
+        self.sv2aplan = SV2aplan(self.module, self.program)
+
+    def enterClass_declaration(self, ctx: SystemVerilogParser.Class_declarationContext):
+        self.module = modulePackageClassDeclaration2Aplan(
+            ctx, self.program, self.module_call
+        )
+        self.sv2aplan = SV2aplan(self.module, self.program)
 
     def exitGenvar_declaration(self, ctx):
         self.sv2aplan.genvarDeclaration2Aplan(ctx)
@@ -47,7 +66,7 @@ class SVListener(SystemVerilogParserListener):
     ):
         self.sv2aplan.dataDecaration2Aplan(ctx, True)
 
-    def exitNet_declaration(self, ctx):
+    def exitNet_declaration(self, ctx: SystemVerilogParser.Net_declarationContext):
         self.sv2aplan.netDeclaration2Aplan(ctx)
 
     def exitAnsi_port_declaration(self, ctx):
@@ -69,7 +88,7 @@ class SVListener(SystemVerilogParserListener):
         self.sv2aplan.assertPropertyStatement2Aplan(ctx)
 
     def exitModule_instantiation(self, ctx):
-        self.sv2aplan.moduleCall2Apan(ctx, self.program)
+        self.sv2aplan.moduleCall2Apan(ctx)
 
     def exitInitial_construct(self, ctx):
         self.sv2aplan.initial2Aplan(ctx)
@@ -82,10 +101,12 @@ class SVListener(SystemVerilogParserListener):
     ):
         self.sv2aplan.taskOrFunctionDeclaration2Aplan(ctx)
 
+    def exitClass_constructor_declaration(
+        self, ctx: SystemVerilogParser.Class_constructor_declarationContext
+    ):
+        self.sv2aplan.taskOrFunctionDeclaration2Aplan(ctx)
+
     def exitPackage_import_declaration(
         self, ctx: SystemVerilogParser.Package_import_declarationContext
     ):
-        self.sv2aplan.packageImport2Apan(ctx, self.program)
-
-    def exitNet_declaration(self, ctx: SystemVerilogParser.Net_declarationContext):
-        self.sv2aplan.netDeclaration2Aplan(ctx)
+        self.sv2aplan.packageImport2Apan(ctx)

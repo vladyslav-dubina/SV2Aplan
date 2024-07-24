@@ -81,7 +81,7 @@ class Action(Basic):
             if task is not None:
                 self.findReturnAndReplaceToParametrImpl(task, element, index, True)
             if packages is not None:
-                for package in packages.getElements():
+                for package in packages.getElementsIE().getElements():
                     for package_task in package.tasks.getElements():
                         self.findReturnAndReplaceToParametrImpl(
                             package_task, element, index, True
@@ -90,7 +90,7 @@ class Action(Basic):
             if task is not None:
                 self.findReturnAndReplaceToParametrImpl(task, element, index, False)
             if packages is not None:
-                for package in packages.getElements():
+                for package in packages.getElementsIE().getElements():
                     for package_task in package.tasks.getElements():
                         self.findReturnAndReplaceToParametrImpl(
                             package_task, element, index, False

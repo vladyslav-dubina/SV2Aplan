@@ -1,6 +1,7 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
 
+from classes.element_types import ElementsTypes
 from translator.system_verilog_to_aplan import SV2aplan
 
 
@@ -19,8 +20,14 @@ def extractSensetiveImpl(self: SV2aplan, ctx):
             if index != -1:
                 res += " && "
         elif type(child) is SystemVerilogParser.IdentifierContext:
+            packages = self.program.modules.getElementsIE(
+                include=ElementsTypes.PACKAGE_ELEMENT
+            )
+            packages += self.program.modules.getElementsIE(
+                include=ElementsTypes.CLASS_ELEMENT
+            )
             res += self.module.findAndChangeNamesToAgentAttrCall(
-                child.getText(), self.packages
+                child.getText(), packages.getElements()
             )
         else:
             res += self.extractSensetive(child)

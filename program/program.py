@@ -1,3 +1,4 @@
+from classes.element_types import ElementsTypes
 from utils.string_formating import removeTrailingComma
 from utils.utils import printWithColor, Color
 from classes.module import ModuleArray
@@ -44,7 +45,7 @@ class Program:
 
     def createEVT(self):
         evt = "events(\n"
-        for module in self.modules.getElements():
+        for module in self.modules.getElementsIE().getElements():
             for elem in module.declarations.getInputPorts():
                 evt += "\ts_{0}:obj(x1:{1});\n".format(
                     elem.identifier, elem.getAplanDecltype()
@@ -61,7 +62,7 @@ class Program:
         # ----------------------------------
         env += "\ttypes : obj (\n"
         sub_env = ""
-        for module in self.modules.getElements():
+        for module in self.modules.getElementsIE().getElements():
             decls = module.declarations.getElementsForTypes()
 
             for index, elem in enumerate(decls):
@@ -88,7 +89,9 @@ class Program:
 
         env += "\tagent_types : obj (\n"
 
-        for module in self.modules.getElements():
+        for module in self.modules.getElementsIE(
+            exclude=ElementsTypes.OBJECT_ELEMENT
+        ).getElements():
             env += "\t\t{0} : obj (\n".format(module.identifier)
             sub_env = ""
             decls = module.declarations.getElementsForAgent()
@@ -112,7 +115,9 @@ class Program:
         # Agents
         # ----------------------------------
         env += "\tagents : obj (\n"
-        for module in self.modules.getElements():
+        for module in self.modules.getElementsIE(
+            exclude=ElementsTypes.CLASS_ELEMENT
+        ).getElements():
             env += "\t\t{0} : obj ({1}),\n".format(
                 module.identifier, module.ident_uniq_name
             )
@@ -138,7 +143,11 @@ class Program:
         # Actions
         # ----------------------------------
         actions = ""
-        for index, module in enumerate(self.modules.getElements()):
+        for index, module in enumerate(
+            self.modules.getElementsIE(
+                exclude=ElementsTypes.CLASS_ELEMENT
+            ).getElements()
+        ):
             if index != 0:
                 actions += ","
             actions += module.actions.getActionsInStrFormat()
@@ -150,7 +159,11 @@ class Program:
         # Behaviour
         # ----------------------------------
         behaviour = ""
-        for index, module in enumerate(self.modules.getElements()):
+        for index, module in enumerate(
+            self.modules.getElementsIE(
+                exclude=ElementsTypes.CLASS_ELEMENT
+            ).getElements()
+        ):
             if index != 0:
                 behaviour += ",\n"
             behaviour += f"{module.getBehInitProtocols()}"
@@ -160,7 +173,7 @@ class Program:
                 behaviour += module.out_of_block_elements.getProtocolsInStrFormat()
             else:
                 behaviour = removeTrailingComma(behaviour)
-                #behaviour += "\n"
+                # behaviour += "\n"
         self.writeToFile(self.path_to_result + "project.behp", behaviour)
         printWithColor(".beh file created \n", Color.PURPLE)
 

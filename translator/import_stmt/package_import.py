@@ -20,7 +20,6 @@ from utils.utils import Color, Counters_Object, printWithColor
 def packageImport2ApanImpl(
     self: SV2aplan,
     ctx: SystemVerilogParser.Package_import_declarationContext,
-    program: Program,
 ):
     from translator.translator import SystemVerilogFinder
 
@@ -28,21 +27,22 @@ def packageImport2ApanImpl(
         package_identifier = element.package_identifier()
         package_identifier = package_identifier.getText()
         if package_identifier is not None:
-            package_program = program.modules.getElement(package_identifier)
+            package_program = self.program.modules.getElement(package_identifier)
             if package_program is None:
-                previous_file_path = program.file_path
+                previous_file_path = self.program.file_path
                 file_path = replace_filename(
-                    program.file_path, f"{package_identifier}.sv"
+                    self.program.file_path, f"{package_identifier}.sv"
                 )
-                file_data = program.readFileData(file_path)
+                file_data = self.program.readFileData(file_path)
                 finder = SystemVerilogFinder()
                 finder.setUp(file_data)
-                finder.startTranslate(program)
+                finder.startTranslate(self.program)
 
-                program.file_path = previous_file_path
+                self.program.file_path = previous_file_path
 
-            package = program.modules.findModuleByUniqIdentifier(package_identifier)
-            self.packages = program.modules.getPackeges()
+            package = self.program.modules.findModuleByUniqIdentifier(
+                package_identifier
+            )
             if package is not None:
                 identifier = element.identifier()
 

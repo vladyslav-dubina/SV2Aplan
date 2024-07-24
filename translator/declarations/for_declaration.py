@@ -46,7 +46,13 @@ def loopVars2AplanImpl(
         Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
         data_type = "int"
         size_expression = data_type
-        data_type = DeclTypes.checkType(data_type, self.packages)
+        packages = self.program.modules.getElementsIE(
+            include=ElementsTypes.PACKAGE_ELEMENT
+        )
+        packages += self.program.modules.getElementsIE(
+            include=ElementsTypes.CLASS_ELEMENT
+        )
+        data_type = DeclTypes.checkType(data_type, packages.getElements())
         assign_name = ""
         decl_unique, decl_index = self.module.declarations.addElement(
             Declaration(
@@ -253,7 +259,13 @@ def forInitialization2ApanImpl(
         Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
         data_type = expression.data_type().getText()
         size_expression = data_type
-        data_type = DeclTypes.checkType(data_type, self.packages)
+        packages = self.program.modules.getElementsIE(
+            include=ElementsTypes.PACKAGE_ELEMENT
+        )
+        packages += self.program.modules.getElementsIE(
+            include=ElementsTypes.CLASS_ELEMENT
+        )
+        data_type = DeclTypes.checkType(data_type, packages.getElements())
         decl_unique, decl_index = self.module.declarations.addElement(
             Declaration(
                 data_type,

@@ -15,12 +15,16 @@ def taskOrFunctionDeclaration2AplanImpl(
     ctx: (
         SystemVerilogParser.Task_declarationContext
         | SystemVerilogParser.Function_declarationContext
+        | SystemVerilogParser.Class_constructor_declarationContext
     ),
 ):
     if isinstance(ctx, SystemVerilogParser.Task_declarationContext):
         body = ctx.task_body_declaration()
     elif isinstance(ctx, SystemVerilogParser.Function_declarationContext):
         body = ctx.function_body_declaration()
+    elif isinstance(ctx, SystemVerilogParser.Class_constructor_declarationContext):
+        body = ctx
+
     taskOrFunctionBodyDeclaration2AplanImpl(self, body)
 
 
@@ -29,27 +33,41 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
     ctx: (
         SystemVerilogParser.Task_body_declarationContext
         | SystemVerilogParser.Function_body_declarationContext
+        | SystemVerilogParser.Class_constructor_declarationContext
     ),
 ):
+    body = []
+    body += ctx.block_item_declaration()
     if isinstance(ctx, SystemVerilogParser.Task_body_declarationContext):
         identifier = ctx.task_identifier(0).getText()
-        body = ctx.statement_or_null(0)
+        body += ctx.statement_or_null()
         task_Type = ElementsTypes.TASK_ELEMENT
     elif isinstance(ctx, SystemVerilogParser.Function_body_declarationContext):
         identifier = ctx.function_identifier(0).getText()
         return_var_name = f"return_{identifier}"
-        body = ctx.function_statement_or_null(0)
+        body += ctx.function_statement_or_null()
+
         task_Type = ElementsTypes.FUNCTION_ELEMENT
+    elif isinstance(ctx, SystemVerilogParser.Class_constructor_declarationContext):
+        identifier = ""
+        if ctx.NEW():
+            identifier = "new"
+        elif ctx.SUPER():
+            identifier = "super"
+        body += ctx.function_statement_or_null()
+        task_Type = ElementsTypes.CONSTRUCTOR_ELEMENT
 
     task = Task(identifier, ctx.getSourceInterval(), task_Type)
 
     for element in ctx.tf_port_list().tf_port_item():
-        task.parametrs.addElement(
-            ActionParametr(
-                element.port_identifier().getText(),
-                "var",
+        port_identifier = element.port_identifier()
+        if port_identifier is not None:
+            task.parametrs.addElement(
+                ActionParametr(
+                    port_identifier.getText(),
+                    "var",
+                )
             )
-        )
 
     if isinstance(ctx, SystemVerilogParser.Function_body_declarationContext):
         task.parametrs.addElement(
@@ -71,11 +89,6 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
     task_structure.addProtocol(task_call_name, ElementsTypes.TASK_ELEMENT)
     self.module.tasks.addElement(task)
     names_for_change = []
-    for element in ctx.block_item_declaration():
-        names_for_change += self.body2Aplan(
-            element, task_structure, ElementsTypes.TASK_ELEMENT
-        )
-
     self.inside_the_task = True
 
     if isinstance(ctx, SystemVerilogParser.Function_body_declarationContext):
@@ -87,9 +100,10 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
         )
         self.inside_the_function = True
 
-    names_for_change += self.body2Aplan(
-        body, task_structure, ElementsTypes.TASK_ELEMENT
-    )
+    for body_element in body:
+        names_for_change += self.body2Aplan(
+            body_element, task_structure, ElementsTypes.TASK_ELEMENT
+        )
 
     self.inside_the_task = False
 
@@ -141,30 +155,37 @@ def funtionCall2AplanImpl(
     self: SV2aplan,
     task: Task,
     sv_structure: Structure,
-    function_result_var: str,
+    function_result_var: str | None,
     function_call: str,
     source_interval: Tuple[int, int],
 ):
     parametrs = extractParameters(function_call, task.identifier)
+
     parametrs_str = ""
+    if function_result_var is not None:
+        new_decl = Declaration(
+            DeclTypes.INT,
+            function_result_var,
+            "",
+            "",
+            0,
+            "",
+            0,
+            source_interval,
+        )
+        sv_structure.elements.addElement(new_decl)
+        decl_unique, decl_index = self.module.declarations.addElement(new_decl)
 
-    new_decl = Declaration(
-        DeclTypes.INT,
-        function_result_var,
-        "",
-        "",
-        0,
-        "",
-        0,
-        source_interval,
-    )
-    sv_structure.elements.addElement(new_decl)
-    decl_unique, decl_index = self.module.declarations.addElement(new_decl)
-
-    for element in parametrs:
+    for index, element in enumerate(parametrs):
+        if index != 0:
+            parametrs_str += ","
         parametrs_str += element
-        parametrs_str += ","
-    parametrs_str += "{0}.{1}".format(self.module.ident_uniq_name, function_result_var)
+
+    if function_result_var is not None:
+        parametrs_str += ",{0}.{1}".format(
+            self.module.ident_uniq_name, function_result_var
+        )
+
     task_call = "{0}({1})".format(task.structure.identifier, parametrs_str)
 
     beh_index = sv_structure.getLastBehaviorIndex()

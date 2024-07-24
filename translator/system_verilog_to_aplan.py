@@ -12,9 +12,9 @@ from typing import Tuple, List
 
 
 class SV2aplan:
-    def __init__(self, module: Module, packages: ModuleArray | None = None):
+    def __init__(self, module: Module, program: Program | None = None):
         self.module = module
-        self.packages: ModuleArray = ModuleArray()
+        self.program: Program = program
         self.inside_the_task = False
         self.inside_the_function = False
 
@@ -103,7 +103,10 @@ class SV2aplan:
         return dataDecaration2AplanImpl(self, ctx, listener, sv_structure, name_space)
 
     # ---------------------------------------------------------------------------------
-    def netDeclaration2Aplan(self, ctx: SystemVerilogParser.Net_declarationContext):
+    def netDeclaration2Aplan(
+        self,
+        ctx: SystemVerilogParser.Net_declarationContext,
+    ):
         from translator.declarations.net_declaration import (
             netDeclaration2AplanImpl,
         )
@@ -201,24 +204,22 @@ class SV2aplan:
     def moduleCall2Apan(
         self,
         ctx: SystemVerilogParser.Module_instantiationContext,
-        program: Program,
     ):
         from translator.calls.module_call import (
             moduleCall2AplanImpl,
         )
 
-        moduleCall2AplanImpl(self, ctx, program)
+        moduleCall2AplanImpl(self, ctx)
 
     def packageImport2Apan(
         self,
         ctx: SystemVerilogParser.Package_import_declarationContext,
-        program: Program,
     ):
         from translator.import_stmt.package_import import (
             packageImport2ApanImpl,
         )
 
-        packageImport2ApanImpl(self, ctx, program)
+        packageImport2ApanImpl(self, ctx)
 
     def taskCall2Aplan(
         self, ctx: SystemVerilogParser.Tf_callContext, sv_structure: Structure
@@ -231,7 +232,7 @@ class SV2aplan:
         self,
         task: Task,
         sv_structure: Structure,
-        function_result_var: str,
+        function_result_var: str | None,
         function_call: str,
         source_interval: Tuple[int, int],
     ):
@@ -338,6 +339,8 @@ class SV2aplan:
 
     def body2Aplan(self, ctx, sv_structure: Structure, name_space: ElementsTypes):
         names_for_change = []
+        if ctx is None:
+            return names_for_change
         if ctx.getChildCount() == 0:
             return names_for_change
         for child in ctx.getChildren():
@@ -390,6 +393,8 @@ class SV2aplan:
             elif type(child) is SystemVerilogParser.Conditional_statementContext:
                 self.ifStatement2Aplan(child, sv_structure, names_for_change)
             # ---------------------------------------------------------------------------
+            elif type(child) is Tree.TerminalNodeImpl:
+                pass
             else:
                 names_for_change += self.body2Aplan(child, sv_structure, name_space)
 
@@ -415,6 +420,7 @@ class SV2aplan:
         ctx: (
             SystemVerilogParser.Task_declarationContext
             | SystemVerilogParser.Function_declarationContext
+            | SystemVerilogParser.Class_constructor_declarationContext
         ),
     ):
         from translator.task_and_function.task_function import (

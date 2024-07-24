@@ -17,6 +17,13 @@ class Basic:
         self.source_interval: Tuple[int, int] = source_interval
         self.element_type: ElementsTypes = element_type
 
+    def copy(self):
+        return Basic(
+            self.identifier,
+            self.source_interval,
+            self.element_type,
+        )
+
     def __repr__(self):
         return f"\tBasic({self.identifier!r}, {self.sequence!r}, {self.source_interval!r})\n"
 
@@ -25,6 +32,22 @@ class BasicArray:
     def __init__(self, element_type: Basic):
         self.elements: List[Basic] = []
         self.element_type: Basic = element_type
+
+    def __iadd__(self, other):
+        if isinstance(other, BasicArray):
+            if self.element_type == other.element_type:
+                self.elements.extend(other.elements)
+            else:
+                raise TypeError(
+                    f"Cannot add BasicArray of type {other.element_type} to BasicArray of type {self.element_type}."
+                )
+        elif isinstance(other, self.element_type):
+            self.addElement(other)
+        else:
+            raise TypeError(
+                f"Cannot add object of type {type(other)} to BasicArray of type {self.element_type}."
+            )
+        return self
 
     def addElement(self, new_element: Basic):
         if isinstance(new_element, self.element_type):

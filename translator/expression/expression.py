@@ -39,8 +39,14 @@ def prepareExpressionStringImpl(
         ElementsTypes.ASSIGN_FOR_CALL_ELEMENT != expr_type
         and ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT != expr_type
     ):
+        packages = self.program.modules.getElementsIE(
+            include=ElementsTypes.PACKAGE_ELEMENT
+        )
+        packages += self.program.modules.getElementsIE(
+            include=ElementsTypes.CLASS_ELEMENT
+        )
         expression_with_replaced_names = self.module.findAndChangeNamesToAgentAttrCall(
-            expression, self.packages
+            expression, packages.getElements()
         )
     else:
         expression_with_replaced_names = expression
@@ -111,18 +117,40 @@ def expression2AplanImpl(
             input, element_type
         )
 
-    functions_list = self.module.tasks.getFunctions()
-    for package in self.packages.getElements():
-        functions_list += package.tasks.getFunctions()
+    packages = self.program.modules.getElementsIE(
+        include=ElementsTypes.PACKAGE_ELEMENT,
+        exclude_ident_uniq_name=self.module.ident_uniq_name,
+    )
+    packages += self.program.modules.getElementsIE(
+        include=ElementsTypes.CLASS_ELEMENT,
+        exclude_ident_uniq_name=self.module.ident_uniq_name,
+    )
+    functions_list = self.module.tasks.getElementsIE(
+        ElementsTypes.FUNCTION_ELEMENT
+    ).getElements()
+    functions_list += self.module.tasks.getElementsIE(
+        ElementsTypes.CONSTRUCTOR_ELEMENT
+    ).getElements()
+    for package in packages.getElements():
+        functions_list += package.tasks.getElementsIE(
+            ElementsTypes.FUNCTION_ELEMENT
+        ).getElements()
+        functions_list += package.tasks.getElementsIE(
+            ElementsTypes.CONSTRUCTOR_ELEMENT
+        ).getElements()
 
     for function in functions_list:
-        function_result_var = "{0}_call_result_{1}".format(
-            function.identifier,
-            Counters_Object.getCounter(CounterTypes.TASK_COUNTER),
-        )
-        function_result_var_for_replase = "{0}.{1}".format(
-            self.module.ident_uniq_name, function_result_var
-        )
+        function_result_var = None
+        if function.element_type is ElementsTypes.CONSTRUCTOR_ELEMENT:
+            function_result_var_for_replase = "{0}".format(self.module.ident_uniq_name)
+        else:
+            function_result_var = "{0}_call_result_{1}".format(
+                function.identifier,
+                Counters_Object.getCounter(CounterTypes.TASK_COUNTER),
+            )
+            function_result_var_for_replase = "{0}.{1}".format(
+                self.module.ident_uniq_name, function_result_var
+            )
 
         (
             is_present,
@@ -141,6 +169,8 @@ def expression2AplanImpl(
                 function_call,
                 source_interval,
             )
+            if function.element_type is ElementsTypes.CONSTRUCTOR_ELEMENT:
+                return (None, None, None, None)
 
     action = Action(
         name_part,
@@ -198,10 +228,10 @@ def expression2AplanImpl(
         action.description.body.append(
             f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
         )
-    if self.inside_the_function == True or self.packages:
+    if self.inside_the_function == True or packages:
         task = self.module.tasks.getLastTask()
 
-    action.findReturnAndReplaceToParametr(task, self.packages)
+    action.findReturnAndReplaceToParametr(task, packages)
 
     if self.inside_the_task == True:
         task = self.module.tasks.getLastTask()
