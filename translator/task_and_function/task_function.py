@@ -92,7 +92,7 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
     task_protocol = Protocol(task_call_name, ElementsTypes.TASK_ELEMENT)
     task_protocol.parametrs = task.parametrs
 
-    task_structure.addProtocol(task_protocol)
+    task_structure.behavior.append(task_protocol)
     self.module.tasks.addElement(task)
     names_for_change = []
     self.inside_the_task = True
