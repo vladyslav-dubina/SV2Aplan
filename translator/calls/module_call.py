@@ -132,7 +132,9 @@ def moduleCallAssign2Aplan(
                     action_2 += f".Sensetive({action_name_2})"
 
             action_name = f"Sensetive({action_name}){action_2}"
-            struct_call_assign.addBody((action_name, ElementsTypes.ACTION_ELEMENT))
+            struct_call_assign.addBody(
+                (action_pointer, action_name, ElementsTypes.ACTION_ELEMENT)
+            )
 
             self.module.out_of_block_elements.addElement(struct_call_assign)
 
@@ -194,6 +196,6 @@ def moduleCall2AplanImpl(
         call_b, ctx.getSourceInterval(), ElementsTypes.MODULE_CALL_ELEMENT
     )
     struct_call.addBody(
-        (f"B_{call_module_name.upper()}", ElementsTypes.PROTOCOL_ELEMENT)
+        (None, f"B_{call_module_name.upper()}", ElementsTypes.PROTOCOL_ELEMENT)
     )
     self.module.out_of_block_elements.addElement(struct_call)

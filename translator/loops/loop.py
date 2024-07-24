@@ -53,6 +53,7 @@ def loop2AplanImpl(
     if beh_index is not None:
         sv_structure.behavior[beh_index].addBody(
             (
+                None,
                 "LOOP_{0}{1}".format(
                     Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
                     protocol_params,
@@ -70,6 +71,7 @@ def loop2AplanImpl(
 
     sv_structure.behavior[beh_index].addBody(
         (
+            None,
             "({0}LOOP_MAIN_{1}{2})".format(
                 loop_init,
                 Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
@@ -124,6 +126,7 @@ def loop2AplanImpl(
 
         sv_structure.behavior[beh_index].addBody(
             (
+                action_pointer,
                 "{1}.(LOOP_BODY_{0}{3};{2}LOOP_MAIN_{0}{3}) + !{1}".format(
                     Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
                     condition_name,
@@ -152,7 +155,7 @@ def loop2AplanImpl(
         loop_init_flag = True
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
         if ctx.FOREACH():
-            action_names_list = self.loopVarsDeclarationsToAplan(
+            action_names_list, action_pointer_list = self.loopVarsDeclarationsToAplan(
                 for_decl_identifier, source_intervals_list, sv_structure
             )
         else:
@@ -177,13 +180,13 @@ def loop2AplanImpl(
             )
         )
         if ctx.FOREACH():
-            for element in action_names_list:
+            for index, element in enumerate(action_names_list):
                 sv_structure.behavior[beh_index].addBody(
-                    (element, ElementsTypes.ACTION_ELEMENT)
+                    (action_pointer_list[index], element, ElementsTypes.ACTION_ELEMENT)
                 )
         else:
             sv_structure.behavior[beh_index].addBody(
-                (action_name, ElementsTypes.ACTION_ELEMENT)
+                (action_pointer, action_name, ElementsTypes.ACTION_ELEMENT)
             )
 
     # LOOP INC
@@ -230,13 +233,13 @@ def loop2AplanImpl(
             )
         )
         if ctx.FOREACH():
-            for element in action_names_list:
+            for index, element in enumerate(action_names_list):
                 sv_structure.behavior[beh_index].addBody(
-                    (element, ElementsTypes.ACTION_ELEMENT)
+                    (action_pointer_list[index], element, ElementsTypes.ACTION_ELEMENT)
                 )
         else:
             sv_structure.behavior[beh_index].addBody(
-                (action_name, ElementsTypes.ACTION_ELEMENT)
+                (action_pointer, action_name, ElementsTypes.ACTION_ELEMENT)
             )
 
     # BODY LOOP

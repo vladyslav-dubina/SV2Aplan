@@ -176,7 +176,11 @@ def dataDecaration2AplanImpl(
                             )
                             if beh_index is not None and assign_name is not None:
                                 sv_structure.behavior[beh_index].addBody(
-                                    (assign_name, ElementsTypes.ACTION_ELEMENT)
+                                    (
+                                        action_pointer,
+                                        assign_name,
+                                        ElementsTypes.ACTION_ELEMENT,
+                                    )
                                 )
                     else:
                         if decl_unique:

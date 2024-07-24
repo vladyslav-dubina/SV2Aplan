@@ -4,6 +4,7 @@ from classes.action_parametr import ActionParametr
 from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
+from classes.protocols import Protocol
 from classes.structure import Structure
 from classes.tasks import Task
 from translator.system_verilog_to_aplan import SV2aplan
@@ -79,14 +80,19 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
 
     task_name = "{0}".format(identifier.upper())
 
-    task_call_name = f"{task_name}({task.parametrs})"
+    task_call_name = f"{task_name}"
 
     task_structure = Structure(
         task_name, ctx.getSourceInterval(), ElementsTypes.TASK_ELEMENT
     )
+    task_structure.parametrs = task.parametrs
+
     task.structure = task_structure
 
-    task_structure.addProtocol(task_call_name, ElementsTypes.TASK_ELEMENT)
+    task_protocol = Protocol(task_call_name, ElementsTypes.TASK_ELEMENT)
+    task_protocol.parametrs = task.parametrs
+
+    task_structure.addProtocol(task_protocol)
     self.module.tasks.addElement(task)
     names_for_change = []
     self.inside_the_task = True
@@ -128,26 +134,21 @@ def taskCall2AplanImpl(
 
     task = self.module.tasks.findElement(task_identifier)
     if task is not None:
-        task_call = "{0}({1})".format(
-            task.structure.identifier, argument_list_with_replaced_names
-        )
+        task_call = "{0}".format(task.structure.identifier)
 
         beh_index = sv_structure.getLastBehaviorIndex()
-
+        copy = task.structure.copy()
+        copy.additional_params = argument_list_with_replaced_names
         if beh_index is not None:
             sv_structure.behavior[beh_index].addBody(
-                (task_call, ElementsTypes.PROTOCOL_ELEMENT)
+                (copy, task_call, ElementsTypes.PROTOCOL_ELEMENT)
             )
         else:
             Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-            b_index = sv_structure.addProtocol(
-                "B_{}({1})".format(
-                    Counters_Object.getCounter(CounterTypes.B_COUNTER),
-                    argument_list_with_replaced_names,
-                )
-            )
+            task_call = "B_{0}".format(task.structure.identifier)
+            b_index = sv_structure.addProtocol(task_call)
             sv_structure.behavior[b_index].addBody(
-                (task_call, ElementsTypes.PROTOCOL_ELEMENT)
+                (copy, task_call, ElementsTypes.PROTOCOL_ELEMENT)
             )
 
 
@@ -186,24 +187,21 @@ def funtionCall2AplanImpl(
             self.module.ident_uniq_name, function_result_var
         )
 
-    task_call = "{0}({1})".format(task.structure.identifier, parametrs_str)
+    task_call = "{0}".format(task.structure.identifier)
 
     beh_index = sv_structure.getLastBehaviorIndex()
-
+    copy = task.structure.copy()
+    copy.additional_params = parametrs_str
     if beh_index is not None:
         sv_structure.behavior[beh_index].addBody(
-            (task_call, ElementsTypes.PROTOCOL_ELEMENT)
+            (copy, task_call, ElementsTypes.PROTOCOL_ELEMENT)
         )
     else:
         Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-        b_index = sv_structure.addProtocol(
-            "B_{}({1})".format(
-                Counters_Object.getCounter(CounterTypes.B_COUNTER),
-                parametrs_str,
-            )
-        )
+        task_call = "B_{0}".format(task.structure.identifier)
+        b_index = sv_structure.addProtocol(task_call)
         sv_structure.behavior[b_index].addBody(
-            (task_call, ElementsTypes.PROTOCOL_ELEMENT)
+            (copy, task_call, ElementsTypes.PROTOCOL_ELEMENT)
         )
 
     Counters_Object.incrieseCounter(CounterTypes.TASK_COUNTER)

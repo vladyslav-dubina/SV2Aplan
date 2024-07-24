@@ -32,7 +32,11 @@ def assertPropertyStatement2AplanImpl(
                 ctx.getSourceInterval(),
             )
             struct_assert.addBody(
-                ("{0}.Delta + !{0}.0".format(assert_name), ElementsTypes.ACTION_ELEMENT)
+                (
+                    action_pointer,
+                    "{0}.Delta + !{0}.0".format(assert_name),
+                    ElementsTypes.ACTION_ELEMENT,
+                ),
             )
             self.module.out_of_block_elements.addElement(struct_assert)
 
@@ -61,11 +65,12 @@ def assertInBlock2AplanImpl(
         beh_index = sv_structure.addProtocol(assert_b)
         sv_structure.behavior[beh_index].addBody(
             (
+                action_pointer,
                 "{0}.Delta + !{0}.0".format(assert_name),
                 ElementsTypes.ACTION_ELEMENT,
             )
         )
         if beh_index != 0:
             sv_structure.behavior[beh_index - 1].addBody(
-                (assert_b, ElementsTypes.PROTOCOL_ELEMENT)
+                (action_pointer, assert_b, ElementsTypes.PROTOCOL_ELEMENT)
             )

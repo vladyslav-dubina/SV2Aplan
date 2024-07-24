@@ -29,7 +29,7 @@ def blockAssignment2AplanImpl(
             action_name = "Sensetive(" + action_name + ")"
         if beh_index is not None:
             sv_structure.behavior[beh_index].addBody(
-                (action_name, ElementsTypes.ACTION_ELEMENT)
+                (action_pointer, action_name, ElementsTypes.ACTION_ELEMENT)
             )
         else:
             Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
@@ -44,5 +44,5 @@ def blockAssignment2AplanImpl(
                 )
             )
             sv_structure.behavior[b_index].addBody(
-                (action_name, ElementsTypes.ACTION_ELEMENT)
+                (action_pointer, action_name, ElementsTypes.ACTION_ELEMENT)
             )

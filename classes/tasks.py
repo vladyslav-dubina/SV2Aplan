@@ -20,6 +20,14 @@ class Task(Basic):
         self.postcondition: ActionParts = ActionParts()
         self.parametrs: ActionParametrArray = ActionParametrArray()
 
+    def copy(self):
+        task = Task(self.identifier, self.source_interval, self.element_type)
+        task.initial_parametrs = self.initial_parametrs.copy()
+        task.structure = self.structure.copy()
+        task.postcondition = self.postcondition.copy()
+        task.parametrs = self.parametrs.copy()
+        return task
+
     def __str__(self):
         return "{0}({1}),".format(self.structure.identifier, self.parametrs)
 
@@ -32,6 +40,12 @@ class Task(Basic):
 class TaskArray(BasicArray):
     def __init__(self):
         super().__init__(Task)
+
+    def copy(self):
+        new_aray: TaskArray = TaskArray()
+        for element in self.getElements():
+            new_aray.addElement(element.copy())
+        return new_aray
 
     def isUniqAction(self, task: Task):
         for element in self.elements:

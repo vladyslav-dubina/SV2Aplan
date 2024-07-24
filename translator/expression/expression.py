@@ -173,8 +173,10 @@ def expression2AplanImpl(
                 return (None, None, None, None)
 
     action = Action(
-        name_part,
-        Counters_Object.getCounter(counter_type),
+        "{0}_{1}".format(
+            name_part,
+            Counters_Object.getCounter(counter_type),
+        ),
         source_interval,
     )
 

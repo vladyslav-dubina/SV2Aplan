@@ -3,7 +3,7 @@ class Person;
     int age;
 
     function new(int init_index, int init_age);
-        index = init_name;
+        index = init_index;
         age = init_age;
     endfunction
 

@@ -18,7 +18,6 @@ def caseStatement2AplanImpl(
     case_expression = ctx.case_expression().getText()
     case_item_list = ctx.case_item()
     for index, case_item in enumerate(case_item_list):
-
         statement = case_item.statement_or_null().statement()
         case_item_expressions = []
         for case_item_expression in case_item.case_item_expression():
@@ -36,8 +35,9 @@ def caseStatement2AplanImpl(
                     Counters_Object.getCounter(CounterTypes.CASE_COUNTER)
                 )
                 case_action = Action(
-                    "case",
-                    Counters_Object.getCounter(CounterTypes.CASE_COUNTER),
+                    "case_{0}".format(
+                        Counters_Object.getCounter(CounterTypes.CASE_COUNTER),
+                    ),
                     case_item_expression.getSourceInterval(),
                 )
 
@@ -81,6 +81,7 @@ def caseStatement2AplanImpl(
                 if beh_index is not None:
                     sv_structure.behavior[beh_index].addBody(
                         (
+                            None,
                             "B_{0}{1}".format(
                                 Counters_Object.getCounter(CounterTypes.B_COUNTER),
                                 protocol_params,
@@ -125,7 +126,7 @@ def caseStatement2AplanImpl(
                     )
 
                 sv_structure.behavior[beh_index].addBody(
-                    (body, ElementsTypes.ACTION_ELEMENT)
+                    (action_pointer, body, ElementsTypes.ACTION_ELEMENT)
                 )
 
             sv_structure.addProtocol(

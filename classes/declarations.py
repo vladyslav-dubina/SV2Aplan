@@ -71,6 +71,20 @@ class Declaration(Basic):
         self.dimension_size = dimension_size
         self.action: Action | None = action
 
+    def copy(self):
+        return Declaration(
+            self.data_type,
+            self.identifier,
+            self.expression,
+            self.size_expression,
+            self.size,
+            self.dimension_expression,
+            self.dimension_size,
+            self.source_interval,
+            self.element_type,
+            self.action,
+        )
+
     def getAplanDecltypeForParametrs(self):
         if self.data_type == DeclTypes.INT:
             return "int"
@@ -126,6 +140,12 @@ class Declaration(Basic):
 class DeclarationArray(BasicArray):
     def __init__(self):
         super().__init__(Declaration)
+
+    def copy(self):
+        new_aray: DeclarationArray = DeclarationArray()
+        for element in self.getElements():
+            new_aray.addElement(element.copy())
+        return new_aray
 
     def findElementWithSource(
         self,

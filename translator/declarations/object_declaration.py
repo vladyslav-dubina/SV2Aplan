@@ -1,15 +1,9 @@
 from typing import Tuple
-from antlr4_verilog.systemverilog import SystemVerilogParser
+from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
-from classes.module import Module
 from program.program import Program
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.string_formating import replaceParametrsCalls
-from utils.utils import (
-    extractDimentionSize,
-    extractVectorSize,
-    vectorSize2AplanVectorSize,
-)
+from utils.utils import Counters_Object
 
 
 def objectDeclaration2AplanImpl(
@@ -30,3 +24,5 @@ def objectDeclaration2AplanImpl(
     object.ident_uniq_name_upper = object.ident_uniq_name.upper()
     object.source_interval = source_interval
     object.replaceNamesInActions()
+    object.setClassNumber(Counters_Object.getCounter(CounterTypes.OBJECT_COUNTER))
+    Counters_Object.incrieseCounter(CounterTypes.OBJECT_COUNTER)

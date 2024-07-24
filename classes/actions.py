@@ -10,6 +10,11 @@ class ActionParts:
     def __init__(self):
         self.body: List[str] = []
 
+    def copy(self):
+        action_part = ActionParts()
+        action_part.body = self.body.copy()
+        return action_part
+
     def __str__(self):
         body_to_str = ""
         for index, elem in enumerate(self.body):
@@ -23,18 +28,28 @@ class Action(Basic):
     def __init__(
         self,
         identifier: str,
-        number: int,
         source_interval: Tuple[int, int],
         exist_parametrs: ActionParametrArray | None = None,
     ):
-        self.number = number
-        identifier_tmp = identifier + "_" + str(number)
-        super().__init__(identifier_tmp, source_interval)
+        super().__init__(identifier, source_interval)
         self.precondition: ActionParts = ActionParts()
         self.postcondition: ActionParts = ActionParts()
         self.description: ActionParts = ActionParts()
         self.exist_parametrs: ActionParametrArray | None = exist_parametrs
         self.parametrs: ActionParametrArray = ActionParametrArray()
+
+    def copy(self):
+        action = Action(
+            self.identifier,
+            self.source_interval,
+        )
+        action.precondition = self.precondition.copy()
+        action.postcondition = self.postcondition.copy()
+        action.description = self.description.copy()
+        if self.exist_parametrs is not None:
+            action.exist_parametrs = self.exist_parametrs.copy()
+        action.parametrs = self.parametrs.copy()
+        return action
 
     def getBody(self):
         if self.exist_parametrs is not None:
@@ -43,9 +58,6 @@ class Action(Basic):
             return f"""({self.parametrs}) = (\n\t\t({self.precondition})->\n\t\t("{self.description};")\n\t\t({self.postcondition}))"""
         else:
             return f""" = (\n\t\t({self.precondition})->\n\t\t("{self.description};")\n\t\t({self.postcondition}))"""
-
-    def getActionName(self):
-        return "{0}_{1}".format(self.identifier, self.number)
 
     def findReturnAndReplaceToParametrImpl(self, task, element, index, flag):
         return_var_name = f"return_{task.identifier}"
@@ -106,7 +118,10 @@ class Action(Basic):
                     self.parametrs.addElement(task_parametr)
 
     def __str__(self):
-        return "{0}{1},".format(self.identifier, self.getBody())
+        if self.number is None:
+            return "{0}{1},".format(self.identifier, self.getBody())
+        else:
+            return "{0}_{2}{1},".format(self.identifier, self.getBody(), self.number)
 
     def __repr__(self):
         return f"\tAction({self.identifier!r}, {self.number!r}, {self.sequence!r})\n"
@@ -120,6 +135,12 @@ class Action(Basic):
 class ActionArray(BasicArray):
     def __init__(self):
         super().__init__(Action)
+
+    def copy(self):
+        new_aray: ActionArray = ActionArray()
+        for element in self.getElements():
+            new_aray.addElement(element.copy())
+        return new_aray
 
     def isUniqAction(self, action: Action):
         for element in self.elements:

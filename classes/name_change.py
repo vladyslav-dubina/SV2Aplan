@@ -10,6 +10,9 @@ class NameChange(Basic):
         super().__init__(identifier, source_interval)
         self.original_name = original_name
 
+    def copy(self):
+        return NameChange(self.identifier, self.source_interval, self.original_name)
+
     def __repr__(self):
         return f"NameChange(\t{self.identifier!r}, {self.original_name!r}\n)"
 
@@ -17,6 +20,12 @@ class NameChange(Basic):
 class NameChangeArray(BasicArray):
     def __init__(self):
         super().__init__(NameChange)
+
+    def copy(self):
+        new_aray: NameChangeArray = NameChangeArray()
+        for element in self.getElements():
+            new_aray.addElement(element.copy())
+        return new_aray
 
     def addElement(self, new_element: NameChange):
         if isinstance(new_element, self.element_type):

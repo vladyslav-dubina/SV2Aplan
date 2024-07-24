@@ -1,4 +1,5 @@
 from typing import Tuple, List
+from classes.action_parametr import ActionParametrArray
 from classes.basic import Basic, BasicArray
 from classes.protocols import Protocol
 from classes.element_types import ElementsTypes
@@ -14,6 +15,32 @@ class Structure(Basic):
         super().__init__(identifier, source_interval, element_type)
         self.behavior: List[Protocol] = []
         self.elements: BasicArray = BasicArray(Basic)
+        self.parametrs: ActionParametrArray = ActionParametrArray()
+        self.additional_params: str | None = None
+
+    def copy(self):
+        struct = Structure(self.identifier, self.source_interval, self.element_type)
+        for element in self.behavior:
+            struct.behavior.append(element.copy())
+        struct.elements.copy()
+        return struct
+
+    def getName(self):
+        if self.number is None:
+            if self.parametrs.getLen() > 0:
+                return "{0}({1})".format(self.identifier, str(self.parametrs))
+            elif self.additional_params is not None:
+                return "{0}({1})".format(self.identifier, self.additional_params)
+            else:
+                return self.identifier
+        else:
+            return "{0}_{1}{2}".format(
+                self.identifier, self.number, str(self.parametrs)
+            )
+
+    def setNumberToProtocols(self, number):
+        for element in self.behavior:
+            element.number = number
 
     def getLastBehaviorIndex(self):
         if not self.behavior:
@@ -49,7 +76,12 @@ class Structure(Basic):
         return result
 
     def __repr__(self):
-        return f"\tStructure({self.identifier!r}, {self.sequence!r})\n"
+        if self.number is None:
+            return f"\tStructure({self.identifier!r}, {self.sequence!r})\n"
+        else:
+            return (
+                f"\tStructure({self.identifier!r}_{self.number!r}, {self.sequence!r})\n"
+            )
 
 
 class StructureArray(BasicArray):
@@ -58,6 +90,12 @@ class StructureArray(BasicArray):
             super().__init__(Structure)
         else:
             super().__init__(element_type)
+
+    def copy(self):
+        new_aray: StructureArray = StructureArray()
+        for element in self.getElements():
+            new_aray.addElement(element.copy())
+        return new_aray
 
     def getAlwaysList(self):
         from classes.always import Always

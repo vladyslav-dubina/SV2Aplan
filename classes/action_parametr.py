@@ -18,6 +18,11 @@ class ActionParametr(Basic):
         self.uniq_identifier = action_name + ""
         super().__init__(identifier, source_interval)
 
+    def copy(self):
+        action_param = ActionParametr(self.identifier, self.type, self.source_interval)
+        action_param.uniq_identifier = self.uniq_identifier
+        return action_param
+
     def __str__(self) -> str:
         if "var" in self.type:
             return f"{self.type} {self.identifier}"
@@ -31,6 +36,12 @@ class ActionParametr(Basic):
 class ActionParametrArray(BasicArray):
     def __init__(self):
         super().__init__(ActionParametr)
+
+    def copy(self):
+        new_aray: ActionParametrArray = ActionParametrArray()
+        for element in self.getElements():
+            new_aray.addElement(element.copy())
+        return new_aray
 
     def isUniqParametr(self, parametr: ActionParametr):
         for element in self.elements:

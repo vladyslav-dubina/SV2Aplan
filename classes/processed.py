@@ -7,6 +7,9 @@ class ProcessedElement(Basic):
     def __init__(self, identifier: str, source_interval: Tuple[int, int]):
         super().__init__(identifier, source_interval)
 
+    def copy(self):
+        return ProcessedElement(self.identifier, self.source_interval)
+
     def __repr__(self):
         return f"ProcessedElement(\t{self.identifier!r}, {self.source_interval!r}\n)"
 
@@ -14,6 +17,12 @@ class ProcessedElement(Basic):
 class ProcessedElementArray(BasicArray):
     def __init__(self):
         super().__init__(ProcessedElement)
+
+    def copy(self):
+        new_aray: ProcessedElementArray = ProcessedElementArray()
+        for element in self.getElements():
+            new_aray.addElement(element.copy())
+        return new_aray
 
     def addElement(self, new_element: ProcessedElement):
         if isinstance(new_element, self.element_type):

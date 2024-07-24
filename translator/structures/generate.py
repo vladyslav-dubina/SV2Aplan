@@ -54,7 +54,7 @@ def generateBodyToAplan(
 
             action_name = f"Sensetive({action_name})"
             sv_structure.behavior[0].addBody(
-                (action_name, ElementsTypes.ACTION_ELEMENT)
+                (action_pointer, action_name, ElementsTypes.ACTION_ELEMENT)
             )
 
         else:

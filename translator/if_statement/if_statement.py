@@ -39,8 +39,9 @@ def ifStatement2AplanImpl(
                 Counters_Object.getCounter(CounterTypes.IF_COUNTER)
             )
             if_action = Action(
-                "if",
-                Counters_Object.getCounter(CounterTypes.IF_COUNTER),
+                "if_{0}".format(
+                    Counters_Object.getCounter(CounterTypes.IF_COUNTER),
+                ),
                 ctx.getSourceInterval(),
             )
             predicate_txt = element["predicate"].getText()
@@ -85,6 +86,7 @@ def ifStatement2AplanImpl(
             if beh_index is not None:
                 sv_structure.behavior[beh_index].addBody(
                     (
+                        None,
                         "B_{0}".format(
                             Counters_Object.getCounter(CounterTypes.B_COUNTER)
                         ),
@@ -127,7 +129,7 @@ def ifStatement2AplanImpl(
                 )
 
             sv_structure.behavior[beh_index].addBody(
-                (body, ElementsTypes.ACTION_ELEMENT)
+                (action_pointer, body, ElementsTypes.ACTION_ELEMENT)
             )
 
         sv_structure.addProtocol(

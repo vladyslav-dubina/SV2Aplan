@@ -22,6 +22,7 @@ class CounterTypes(Enum):
     FOREVER_COUNTER = auto()
     TASK_COUNTER = auto()
     ENUM_COUNTER = auto()
+    OBJECT_COUNTER = auto()
 
 
 class Counters:
@@ -43,6 +44,7 @@ class Counters:
         self.forever_counter = 1
         self.task_counter = 1
         self.enum_counter = 1
+        self.object_counter = 1
 
     def selectCounter(self, element_type: ElementsTypes):
         if element_type is ElementsTypes.ASSIGN_ELEMENT:
@@ -65,6 +67,8 @@ class Counters:
             return CounterTypes.FOREVER_COUNTER
         if element_type is ElementsTypes.TASK_ELEMENT:
             return CounterTypes.TASK_COUNTER
+        if element_type is ElementsTypes.OBJECT_ELEMENT:
+            return CounterTypes.OBJECT_COUNTER
         return CounterTypes.NONE_COUNTER
 
     def incrieseCounter(self, counter_type: CounterTypes):
@@ -102,6 +106,8 @@ class Counters:
             self.task_counter += 1
         if counter_type is CounterTypes.ENUM_COUNTER:
             self.enum_counter += 1
+        if counter_type is CounterTypes.OBJECT_COUNTER:
+            self.object_counter += 1
 
     def decrieseCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
@@ -138,6 +144,8 @@ class Counters:
             self.task_counter -= 1
         if counter_type is CounterTypes.ENUM_COUNTER:
             self.enum_counter -= 1
+        if counter_type is CounterTypes.OBJECT_COUNTER:
+            self.object_counter -= 1
 
     def getCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
@@ -175,6 +183,8 @@ class Counters:
             return self.task_counter
         if counter_type is CounterTypes.ENUM_COUNTER:
             return self.enum_counter
+        if counter_type is CounterTypes.OBJECT_COUNTER:
+            return self.object_counter
 
     def countersDeinit(self):
         self.module_counter = 1
@@ -194,3 +204,4 @@ class Counters:
         self.forever_counter = 1
         self.task_counter = 1
         self.enum_counter = 1
+        self.object_counter = 1

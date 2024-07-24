@@ -14,6 +14,11 @@ class Parametr(Basic):
         self.value = value
         self.expression = expression
 
+    def copy(self):
+        return Parametr(
+            self.identifier, self.source_interval, self.value, self.expression
+        )
+
     def prepareExpression(self):
         from utils.string_formating import (
             valuesToAplanStandart,
@@ -45,6 +50,12 @@ class Parametr(Basic):
 class ParametrArray(BasicArray):
     def __init__(self):
         super().__init__(Parametr)
+
+    def copy(self):
+        new_aray: ParametrArray = ParametrArray()
+        for element in self.getElements():
+            new_aray.addElement(element.copy())
+        return new_aray
 
     def addElement(self, new_element: Parametr):
         if isinstance(new_element, self.element_type):

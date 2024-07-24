@@ -65,7 +65,7 @@ def repeat2AplanImpl(
     beh_index = sv_structure.getLastBehaviorIndex()
     if beh_index is not None:
         sv_structure.behavior[beh_index].addBody(
-            (protocol_call, ElementsTypes.ACTION_ELEMENT)
+            (action_pointer, protocol_call, ElementsTypes.ACTION_ELEMENT)
         )
     else:
         Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
@@ -73,5 +73,5 @@ def repeat2AplanImpl(
             "B_{}".format(Counters_Object.getCounter(CounterTypes.B_COUNTER))
         )
         sv_structure.behavior[b_index].addBody(
-            (protocol_call, ElementsTypes.ACTION_ELEMENT)
+            (action_pointer, protocol_call, ElementsTypes.ACTION_ELEMENT)
         )

@@ -110,6 +110,7 @@ def loopVarsDeclarations2AplanImpl(
 
     """
     assign_names: List[str] = []
+    action_pointers = []
     for index, identifier in enumerate(vars_names):
         action_txt = f"{identifier}=0"
         (
@@ -124,8 +125,9 @@ def loopVarsDeclarations2AplanImpl(
             sv_structure=sv_structure,
         )
         assign_names.append(assign_name)
+        action_pointers.append(action_pointers)
 
-    return assign_names
+    return (assign_names, action_pointers)
 
 
 def loopVarsToIteration2AplanImpl(
@@ -155,6 +157,7 @@ def loopVarsToIteration2AplanImpl(
 
     """
     assign_names: List[str] = []
+    action_pointers = []
     for index, identifier in enumerate(vars_names):
         action_txt = f"{identifier}={identifier}+1"
         (
@@ -169,8 +172,9 @@ def loopVarsToIteration2AplanImpl(
             sv_structure=sv_structure,
         )
         assign_names.append(assign_name)
+        action_pointers.append(action_pointers)
 
-    return assign_names
+    return (assign_names, action_pointers)
 
 
 def loopVarsAndArrayIdentifierToCondition2AplanImpl(

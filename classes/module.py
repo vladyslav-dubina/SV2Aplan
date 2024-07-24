@@ -51,15 +51,22 @@ class Module(Basic):
             self.element_type,
         )
 
-        module.declarations = self.declarations
-        module.actions = self.actions
-        module.structures = self.structures
-        module.out_of_block_elements = self.out_of_block_elements
-        module.parametrs = self.parametrs
-        module.name_change = self.name_change
-        module.processed_elements = self.processed_elements
-        module.tasks = self.tasks
+        module.declarations = self.declarations.copy()
+        module.actions = self.actions.copy()
+        module.structures = self.structures.copy()
+        module.out_of_block_elements = self.out_of_block_elements.copy()
+        module.parametrs = self.parametrs.copy()
+        module.name_change = self.name_change.copy()
+        module.processed_elements = self.processed_elements.copy()
+        module.tasks = self.tasks.copy()
         return module
+
+    def setClassNumber(self, number):
+        for element in self.actions.getElements():
+            element.number = number
+        for element in self.structures.getElements():
+            element.number = number
+            element.setNumberToProtocols(number)
 
     def replaceNamesInActions(self):
         for action in self.actions.getElements():
@@ -185,7 +192,7 @@ class Module(Basic):
         for index, element in enumerate(structs):
             if index != 0:
                 struct_part += " || "
-            struct_part += element.identifier
+            struct_part += element.getName()
 
         if len(struct_part) > 0:
             struct_flag = True

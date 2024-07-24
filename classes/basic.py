@@ -16,6 +16,7 @@ class Basic:
         self.sequence = (Counters_Object.getCounter(CounterTypes.SEQUENCE_COUNTER),)
         self.source_interval: Tuple[int, int] = source_interval
         self.element_type: ElementsTypes = element_type
+        self.number: int | None = None
 
     def copy(self):
         return Basic(
@@ -23,6 +24,12 @@ class Basic:
             self.source_interval,
             self.element_type,
         )
+
+    def getName(self):
+        if self.number is None:
+            return self.identifier
+        else:
+            return "{0}_{1}".format(self.identifier, self.number)
 
     def __repr__(self):
         return f"\tBasic({self.identifier!r}, {self.sequence!r}, {self.source_interval!r})\n"
@@ -32,6 +39,12 @@ class BasicArray:
     def __init__(self, element_type: Basic):
         self.elements: List[Basic] = []
         self.element_type: Basic = element_type
+
+    def copy(self):
+        new_aray: BasicArray = BasicArray(Basic)
+        for element in self.getElements():
+            new_aray.addElement(element.copy())
+        return new_aray
 
     def __iadd__(self, other):
         if isinstance(other, BasicArray):

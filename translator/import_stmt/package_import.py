@@ -63,7 +63,7 @@ def packageImport2ApanImpl(
                         elif isinstance(module_element, Parametr):
                             self.module.parametrs.addElement(module_element)
 
-                    program.modules.removeElement(
+                    self.program.modules.removeElement(
                         package
                     )  # remove after take all needed elements
                 else:
@@ -78,6 +78,7 @@ def packageImport2ApanImpl(
                     )
                     struct_call.addBody(
                         (
+                            None,
                             f"B_{package_identifier.upper()}",
                             ElementsTypes.PROTOCOL_ELEMENT,
                         )

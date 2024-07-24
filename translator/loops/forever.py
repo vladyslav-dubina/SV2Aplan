@@ -36,6 +36,7 @@ def forever2AplanImpl(
     if beh_index is not None:
         sv_structure.behavior[beh_index].addBody(
             (
+                None,
                 forever_sensetive_name,
                 ElementsTypes.FOREVER_ELEMENT,
             )

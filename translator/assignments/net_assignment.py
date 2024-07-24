@@ -32,5 +32,7 @@ def netAssignment2AplanImpl(
                     ElementsTypes.ASSIGN_OUT_OF_BLOCK_ELEMENT,
                 )
                 assign_name = f"Sensetive({assign_name})"
-                struct_assign.addBody((assign_name, ElementsTypes.ACTION_ELEMENT))
+                struct_assign.addBody(
+                    (action_pointer, assign_name, ElementsTypes.ACTION_ELEMENT)
+                )
                 self.module.out_of_block_elements.addElement(struct_assign)
