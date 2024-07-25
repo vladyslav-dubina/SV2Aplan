@@ -1,4 +1,6 @@
 from classes.basic import Basic, BasicArray
+from classes.element_types import ElementsTypes
+from classes.name_change import NameChangeArray
 from classes.parametrs import ParametrArray
 import re
 
@@ -50,6 +52,39 @@ class ModuleCall(Basic):
 class ModuleCallArray(BasicArray):
     def __init__(self):
         super().__init__(ModuleCall)
+
+    def getElementsIE(
+        self,
+        include: ElementsTypes | None = None,
+        exclude: ElementsTypes | None = None,
+        include_identifier: str | None = None,
+        exclude_identifier: str | None = None,
+    ):
+        result: NameChangeArray = NameChangeArray()
+        elements = self.elements
+
+        if include is None and exclude is None:
+            return self
+
+        for element in elements:
+            if include is not None and element.element_type is not include:
+                continue
+            if exclude is not None and element.element_type is exclude:
+                continue
+            if (
+                include_identifier is not None
+                and element.identifier is not include_identifier
+            ):
+                continue
+            if (
+                exclude_identifier is not None
+                and element.identifier is exclude_identifier
+            ):
+                continue
+
+            result.addElement(element)
+
+        return result
 
     def __repr__(self):
         return f"ModuleCallArray(\n{self.elements!r}\n)"

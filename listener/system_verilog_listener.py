@@ -61,11 +61,6 @@ class SVListener(SystemVerilogParserListener):
     def exitData_declaration(self, ctx):
         self.sv2aplan.dataDecaration2Aplan(ctx, True)
 
-    def exitLocal_parameter_declaration(
-        self, ctx: SystemVerilogParser.Local_parameter_declarationContext
-    ):
-        self.sv2aplan.dataDecaration2Aplan(ctx, True)
-
     def exitNet_declaration(self, ctx: SystemVerilogParser.Net_declarationContext):
         self.sv2aplan.netDeclaration2Aplan(ctx)
 
@@ -75,7 +70,12 @@ class SVListener(SystemVerilogParserListener):
     def exitNet_assignment(self, ctx):
         self.sv2aplan.netAssignment2Aplan(ctx)
 
-    def exitParam_assignment(self, ctx):
+    def exitLocal_parameter_declaration(
+        self, ctx: SystemVerilogParser.Local_parameter_declarationContext
+    ):
+        self.sv2aplan.paramAssignment2Aplan(ctx, self.module_call)
+
+    def exitParam_assignment(self, ctx: SystemVerilogParser.Param_assignmentContext):
         self.sv2aplan.paramAssignment2Aplan(ctx, self.module_call)
 
     def enterLoop_generate_construct(self, ctx):

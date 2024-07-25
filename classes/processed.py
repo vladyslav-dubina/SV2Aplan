@@ -1,6 +1,7 @@
 from typing import Tuple
 from classes.basic import Basic, BasicArray
-import re
+
+from classes.element_types import ElementsTypes
 
 
 class ProcessedElement(Basic):
@@ -25,6 +26,39 @@ class ProcessedElementArray(BasicArray):
         for element in self.getElements():
             new_aray.addElement(element.copy())
         return new_aray
+
+    def getElementsIE(
+        self,
+        include: ElementsTypes | None = None,
+        exclude: ElementsTypes | None = None,
+        include_identifier: str | None = None,
+        exclude_identifier: str | None = None,
+    ):
+        result: ProcessedElementArray = ProcessedElementArray()
+        elements = self.elements
+
+        if include is None and exclude is None:
+            return self
+
+        for element in elements:
+            if include is not None and element.element_type is not include:
+                continue
+            if exclude is not None and element.element_type is exclude:
+                continue
+            if (
+                include_identifier is not None
+                and element.identifier is not include_identifier
+            ):
+                continue
+            if (
+                exclude_identifier is not None
+                and element.identifier is exclude_identifier
+            ):
+                continue
+
+            result.addElement(element)
+
+        return result
 
     def addElement(self, new_element: ProcessedElement):
         if isinstance(new_element, self.element_type):

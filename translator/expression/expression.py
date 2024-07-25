@@ -36,16 +36,18 @@ def prepareExpressionStringImpl(
     expression = doubleOperators2Aplan(expression)
     expression = addLeftValueForUnaryOrOperator(expression)
     expression = addSpacesAroundOperators(expression)
+    packages = self.program.modules.getElementsIE(
+        include=ElementsTypes.PACKAGE_ELEMENT,
+        exclude_ident_uniq_name=self.module.ident_uniq_name,
+    )
+    packages += self.program.modules.getElementsIE(
+        include=ElementsTypes.CLASS_ELEMENT,
+        exclude_ident_uniq_name=self.module.ident_uniq_name,
+    )
     if (
         ElementsTypes.ASSIGN_FOR_CALL_ELEMENT != expr_type
         and ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT != expr_type
     ):
-        packages = self.program.modules.getElementsIE(
-            include=ElementsTypes.PACKAGE_ELEMENT
-        )
-        packages += self.program.modules.getElementsIE(
-            include=ElementsTypes.CLASS_ELEMENT
-        )
         expression_with_replaced_names = self.module.findAndChangeNamesToAgentAttrCall(
             expression, packages.getElements()
         )
@@ -68,8 +70,12 @@ def prepareExpressionStringImpl(
     expression_with_replaced_names = notConcreteIndex2AplanStandart(
         expression_with_replaced_names, self.module
     )
+    parametrs_array = self.module.parametrs
+
+    for package in packages.getElements():
+        parametrs_array += package.parametrs
     expression_with_replaced_names = replaceParametrsCalls(
-        self.module.parametrs, expression_with_replaced_names
+        parametrs_array, expression_with_replaced_names
     )
     return (expression, expression_with_replaced_names)
 

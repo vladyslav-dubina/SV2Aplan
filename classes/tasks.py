@@ -46,6 +46,39 @@ class TaskArray(BasicArray):
             new_aray.addElement(element.copy())
         return new_aray
 
+    def getElementsIE(
+        self,
+        include: ElementsTypes | None = None,
+        exclude: ElementsTypes | None = None,
+        include_identifier: str | None = None,
+        exclude_identifier: str | None = None,
+    ):
+        result: TaskArray = TaskArray()
+        elements = self.elements
+
+        if include is None and exclude is None:
+            return self
+
+        for element in elements:
+            if include is not None and element.element_type is not include:
+                continue
+            if exclude is not None and element.element_type is exclude:
+                continue
+            if (
+                include_identifier is not None
+                and element.identifier is not include_identifier
+            ):
+                continue
+            if (
+                exclude_identifier is not None
+                and element.identifier is exclude_identifier
+            ):
+                continue
+
+            result.addElement(element)
+
+        return result
+
     def isUniqAction(self, task: Task):
         for element in self.elements:
             if element == task:

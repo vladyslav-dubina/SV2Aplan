@@ -127,6 +127,10 @@ class Module(Basic):
                 for struct_element in element.structure.elements.getElements():
                     result.append(struct_element)
 
+        for element in self.parametrs.getElements():
+            if element.identifier == identifier:
+                result.append(element)
+
         return result
 
     def getBehInitProtocols(self):
@@ -272,10 +276,16 @@ class ModuleArray(BasicArray):
             if exclude is not None and element.element_type is exclude:
                 continue
             if (
+                include_ident_uniq_name is not None
+                and element.ident_uniq_name is not include_ident_uniq_name
+            ):
+                continue
+            if (
                 exclude_ident_uniq_name is not None
                 and element.ident_uniq_name is exclude_ident_uniq_name
             ):
                 continue
+
             result.addElement(element)
 
         return result

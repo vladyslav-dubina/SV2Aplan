@@ -5,12 +5,13 @@ module main;
     state_t current_state;
 
     int sum;
+    int sum_2;
     
     initial begin
         sum = add(5, 7);
 
         current_state = RUNNING;
-        MAX_COUNT = MAX_COUNT + 1;
+        sum_2 = MAX_COUNT + 1;
     end
 
 endmodule

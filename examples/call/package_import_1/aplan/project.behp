@@ -1,7 +1,6 @@
 B_MAIN = {MAIN_INITITAL || MAIN_MAIN},
 MAIN_MAIN = (PACKAGE_IMPORT_B_1),
-MAIN_INITITAL = ADD(5,7,main.add_call_result_1);(assign_3).assign_4.assign_5,
+MAIN_INITITAL = ADD(5,7,main.add_call_result_1);(assign_2).assign_3.assign_4,
 PACKAGE_IMPORT_B_1 = B_MY_PACKAGE,
-B_MY_PACKAGE = {INIT_MY_PACKAGE},
-INIT_MY_PACKAGE = assign_1,
-ADD(var a; var b; var return_add) = assign_2(a, b, return_add)
+
+ADD(var a; var b; var return_add) = assign_1(a, b, return_add)

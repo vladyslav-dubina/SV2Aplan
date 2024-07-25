@@ -16,10 +16,7 @@ from utils.utils import (
 
 def dataDecaration2AplanImpl(
     self: SV2aplan,
-    ctx: (
-        SystemVerilogParser.Data_declarationContext
-        | SystemVerilogParser.Local_parameter_declarationContext
-    ),
+    ctx: SystemVerilogParser.Data_declarationContext,
     listener: bool,
     sv_structure: Structure | None = None,
     name_space: ElementsTypes = ElementsTypes.NONE_ELEMENT,
@@ -84,21 +81,11 @@ def dataDecaration2AplanImpl(
                 declaration = (
                     ctx.list_of_variable_decl_assignments().variable_decl_assignment()
                 )
-            elif isinstance(
-                ctx, SystemVerilogParser.Local_parameter_declarationContext
-            ):
-                declaration = ctx.list_of_param_assignments().param_assignment()
 
             for elem in declaration:
                 if isinstance(ctx, SystemVerilogParser.Data_declarationContext):
                     original_identifier = (
                         elem.variable_identifier().identifier().getText()
-                    )
-                elif isinstance(
-                    ctx, SystemVerilogParser.Local_parameter_declarationContext
-                ):
-                    original_identifier = (
-                        elem.parameter_identifier().identifier().getText()
                     )
 
                 identifier = original_identifier
@@ -108,10 +95,7 @@ def dataDecaration2AplanImpl(
 
                 if isinstance(ctx, SystemVerilogParser.Data_declarationContext):
                     unpacked_dimention = elem.variable_dimension(0)
-                elif isinstance(
-                    ctx, SystemVerilogParser.Local_parameter_declarationContext
-                ):
-                    unpacked_dimention = elem.unpacked_dimension(0)
+
                 dimension_size = 0
                 dimension_size_expression = ""
                 if unpacked_dimention is not None:
@@ -148,10 +132,6 @@ def dataDecaration2AplanImpl(
 
                 if isinstance(ctx, SystemVerilogParser.Data_declarationContext):
                     expression = elem.expression()
-                elif isinstance(
-                    ctx, SystemVerilogParser.Local_parameter_declarationContext
-                ):
-                    expression = elem.constant_param_expression()
 
                 declaration = self.module.declarations.getElementByIndex(decl_index)
 

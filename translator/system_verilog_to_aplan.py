@@ -39,7 +39,12 @@ class SV2aplan:
 
     # ---------------------------------------------------------------------------------
     def paramAssignment2Aplan(
-        self, ctx: SystemVerilogParser.Param_assignmentContext, module_call: ModuleCall
+        self,
+        ctx: (
+            SystemVerilogParser.Param_assignmentContext
+            | SystemVerilogParser.Local_parameter_declarationContext
+        ),
+        module_call: ModuleCall,
     ):
         from translator.assignments.param_assignment import paramAssignment2AplanImpl
 
@@ -90,10 +95,7 @@ class SV2aplan:
     # ---------------------------------------------------------------------------------
     def dataDecaration2Aplan(
         self,
-        ctx: (
-            SystemVerilogParser.Data_declarationContext
-            | SystemVerilogParser.Local_parameter_declarationContext
-        ),
+        ctx: SystemVerilogParser.Data_declarationContext,
         listener: bool,
         sv_structure: Structure | None = None,
         name_space: ElementsTypes = ElementsTypes.NONE_ELEMENT,

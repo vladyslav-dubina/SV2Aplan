@@ -1,21 +1,17 @@
 
-assign_3 = (
+assign_2 = (
 		(1)->
 		("MAIN#main:action 'assign (sum = add ( 5, 7 ))';")
 		(main.sum = main.add_call_result_1)),
-assign_4 = (
+assign_3 = (
 		(1)->
 		("MAIN#main:action 'assign (current_state = RUNNING)';")
 		(main.current_state = RUNNING)),
-assign_5 = (
+assign_4 = (
 		(1)->
-		("MAIN#main:action 'assign (MAX_COUNT = MAX_COUNT + 1)';")
-		(my_package.MAX_COUNT = my_package.MAX_COUNT + 1)),
-assign_1 = (
-		(1)->
-		("MY_PACKAGE#my_package:action 'assign (MAX_COUNT = 10)';")
-		(my_package.10 = 10)),
-assign_2(var a; var b; var return_add) = (
+		("MAIN#main:action 'assign (sum_2 = MAX_COUNT + 1)';")
+		(main.sum_2 = 10 + 1)),
+assign_1(var a; var b; var return_add) = (
 		(1)->
 		("MY_PACKAGE#my_package:action 'assign (add = a + b)';")
 		(return_add = a + b))
