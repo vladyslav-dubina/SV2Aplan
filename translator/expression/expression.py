@@ -108,6 +108,7 @@ def expression2AplanImpl(
         counter_type = CounterTypes.REPEAT_COUNTER
 
     action_name = "{0}_{1}".format(name_part, Counters_Object.getCounter(counter_type))
+    left_value = None
 
     if (
         element_type != ElementsTypes.ASSIGN_FOR_CALL_ELEMENT
@@ -117,12 +118,13 @@ def expression2AplanImpl(
         expression, expression_with_replaced_names = self.prepareExpressionString(
             input, element_type
         )
+        left_value = getValueLeftOfEqualsOrDot(expression)
 
     packages = self.program.modules.getElementsIE(
         include=ElementsTypes.PACKAGE_ELEMENT,
         exclude_ident_uniq_name=self.module.ident_uniq_name,
     )
-    left_value = getValueLeftOfEqualsOrDot(expression)
+
     packages += self.program.modules.getElementsIE(
         include=ElementsTypes.OBJECT_ELEMENT,
         include_ident_uniq_name=left_value,

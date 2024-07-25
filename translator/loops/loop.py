@@ -105,7 +105,10 @@ def loop2AplanImpl(
         )
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
         if ctx.FOREACH():
-            condition_name = self.loopVarsAndArrayIdentifierToCondition2Aplan(
+            (
+                action_pointer,
+                condition_name,
+            ) = self.loopVarsAndArrayIdentifierToCondition2Aplan(
                 for_decl_identifier,
                 ctx.ps_or_hierarchical_array_identifier(),
                 sv_structure,
@@ -205,7 +208,7 @@ def loop2AplanImpl(
         )
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
         if ctx.FOREACH():
-            action_names_list = self.loopVarsToIteration2Aplan(
+            action_names_list, action_pointer_list = self.loopVarsToIteration2Aplan(
                 for_decl_identifier,
                 source_intervals_list,
                 sv_structure,

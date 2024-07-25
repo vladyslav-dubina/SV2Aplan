@@ -125,7 +125,7 @@ def loopVarsDeclarations2AplanImpl(
             sv_structure=sv_structure,
         )
         assign_names.append(assign_name)
-        action_pointers.append(action_pointers)
+        action_pointers.append(action_pointer)
 
     return (assign_names, action_pointers)
 
@@ -172,7 +172,7 @@ def loopVarsToIteration2AplanImpl(
             sv_structure=sv_structure,
         )
         assign_names.append(assign_name)
-        action_pointers.append(action_pointers)
+        action_pointers.append(action_pointer)
 
     return (assign_names, action_pointers)
 
@@ -225,7 +225,7 @@ def loopVarsAndArrayIdentifierToCondition2AplanImpl(
         ctx.getSourceInterval(),
         sv_structure=sv_structure,
     )
-    return condition_name
+    return (action_pointer, condition_name)
 
 
 def forInitialization2ApanImpl(
