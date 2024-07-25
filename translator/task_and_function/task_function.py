@@ -188,7 +188,6 @@ def funtionCall2AplanImpl(
         )
 
     task_call = "{0}".format(task.structure.identifier)
-
     beh_index = sv_structure.getLastBehaviorIndex()
     copy = task.structure.copy()
     copy.additional_params = parametrs_str

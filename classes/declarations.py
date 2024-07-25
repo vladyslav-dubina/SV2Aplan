@@ -72,7 +72,7 @@ class Declaration(Basic):
         self.action: Action | None = action
 
     def copy(self):
-        return Declaration(
+        declaration = Declaration(
             self.data_type,
             self.identifier,
             self.expression,
@@ -84,6 +84,8 @@ class Declaration(Basic):
             self.element_type,
             self.action,
         )
+        declaration.number = self.number
+        return declaration
 
     def getAplanDecltypeForParametrs(self):
         if self.data_type == DeclTypes.INT:

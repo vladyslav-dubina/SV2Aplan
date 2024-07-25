@@ -8,7 +8,9 @@ class ProcessedElement(Basic):
         super().__init__(identifier, source_interval)
 
     def copy(self):
-        return ProcessedElement(self.identifier, self.source_interval)
+        processed_element = ProcessedElement(self.identifier, self.source_interval)
+        processed_element.number = self.number
+        return processed_element
 
     def __repr__(self):
         return f"ProcessedElement(\t{self.identifier!r}, {self.source_interval!r}\n)"

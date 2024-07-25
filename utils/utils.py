@@ -310,3 +310,48 @@ def extractParameters(expression: str, function_name: str) -> list:
     params = [param.strip() for param in params_str.split(",")]
 
     return params
+
+
+def extractFunctionName(expression: str) -> str:
+    """
+    Extracts the function name from a given expression.
+
+    Parameters
+    ----------
+    expression : str
+        The input string containing the function call.
+
+    Returns
+    -------
+    str
+        The name of the function if found, otherwise an empty string.
+    """
+    pattern = r"\b(\w+)\s*\("
+    match = re.search(pattern, expression)
+    if match:
+        return match.group(1)
+    return None
+
+
+def getValueLeftOfEqualsOrDot(expression: str) -> str:
+    """
+    Returns the value to the left of the '=' character or '.' in a string.
+    If there is a '.' to the left of '=', the function returns the substring to the left of the '.'.
+    Otherwise, it returns the substring to the left of '='.
+
+    Parameters
+    ----------
+    expression : str
+        The string in which to find the value to the left of '=' or '.'.
+
+    Returns
+    -------
+    str
+        The value to the left of the '=' character or the value to the left of '.' if present.
+    """
+    # Define a pattern that captures the part before '=' or '.'
+    pattern = r"^(.*?)(?=[.=])"
+    match = re.search(pattern, expression)
+    if match:
+        return match.group(1).strip()
+    return None

@@ -15,9 +15,11 @@ class Parametr(Basic):
         self.expression = expression
 
     def copy(self):
-        return Parametr(
+        parametr = Parametr(
             self.identifier, self.source_interval, self.value, self.expression
         )
+        parametr.number = self.number
+        return parametr
 
     def prepareExpression(self):
         from utils.string_formating import (

@@ -19,11 +19,13 @@ class Basic:
         self.number: int | None = None
 
     def copy(self):
-        return Basic(
+        basic = Basic(
             self.identifier,
             self.source_interval,
             self.element_type,
         )
+        basic.number = self.number
+        return basic
 
     def getName(self):
         if self.number is None:

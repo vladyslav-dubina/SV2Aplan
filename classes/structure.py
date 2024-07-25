@@ -22,21 +22,31 @@ class Structure(Basic):
         struct = Structure(self.identifier, self.source_interval, self.element_type)
         for element in self.behavior:
             struct.behavior.append(element.copy())
-        struct.elements.copy()
+        struct.elements = self.elements.copy()
+        struct.parametrs = self.parametrs.copy()
+        struct.additional_params = self.additional_params
+        struct.number = self.number
         return struct
 
-    def getName(self):
-        if self.number is None:
-            if self.parametrs.getLen() > 0:
-                return "{0}({1})".format(self.identifier, str(self.parametrs))
-            elif self.additional_params is not None:
-                return "{0}({1})".format(self.identifier, self.additional_params)
-            else:
-                return self.identifier
-        else:
-            return "{0}_{1}{2}".format(
-                self.identifier, self.number, str(self.parametrs)
-            )
+    def updateLinks(self, module):
+        for element in self.behavior:
+            element.updateLinks(module)
+
+    def setNumber(self, number):
+        self.setNumberToProtocols(number)
+        self.number = number
+
+    def getName(self, params_include: bool = True):
+        identifier = self.identifier
+
+        if self.number:
+            identifier = "{0}_{1}".format(identifier, self.number)
+        if params_include == True:
+            if self.additional_params is not None:
+                identifier = "{0}({1})".format(identifier, self.additional_params)
+            elif self.parametrs.getLen() > 0:
+                identifier = "{0}({1})".format(identifier, str(self.parametrs))
+        return identifier
 
     def setNumberToProtocols(self, number):
         for element in self.behavior:
@@ -96,6 +106,10 @@ class StructureArray(BasicArray):
         for element in self.getElements():
             new_aray.addElement(element.copy())
         return new_aray
+
+    def updateLinks(self, module):
+        for element in self.getElements():
+            element.updateLinks(module)
 
     def getAlwaysList(self):
         from classes.always import Always

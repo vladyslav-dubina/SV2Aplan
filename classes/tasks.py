@@ -26,15 +26,14 @@ class Task(Basic):
         task.structure = self.structure.copy()
         task.postcondition = self.postcondition.copy()
         task.parametrs = self.parametrs.copy()
+        task.number = self.number
         return task
 
     def __str__(self):
         return "{0}({1}),".format(self.structure.identifier, self.parametrs)
 
     def __repr__(self):
-        return (
-            f"\Task({self.identifier!r},  {self.sequence!r}, {self.postcondition!r})\n"
-        )
+        return f"\Task({self.identifier!r},  {self.sequence!r}, {self.postcondition!r}, {self.parametrs!r}, {self.initial_parametrs!r}, {self.structure!r})\n"
 
 
 class TaskArray(BasicArray):

@@ -22,6 +22,7 @@ from utils.string_formating import (
 )
 from utils.utils import (
     Counters_Object,
+    getValueLeftOfEqualsOrDot,
     isFunctionCallPresentAndReplace,
 )
 
@@ -121,10 +122,13 @@ def expression2AplanImpl(
         include=ElementsTypes.PACKAGE_ELEMENT,
         exclude_ident_uniq_name=self.module.ident_uniq_name,
     )
+    left_value = getValueLeftOfEqualsOrDot(expression)
     packages += self.program.modules.getElementsIE(
-        include=ElementsTypes.CLASS_ELEMENT,
+        include=ElementsTypes.OBJECT_ELEMENT,
+        include_ident_uniq_name=left_value,
         exclude_ident_uniq_name=self.module.ident_uniq_name,
     )
+
     functions_list = self.module.tasks.getElementsIE(
         ElementsTypes.FUNCTION_ELEMENT
     ).getElements()
@@ -245,11 +249,11 @@ def expression2AplanImpl(
         action_check_result,
         source_interval,
     ) = self.module.actions.isUniqAction(action)
-
     uniq = False
     if action_check_result is None:
         uniq = True
-        self.module.actions.addElement(action)
+        index = self.module.actions.addElement(action)
+        action_pointer = self.module.actions.getElementByIndex(index)
         if sv_structure is not None:
             sv_structure.elements.addElement(action)
     else:

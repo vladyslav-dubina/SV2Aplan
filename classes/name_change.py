@@ -11,7 +11,12 @@ class NameChange(Basic):
         self.original_name = original_name
 
     def copy(self):
-        return NameChange(self.identifier, self.source_interval, self.original_name)
+        name_change = NameChange(
+            self.identifier, self.source_interval, self.original_name
+        )
+        name_change.number = self.number
+
+        return name_change
 
     def __repr__(self):
         return f"NameChange(\t{self.identifier!r}, {self.original_name!r}\n)"

@@ -21,6 +21,7 @@ class ActionParametr(Basic):
     def copy(self):
         action_param = ActionParametr(self.identifier, self.type, self.source_interval)
         action_param.uniq_identifier = self.uniq_identifier
+        action_param.number = self.number
         return action_param
 
     def __str__(self) -> str:

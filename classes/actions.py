@@ -49,6 +49,7 @@ class Action(Basic):
         if self.exist_parametrs is not None:
             action.exist_parametrs = self.exist_parametrs.copy()
         action.parametrs = self.parametrs.copy()
+        action.number = self.number
         return action
 
     def getBody(self):

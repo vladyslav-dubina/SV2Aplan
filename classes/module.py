@@ -54,19 +54,24 @@ class Module(Basic):
         module.declarations = self.declarations.copy()
         module.actions = self.actions.copy()
         module.structures = self.structures.copy()
+        module.structures.updateLinks(module)
         module.out_of_block_elements = self.out_of_block_elements.copy()
+        self.out_of_block_elements.updateLinks(module)
         module.parametrs = self.parametrs.copy()
         module.name_change = self.name_change.copy()
         module.processed_elements = self.processed_elements.copy()
         module.tasks = self.tasks.copy()
+
         return module
 
     def setClassNumber(self, number):
         for element in self.actions.getElements():
             element.number = number
         for element in self.structures.getElements():
+            element.setNumber(number)
+        for element in self.tasks.getElements():
             element.number = number
-            element.setNumberToProtocols(number)
+            element.structure.setNumber(number)
 
     def replaceNamesInActions(self):
         for action in self.actions.getElements():
@@ -252,6 +257,7 @@ class ModuleArray(BasicArray):
         self,
         include: ElementsTypes | None = None,
         exclude: ElementsTypes | None = None,
+        include_ident_uniq_name: str | None = None,
         exclude_ident_uniq_name: str | None = None,
     ):
         result: ModuleArray = ModuleArray()

@@ -38,11 +38,7 @@ def blockAssignment2AplanImpl(
                 task = self.module.tasks.getLastTask()
                 if task is not None:
                     protocol_params = "({0})".format(task.parametrs)
-            b_index = sv_structure.addProtocol(
-                "B_{0}{1}".format(
-                    Counters_Object.getCounter(CounterTypes.B_COUNTER), protocol_params
-                )
-            )
+            b_index = sv_structure.addProtocol("B_{0}".format(action_pointer.getName()))
             sv_structure.behavior[b_index].addBody(
                 (action_pointer, action_name, ElementsTypes.ACTION_ELEMENT)
             )

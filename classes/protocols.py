@@ -4,6 +4,7 @@ from classes.action_parametr import ActionParametrArray
 from classes.basic import Basic, BasicArray
 from utils.string_formating import removeTrailingComma
 from classes.element_types import ElementsTypes
+from utils.utils import extractFunctionName
 
 
 class Protocol(Basic):
@@ -21,7 +22,8 @@ class Protocol(Basic):
         protocol = Protocol(self.identifier, self.source_interval, self.element_type)
         for element in self.body:
             protocol.body.append(element)
-        protocol.parametrs.copy()
+        protocol.parametrs = self.parametrs.copy()
+        protocol.number = self.number
         return protocol
 
     def setBody(self, body: Tuple[Basic | None, str, ElementsTypes]):
@@ -32,15 +34,22 @@ class Protocol(Basic):
         self.body.append(body)
 
     def getName(self):
-        if self.number is None:
-            if self.parametrs.getLen() > 0:
-                return "{0}({1})".format(self.identifier, str(self.parametrs))
-            else:
-                return self.identifier
-        else:
-            return "{0}_{1}{2}".format(
-                self.identifier, self.number, str(self.parametrs)
-            )
+        identifier = self.identifier
+        if self.number:
+            identifier = "{0}_{1}".format(identifier, self.number)
+        if self.parametrs.getLen() > 0:
+            identifier = "{0}({1})".format(identifier, str(self.parametrs))
+
+        return identifier
+
+    def updateLinks(self, module):
+        for index, element in enumerate(self.body):
+            obj, protocol_str, elem_type = element
+            func_name = extractFunctionName(protocol_str)
+            if func_name:
+                action = module.actions.findElement(func_name)
+                if action:
+                    self.body[index] = (action, protocol_str, elem_type)
 
     def __str__(self):
         body_to_str = ""
@@ -105,6 +114,10 @@ class ProtocolArray(BasicArray):
         for element in self.getElements():
             new_aray.addElement(element.copy())
         return new_aray
+
+    def updateLinks(self, module):
+        for element in self.getElements():
+            element.updateLinks(module)
 
     def getProtocolsInStrFormat(self):
         result = ""

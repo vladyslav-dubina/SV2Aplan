@@ -25,4 +25,5 @@ def objectDeclaration2AplanImpl(
     object.source_interval = source_interval
     object.replaceNamesInActions()
     object.setClassNumber(Counters_Object.getCounter(CounterTypes.OBJECT_COUNTER))
+
     Counters_Object.incrieseCounter(CounterTypes.OBJECT_COUNTER)
