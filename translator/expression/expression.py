@@ -110,7 +110,7 @@ def expression2AplanImpl(
         counter_type = CounterTypes.REPEAT_COUNTER
 
     action_name = "{0}_{1}".format(name_part, Counters_Object.getCounter(counter_type))
-    left_value = None
+    matches = None
 
     if (
         element_type != ElementsTypes.ASSIGN_FOR_CALL_ELEMENT

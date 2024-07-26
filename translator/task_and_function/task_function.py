@@ -127,7 +127,7 @@ def taskCall2AplanImpl(
 ):
     ps_or_hierarchical_tf = ctx.ps_or_hierarchical_tf_identifier()
     hierarchical_tf_identifier = ps_or_hierarchical_tf.hierarchical_tf_identifier()
-
+    object_identifier = None
     if hierarchical_tf_identifier:
         call_identifiers = (
             hierarchical_tf_identifier.hierarchical_identifier().identifier()
