@@ -20,11 +20,8 @@ def extractSensetiveImpl(self: SV2aplan, ctx):
             if index != -1:
                 res += " && "
         elif type(child) is SystemVerilogParser.IdentifierContext:
-            packages = self.program.modules.getElementsIE(
+            packages = self.module.packages_and_objects.getElementsIE(
                 include=ElementsTypes.PACKAGE_ELEMENT
-            )
-            packages += self.program.modules.getElementsIE(
-                include=ElementsTypes.CLASS_ELEMENT
             )
             res += self.module.findAndChangeNamesToAgentAttrCall(
                 child.getText(), packages.getElements()

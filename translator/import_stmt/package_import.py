@@ -67,20 +67,23 @@ def packageImport2ApanImpl(
                         package
                     )  # remove after take all needed elements
                 else:
-                    Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-                    call_b = "PACKAGE_IMPORT_B_{}".format(
-                        Counters_Object.getCounter(CounterTypes.B_COUNTER)
-                    )
-                    struct_call = Protocol(
-                        call_b,
-                        ctx.getSourceInterval(),
-                        ElementsTypes.MODULE_CALL_ELEMENT,
-                    )
-                    struct_call.addBody(
-                        (
-                            None,
-                            f"B_{package_identifier.upper()}",
-                            ElementsTypes.PROTOCOL_ELEMENT,
+                    if len(package.getBehInitProtocols()) > 0:
+                        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+                        call_b = "PACKAGE_IMPORT_B_{}".format(
+                            Counters_Object.getCounter(CounterTypes.B_COUNTER)
                         )
-                    )
-                    self.module.out_of_block_elements.addElement(struct_call)
+                        struct_call = Protocol(
+                            call_b,
+                            ctx.getSourceInterval(),
+                            ElementsTypes.MODULE_CALL_ELEMENT,
+                        )
+                        struct_call.addBody(
+                            (
+                                None,
+                                f"B_{package_identifier.upper()}",
+                                ElementsTypes.PROTOCOL_ELEMENT,
+                            )
+                        )
+                        self.module.out_of_block_elements.addElement(struct_call)
+
+                    self.module.packages_and_objects.addElement(package)

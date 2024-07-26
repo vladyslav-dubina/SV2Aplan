@@ -1,0 +1,21 @@
+
+assign_5 = (
+		(1)->
+		("MAIN#main:action 'assign (age = p.get_age ( ))';")
+		(main.Person.age = p.get_age ( ))),
+assign_1_1(var init_index) = (
+		(1)->
+		("PERSON#Person:action 'assign (index = init_index)';")
+		(p.index = init_index)),
+assign_2_1(var init_age) = (
+		(1)->
+		("PERSON#Person:action 'assign (age = init_age)';")
+		(p.age = init_age)),
+assign_3_1(var new_age) = (
+		(1)->
+		("PERSON#Person:action 'assign (age = new_age)';")
+		(p.age = new_age)),
+assign_4_1(var return_get_age) = (
+		(1)->
+		("PERSON#Person:action 'assign (get_age = age)';")
+		(return_get_age = p.age))

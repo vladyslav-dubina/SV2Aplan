@@ -125,6 +125,11 @@ examples_list = [
         "examples/call/package_import_2/aplan",
     ),
     (
+        "examples/classes/class_1/class_1.sv",
+        "examples/classes/class_1/test_result",
+        "examples/classes/class_1/aplan",
+    ),
+    (
         "examples/sv_example_1/sv_example_1.sv",
         "examples/sv_example_1/test_result",
         "examples/sv_example_1/aplan",

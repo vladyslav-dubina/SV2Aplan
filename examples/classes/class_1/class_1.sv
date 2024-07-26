@@ -20,12 +20,15 @@ endclass
 module main;
     Person p;
 
+    int age;
+
     initial begin
         p = new(1, 30);
 
-        p.print_info();
 
         p.set_age(31);
+
+        age = p.get_age();
     end
 
 endmodule

@@ -36,7 +36,7 @@ def prepareExpressionStringImpl(
     expression = doubleOperators2Aplan(expression)
     expression = addLeftValueForUnaryOrOperator(expression)
     expression = addSpacesAroundOperators(expression)
-    packages = self.program.modules.getElementsIE(
+    packages = self.module.packages_and_objects.getElementsIE(
         include=ElementsTypes.PACKAGE_ELEMENT,
         exclude_ident_uniq_name=self.module.ident_uniq_name,
     )
@@ -126,12 +126,12 @@ def expression2AplanImpl(
         )
         left_value = getValueLeftOfEqualsOrDot(expression)
 
-    packages = self.program.modules.getElementsIE(
+    packages = self.module.packages_and_objects.getElementsIE(
         include=ElementsTypes.PACKAGE_ELEMENT,
         exclude_ident_uniq_name=self.module.ident_uniq_name,
     )
 
-    packages += self.program.modules.getElementsIE(
+    packages += self.module.packages_and_objects.getElementsIE(
         include=ElementsTypes.OBJECT_ELEMENT,
         include_ident_uniq_name=left_value,
         exclude_ident_uniq_name=self.module.ident_uniq_name,

@@ -60,11 +60,11 @@ def dataDecaration2AplanImpl(
         data_type = data_type.getText()
         if len(data_type) > 0:
             types = self.module.declarations.getElementsForTypes()
-            packages = self.program.modules.getElementsIE(
+            packages = self.module.packages_and_objects.getElementsIE(
                 include=ElementsTypes.PACKAGE_ELEMENT
             )
-            packages += self.program.modules.getElementsIE(
-                include=ElementsTypes.CLASS_ELEMENT
+            packages += self.module.packages_and_objects.getElementsIE(
+                include=ElementsTypes.OBJECT_ELEMENT
             )
             for package in packages.getElements():
                 types += package.declarations.getElementsForTypes()

@@ -66,11 +66,8 @@ def netDeclaration2AplanImpl(
             include=ElementsTypes.CLASS_ELEMENT
         ).getElements()
 
-        packages = self.program.modules.getElementsIE(
+        packages = self.module.packages_and_objects.getElementsIE(
             include=ElementsTypes.PACKAGE_ELEMENT
-        )
-        packages += self.program.modules.getElementsIE(
-            include=ElementsTypes.CLASS_ELEMENT
         )
         for package in packages.getElements():
             types += package.declarations.getElementsForTypes()

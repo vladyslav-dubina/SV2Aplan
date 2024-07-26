@@ -6,6 +6,7 @@ package my_package;
         STOPPED
     } state_t;
 
+    int package_dint;
     localparam int MAX_COUNT = 10;
 
     function int add(int a, int b);

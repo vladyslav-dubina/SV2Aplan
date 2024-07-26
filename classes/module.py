@@ -27,21 +27,23 @@ class Module(Basic):
         self.identifier_upper = self.identifier.upper()
         self.ident_uniq_name_upper = self.ident_uniq_name.upper()
         # arrays
-        self.declarations = DeclarationArray()
+        self.declarations: DeclarationArray = DeclarationArray()
 
-        self.actions = ActionArray()
+        self.actions: ActionArray = ActionArray()
 
-        self.structures = StructureArray()
+        self.structures: StructureArray = StructureArray()
 
-        self.out_of_block_elements = ProtocolArray()
+        self.out_of_block_elements: ProtocolArray = ProtocolArray()
 
-        self.parametrs = ParametrArray()
+        self.parametrs: ParametrArray = ParametrArray()
 
-        self.name_change = NameChangeArray()
+        self.name_change: NameChangeArray = NameChangeArray()
 
-        self.processed_elements = ProcessedElementArray()
+        self.processed_elements: ProcessedElementArray = ProcessedElementArray()
 
-        self.tasks = TaskArray()
+        self.tasks: TaskArray = TaskArray()
+
+        self.packages_and_objects: ModuleArray = ModuleArray()
 
     def copy(self):
         module = Module(
@@ -61,6 +63,7 @@ class Module(Basic):
         module.name_change = self.name_change.copy()
         module.processed_elements = self.processed_elements.copy()
         module.tasks = self.tasks.copy()
+        module.packages_and_objects = self.packages_and_objects.copy()
 
         return module
 
@@ -250,6 +253,12 @@ class ModuleArray(BasicArray):
     def __init__(self):
         super().__init__(Module)
         self.module_instantiations: ModuleCallArray = ModuleCallArray()
+
+    def copy(self):
+        new_aray: ModuleArray = ModuleArray()
+        for element in self.getElements():
+            new_aray.addElement(element.copy())
+        return new_aray
 
     def findModuleByUniqIdentifier(self, ident_uniq_name: str):
         for element in self.elements:
