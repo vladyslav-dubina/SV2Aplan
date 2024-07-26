@@ -1,5 +1,5 @@
 B_MAIN = {MAIN_INITITAL},
-MAIN_INITITAL = NEW_1(1,30);(assign_5),
+MAIN_INITITAL = NEW_1(1,30);(SET_AGE_1(31));(GET_AGE_1(main.get_age_call_result_2));(assign_5),
 
 NEW_1(var init_index; var init_age) = assign_1_1(init_index).assign_2_1(init_age),
 SET_AGE_1(var new_age; var return_set_age) = assign_3_1(new_age),

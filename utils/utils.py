@@ -265,10 +265,10 @@ def isFunctionCallPresentAndReplace(
     str
         The modified expression with the variable replaced by the replacement if the variable is found.
     str
-        The modified function call if the variable is a function name in the expression, otherwise an empty string.
+        The full function call if the variable is a function name in the expression, otherwise an empty string.
     """
     pattern = rf"\b{re.escape(variable)}\b"
-    function_call_pattern = rf"\b{re.escape(variable)}\s*\([^)]*\)"
+    function_call_pattern = rf"(\b\w+\.)?\b{re.escape(variable)}\s*\([^)]*\)"
 
     function_call_match = re.search(function_call_pattern, expression)
     is_present = function_call_match is not None
@@ -278,6 +278,7 @@ def isFunctionCallPresentAndReplace(
 
     if is_present:
         function_call = function_call_match.group(0)
+        # Replace the entire function call with the replacement
         modified_expression = re.sub(re.escape(function_call), replacement, expression)
 
     return is_present, modified_expression, function_call
@@ -333,25 +334,30 @@ def extractFunctionName(expression: str) -> str:
     return None
 
 
-def getValueLeftOfEqualsOrDot(expression: str) -> str:
+def getValuesLeftOfEqualsOrDot(expression: str) -> Tuple[List[str], List[str]]:
     """
-    Returns the value to the left of the '=' character or '.' in a string.
-    If there is a '.' to the left of '=', the function returns the substring to the left of the '.'.
-    Otherwise, it returns the substring to the left of '='.
+    Returns all values to the left of the '=' and '.' characters in a string.
+    The function returns two lists: one with substrings to the left of the '='
+    and another with substrings to the left of '.'.
 
     Parameters
     ----------
     expression : str
-        The string in which to find the value to the left of '=' or '.'.
+        The string in which to find the values to the left of '=' or '.'.
 
     Returns
     -------
-    str
-        The value to the left of the '=' character or the value to the left of '.' if present.
+    List[str]
+        Lists: with values to the left of '=' and values to the left of '.'.
     """
-    # Define a pattern that captures the part before '=' or '.'
-    pattern = r"^(.*?)(?=[.=])"
-    match = re.search(pattern, expression)
-    if match:
-        return match.group(1).strip()
-    return None
+    # Pattern to capture the part before '='
+    equals_pattern = r"(\b\w+)\s*="
+    # Pattern to capture the part before '.'
+    dot_pattern = r"(\b\w+)\."
+
+    equals_matches = re.findall(equals_pattern, expression)
+    dot_matches = re.findall(dot_pattern, expression)
+
+    matches = equals_matches + dot_matches
+
+    return matches

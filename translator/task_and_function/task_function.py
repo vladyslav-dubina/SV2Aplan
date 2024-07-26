@@ -125,14 +125,33 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
 def taskCall2AplanImpl(
     self: SV2aplan, ctx: SystemVerilogParser.Tf_callContext, sv_structure: Structure
 ):
-    task_identifier = ctx.ps_or_hierarchical_tf_identifier().getText()
+    ps_or_hierarchical_tf = ctx.ps_or_hierarchical_tf_identifier()
+    hierarchical_tf_identifier = ps_or_hierarchical_tf.hierarchical_tf_identifier()
+
+    if hierarchical_tf_identifier:
+        call_identifiers = (
+            hierarchical_tf_identifier.hierarchical_identifier().identifier()
+        )
+        call_identifiers_len = len(call_identifiers)
+        task_identifier = call_identifiers[call_identifiers_len - 3].getText()
+        object_identifier = call_identifiers[call_identifiers_len - 2].getText()
+    else:
+        task_identifier = ps_or_hierarchical_tf.getText()
+
     argument_list = ctx.list_of_arguments().getText()
     (
         argument_list,
         argument_list_with_replaced_names,
     ) = self.prepareExpressionString(argument_list, ElementsTypes.TASK_ELEMENT)
 
-    task = self.module.tasks.findElement(task_identifier)
+    if object_identifier:
+        object = self.module.packages_and_objects.findModuleByUniqIdentifier(
+            object_identifier
+        )
+        task = object.tasks.findElement(task_identifier)
+    else:
+        task = self.module.tasks.findElement(task_identifier)
+
     if task is not None:
         task_call = "{0}".format(task.structure.identifier)
 
@@ -183,7 +202,9 @@ def funtionCall2AplanImpl(
         parametrs_str += element
 
     if function_result_var is not None:
-        parametrs_str += ",{0}.{1}".format(
+        if len(parametrs_str) > 0:
+            parametrs_str += ","
+        parametrs_str += "{0}.{1}".format(
             self.module.ident_uniq_name, function_result_var
         )
 

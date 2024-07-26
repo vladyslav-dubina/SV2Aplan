@@ -2,7 +2,7 @@
 assign_5 = (
 		(1)->
 		("MAIN#main:action 'assign (age = p.get_age ( ))';")
-		(main.Person.age = p.get_age ( ))),
+		(main.age = main.get_age_call_result_2)),
 assign_1_1(var init_index) = (
 		(1)->
 		("PERSON#Person:action 'assign (index = init_index)';")

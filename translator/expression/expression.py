@@ -22,7 +22,7 @@ from utils.string_formating import (
 )
 from utils.utils import (
     Counters_Object,
-    getValueLeftOfEqualsOrDot,
+    getValuesLeftOfEqualsOrDot,
     isFunctionCallPresentAndReplace,
 )
 
@@ -38,10 +38,6 @@ def prepareExpressionStringImpl(
     expression = addSpacesAroundOperators(expression)
     packages = self.module.packages_and_objects.getElementsIE(
         include=ElementsTypes.PACKAGE_ELEMENT,
-        exclude_ident_uniq_name=self.module.ident_uniq_name,
-    )
-    packages += self.program.modules.getElementsIE(
-        include=ElementsTypes.CLASS_ELEMENT,
         exclude_ident_uniq_name=self.module.ident_uniq_name,
     )
     if (
@@ -124,7 +120,7 @@ def expression2AplanImpl(
         expression, expression_with_replaced_names = self.prepareExpressionString(
             input, element_type
         )
-        left_value = getValueLeftOfEqualsOrDot(expression)
+        matches = getValuesLeftOfEqualsOrDot(expression)
 
     packages = self.module.packages_and_objects.getElementsIE(
         include=ElementsTypes.PACKAGE_ELEMENT,
@@ -133,7 +129,7 @@ def expression2AplanImpl(
 
     packages += self.module.packages_and_objects.getElementsIE(
         include=ElementsTypes.OBJECT_ELEMENT,
-        include_ident_uniq_name=left_value,
+        include_ident_uniq_names=matches,
         exclude_ident_uniq_name=self.module.ident_uniq_name,
     )
 
@@ -143,6 +139,7 @@ def expression2AplanImpl(
     functions_list += self.module.tasks.getElementsIE(
         ElementsTypes.CONSTRUCTOR_ELEMENT
     ).getElements()
+
     for package in packages.getElements():
         functions_list += package.tasks.getElementsIE(
             ElementsTypes.FUNCTION_ELEMENT
@@ -173,6 +170,7 @@ def expression2AplanImpl(
             function.identifier,
             function_result_var_for_replase,
         )
+
         if is_present:
             self.funtionCall2Aplan(
                 function,

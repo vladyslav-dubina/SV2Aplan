@@ -8,7 +8,7 @@ from classes.basic import Basic, BasicArray
 from classes.module_call import ModuleCallArray
 from classes.name_change import NameChangeArray
 from classes.element_types import ElementsTypes
-from typing import Tuple
+from typing import List, Tuple
 import re
 
 from classes.tasks import TaskArray
@@ -270,7 +270,7 @@ class ModuleArray(BasicArray):
         self,
         include: ElementsTypes | None = None,
         exclude: ElementsTypes | None = None,
-        include_ident_uniq_name: str | None = None,
+        include_ident_uniq_names: List[str] | None = None,
         exclude_ident_uniq_name: str | None = None,
     ):
         result: ModuleArray = ModuleArray()
@@ -285,8 +285,8 @@ class ModuleArray(BasicArray):
             if exclude is not None and element.element_type is exclude:
                 continue
             if (
-                include_ident_uniq_name is not None
-                and element.ident_uniq_name is not include_ident_uniq_name
+                include_ident_uniq_names is not None
+                and element.ident_uniq_name not in include_ident_uniq_names
             ):
                 continue
             if (
