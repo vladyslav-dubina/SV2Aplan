@@ -12,8 +12,8 @@
 
 3. For developmers:
 
-      - Ubuntu/Mac OS: ```chod +x setup_hooks.sh```
-      - ```./setup_hooks.sh```
+      - Ubuntu/Mac OS: ```chod +x scripts/setup_hooks.sh```
+      - ```./scripts/setup_hooks.sh```
 
 </details>
 
@@ -32,11 +32,11 @@
 
 - An example of using the tool without specifying the resulting path (the standard path will be used, that is, the "results" folder, if it does not exist, it will be created)
   
-      python sv2aplan_tool.py example.sv 
+      python scripts/sv2aplan_tool.py example.sv 
 
 - An example of using the tool from the resulting path (if the path does not exist, it will be created)
 
-      python sv2aplan_tool.py example.sv my_result_path
+      python scripts/sv2aplan_tool.py example.sv my_result_path
       
 </details>
 

@@ -1,11 +1,12 @@
 import time
 import traceback
 import sys
-import shutil
 import os
-from sv2aplan_tool import start
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from scripts.sv2aplan_tool import start
 from utils.utils import Color, format_time, printWithColor, switchRemovePrints
-from examples_list import examples_list
+from scripts.examples_list import examples_list
 
 
 def run_generation(test_number, source_file, result_path):

@@ -3,6 +3,9 @@ import time
 import traceback
 import sys
 import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from utils.utils import (
     Color,
     format_time,

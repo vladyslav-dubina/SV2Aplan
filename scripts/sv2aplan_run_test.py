@@ -3,10 +3,12 @@ import traceback
 import sys
 import shutil
 import os
-from sv2aplan_tool import start
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from scripts.sv2aplan_tool import start
 from utils.utils import Color, format_time, printWithColor, switchRemovePrints
 from utils.compare_files import compareAplanByPathes
-from examples_list import examples_list
+from scripts.examples_list import examples_list
 
 
 def remove_directory(directory_path):
