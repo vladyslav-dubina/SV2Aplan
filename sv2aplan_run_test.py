@@ -56,7 +56,7 @@ def run_test(test_number, source_file, result_path, aplan_code_path):
     return result
 
 
-def start_unit_test():
+def start_tests():
     failed_tests = []
     printWithColor(
         "\n--------------------------------- TESTS START ----------------------------------\n",
@@ -102,7 +102,7 @@ def start_unit_test():
 
 if __name__ == "__main__":
     try:
-        sys.exit(start_unit_test())
+        sys.exit(start_tests())
     except Exception as e:
         printWithColor("Tests errors: \n", Color.RED)
         traceback.print_exception(type(e), e, e.__traceback__, file=sys.stderr)
