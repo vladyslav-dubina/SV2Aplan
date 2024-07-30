@@ -1,7 +1,7 @@
 B_REPEAT_EXAMPLE = {REPEAT_EXAMPLE_INITITAL || Sensetive(ALWAYS_FF_1, repeat_example.clk || !repeat_example.reset_n)},
 REPEAT_EXAMPLE_INITITAL = assign_1.assign_2.assign_3.REPEAT_LOOP_1,
 REPEAT_ITERATION_1 = repeat_iteration_1.Sensetive(REPEAT_LOOP_1, repeat_example.clk),
-REPEAT_LOOP_1 = cond_1.REPEAT_ITERATION_1 + !cond_1.REPEAT_ITERATION_1;(assign_4),
+REPEAT_LOOP_1 = cond_1.REPEAT_ITERATION_1 + !cond_1.assign_4,
 ALWAYS_FF_1 = B_1,
 B_1 = if_1.IF_BODY_1 + !if_1.ELSE_BODY_1,
 IF_BODY_1 = Sensetive(assign_5).Sensetive(assign_6),

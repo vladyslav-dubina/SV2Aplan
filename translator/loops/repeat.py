@@ -106,8 +106,8 @@ def repeat2AplanImpl(
     sv_structure.behavior[beh_index].addBody(
         (
             action_pointer,
-            "{0}.{1} + !{0}.{1}".format(assign_name, repeat_iteration),
-            ElementsTypes.PROTOCOL_ELEMENT,
+            "{0}.{1} + !{0}".format(assign_name, repeat_iteration),
+            ElementsTypes.ACTION_ELEMENT,
         )
     )
 
