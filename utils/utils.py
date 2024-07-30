@@ -310,19 +310,37 @@ def extractParameters(expression: str, function_name: str) -> list:
     list
         A list of parameters extracted from the function call.
     """
-    pattern = rf"{re.escape(function_name)}\s*\(([^)]*)\)"
 
+
+def extractParameters(expression: str, function_name: str) -> list:
+    if len(function_name) == 0:
+        return []
+
+    pattern = rf"{re.escape(function_name)}\s*\((.*)\)"
     match = re.search(pattern, expression)
     if not match:
         return []
 
     params_str = match.group(1)
-
     params = []
-    for param in params_str.split(","):
-        cleaned_param = param.strip()
-        if cleaned_param:
-            params.append(cleaned_param)
+    bracket_level = 0
+    start = 0
+
+    for i, char in enumerate(params_str):
+        if char == "," and bracket_level == 0:
+            params.append(params_str[start:i].strip())
+            start = i + 1
+        elif char == "(":
+            bracket_level += 1
+        elif char == ")":
+            bracket_level -= 1
+            if bracket_level < 0:
+                break
+
+    # Add the last parameter if any
+    last_param = params_str[start:].strip()
+    if last_param:
+        params.append(last_param)
 
     return params
 
