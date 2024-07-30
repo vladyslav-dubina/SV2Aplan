@@ -359,7 +359,7 @@ def extractFunctionName(expression: str) -> str:
     str
         The name of the function if found, otherwise an empty string.
     """
-    pattern = r"\b(\w+)\s*\("
+    pattern = r"\b([\w$]+)\s*\("
     match = re.search(pattern, expression)
     if match:
         return match.group(1)
@@ -369,8 +369,8 @@ def extractFunctionName(expression: str) -> str:
 def getValuesLeftOfEqualsOrDot(expression: str) -> Tuple[List[str], List[str]]:
     """
     Returns all values to the left of the '=' and '.' characters in a string.
-    The function returns two lists: one with substrings to the left of the '='
-    and another with substrings to the left of '.'.
+    The function returns list with substrings to the left of the '='
+    and with substrings to the left of '.'.
 
     Parameters
     ----------

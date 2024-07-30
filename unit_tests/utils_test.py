@@ -7,9 +7,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.utils import (
     evaluateExpression,
     extractDimentionSize,
+    extractFunctionName,
     extractParameters,
     extractVectorSize,
     format_time,
+    getValuesLeftOfEqualsOrDot,
     isFunctionCallPresentAndReplace,
     isNumericString,
     isVariablePresent,
@@ -540,3 +542,109 @@ def test_extractParameters_no_parentheses():
     result = extractParameters(expression, function_name)
 
     assert result == []
+
+
+# ============================ EXTRACT_FUNCTION_NAME ==================================
+def test_extractFunctionName_name_basic():
+    expression = "foo(bar, baz)"
+    result = extractFunctionName(expression)
+    assert result == "foo"
+
+
+def test_extractFunctionName_name_with_spaces():
+    expression = " foo ( bar, baz ) "
+    result = extractFunctionName(expression)
+    assert result == "foo"
+
+
+def test_extractFunctionName_name_with_tabs():
+    expression = "foo\t(\tbar,\tbaz\t)"
+    result = extractFunctionName(expression)
+    assert result == "foo"
+
+
+def test_extractFunctionName_name_with_newlines():
+    expression = "foo\n(\nbar,\nbaz\n)"
+    result = extractFunctionName(expression)
+    assert result == "foo"
+
+
+def test_extractFunctionName_name_empty():
+    expression = ""
+    result = extractFunctionName(expression)
+    assert result is None
+
+
+def test_extractFunctionName_name_no_function():
+    expression = "bar baz"
+    result = extractFunctionName(expression)
+    assert result is None
+
+
+def test_extractFunctionName_name_with_numbers():
+    expression = "foo123(bar, baz)"
+    result = extractFunctionName(expression)
+    assert result == "foo123"
+
+
+def test_extractFunctionName_name_multiple_functions():
+    expression = "foo(bar, baz) + bar(foo, baz)"
+    result = extractFunctionName(expression)
+    assert result == "foo"
+
+
+def test_extractFunctionName_name_with_special_characters():
+    expression = "foo$bar(baz, qux)"
+    result = extractFunctionName(expression)
+    assert result == "foo$bar"
+
+
+def test_extractFunctionName_name_nested_function():
+    expression = "foo(bar(nested, function), baz)"
+    result = extractFunctionName(expression)
+    assert result == "foo"
+
+
+# ============================ GET_VALUES_LEFT_OF_EQUALS_OR_DOT ==================================
+
+
+def test_getValuesLeftOfEqualsOrDot():
+    expression = "x = 5; y = 10; z = 15"
+    result = getValuesLeftOfEqualsOrDot(expression)
+    assert result == ["x", "y", "z"]
+
+
+def test_get_values_left_of_dot():
+    expression = "object.property = value; anotherObject.method()"
+    result = getValuesLeftOfEqualsOrDot(expression)
+    assert result == ["property", "object", "anotherObject"]
+
+
+def test_getValuesLeftOfEqualsOrDot_and_dot():
+    expression = "x = 5; object.property = value; y = 10; anotherObject.method()"
+    result = getValuesLeftOfEqualsOrDot(expression)
+    assert result == ["x", "property", "y", "object", "anotherObject"]
+
+
+def test_no_equals_or_dot():
+    expression = "this is a test string without equals or dot"
+    result = getValuesLeftOfEqualsOrDot(expression)
+    assert result == []
+
+
+def test_empty_string():
+    expression = ""
+    result = getValuesLeftOfEqualsOrDot(expression)
+    assert result == []
+
+
+def test_values_with_spaces():
+    expression = "  x  =  5;  y  =  10;  z  =  15  "
+    result = getValuesLeftOfEqualsOrDot(expression)
+    assert result == ["x", "y", "z"]
+
+
+def test_mixed_cases():
+    expression = "X = 5; y = 10; Object.property = value; AnotherObject.method()"
+    result = getValuesLeftOfEqualsOrDot(expression)
+    assert result == ["X", "y", "property", "Object", "AnotherObject"]
