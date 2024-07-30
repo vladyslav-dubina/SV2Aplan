@@ -26,21 +26,6 @@ def forever2AplanImpl(
     # Event_controlContext
     condition = extractCondition(ctx.statement_or_null())
     sensetive = self.extractSensetive(condition)
-    forever_name = "FOREVER_{0}".format(
-        Counters_Object.getCounter(CounterTypes.FOREVER_COUNTER)
-    )
-
-    forever_sensetive_name = "Sensetive({0}, {1})".format(forever_name, sensetive)
-
-    beh_index = sv_structure.getLastBehaviorIndex()
-    if beh_index is not None:
-        sv_structure.behavior[beh_index].addBody(
-            (
-                None,
-                forever_sensetive_name,
-                ElementsTypes.FOREVER_ELEMENT,
-            )
-        )
 
     protocol_params = ""
     if self.inside_the_task == True:
@@ -48,10 +33,47 @@ def forever2AplanImpl(
         if task is not None:
             protocol_params = "({0})".format(task.parametrs)
 
-    beh_index = sv_structure.addProtocol("{0}{1}".format(forever_name, protocol_params))
+    forever_loop = "FOREVER_LOOP_{0}{1}".format(
+        Counters_Object.getCounter(CounterTypes.FOREVER_COUNTER), protocol_params
+    )
+    beh_index = sv_structure.getLastBehaviorIndex()
+    if beh_index is not None:
+        sv_structure.behavior[beh_index].addBody(
+            (
+                None,
+                forever_loop,
+                ElementsTypes.PROTOCOL_ELEMENT,
+            )
+        )
+
+    beh_index = sv_structure.addProtocol(forever_loop)
 
     names_for_change = self.body2Aplan(
         ctx.statement_or_null(), sv_structure, ElementsTypes.FOREVER_ELEMENT
     )
     for element in names_for_change:
         self.module.name_change.deleteElement(element)
+
+    forever_iteration = "FOREVER_ITERATION_{0}{1}".format(
+        Counters_Object.getCounter(CounterTypes.FOREVER_COUNTER), protocol_params
+    )
+
+    sv_structure.behavior[beh_index].addBody(
+        (
+            None,
+            forever_iteration,
+            ElementsTypes.PROTOCOL_ELEMENT,
+        )
+    )
+
+    beh_index = sv_structure.addProtocol(forever_iteration)
+    forever_sensetive_name = "Sensetive({0}, {1})".format(forever_loop, sensetive)
+    sv_structure.behavior[beh_index].addBody(
+        (
+            None,
+            forever_sensetive_name,
+            ElementsTypes.PROTOCOL_ELEMENT,
+        )
+    )
+
+    Counters_Object.incrieseCounter(CounterTypes.FOREVER_COUNTER)
