@@ -272,5 +272,6 @@ def expression2AplanImpl(
         action_parametrs_count = action.parametrs.getLen()
         action_name = f"{action_name}{action.parametrs.getIdentifiersListString(action_parametrs_count)}"
 
-    Counters_Object.incrieseCounter(counter_type)
+    if element_type != ElementsTypes.REPEAT_ELEMENT:
+        Counters_Object.incrieseCounter(counter_type)
     return (action_pointer, action_name, source_interval, uniq)

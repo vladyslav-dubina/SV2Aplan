@@ -2,6 +2,7 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
+from classes.protocols import Protocol
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replaceParametrsCalls
@@ -17,6 +18,7 @@ def repeat2AplanImpl(
         Counters_Object.getCounter(CounterTypes.REPEAT_COUNTER)
     )
     expression = ctx.expression().getText()
+    expression_source_interval = ctx.expression().getSourceInterval()
     expression = replaceParametrsCalls(self.module.parametrs, expression)
 
     assing_expr = "{0}={1}".format(identifier, 0)
@@ -32,7 +34,7 @@ def repeat2AplanImpl(
         Declaration(
             DeclTypes.INT,
             identifier,
-            assign_name,
+            "",
             "",
             0,
             "",
@@ -47,11 +49,15 @@ def repeat2AplanImpl(
 
     sv_structure.elements.addElement(decl)
 
-    sensetive = self.extractSensetive(ctx.statement_or_null())
+    beh_index = sv_structure.getLastBehaviorIndex()
+    if beh_index is not None:
+        sv_structure.behavior[beh_index].addBody(
+            (action_pointer, assign_name, ElementsTypes.ACTION_ELEMENT)
+        )
+    else:
+        raise ValueError("sv_structure is empty")
 
-    sensetive = sensetive + " && ({0}.{1} < {2})".format(
-        self.module.ident_uniq_name, decl.identifier, expression
-    )
+    sensetive = self.extractSensetive(ctx.statement_or_null())
 
     increase_expr = "{0}={0}+1".format(identifier)
     action_pointer, assign_name, source_interval, uniq_action = self.expression2Aplan(
@@ -61,17 +67,48 @@ def repeat2AplanImpl(
         sv_structure=sv_structure,
     )
 
-    protocol_call = "Sensetive({0}, {1})".format(assign_name, sensetive)
+    repeat_loop = "REPEAT_LOOP_{}".format(
+        Counters_Object.getCounter(CounterTypes.REPEAT_COUNTER)
+    )
+    repeat_iteration = "REPEAT_ITERATION_{}".format(
+        Counters_Object.getCounter(CounterTypes.REPEAT_COUNTER)
+    )
     beh_index = sv_structure.getLastBehaviorIndex()
     if beh_index is not None:
         sv_structure.behavior[beh_index].addBody(
-            (action_pointer, protocol_call, ElementsTypes.ACTION_ELEMENT)
+            (None, repeat_loop, ElementsTypes.ACTION_ELEMENT)
         )
     else:
-        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-        b_index = sv_structure.addProtocol(
-            "B_{}".format(Counters_Object.getCounter(CounterTypes.B_COUNTER))
+        raise ValueError("sv_structure is empty")
+
+    protocol_call = "Sensetive({0}, {1})".format(repeat_loop, sensetive)
+
+    beh_index = sv_structure.addProtocol(repeat_iteration)
+    sv_structure.behavior[beh_index].addBody(
+        (
+            action_pointer,
+            "{0}.{1}".format(assign_name, protocol_call),
+            ElementsTypes.ACTION_ELEMENT,
         )
-        sv_structure.behavior[b_index].addBody(
-            (action_pointer, protocol_call, ElementsTypes.ACTION_ELEMENT)
+    )
+
+    condition_expr = "{0}.{1} < {2}".format(
+        self.module.ident_uniq_name, decl.identifier, expression
+    )
+    action_pointer, assign_name, source_interval, uniq_action = self.expression2Aplan(
+        condition_expr,
+        ElementsTypes.CONDITION_ELEMENT,
+        expression_source_interval,
+        sv_structure=sv_structure,
+    )
+
+    beh_index = sv_structure.addProtocol(repeat_loop)
+    sv_structure.behavior[beh_index].addBody(
+        (
+            action_pointer,
+            "{0}.{1} + !{0}.{1}".format(assign_name, repeat_iteration),
+            ElementsTypes.PROTOCOL_ELEMENT,
         )
+    )
+
+    Counters_Object.incrieseCounter(CounterTypes.REPEAT_COUNTER)
