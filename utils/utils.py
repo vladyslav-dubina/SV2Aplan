@@ -1,5 +1,8 @@
 import re
+import sys
+import os
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from typing import Tuple, List
 
 from classes.counters import Counters, CounterTypes
@@ -129,7 +132,7 @@ def programCountersDeinit():
     Counters_Object.countersDeinit()
 
 
-def vectorSize2AplanVectorSize(left, right):
+def vectorSize2AplanVectorSize(left: str | int | None, right: str | int | None):
     """The function `vectorSize2AplanVectorSize` takes two inputs, left and right, and returns a list with
     the difference between left and right as the first element and right as the second element, unless
     right is "0" in which case left is incremented by 1 and right is set to 0.
@@ -152,6 +155,10 @@ def vectorSize2AplanVectorSize(left, right):
     `left` incremented by 1. The
 
     """
+    if left is None or right is None:
+        printWithColor("ERROR! One of vector size values is None!", Color.RED)
+        raise ValueError
+
     if right == "0":
         left = int(left) + 1
         return [left, 0]
@@ -191,7 +198,7 @@ def removeTypeFromForInit(ctx: SystemVerilogParser.For_initializationContext):
     return result
 
 
-def evaluateExpression(expr: str):
+def evaluateExpression(expr: str, variables=None):
     """The function `evaluateExpression` takes a string representing a mathematical expression, evaluates
     it, and returns the result.
 
@@ -208,12 +215,14 @@ def evaluateExpression(expr: str):
     the `eval` function, and returns the result of the evaluation.
 
     """
-    result = eval(expr)
+    if variables is None:
+        variables = {}
+    result = eval(expr, {}, variables)
     return result
 
 
-def extractDimentionSize(s: str):
-    matches = re.findall(r"\[\s*(.+)\s*\]", s)
+def extractDimentionSize(expression: str):
+    matches = re.findall(r"\[\s*(.+)\s*\]", expression)
     if matches:
         value = matches[0][0]
         value = evaluateExpression(value)
@@ -237,6 +246,8 @@ def isNumericString(s):
 
 
 def isVariablePresent(expression: str, variable: str) -> bool:
+    if len(variable) < 1:
+        return False
     pattern = rf"\b{re.escape(variable)}\b"
     return re.search(pattern, expression) is not None
 
@@ -267,7 +278,6 @@ def isFunctionCallPresentAndReplace(
     str
         The full function call if the variable is a function name in the expression, otherwise an empty string.
     """
-    pattern = rf"\b{re.escape(variable)}\b"
     function_call_pattern = rf"(\b\w+\.)?\b{re.escape(variable)}\s*\([^)]*\)"
 
     function_call_match = re.search(function_call_pattern, expression)
@@ -308,7 +318,11 @@ def extractParameters(expression: str, function_name: str) -> list:
 
     params_str = match.group(1)
 
-    params = [param.strip() for param in params_str.split(",")]
+    params = []
+    for param in params_str.split(","):
+        cleaned_param = param.strip()
+        if cleaned_param:
+            params.append(cleaned_param)
 
     return params
 
