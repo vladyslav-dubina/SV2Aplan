@@ -26,7 +26,7 @@ class ActionParametr(Basic):
 
     def __str__(self) -> str:
         if "var" in self.type:
-            return f"{self.type} {self.identifier}"
+            return f"{self.identifier}"
         else:
             return f"{self.uniq_identifier}:{self.type}"
 

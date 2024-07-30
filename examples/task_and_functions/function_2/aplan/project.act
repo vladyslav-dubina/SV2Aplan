@@ -3,11 +3,11 @@ if_1 = (
 		(n <= 1)->
 		("FUNCTION_EXAMPLE#function_example:action 'if (n <= 1)';")
 		(1)),
-assign_1(var return_factorial) = (
+assign_1(return_factorial) = (
 		(1)->
 		("FUNCTION_EXAMPLE#function_example:action 'assign (factorial = 1)';")
 		(return_factorial = 1)),
-assign_2(var n; var return_factorial) = (
+assign_2(n; return_factorial) = (
 		(1)->
 		("FUNCTION_EXAMPLE#function_example:action 'assign (factorial = n * factorial ( n - 1 ))';")
 		(return_factorial = n * function_example.factorial_call_result_1)),

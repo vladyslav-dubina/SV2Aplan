@@ -1,9 +1,9 @@
 
-assign_1(var x; var y; var return_add) = (
+assign_1(x; y; return_add) = (
 		(1)->
 		("TASK_EXAMPLE#task_example:action 'assign (add = x + y)';")
 		(return_add = x + y)),
-assign_2(var x; var y; var return_subtract) = (
+assign_2(x; y; return_subtract) = (
 		(1)->
 		("TASK_EXAMPLE#task_example:action 'assign (subtract = x - y)';")
 		(return_subtract = x - y)),
