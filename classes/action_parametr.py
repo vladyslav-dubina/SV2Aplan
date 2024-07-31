@@ -44,6 +44,9 @@ class ActionParametrArray(BasicArray):
             new_aray.addElement(element.copy())
         return new_aray
 
+    def insert(self, index: int, element: ActionParametr):
+        {self.elements.insert(index, element)}
+
     def isUniqParametr(self, parametr: ActionParametr):
         for element in self.elements:
             if element == parametr:
@@ -107,7 +110,7 @@ class ActionParametrArray(BasicArray):
         result = ""
         for index, element in enumerate(self.getElements()):
             if index != 0:
-                result += "; "
+                result += ", "
             result += str(element)
         return result
 

@@ -8,7 +8,7 @@ from classes.protocols import Protocol
 from classes.structure import Structure
 from classes.tasks import Task
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.utils import Counters_Object, extractParameters
+from utils.utils import Counters_Object, extractParameters, findReturnOrAssignment
 
 
 def taskOrFunctionDeclaration2AplanImpl(
@@ -59,6 +59,13 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
         task_Type = ElementsTypes.CONSTRUCTOR_ELEMENT
 
     task = Task(identifier, ctx.getSourceInterval(), task_Type)
+    if self.module.element_type is ElementsTypes.CLASS_ELEMENT:
+        task.parametrs.addElement(
+            ActionParametr(
+                "object_pointer",
+                "var",
+            )
+        )
 
     for element in ctx.tf_port_list().tf_port_item():
         port_identifier = element.port_identifier()
@@ -69,14 +76,6 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
                     "var",
                 )
             )
-
-    if isinstance(ctx, SystemVerilogParser.Function_body_declarationContext):
-        task.parametrs.addElement(
-            ActionParametr(
-                return_var_name,
-                "var",
-            )
-        )
 
     task_name = "{0}".format(identifier.upper())
 
@@ -98,12 +97,15 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
     self.inside_the_task = True
 
     if isinstance(ctx, SystemVerilogParser.Function_body_declarationContext):
-        task.parametrs.addElement(
-            ActionParametr(
-                return_var_name,
-                "var",
-            )
-        )
+        for body_element in body:
+            if findReturnOrAssignment(identifier, body_element.getText()):
+                task.parametrs.addElement(
+                    ActionParametr(
+                        return_var_name,
+                        "var",
+                    )
+                )
+
         self.inside_the_function = True
 
     for body_element in body:
@@ -149,6 +151,9 @@ def taskCall2AplanImpl(
             object_identifier
         )
         task = object.tasks.findElement(task_identifier)
+        argument_list_with_replaced_names = "{0}, {1}".format(
+            object_identifier, argument_list_with_replaced_names
+        )
     else:
         task = self.module.tasks.findElement(task_identifier)
 
@@ -178,6 +183,7 @@ def funtionCall2AplanImpl(
     function_result_var: str | None,
     function_call: str,
     source_interval: Tuple[int, int],
+    object_pointer: str | None,
 ):
     parametrs = extractParameters(function_call, task.identifier)
 
@@ -196,14 +202,20 @@ def funtionCall2AplanImpl(
         sv_structure.elements.addElement(new_decl)
         decl_unique, decl_index = self.module.declarations.addElement(new_decl)
 
+    if object_pointer:
+        parametrs_str += object_pointer
+
     for index, element in enumerate(parametrs):
         if index != 0:
-            parametrs_str += ","
+            parametrs_str += ", "
+        else:
+            if len(parametrs_str) > 0:
+                parametrs_str += ", "
         parametrs_str += element
 
     if function_result_var is not None:
         if len(parametrs_str) > 0:
-            parametrs_str += ","
+            parametrs_str += ", "
         parametrs_str += "{0}.{1}".format(
             self.module.ident_uniq_name, function_result_var
         )

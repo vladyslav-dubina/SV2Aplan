@@ -14,7 +14,7 @@ def objectDeclaration2AplanImpl(
     program: Program,
 ):
     class_module = program.modules.findElement(class_name.upper())
-    class_module = class_module.copy()
+    class_module = class_module.copyPart()
     index = program.modules.addElement(class_module)
     object = program.modules.getElementByIndex(index)
     object.element_type = ElementsTypes.OBJECT_ELEMENT
@@ -23,7 +23,7 @@ def objectDeclaration2AplanImpl(
     object.ident_uniq_name = identifier
     object.ident_uniq_name_upper = object.ident_uniq_name.upper()
     object.source_interval = source_interval
-    object.replaceNamesInActions()
-    object.setClassNumber(Counters_Object.getCounter(CounterTypes.OBJECT_COUNTER))
+    # object.replaceNamesInActions()
+    # object.setClassNumber(Counters_Object.getCounter(CounterTypes.OBJECT_COUNTER))
     self.module.packages_and_objects.addElement(object)
     Counters_Object.incrieseCounter(CounterTypes.OBJECT_COUNTER)

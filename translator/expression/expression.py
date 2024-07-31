@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from classes.action_parametr import ActionParametrArray
+from classes.action_parametr import ActionParametr, ActionParametrArray
 from classes.action_precondition import ActionPreconditionArray
 from classes.actions import Action
 from classes.counters import CounterTypes
@@ -127,9 +127,18 @@ def expression2AplanImpl(
         exclude_ident_uniq_name=self.module.ident_uniq_name,
     )
 
-    packages += self.module.packages_and_objects.getElementsIE(
+    objects = self.program.modules.getElementsIE(
         include=ElementsTypes.OBJECT_ELEMENT,
         include_ident_uniq_names=matches,
+        exclude_ident_uniq_name=self.module.ident_uniq_name,
+    )
+
+    object_pointer = None
+    if objects.getLen() > 0:
+        object_pointer = objects.elements[0].ident_uniq_name
+
+    packages += self.program.modules.getElementsIE(
+        include=ElementsTypes.CLASS_ELEMENT,
         exclude_ident_uniq_name=self.module.ident_uniq_name,
     )
 
@@ -178,6 +187,7 @@ def expression2AplanImpl(
                 function_result_var,
                 function_call,
                 source_interval,
+                object_pointer,
             )
             if function.element_type is ElementsTypes.CONSTRUCTOR_ELEMENT:
                 return (None, None, None, None)

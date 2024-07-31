@@ -393,3 +393,20 @@ def getValuesLeftOfEqualsOrDot(expression: str) -> Tuple[List[str], List[str]]:
     matches = equals_matches + dot_matches
 
     return matches
+
+
+def findReturnOrAssignment(variable_name, code_string):
+    """
+    Search for return statements or assignments to the specified variable in the code string.
+
+    :param variable_name: The name of the variable to search for.
+    :param code_string: The string containing the code.
+    :return: True if a return statement or assignment to the specified variable is found, otherwise False.
+    """
+    return_pattern = r"\breturn\b"
+    assignment_pattern = rf"\b{variable_name}\s*="
+
+    return_found = re.search(return_pattern, code_string) is not None
+    assignment_found = re.search(assignment_pattern, code_string) is not None
+
+    return return_found or assignment_found

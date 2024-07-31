@@ -145,7 +145,7 @@ class Program:
         actions = ""
         for index, module in enumerate(
             self.modules.getElementsIE(
-                exclude=ElementsTypes.CLASS_ELEMENT
+                exclude=ElementsTypes.OBJECT_ELEMENT
             ).getElements()
         ):
             if index != 0:
@@ -161,7 +161,7 @@ class Program:
         behaviour = ""
         for index, module in enumerate(
             self.modules.getElementsIE(
-                exclude=ElementsTypes.CLASS_ELEMENT
+                exclude=ElementsTypes.OBJECT_ELEMENT
             ).getElements()
         ):
             if index != 0:
