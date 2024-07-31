@@ -1,4 +1,4 @@
 B_FUNCTION_EXAMPLE = {FUNCTION_EXAMPLE_INITITAL},
-ADD(x; y; return_add) = assign_1(x, y, return_add),
-MULTIPLY(x; y; return_multiply) = assign_2(x, y, return_multiply),
-FUNCTION_EXAMPLE_INITITAL = assign_3.assign_4.ADD(function_example.a_1,function_example.b_2,function_example.add_call_result_1);(assign_5).MULTIPLY(function_example.a_1,function_example.b_2,function_example.multiply_call_result_2);(assign_6)
+ADD(x, y, return_add) = assign_1(x, y, return_add),
+MULTIPLY(x, y, return_multiply) = assign_2(x, y, return_multiply),
+FUNCTION_EXAMPLE_INITITAL = assign_3.assign_4.ADD(function_example.a_1, function_example.b_2, function_example.add_call_result_1);(assign_5).MULTIPLY(function_example.a_1, function_example.b_2, function_example.multiply_call_result_2);(assign_6)

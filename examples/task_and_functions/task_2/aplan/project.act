@@ -1,9 +1,9 @@
 
-assign_1(x; y; z) = (
+assign_1(x, y, z) = (
 		(1)->
 		("TASK_EXAMPLE#task_example:action 'assign (z = x + y)';")
 		(z = x + y)),
-assign_2(x; y; z) = (
+assign_2(x, y, z) = (
 		(1)->
 		("TASK_EXAMPLE#task_example:action 'assign (z = x - y)';")
 		(z = x - y)),
