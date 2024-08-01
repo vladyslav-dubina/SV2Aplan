@@ -237,6 +237,7 @@ class SV2aplan:
         function_result_var: str | None,
         function_call: str,
         source_interval: Tuple[int, int],
+        object_pointer: str | None,
     ):
         from translator.task_and_function.task_function import funtionCall2AplanImpl
 
@@ -247,6 +248,7 @@ class SV2aplan:
             function_result_var,
             function_call,
             source_interval,
+            object_pointer,
         )
 
     # ===================================ASSERTS=======================================

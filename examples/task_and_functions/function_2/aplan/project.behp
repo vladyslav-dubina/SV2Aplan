@@ -1,7 +1,7 @@
 B_FUNCTION_EXAMPLE = {FUNCTION_EXAMPLE_INITITAL},
-FACTORIAL(var n; var return_factorial) = B_1,
-B_1(var n; var return_factorial) = if_1.IF_BODY_1(var n; var return_factorial) + !if_1.ELSE_BODY_1(var n; var return_factorial),
-IF_BODY_1(var n; var return_factorial) = assign_1(return_factorial),
-ELSE_BODY_1(var n; var return_factorial) = IF_BODY_2(var n; var return_factorial),
-IF_BODY_2(var n; var return_factorial) = FACTORIAL(n - 1,function_example.factorial_call_result_1);(assign_2(n, return_factorial)),
-FUNCTION_EXAMPLE_INITITAL = assign_4.FACTORIAL(function_example.number_1,function_example.factorial_call_result_2);(assign_5)
+FACTORIAL(n, return_factorial) = B_1,
+B_1(n, return_factorial) = if_1.IF_BODY_1(n, return_factorial) + !if_1.ELSE_BODY_1(n, return_factorial),
+IF_BODY_1(n, return_factorial) = assign_1(return_factorial),
+ELSE_BODY_1(n, return_factorial) = IF_BODY_2(n, return_factorial),
+IF_BODY_2(n, return_factorial) = FACTORIAL(n - 1, function_example.factorial_call_result_1);(assign_2(n, return_factorial)),
+FUNCTION_EXAMPLE_INITITAL = assign_4.FACTORIAL(function_example.number_1, function_example.factorial_call_result_2);(assign_5)

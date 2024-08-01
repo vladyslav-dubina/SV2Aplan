@@ -85,6 +85,11 @@ examples_list = [
         "examples/loops/forever/aplan",
     ),
     (
+        "examples/loops/repeat/repeat.sv",
+        "examples/loops/repeat/test_result",
+        "examples/loops/repeat/aplan",
+    ),
+    (
         "examples/task_and_functions/task_1/task_1.sv",
         "examples/task_and_functions/task_1/test_result",
         "examples/task_and_functions/task_1/aplan",

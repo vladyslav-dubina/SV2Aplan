@@ -26,7 +26,7 @@ class ActionParametr(Basic):
 
     def __str__(self) -> str:
         if "var" in self.type:
-            return f"{self.type} {self.identifier}"
+            return f"{self.identifier}"
         else:
             return f"{self.uniq_identifier}:{self.type}"
 
@@ -43,6 +43,9 @@ class ActionParametrArray(BasicArray):
         for element in self.getElements():
             new_aray.addElement(element.copy())
         return new_aray
+
+    def insert(self, index: int, element: ActionParametr):
+        {self.elements.insert(index, element)}
 
     def isUniqParametr(self, parametr: ActionParametr):
         for element in self.elements:
@@ -107,7 +110,7 @@ class ActionParametrArray(BasicArray):
         result = ""
         for index, element in enumerate(self.getElements()):
             if index != 0:
-                result += "; "
+                result += ", "
             result += str(element)
         return result
 

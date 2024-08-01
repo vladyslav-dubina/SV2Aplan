@@ -1,13 +1,13 @@
 
-assign_1(var x; var y; var z) = (
+assign_1(x, y, z) = (
 		(1)->
 		("TASK_EXAMPLE#task_example:action 'assign (z = x + y)';")
 		(z = x + y)),
-assign_2(var x; var y; var z) = (
+assign_2(x, y, z) = (
 		(1)->
 		("TASK_EXAMPLE#task_example:action 'assign (z = x - y)';")
 		(z = x - y)),
-assign_3(var out_result_add) = (
+assign_3(out_result_add) = (
 		(1)->
 		("TASK_EXAMPLE#task_example:action 'assign (out_result_add = temp_sum_1)';")
 		(out_result_add = task_example.temp_sum_1)),

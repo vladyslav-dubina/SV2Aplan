@@ -15,6 +15,10 @@ repeat_iteration_1 = (
 		(1)->
 		("REPEAT_EXAMPLE#repeat_example:action 'repeat_iteration (repeat_var_1 = repeat_var_1 + 1)';")
 		(repeat_example.repeat_var_1 = repeat_example.repeat_var_1 + 1)),
+cond_1 = (
+		(repeat_example.repeat_example.repeat_var_1 < 5)->
+		("REPEAT_EXAMPLE#repeat_example:action 'cond (repeat_example.repeat_var_1 < 5)';")
+		(1)),
 assign_4 = (
 		(1)->
 		("REPEAT_EXAMPLE#repeat_example:action 'assign (start = 1)';")

@@ -1,5 +1,8 @@
 import re
+import sys
 import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.utils import printWithColor, Color
 from ast import literal_eval
 from classes.parametrs import ParametrArray

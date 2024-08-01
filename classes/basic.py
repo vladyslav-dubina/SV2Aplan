@@ -48,6 +48,9 @@ class BasicArray:
             new_aray.addElement(element.copy())
         return new_aray
 
+    def insert(self, index: int, element: Basic):
+        {self.elements.insert(index, element)}
+
     def getElementsIE(
         self,
         include: ElementsTypes | None = None,

@@ -1,5 +1,8 @@
 import re
+import sys
+import os
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from typing import Tuple, List
 
 from classes.counters import Counters, CounterTypes
@@ -129,7 +132,7 @@ def programCountersDeinit():
     Counters_Object.countersDeinit()
 
 
-def vectorSize2AplanVectorSize(left, right):
+def vectorSize2AplanVectorSize(left: str | int | None, right: str | int | None):
     """The function `vectorSize2AplanVectorSize` takes two inputs, left and right, and returns a list with
     the difference between left and right as the first element and right as the second element, unless
     right is "0" in which case left is incremented by 1 and right is set to 0.
@@ -152,6 +155,10 @@ def vectorSize2AplanVectorSize(left, right):
     `left` incremented by 1. The
 
     """
+    if left is None or right is None:
+        printWithColor("ERROR! One of vector size values is None!", Color.RED)
+        raise ValueError
+
     if right == "0":
         left = int(left) + 1
         return [left, 0]
@@ -191,7 +198,7 @@ def removeTypeFromForInit(ctx: SystemVerilogParser.For_initializationContext):
     return result
 
 
-def evaluateExpression(expr: str):
+def evaluateExpression(expr: str, variables=None):
     """The function `evaluateExpression` takes a string representing a mathematical expression, evaluates
     it, and returns the result.
 
@@ -208,12 +215,14 @@ def evaluateExpression(expr: str):
     the `eval` function, and returns the result of the evaluation.
 
     """
-    result = eval(expr)
+    if variables is None:
+        variables = {}
+    result = eval(expr, {}, variables)
     return result
 
 
-def extractDimentionSize(s: str):
-    matches = re.findall(r"\[\s*(.+)\s*\]", s)
+def extractDimentionSize(expression: str):
+    matches = re.findall(r"\[\s*(.+)\s*\]", expression)
     if matches:
         value = matches[0][0]
         value = evaluateExpression(value)
@@ -237,6 +246,8 @@ def isNumericString(s):
 
 
 def isVariablePresent(expression: str, variable: str) -> bool:
+    if len(variable) < 1:
+        return False
     pattern = rf"\b{re.escape(variable)}\b"
     return re.search(pattern, expression) is not None
 
@@ -267,7 +278,6 @@ def isFunctionCallPresentAndReplace(
     str
         The full function call if the variable is a function name in the expression, otherwise an empty string.
     """
-    pattern = rf"\b{re.escape(variable)}\b"
     function_call_pattern = rf"(\b\w+\.)?\b{re.escape(variable)}\s*\([^)]*\)"
 
     function_call_match = re.search(function_call_pattern, expression)
@@ -300,15 +310,37 @@ def extractParameters(expression: str, function_name: str) -> list:
     list
         A list of parameters extracted from the function call.
     """
-    pattern = rf"{re.escape(function_name)}\s*\(([^)]*)\)"
 
+
+def extractParameters(expression: str, function_name: str) -> list:
+    if len(function_name) == 0:
+        return []
+
+    pattern = rf"{re.escape(function_name)}\s*\((.*)\)"
     match = re.search(pattern, expression)
     if not match:
         return []
 
     params_str = match.group(1)
+    params = []
+    bracket_level = 0
+    start = 0
 
-    params = [param.strip() for param in params_str.split(",")]
+    for i, char in enumerate(params_str):
+        if char == "," and bracket_level == 0:
+            params.append(params_str[start:i].strip())
+            start = i + 1
+        elif char == "(":
+            bracket_level += 1
+        elif char == ")":
+            bracket_level -= 1
+            if bracket_level < 0:
+                break
+
+    # Add the last parameter if any
+    last_param = params_str[start:].strip()
+    if last_param:
+        params.append(last_param)
 
     return params
 
@@ -327,7 +359,7 @@ def extractFunctionName(expression: str) -> str:
     str
         The name of the function if found, otherwise an empty string.
     """
-    pattern = r"\b(\w+)\s*\("
+    pattern = r"\b([\w$]+)\s*\("
     match = re.search(pattern, expression)
     if match:
         return match.group(1)
@@ -337,8 +369,8 @@ def extractFunctionName(expression: str) -> str:
 def getValuesLeftOfEqualsOrDot(expression: str) -> Tuple[List[str], List[str]]:
     """
     Returns all values to the left of the '=' and '.' characters in a string.
-    The function returns two lists: one with substrings to the left of the '='
-    and another with substrings to the left of '.'.
+    The function returns list with substrings to the left of the '='
+    and with substrings to the left of '.'.
 
     Parameters
     ----------
@@ -361,3 +393,20 @@ def getValuesLeftOfEqualsOrDot(expression: str) -> Tuple[List[str], List[str]]:
     matches = equals_matches + dot_matches
 
     return matches
+
+
+def findReturnOrAssignment(variable_name, code_string):
+    """
+    Search for return statements or assignments to the specified variable in the code string.
+
+    :param variable_name: The name of the variable to search for.
+    :param code_string: The string containing the code.
+    :return: True if a return statement or assignment to the specified variable is found, otherwise False.
+    """
+    return_pattern = r"\breturn\b"
+    assignment_pattern = rf"\b{variable_name}\s*="
+
+    return_found = re.search(return_pattern, code_string) is not None
+    assignment_found = re.search(assignment_pattern, code_string) is not None
+
+    return return_found or assignment_found

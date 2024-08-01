@@ -63,16 +63,6 @@ class Structure(Basic):
         self.behavior.append(Protocol(protocol_identifier, (0, 0), element_type))
         return len(self.behavior) - 1
 
-    def getBehInStrFormat(self):
-        result = ""
-        if len(self.behavior) > 0:
-            result = "{0} = ".format(self.identifier)
-            for index, element in enumerate(self.behavior):
-                if index != 0:
-                    result += ",\n"
-                result += str(element)
-        return result
-
     def getBehLen(self):
         return len(self.behavior)
 

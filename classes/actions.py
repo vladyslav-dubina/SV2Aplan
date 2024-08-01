@@ -76,6 +76,7 @@ class Action(Basic):
                 "{} = ".format(return_var_name),
                 element,
             )
+
             if flag:
                 self.precondition.body[index] = element
             else:

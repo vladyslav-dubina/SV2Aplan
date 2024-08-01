@@ -45,6 +45,25 @@ class Module(Basic):
 
         self.packages_and_objects: ModuleArray = ModuleArray()
 
+    def copyPart(self):
+        module = Module(
+            self.identifier,
+            self.source_interval,
+            self.ident_uniq_name,
+            self.element_type,
+        )
+        module.declarations = self.declarations
+        module.actions = self.actions
+        module.structures = self.structures
+        module.out_of_block_elements = self.out_of_block_elements
+        module.parametrs = self.parametrs
+        module.name_change = self.name_change
+        module.processed_elements = self.processed_elements
+        module.tasks = self.tasks
+        module.packages_and_objects = self.packages_and_objects
+
+        return module
+
     def copy(self):
         module = Module(
             self.identifier,
@@ -88,22 +107,30 @@ class Module(Basic):
                 ] = self.findAndChangeNamesToAgentAttrCall(body)
 
     def findAndChangeNamesToAgentAttrCall(self, input: str, packages=None):
-        if self.element_type is not ElementsTypes.CLASS_ELEMENT:
-            for elem in self.declarations.getElements():
-                input = re.sub(
-                    r"\b{}\b".format(re.escape(elem.identifier)),
-                    "{}.{}".format(self.ident_uniq_name, elem.identifier),
-                    input,
-                )
+        if self.element_type is ElementsTypes.CLASS_ELEMENT:
+            ident_uniq = "object_pointer"
+        else:
+            ident_uniq = self.ident_uniq_name
 
-            if packages is not None:
-                for package in packages:
-                    for elem in package.declarations.getElements():
-                        input = re.sub(
-                            r"\b{}\b".format(re.escape(elem.identifier)),
-                            "{}.{}".format(package.ident_uniq_name, elem.identifier),
-                            input,
-                        )
+        for elem in self.declarations.getElements():
+            input = re.sub(
+                r"\b{}\b".format(re.escape(elem.identifier)),
+                "{}.{}".format(ident_uniq, elem.identifier),
+                input,
+            )
+
+        if packages is not None:
+            for package in packages:
+                if self.element_type is ElementsTypes.CLASS_ELEMENT:
+                    package_ident_uniq_name = "object_pointer"
+                else:
+                    package_ident_uniq_name = package.ident_uniq_name
+                for elem in package.declarations.getElements():
+                    input = re.sub(
+                        r"\b{}\b".format(re.escape(elem.identifier)),
+                        "{}.{}".format(package_ident_uniq_name, elem.identifier),
+                        input,
+                    )
 
         return input
 

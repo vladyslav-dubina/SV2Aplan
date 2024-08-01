@@ -11,7 +11,7 @@ assign_4 = (
 		(1)->
 		("MAIN#main:action 'assign (sum_2 = MAX_COUNT + 1)';")
 		(main.sum_2 = 10 + 1)),
-assign_1(var a; var b; var return_add) = (
+assign_1(a, b, return_add) = (
 		(1)->
 		("MY_PACKAGE#my_package:action 'assign (add = a + b)';")
 		(return_add = a + b))

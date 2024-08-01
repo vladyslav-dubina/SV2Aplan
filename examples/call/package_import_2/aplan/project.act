@@ -1,5 +1,5 @@
 
-assign_2(var a; var b; var return_add) = (
+assign_2(a, b, return_add) = (
 		(1)->
 		("MY_PACKAGE#my_package:action 'assign (add = a + b)';")
 		(return_add = a + b)),

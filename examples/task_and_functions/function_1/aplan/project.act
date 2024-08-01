@@ -1,9 +1,9 @@
 
-assign_1(var x; var y; var return_add) = (
+assign_1(x, y, return_add) = (
 		(1)->
 		("FUNCTION_EXAMPLE#function_example:action 'assign (add = x + y)';")
 		(return_add = x + y)),
-assign_2(var x; var y; var return_multiply) = (
+assign_2(x, y, return_multiply) = (
 		(1)->
 		("FUNCTION_EXAMPLE#function_example:action 'assign (multiply = x * y)';")
 		(return_multiply = x * y)),
