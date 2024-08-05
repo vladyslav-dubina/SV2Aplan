@@ -149,6 +149,9 @@ class DeclarationArray(BasicArray):
             new_aray.addElement(element.copy())
         return new_aray
 
+    def getElementByIndex(self, index) -> Declaration:
+        return self.elements[index]
+
     def getElementsIE(
         self,
         include: ElementsTypes | None = None,

@@ -121,9 +121,13 @@ def actionFromNodeStr(
             elif containsOperator(element):
                 node_element_type = ElementsTypes.OPERATOR_ELEMENT
 
-            action.postcondition.addElement(
+            index = action.postcondition.addElement(
                 Node(element, (0, 0), node_element_type)
             )
+            node = action.postcondition.getElementByIndex(index)
+            decl = self.module.declarations.getElement(node.identifier)
+            if decl:
+                node.module_name = self.module.ident_uniq_name
     else:
         for element in node_str:
             node_element_type = ElementsTypes.IDENTIFIER_ELEMENT
@@ -132,9 +136,13 @@ def actionFromNodeStr(
             elif containsOperator(element):
                 node_element_type = ElementsTypes.OPERATOR_ELEMENT
 
-            action.precondition.addElement(
+            index = action.precondition.addElement(
                 Node(element, (0, 0), node_element_type)
             )
+            node = action.precondition.getElementByIndex(index)
+            decl = self.module.declarations.getElement(node.identifier)
+            if decl:
+                node.module_name = self.module.ident_uniq_name
 
         action.postcondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
 

@@ -4,6 +4,7 @@ from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from classes.protocols import Protocol
 from classes.structure import Structure
+from translator.expression.expression import actionFromNodeStr
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replaceParametrsCalls
 from utils.utils import Counters_Object
@@ -21,14 +22,7 @@ def repeat2AplanImpl(
     expression_source_interval = ctx.expression().getSourceInterval()
     expression = replaceParametrsCalls(self.module.parametrs, expression)
 
-    assing_expr = "{0}={1}".format(identifier, 0)
-
-    action_pointer, assign_name, source_interval, uniq_action = self.expression2Aplan(
-        assing_expr,
-        ElementsTypes.ASSIGN_ELEMENT,
-        ctx.getSourceInterval(),
-        sv_structure=sv_structure,
-    )
+    assing_expr = "{0} = {1}".format(identifier, 0)
 
     uniq, decl_index = self.module.declarations.addElement(
         Declaration(
@@ -41,11 +35,21 @@ def repeat2AplanImpl(
             0,
             ctx.getSourceInterval(),
             ElementsTypes.NONE_ELEMENT,
-            action_pointer,
+            None,
         )
     )
 
+    action_pointer, assign_name, source_interval, uniq_action = actionFromNodeStr(
+        self,
+        assing_expr,
+        ctx.getSourceInterval(),
+        ElementsTypes.ASSIGN_ELEMENT,
+        sv_structure=sv_structure,
+    )
+
     decl = self.module.declarations.getElementByIndex(decl_index)
+
+    decl.action = action_pointer
 
     sv_structure.elements.addElement(decl)
 
@@ -59,11 +63,12 @@ def repeat2AplanImpl(
 
     sensetive = self.extractSensetive(ctx.statement_or_null())
 
-    increase_expr = "{0}={0}+1".format(identifier)
-    action_pointer, assign_name, source_interval, uniq_action = self.expression2Aplan(
+    increase_expr = "{0} = {0} + 1".format(identifier)
+    action_pointer, assign_name, source_interval, uniq_action = actionFromNodeStr(
+        self,
         increase_expr,
-        ElementsTypes.REPEAT_ELEMENT,
         ctx.getSourceInterval(),
+        ElementsTypes.REPEAT_ELEMENT,
         sv_structure=sv_structure,
     )
 
@@ -92,13 +97,13 @@ def repeat2AplanImpl(
         )
     )
 
-    condition_expr = "{0}.{1} < {2}".format(
-        self.module.ident_uniq_name, decl.identifier, expression
+    condition_expr = "{0} < {1}".format(decl.identifier, expression
     )
-    action_pointer, assign_name, source_interval, uniq_action = self.expression2Aplan(
+    action_pointer, assign_name, source_interval, uniq_action = actionFromNodeStr(
+        self,
         condition_expr,
-        ElementsTypes.CONDITION_ELEMENT,
         expression_source_interval,
+        ElementsTypes.CONDITION_ELEMENT,
         sv_structure=sv_structure,
     )
 
