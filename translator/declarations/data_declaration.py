@@ -149,9 +149,8 @@ def dataDecaration2AplanImpl(
                                 source_interval,
                                 uniq_action,
                             ) = self.expression2Aplan(
-                                elem.getText(),
+                                elem,
                                 ElementsTypes.ASSIGN_ELEMENT,
-                                elem.getSourceInterval(),
                                 sv_structure=sv_structure,
                             )
                             if beh_index is not None and assign_name is not None:
@@ -170,9 +169,8 @@ def dataDecaration2AplanImpl(
                                 source_interval,
                                 uniq_action,
                             ) = self.expression2Aplan(
-                                elem.getText(),
+                                elem,
                                 ElementsTypes.ASSIGN_ELEMENT,
-                                elem.getSourceInterval(),
                                 sv_structure=sv_structure,
                             )
                             declaration.expression = assign_name

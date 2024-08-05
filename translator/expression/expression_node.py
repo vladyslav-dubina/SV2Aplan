@@ -4,7 +4,11 @@ from antlr4.tree import Tree
 from classes.element_types import ElementsTypes
 from classes.node import Node, NodeArray
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.string_formating import addEqueToBGET, valuesToAplanStandart
+from utils.string_formating import (
+    addEqueToBGET,
+    parallelAssignment2Assignment,
+    valuesToAplanStandart,
+)
 
 
 def identifier2AplanImpl(
@@ -59,6 +63,9 @@ def bitSelection2AplanImpl(
                 destination_node_array.getLen() - 1
             )
             bit = element.getText()
+
+            bit = self.module.name_change.changeNamesInStr(bit)
+
             if self.current_genvar_value is not None:
                 (genvar, value) = self.current_genvar_value
                 bit = re.sub(
@@ -96,6 +103,9 @@ def operator2AplanImpl(
         operator = ctx.getText()
         if isNotUsedOperator(operator):
             return
+
+        operator = parallelAssignment2Assignment(operator)
+        
         index = destination_node_array.addElement(
             Node(operator, ctx.getSourceInterval(), ElementsTypes.OPERATOR_ELEMENT)
         )
@@ -109,7 +119,6 @@ unused_operators = "inputoutputbeginend[];intwirereg"
 
 
 def isNotUsedOperator(operator: str):
-
     if operator in unused_operators:
         return True
     else:
