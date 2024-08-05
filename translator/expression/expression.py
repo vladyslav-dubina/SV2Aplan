@@ -173,7 +173,6 @@ def expression2AplanImpl(
         Counters_Object.decrieseCounter(counter_type)
         action_name = action_check_result
         if sv_structure is not None:
-            print(sv_structure)
             sv_structure.elements.addElement(action_pointer)
 
     if element_type != ElementsTypes.REPEAT_ELEMENT:

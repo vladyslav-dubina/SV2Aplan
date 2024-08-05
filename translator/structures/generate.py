@@ -14,15 +14,6 @@ from utils.string_formating import (
 from utils.utils import Counters_Object
 
 
-def replaceGenvarToValue(expression: str, genvar: str, value: int):
-    expression = re.sub(
-        r"\b{}\b".format(re.escape(genvar)),
-        f"{value}",
-        expression,
-    )
-    return expression
-
-
 def generateBodyToAplan(
     self: SV2aplan, ctx, sv_structure: Structure, init_var_name, current_value
 ):
@@ -35,8 +26,7 @@ def generateBodyToAplan(
             or type(child) is SystemVerilogParser.Net_assignmentContext
             or type(child) is SystemVerilogParser.Variable_assignmentContext
         ):
-            expression = child.getText()
-            expression = replaceGenvarToValue(expression, init_var_name, current_value)
+            self.current_genvar_value = (init_var_name, current_value)
             self.module.processed_elements.addElement(
                 ProcessedElement("action", child.getSourceInterval())
             )
@@ -46,11 +36,11 @@ def generateBodyToAplan(
                 source_interval,
                 uniq_action,
             ) = self.expression2Aplan(
-                expression,
+                child,
                 ElementsTypes.ASSIGN_ELEMENT,
-                child.getSourceInterval(),
                 sv_structure=sv_structure,
             )
+            self.current_genvar_value = None
 
             action_name = f"Sensetive({action_name})"
             sv_structure.behavior[0].addBody(

@@ -1,3 +1,4 @@
+import re
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
 from classes.element_types import ElementsTypes
@@ -41,15 +42,31 @@ def number2AplanImpl(
 
 def bitSelection2AplanImpl(
     self: SV2aplan,
-    ctx: SystemVerilogParser.Bit_selectContext,
+    ctx: (
+        SystemVerilogParser.Bit_selectContext
+        | SystemVerilogParser.Constant_bit_selectContext
+    ),
     destination_node_array: NodeArray,
 ):
     if destination_node_array is not None:
-        for element in ctx.expression():
+        if isinstance(ctx, SystemVerilogParser.Bit_selectContext):
+            expression = ctx.expression()
+        if isinstance(ctx, SystemVerilogParser.Constant_bit_selectContext):
+            expression = ctx.constant_expression()
+
+        for element in expression:
             node = destination_node_array.getElementByIndex(
                 destination_node_array.getLen() - 1
             )
-            node.bit_selection = element.getText()
+            bit = element.getText()
+            if self.current_genvar_value is not None:
+                (genvar, value) = self.current_genvar_value
+                bit = re.sub(
+                    r"\b{}\b".format(re.escape(genvar)),
+                    f"{value}",
+                    bit,
+                )
+            node.bit_selection = bit
 
 
 def rangeSelection2AplanImpl(

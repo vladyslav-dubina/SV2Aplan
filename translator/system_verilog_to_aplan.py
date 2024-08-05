@@ -18,6 +18,7 @@ class SV2aplan:
         self.program: Program = program
         self.inside_the_task = False
         self.inside_the_function = False
+        self.current_genvar_value: Tuple[str, int] | None = None
 
     def extractSensetive(self, ctx):
         from translator.sensetive.sensetive import extractSensetiveImpl
@@ -323,7 +324,7 @@ class SV2aplan:
     # =================================BIT SELECTION==============================
     def bitSelection2Aplan(
         self,
-        ctx: SystemVerilogParser.Bit_selectContext,
+        ctx: SystemVerilogParser.Bit_selectContext | SystemVerilogParser.Constant_bit_selectContext,
         destination_node_array: NodeArray,
     ):
         from translator.expression.expression_node import bitSelection2AplanImpl
@@ -410,7 +411,10 @@ class SV2aplan:
             elif type(child) is SystemVerilogParser.IdentifierContext:
                 self.identifier2Aplan(child, destination_node_array)
             # ---------------------------------------------------------------------------
-            elif type(child) is SystemVerilogParser.Bit_selectContext:
+            elif (
+                type(child) is SystemVerilogParser.Bit_selectContext
+                or type(child) is SystemVerilogParser.Constant_bit_selectContext
+            ):
                 self.bitSelection2Aplan(child, destination_node_array)
             elif type(child) is SystemVerilogParser.Part_select_rangeContext:
                 self.rangeSelection2Aplan(child, destination_node_array)
