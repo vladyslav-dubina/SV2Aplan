@@ -29,4 +29,8 @@ class ElementsTypes(Enum):
     PACKAGE_ELEMENT = auto()
     CLASS_ELEMENT = auto()
     OBJECT_ELEMENT = auto()
+    NUMBER_ELEMENT = auto()
+    DESCRIPTION_ELEMENT = auto()
+    IDENTIFIER_ELEMENT = auto()
+    OPERATOR_ELEMENT = auto()
     NONE_ELEMENT = auto()

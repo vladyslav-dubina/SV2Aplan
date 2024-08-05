@@ -1,3 +1,4 @@
+from classes.new_actions import NewActionArray
 from classes.processed import ProcessedElementArray
 from classes.actions import ActionArray
 from classes.parametrs import ParametrArray

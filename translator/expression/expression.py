@@ -1,11 +1,12 @@
 from typing import List, Tuple
-
+from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.action_parametr import ActionParametr, ActionParametrArray
 from classes.action_precondition import ActionPreconditionArray
 from classes.actions import Action
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.module import ModuleArray
+from classes.node import Node
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import (
@@ -77,6 +78,80 @@ def prepareExpressionStringImpl(
 
 
 def expression2AplanImpl(
+    self: SV2aplan,
+    ctx: (
+        SystemVerilogParser.Net_assignmentContext
+        | SystemVerilogParser.Ansi_port_declarationContext
+    ),
+    element_type: ElementsTypes,
+    sv_structure: Structure | None = None,
+):
+    name_part = ""
+    counter_type = CounterTypes.NONE_COUNTER
+
+    if element_type == ElementsTypes.ASSERT_ELEMENT:
+        name_part = "assert"
+        counter_type = CounterTypes.ASSERT_COUNTER
+    elif element_type == ElementsTypes.CONDITION_ELEMENT:
+        name_part = "cond"
+        counter_type = CounterTypes.CONDITION_COUNTER
+    elif (
+        element_type == ElementsTypes.ASSIGN_ELEMENT
+        or element_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT
+    ):
+        name_part = "assign"
+        counter_type = CounterTypes.ASSIGNMENT_COUNTER
+    elif element_type == ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT:
+        name_part = "assign_array"
+        counter_type = CounterTypes.ASSIGNMENT_COUNTER
+    elif element_type == ElementsTypes.REPEAT_ELEMENT:
+        name_part = "repeat_iteration"
+        counter_type = CounterTypes.REPEAT_COUNTER
+
+    action_name = "{0}_{1}".format(name_part, Counters_Object.getCounter(counter_type))
+
+    action = Action(
+        action_name,
+        ctx.getSourceInterval(),
+    )
+    expression = ctx.getText()
+
+    if (
+        element_type == ElementsTypes.ASSIGN_ELEMENT
+        or element_type == ElementsTypes.REPEAT_ELEMENT
+    ):
+        action.precondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
+        self.body2Aplan(ctx, destination_action_node_part=action.postcondition)
+
+        action.description = f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
+        print(action)
+
+    (
+        action_pointer,
+        action_check_result,
+        source_interval,
+    ) = self.module.actions.isUniqAction(action)
+
+    uniq = False
+    if action_check_result is None:
+        uniq = True
+        index = self.module.actions.addElement(action)
+        action_pointer = self.module.actions.getElementByIndex(index)
+        if sv_structure is not None:
+            sv_structure.elements.addElement(action)
+    else:
+        Counters_Object.decrieseCounter(counter_type)
+        action_name = action_check_result
+        if sv_structure is not None:
+            sv_structure.elements.addElement(action_pointer)
+
+    if element_type != ElementsTypes.REPEAT_ELEMENT:
+        Counters_Object.incrieseCounter(counter_type)
+
+    return (action_pointer, action_name, source_interval, uniq)
+
+
+def expression2AplanImpl2(
     self: SV2aplan,
     input: str | List[str],
     element_type: ElementsTypes,

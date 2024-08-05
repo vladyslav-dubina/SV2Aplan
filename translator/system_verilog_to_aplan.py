@@ -3,6 +3,7 @@ from antlr4.tree import Tree
 from classes.action_parametr import ActionParametrArray
 from classes.action_precondition import ActionPreconditionArray
 from classes.module_call import ModuleCall
+from classes.node import NodeArray
 from classes.structure import Structure
 from classes.module import Module, ModuleArray
 from classes.element_types import ElementsTypes
@@ -297,30 +298,52 @@ class SV2aplan:
 
         caseStatement2AplanImpl(self, ctx, sv_structure, names_for_change)
 
+    # =================================IDENTIFIER===================================
+
+    def identifier2Aplan(
+        self,
+        ctx: SystemVerilogParser.IdentifierContext,
+        destination_action_node_part: NodeArray,
+    ):
+        from translator.expression.expression_node import identifier2AplanImpl
+
+        identifier2AplanImpl(self, ctx, destination_action_node_part)
+
+    # =================================NUMBER===================================
+
+    def number2Aplan(
+        self,
+        ctx: SystemVerilogParser.NumberContext,
+        destination_action_node_part: NodeArray,
+    ):
+        from translator.expression.expression_node import number2AplanImpl
+
+        number2AplanImpl(self, ctx, destination_action_node_part)
+
+    # =================================OPERATOR===================================
+
+    def operator2Aplan(
+        self,
+        ctx: SystemVerilogParser.NumberContext,
+        destination_action_node_part: NodeArray,
+    ):
+        from translator.expression.expression_node import operator2AplanImpl
+
+        operator2AplanImpl(self, ctx, destination_action_node_part)
+
     # ==================================================================================
     def expression2Aplan(
         self,
-        input: str | List[str],
+        ctx: SystemVerilogParser.Net_assignmentContext
+        | SystemVerilogParser.Ansi_port_declarationContext,
         element_type: ElementsTypes,
-        source_interval: Tuple[int, int],
-        input_parametrs: (
-            Tuple[
-                str | None, ActionParametrArray | None, ActionPreconditionArray | None
-            ]
-            | None
-        ) = None,
         sv_structure: Structure | None = None,
     ):
         from translator.expression.expression import expression2AplanImpl
 
-        return expression2AplanImpl(
-            self,
-            input,
-            element_type,
-            source_interval,
-            input_parametrs,
-            sv_structure,
-        )
+        return expression2AplanImpl(self, ctx, element_type, sv_structure)
+
+    # ==================================================================================
 
     def loop2Aplan(
         self,
@@ -341,19 +364,32 @@ class SV2aplan:
         else:
             loop2AplanImpl(self, ctx, sv_structure)
 
-    def body2Aplan(self, ctx, sv_structure: Structure, name_space: ElementsTypes):
+    def body2Aplan(
+        self,
+        ctx,
+        sv_structure: Structure | None = None,
+        name_space: ElementsTypes | None = None,
+        destination_action_node_part: NodeArray | None = None,
+    ):
         names_for_change = []
         if ctx is None:
             return names_for_change
         if ctx.getChildCount() == 0:
             return names_for_change
         for child in ctx.getChildren():
+            print(type(child), child.getText())
             # Assert handler
             if (
                 type(child)
                 is SystemVerilogParser.Simple_immediate_assert_statementContext
             ):
                 self.assertInBlock2Aplan(child, sv_structure)
+            # ---------------------------------------------------------------------------
+            elif type(child) is SystemVerilogParser.IdentifierContext:
+                self.identifier2Aplan(child, destination_action_node_part)
+            # ---------------------------------------------------------------------------
+            elif type(child) is SystemVerilogParser.NumberContext:
+                self.number2Aplan(child, destination_action_node_part)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Jump_statementContext:
                 if child.RETURN:
@@ -386,7 +422,9 @@ class SV2aplan:
                     if identifier is not None:
                         names_for_change.append(identifier)
                 else:
-                    names_for_change += self.body2Aplan(child, sv_structure, name_space)
+                    names_for_change += self.body2Aplan(
+                        child, sv_structure, name_space, destination_action_node_part
+                    )
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Loop_statementContext:
                 self.loop2Aplan(child, sv_structure)
@@ -398,9 +436,11 @@ class SV2aplan:
                 self.ifStatement2Aplan(child, sv_structure, names_for_change)
             # ---------------------------------------------------------------------------
             elif type(child) is Tree.TerminalNodeImpl:
-                pass
+                self.operator2Aplan(child, destination_action_node_part)
             else:
-                names_for_change += self.body2Aplan(child, sv_structure, name_space)
+                names_for_change += self.body2Aplan(
+                    child, sv_structure, name_space, destination_action_node_part
+                )
 
         return names_for_change
 
