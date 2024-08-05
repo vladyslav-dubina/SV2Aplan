@@ -48,11 +48,18 @@ class NodeArray(BasicArray):
             bracket_flag = False
             if index != 0:
                 previus_element = self.elements[index - 1]
-                if previus_element.identifier in negation_operators:
-                    result += "("
-                    bracket_flag = True
-                else:
-                    result += " "
+                if "(" not in element.identifier:
+                    if previus_element.identifier in negation_operators:
+                        result += "("
+                        bracket_flag = True
+                    else:
+                        if (
+                            "(" in previus_element.identifier
+                            or ")" in element.identifier
+                        ):
+                            pass
+                        else:
+                            result += " "
 
             identifier = str(element.getName())
             if self.element_type == ElementsTypes.PRECONDITION_ELEMENT:
