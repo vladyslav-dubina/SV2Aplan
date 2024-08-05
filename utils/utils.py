@@ -244,6 +244,9 @@ def isNumericString(s):
     match = re.fullmatch(r"\d+", s)
     return match.group(0) if match else None
 
+def containsOperator(s):
+    match = re.search(r'[+\-*/&|^~<>=%!]', s)
+    return match.group(0) if match else None
 
 def isVariablePresent(expression: str, variable: str) -> bool:
     if len(variable) < 1:

@@ -105,7 +105,7 @@ def operator2AplanImpl(
             node.module_name = self.module.ident_uniq_name
 
 
-unused_operators = "inputoutputbeginend[];"
+unused_operators = "inputoutputbeginend[];intwirereg"
 
 
 def isNotUsedOperator(operator: str):

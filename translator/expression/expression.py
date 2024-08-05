@@ -23,8 +23,10 @@ from utils.string_formating import (
 )
 from utils.utils import (
     Counters_Object,
+    containsOperator,
     getValuesLeftOfEqualsOrDot,
     isFunctionCallPresentAndReplace,
+    isNumericString,
 )
 
 
@@ -67,12 +69,7 @@ def taskAssignIfPosible(self: SV2aplan, ctx, destination_node_array: NodeArray):
             )
 
 
-def expression2AplanImpl(
-    self: SV2aplan,
-    ctx,
-    element_type: ElementsTypes,
-    sv_structure: Structure | None = None,
-):
+def getNamePartAndCounter(element_type: ElementsTypes) -> Tuple[str, CounterTypes]:
     name_part = ""
     counter_type = CounterTypes.NONE_COUNTER
 
@@ -95,6 +92,86 @@ def expression2AplanImpl(
         name_part = "repeat_iteration"
         counter_type = CounterTypes.REPEAT_COUNTER
 
+    return (name_part, counter_type)
+
+
+def actionFromNodeStr(
+    self: SV2aplan,
+    node_str: str,
+    source_interval: Tuple[int, int],
+    element_type: ElementsTypes,
+    sv_structure: Structure | None = None,
+):
+    (name_part, counter_type) = getNamePartAndCounter(element_type)
+    action_name = "{0}_{1}".format(name_part, Counters_Object.getCounter(counter_type))
+
+    action = Action(action_name, source_interval)
+
+    action.description = f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({node_str})'"
+    node_str = node_str.split(" ")
+    if (
+        element_type == ElementsTypes.ASSIGN_ELEMENT
+        or element_type == ElementsTypes.REPEAT_ELEMENT
+    ):
+        action.precondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
+        for element in node_str:
+            node_element_type = ElementsTypes.IDENTIFIER_ELEMENT
+            if isNumericString(element):
+                node_element_type = ElementsTypes.NUMBER_ELEMENT
+            elif containsOperator(element):
+                node_element_type = ElementsTypes.OPERATOR_ELEMENT
+
+            action.postcondition.addElement(
+                Node(element, (0, 0), node_element_type)
+            )
+    else:
+        for element in node_str:
+            node_element_type = ElementsTypes.IDENTIFIER_ELEMENT
+            if isNumericString(element):
+                node_element_type = ElementsTypes.NUMBER_ELEMENT
+            elif containsOperator(element):
+                node_element_type = ElementsTypes.OPERATOR_ELEMENT
+
+            action.precondition.addElement(
+                Node(element, (0, 0), node_element_type)
+            )
+
+        action.postcondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
+
+    (
+        action_pointer,
+        action_check_result,
+        source_interval,
+    ) = self.module.actions.isUniqAction(action)
+
+    uniq = False
+    if action_check_result is None:
+        uniq = True
+        index = self.module.actions.addElement(action)
+        action_pointer = self.module.actions.getElementByIndex(index)
+        if sv_structure is not None:
+            sv_structure.elements.addElement(action)
+    else:
+        Counters_Object.decrieseCounter(counter_type)
+        action_name = action_check_result
+        if sv_structure is not None:
+            sv_structure.elements.addElement(action_pointer)
+
+    if element_type != ElementsTypes.REPEAT_ELEMENT:
+        Counters_Object.incrieseCounter(counter_type)
+
+    return (action_pointer, action_name, source_interval, uniq)
+
+
+def expression2AplanImpl(
+    self: SV2aplan,
+    ctx,
+    element_type: ElementsTypes,
+    sv_structure: Structure | None = None,
+    name_space_element: ElementsTypes = ElementsTypes.NONE_ELEMENT,
+):
+    (name_part, counter_type) = getNamePartAndCounter(element_type)
+
     action_name = "{0}_{1}".format(name_part, Counters_Object.getCounter(counter_type))
 
     action = Action(
@@ -110,8 +187,13 @@ def expression2AplanImpl(
     ):
         action.precondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
         taskAssignIfPosible(self, ctx, action.postcondition)
-        self.body2Aplan(ctx, destination_node_array=action.postcondition)
-        
+        self.body2Aplan(
+            ctx,
+            sv_structure=sv_structure,
+            name_space=name_space_element,
+            destination_node_array=action.postcondition,
+        )
+
         action.description = f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
         """
     elif element_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT:
@@ -151,8 +233,13 @@ def expression2AplanImpl(
             )
             """
     else:
-        taskAssignIfPosible(self, ctx, action.precondition)
-        self.body2Aplan(ctx, destination_node_array=action.precondition)
+        # taskAssignIfPosible(self, ctx, action.precondition)
+        self.body2Aplan(
+            ctx,
+            sv_structure=sv_structure,
+            name_space=name_space_element,
+            destination_node_array=action.precondition,
+        )
         action.postcondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
         action.description = f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
 

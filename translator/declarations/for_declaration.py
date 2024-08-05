@@ -1,10 +1,12 @@
 from typing import List, Tuple
 from antlr4_verilog.systemverilog import SystemVerilogParser
+from classes.actions import Action
 from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from classes.name_change import NameChange
 from classes.structure import Structure
+from translator.expression.expression import actionFromNodeStr
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.utils import Counters_Object
 
@@ -112,17 +114,18 @@ def loopVarsDeclarations2AplanImpl(
     assign_names: List[str] = []
     action_pointers = []
     for index, identifier in enumerate(vars_names):
-        action_txt = f"{identifier}=0"
+        action_txt = f"{identifier} = 0"
         (
             action_pointer,
             assign_name,
             source_interval,
             uniq_action,
-        ) = self.expression2Aplan(
+        ) = actionFromNodeStr(
+            self,
             action_txt,
-            ElementsTypes.ASSIGN_ELEMENT,
             source_intervals[index],
-            sv_structure=sv_structure,
+            ElementsTypes.ASSIGN_ELEMENT,
+            sv_structure,
         )
         assign_names.append(assign_name)
         action_pointers.append(action_pointer)
@@ -159,17 +162,18 @@ def loopVarsToIteration2AplanImpl(
     assign_names: List[str] = []
     action_pointers = []
     for index, identifier in enumerate(vars_names):
-        action_txt = f"{identifier}={identifier}+1"
+        action_txt = f"{identifier} = {identifier} + 1"
         (
             action_pointer,
             assign_name,
             source_interval,
             uniq_action,
-        ) = self.expression2Aplan(
+        ) = actionFromNodeStr(
+            self,
             action_txt,
-            ElementsTypes.ASSIGN_ELEMENT,
             source_intervals[index],
-            sv_structure=sv_structure,
+            ElementsTypes.ASSIGN_ELEMENT,
+            sv_structure,
         )
         assign_names.append(assign_name)
         action_pointers.append(action_pointer)
@@ -210,20 +214,22 @@ def loopVarsAndArrayIdentifierToCondition2AplanImpl(
     array_identifier = ctx.hierarchical_array_identifier().getText()
     condition = ""
     decl = self.module.declarations.findElement(array_identifier)
+
     for index, element in enumerate(vars_names):
         if index != 0:
-            condition += "&&"
-        condition = "{0}<{1}".format(element, decl.size)
+            condition += " && "
+        condition = "{0} < {1}".format(element, decl.size)
     (
         action_pointer,
         condition_name,
         source_interval,
         uniq_action,
-    ) = self.expression2Aplan(
+    ) = actionFromNodeStr(
+        self,
         condition,
-        ElementsTypes.CONDITION_ELEMENT,
         ctx.getSourceInterval(),
-        sv_structure=sv_structure,
+        ElementsTypes.CONDITION_ELEMENT,
+        sv_structure,
     )
     return (action_pointer, condition_name)
 
@@ -320,7 +326,7 @@ def forDeclaration2ApanImpl(
     size_expression = data_type
     if ctx.expression(0) is not None:
         action_txt = (
-            f"{ctx.variable_identifier(0).getText()}={ctx.expression(0).getText()}"
+            f"{ctx.variable_identifier(0).getText()} = {ctx.expression(0).getText()}"
         )
         (
             action_pointer,
@@ -328,13 +334,10 @@ def forDeclaration2ApanImpl(
             source_interval,
             uniq_action,
         ) = self.expression2Aplan(
-            action_txt,
-            ElementsTypes.ASSIGN_ELEMENT,
-            ctx.getSourceInterval(),
-            sv_structure=sv_structure,
+            ctx, ElementsTypes.ASSIGN_ELEMENT, sv_structure, ElementsTypes.LOOP_ELEMENT
         )
 
-    data_type = DeclTypes.checkType(data_type)
+    data_type = DeclTypes.checkType(data_type, [])
     identifier = ctx.variable_identifier(0).getText()
     decl_unique, decl_index = self.module.declarations.addElement(
         Declaration(

@@ -102,6 +102,7 @@ def loop2AplanImpl(
             ElementsTypes.CONDITION_ELEMENT,
             ctx.genvar_expression().getSourceInterval(),
             source_interval=sv_structure,
+            name_space_element=ElementsTypes.LOOP_ELEMENT
         )
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
         if ctx.FOREACH():
@@ -114,7 +115,7 @@ def loop2AplanImpl(
                 sv_structure,
             )
         else:
-            condition = ctx.expression().getText()
+            condition = ctx.expression()
             (
                 action_pointer,
                 condition_name,
@@ -123,8 +124,8 @@ def loop2AplanImpl(
             ) = self.expression2Aplan(
                 condition,
                 ElementsTypes.CONDITION_ELEMENT,
-                ctx.expression().getSourceInterval(),
-                sv_structure=sv_structure,
+                sv_structure,
+                name_space_element=ElementsTypes.LOOP_ELEMENT
             )
 
         sv_structure.behavior[beh_index].addBody(
@@ -141,9 +142,8 @@ def loop2AplanImpl(
         )
 
     # LOOP INIT
-    initialization = ""
     if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
-        initialization = ctx.genvar_initialization().getText()
+        initialization = ctx.genvar_initialization()
         (
             action_pointer,
             action_name,
@@ -152,8 +152,8 @@ def loop2AplanImpl(
         ) = self.expression2Aplan(
             initialization,
             ElementsTypes.ASSIGN_ELEMENT,
-            ctx.genvar_initialization().getSourceInterval(),
-            sv_structure=sv_structure,
+            sv_structure,
+            name_space_element=ElementsTypes.LOOP_ELEMENT
         )
         loop_init_flag = True
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
@@ -163,7 +163,9 @@ def loop2AplanImpl(
             )
         else:
             if loop_init_flag == True:
-                initialization = removeTypeFromForInit(ctx.for_initialization())
+                
+                initialization = ctx.for_initialization()
+                print(initialization.getText())
                 (
                     action_pointer,
                     action_name,
@@ -172,8 +174,8 @@ def loop2AplanImpl(
                 ) = self.expression2Aplan(
                     initialization,
                     ElementsTypes.ASSIGN_ELEMENT,
-                    ctx.for_initialization().getSourceInterval(),
-                    sv_structure=sv_structure,
+                    sv_structure,
+                    name_space_element=ElementsTypes.LOOP_ELEMENT
                 )
 
     if loop_init_flag == True:
@@ -194,7 +196,7 @@ def loop2AplanImpl(
 
     # LOOP INC
     if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
-        iteration = ctx.genvar_iteration().getText()
+        iteration = ctx.genvar_iteration()
         (
             action_pointer,
             action_name,
@@ -203,8 +205,8 @@ def loop2AplanImpl(
         ) = self.expression2Aplan(
             iteration,
             ElementsTypes.ASSIGN_ELEMENT,
-            ctx.genvar_iteration().getSourceInterval(),
-            sv_structure=sv_structure,
+            sv_structure,
+            name_space_element=ElementsTypes.LOOP_ELEMENT
         )
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
         if ctx.FOREACH():
@@ -215,7 +217,7 @@ def loop2AplanImpl(
             )
         else:
             if loop_inс_flag == True:
-                iteration = ctx.for_step().getText()
+                iteration = ctx.for_step()
                 (
                     action_pointer,
                     action_name,
@@ -224,8 +226,8 @@ def loop2AplanImpl(
                 ) = self.expression2Aplan(
                     iteration,
                     ElementsTypes.ASSIGN_ELEMENT,
-                    ctx.for_step().getSourceInterval(),
-                    sv_structure=sv_structure,
+                    sv_structure,
+                    name_space_element=ElementsTypes.LOOP_ELEMENT
                 )
 
     if loop_inс_flag == True:

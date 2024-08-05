@@ -42,14 +42,13 @@ class NodeArray(BasicArray):
 
     def __str__(self) -> str:
         result = ""
+        negation_operators = "~!"
+        doubl_operators = ["++", "--"]
         for index, element in enumerate(self.elements):
             bracket_flag = False
             if index != 0:
                 previus_element = self.elements[index - 1]
-                if (
-                    "~" in previus_element.identifier
-                    or "!" in previus_element.identifier
-                ):
+                if previus_element.identifier in negation_operators:
                     result += "("
                     bracket_flag = True
                 else:
@@ -60,7 +59,14 @@ class NodeArray(BasicArray):
 
                 identifier = addEqueToBGET(identifier)
 
-            result += identifier
+            if "++" in str(element.identifier):
+                result += "= {0} + 1".format(previus_element.getName())
+
+            elif "--" in str(element.identifier):
+                result += "= {0} - 1".format(previus_element.getName())
+
+            else:
+                result += identifier
 
             if bracket_flag:
                 result += ")"

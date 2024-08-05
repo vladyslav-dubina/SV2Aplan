@@ -192,7 +192,7 @@ class SV2aplan:
         return forInitialization2ApanImpl(self, ctx, sv_structure)
 
     # ---------------------------------------------------------------------------------
-
+    """
     def forDeclaration2Apan(
         self,
         ctx: SystemVerilogParser.For_variable_declarationContext,
@@ -201,9 +201,8 @@ class SV2aplan:
         from translator.declarations.for_declaration import (
             forDeclaration2ApanImpl,
         )
-
         forDeclaration2ApanImpl(self, ctx, sv_structure)
-
+    """
     # ====================================CALLS=========================================
     def moduleCall2Apan(
         self,
@@ -361,10 +360,11 @@ class SV2aplan:
         ),
         element_type: ElementsTypes,
         sv_structure: Structure | None = None,
+        name_space_element: ElementsTypes = ElementsTypes.NONE_ELEMENT,
     ):
         from translator.expression.expression import expression2AplanImpl
 
-        return expression2AplanImpl(self, ctx, element_type, sv_structure)
+        return expression2AplanImpl(self, ctx, element_type, sv_structure, name_space_element)
 
     # ==================================================================================
 
@@ -439,10 +439,12 @@ class SV2aplan:
             # Task and function handler
             elif type(child) is SystemVerilogParser.Tf_callContext:
                 self.taskCall2Aplan(child, sv_structure)
-
+                """
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.For_variable_declarationContext:
+                print(child.getText(), "trrrrrrrrrrrrrrrr")
                 self.forDeclaration2Apan(child, sv_structure)
+            """
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Data_declarationContext:
                 data_type = child.data_type_or_implicit().getText()
