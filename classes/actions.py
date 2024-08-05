@@ -34,8 +34,8 @@ class Action(Basic):
         exist_parametrs: ActionParametrArray | None = None,
     ):
         super().__init__(identifier, source_interval)
-        self.precondition: NodeArray = NodeArray()
-        self.postcondition: NodeArray = NodeArray()
+        self.precondition: NodeArray = NodeArray(ElementsTypes.PRECONDITION_ELEMENT)
+        self.postcondition: NodeArray = NodeArray(ElementsTypes.POSTCONDITION_ELEMENT)
         self.description: str = ""
         self.exist_parametrs: ActionParametrArray | None = exist_parametrs
         self.parametrs: ActionParametrArray = ActionParametrArray()

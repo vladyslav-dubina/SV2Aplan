@@ -34,3 +34,6 @@ class ElementsTypes(Enum):
     IDENTIFIER_ELEMENT = auto()
     OPERATOR_ELEMENT = auto()
     NONE_ELEMENT = auto()
+
+    PRECONDITION_ELEMENT = auto()
+    POSTCONDITION_ELEMENT = auto()

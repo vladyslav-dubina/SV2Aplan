@@ -18,9 +18,8 @@ def assertPropertyStatement2AplanImpl(
             source_interval,
             uniq_action,
         ) = self.expression2Aplan(
-            expression.getText(),
+            expression,
             ElementsTypes.ASSERT_ELEMENT,
-            ctx.getSourceInterval(),
         )
         if assert_name is not None:
             Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
@@ -47,9 +46,8 @@ def assertInBlock2AplanImpl(
     sv_structure: Structure,
 ):
     action_pointer, assert_name, source_interval, uniq_action = self.expression2Aplan(
-        ctx.expression().getText(),
+        ctx.expression(),
         ElementsTypes.ASSERT_ELEMENT,
-        ctx.expression().getSourceInterval(),
         sv_structure=sv_structure,
     )
     if assert_name is not None:

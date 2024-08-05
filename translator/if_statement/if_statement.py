@@ -3,9 +3,10 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.actions import Action
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
+from classes.node import Node
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.string_formating import addEqueToBGET
+from utils.string_formating import addEqueToBGET, valuesToAplanStandart
 from utils.utils import Counters_Object
 
 
@@ -44,21 +45,18 @@ def ifStatement2AplanImpl(
                 ),
                 ctx.getSourceInterval(),
             )
-            predicate_txt = element["predicate"].getText()
-            predicate_txt = self.module.name_change.changeNamesInStr(predicate_txt)
-            (
-                predicate_string,
-                predicate_with_replaced_names,
-            ) = self.prepareExpressionString(
-                predicate_txt,
-                ElementsTypes.IF_STATEMENT_ELEMENT,
+            predicate_ctx = element["predicate"]
+
+            condition_txt = valuesToAplanStandart(predicate_ctx.getText())
+
+            self.body2Aplan(
+                predicate_ctx, destination_node_array=if_action.precondition
             )
-            predicate_with_replaced_names = addEqueToBGET(predicate_with_replaced_names)
-            if_action.precondition.body.append(predicate_with_replaced_names)
-            if_action.description.body.append(
-                f"{self.module.identifier}#{self.module.ident_uniq_name}:action 'if ({predicate_string})'"
+            if_action.description = f"{self.module.identifier}#{self.module.ident_uniq_name}:action 'if ({condition_txt})'"
+
+            if_action.postcondition.addElement(
+                Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)
             )
-            if_action.postcondition.body.append("1")
 
             (
                 action_pointer,

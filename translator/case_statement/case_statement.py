@@ -3,9 +3,10 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.actions import Action
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
+from classes.node import Node
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.string_formating import addEqueToBGET
+from utils.string_formating import addEqueToBGET, valuesToAplanStandart
 from utils.utils import Counters_Object
 
 
@@ -15,7 +16,7 @@ def caseStatement2AplanImpl(
     sv_structure: Structure,
     names_for_change: List[str],
 ):
-    case_expression = ctx.case_expression().getText()
+    case_expression = ctx.case_expression()
     case_item_list = ctx.case_item()
     for index, case_item in enumerate(case_item_list):
         statement = case_item.statement_or_null().statement()
@@ -29,7 +30,7 @@ def caseStatement2AplanImpl(
         for case_item_expression in case_item_expressions:
             if case_item_expression is not None:
                 condition_txt = "({0}) == ({1})".format(
-                    case_expression, case_item_expression.getText()
+                    case_expression.getText(), case_item_expression.getText()
                 )
                 action_name = "case_{0}".format(
                     Counters_Object.getCounter(CounterTypes.CASE_COUNTER)
@@ -41,23 +42,36 @@ def caseStatement2AplanImpl(
                     case_item_expression.getSourceInterval(),
                 )
 
-                condition_txt = self.module.name_change.changeNamesInStr(condition_txt)
-                (
-                    condition_string,
-                    condition_with_replaced_names,
-                ) = self.prepareExpressionString(
-                    condition_txt,
-                    ElementsTypes.CASE_ELEMENT,
+                case_action.precondition.addElement(
+                    Node("(", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
+                )
+                self.body2Aplan(
+                    case_expression, destination_node_array=case_action.precondition
+                )
+                case_action.precondition.addElement(
+                    Node(")", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
+                )
+                case_action.precondition.addElement(
+                    Node("==", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
+                )
+                case_action.precondition.addElement(
+                    Node("(", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
+                )
+                self.body2Aplan(
+                    case_item_expression,
+                    destination_node_array=case_action.precondition,
+                )
+                case_action.precondition.addElement(
+                    Node(")", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
                 )
 
-                predicate_with_replaced_names = addEqueToBGET(
-                    condition_with_replaced_names
+                condition_txt = valuesToAplanStandart(condition_txt)
+
+                case_action.description = f"{self.module.identifier}#{self.module.ident_uniq_name}:action 'case ({condition_txt})'"
+
+                case_action.postcondition.addElement(
+                    Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)
                 )
-                case_action.precondition.body.append(predicate_with_replaced_names)
-                case_action.description.body.append(
-                    f"{self.module.identifier}#{self.module.ident_uniq_name}:action 'case ({condition_string})'"
-                )
-                case_action.postcondition.body.append("1")
 
                 (
                     action_pointer,

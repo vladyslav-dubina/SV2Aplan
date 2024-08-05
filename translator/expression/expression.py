@@ -6,7 +6,7 @@ from classes.actions import Action
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.module import ModuleArray
-from classes.node import Node
+from classes.node import Node, NodeArray
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import (
@@ -37,26 +37,6 @@ def prepareExpressionStringImpl(
     expression = doubleOperators2Aplan(expression)
     expression = addLeftValueForUnaryOrOperator(expression)
     expression = addSpacesAroundOperators(expression)
-    packages = self.module.packages_and_objects.getElementsIE(
-        include=ElementsTypes.PACKAGE_ELEMENT,
-        exclude_ident_uniq_name=self.module.ident_uniq_name,
-    )
-    if (
-        ElementsTypes.ASSIGN_FOR_CALL_ELEMENT != expr_type
-        and ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT != expr_type
-    ):
-        expression_with_replaced_names = self.module.findAndChangeNamesToAgentAttrCall(
-            expression, packages.getElements()
-        )
-    else:
-        expression_with_replaced_names = expression
-
-    expression_with_replaced_names = addBracketsAfterNegation(
-        expression_with_replaced_names
-    )
-    expression_with_replaced_names = addBracketsAfterTilda(
-        expression_with_replaced_names
-    )
     expression_with_replaced_names = vectorSizes2AplanStandart(
         expression_with_replaced_names
     )
@@ -69,20 +49,27 @@ def prepareExpressionStringImpl(
     )
     parametrs_array = self.module.parametrs
 
-    for package in packages.getElements():
-        parametrs_array += package.parametrs
     expression_with_replaced_names = replaceParametrsCalls(
         parametrs_array, expression_with_replaced_names
     )
     return (expression, expression_with_replaced_names)
 
 
+def taskAssignIfPosible(self: SV2aplan, ctx, destination_node_array: NodeArray):
+    if isinstance(ctx, SystemVerilogParser.ExpressionContext):
+        task = self.module.tasks.getLastTask()
+        if task is not None:
+            destination_node_array.addElement(
+                Node(task.identifier, (0, 0), ElementsTypes.IDENTIFIER_ELEMENT)
+            )
+            destination_node_array.addElement(
+                Node("=", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
+            )
+
+
 def expression2AplanImpl(
     self: SV2aplan,
-    ctx: (
-        SystemVerilogParser.Net_assignmentContext
-        | SystemVerilogParser.Ansi_port_declarationContext
-    ),
+    ctx,
     element_type: ElementsTypes,
     sv_structure: Structure | None = None,
 ):
@@ -114,17 +101,60 @@ def expression2AplanImpl(
         action_name,
         ctx.getSourceInterval(),
     )
-    expression = ctx.getText()
 
+    expression = ctx.getText()
+    expression = valuesToAplanStandart(expression)
     if (
         element_type == ElementsTypes.ASSIGN_ELEMENT
         or element_type == ElementsTypes.REPEAT_ELEMENT
     ):
         action.precondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
-        self.body2Aplan(ctx, destination_action_node_part=action.postcondition)
-
+        taskAssignIfPosible(self, ctx, action.postcondition)
+        self.body2Aplan(ctx, destination_node_array=action.postcondition)
+        
         action.description = f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
-        print(action)
+        """
+    elif element_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT:
+        action.precondition.body.append("1")
+        description = ""
+        for index, input_str in enumerate(input):
+            if index != 0:
+                description += "; "
+            (
+                expression,
+                expression_with_replaced_names,
+            ) = self.prepareExpressionString(input_str, element_type)
+            action.postcondition.body.append(expression_with_replaced_names)
+            description += expression
+        obj_def, parametrs, precondition = input_parametrs
+        body = ""
+        if obj_def is not None:
+            body = f"{obj_def}:action '{name_part} ({description})'"
+        else:
+            body = f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({description})'"
+        action.description.body.append(body)
+
+    elif element_type == ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT:
+        if input_parametrs is not None:
+            obj_def, parametrs, precondition = input_parametrs
+            action.precondition.body.append(str(precondition))
+
+            (
+                expression,
+                expression_with_replaced_names,
+            ) = self.prepareExpressionString(input, element_type)
+            action.postcondition.body.append(expression_with_replaced_names)
+            action.exist_parametrs = parametrs
+
+            action.description.body.append(
+                f"{obj_def}:action '{name_part} ({expression})'"
+            )
+            """
+    else:
+        taskAssignIfPosible(self, ctx, action.precondition)
+        self.body2Aplan(ctx, destination_node_array=action.precondition)
+        action.postcondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
+        action.description = f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
 
     (
         action_pointer,
@@ -143,6 +173,7 @@ def expression2AplanImpl(
         Counters_Object.decrieseCounter(counter_type)
         action_name = action_check_result
         if sv_structure is not None:
+            print(sv_structure)
             sv_structure.elements.addElement(action_pointer)
 
     if element_type != ElementsTypes.REPEAT_ELEMENT:
