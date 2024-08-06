@@ -16,6 +16,7 @@ class ActionParametr(Basic):
             action_name += "_"
         self.type = type
         self.uniq_identifier = action_name + ""
+        self.module_name: str | None = None
         super().__init__(identifier, source_interval)
 
     def copy(self):
@@ -23,6 +24,7 @@ class ActionParametr(Basic):
         action_param.uniq_identifier = self.uniq_identifier
         action_param.number = self.number
         return action_param
+
 
     def __str__(self) -> str:
         if "var" in self.type:

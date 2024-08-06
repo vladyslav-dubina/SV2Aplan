@@ -41,6 +41,7 @@ def prepareExpressionStringImpl(
     expression_with_replaced_names = notConcreteIndex2AplanStandart(
         expression_with_replaced_names, self.module
     )
+
     parametrs_array = self.module.parametrs
 
     expression_with_replaced_names = replaceParametrsCalls(
@@ -312,6 +313,12 @@ def expression2AplanImpl(
         source_interval,
     ) = self.module.actions.isUniqAction(action)
 
+    task = None
+    if self.inside_the_task == True:
+        task = self.module.tasks.getLastTask()
+
+    action.findParametrInBodyAndSetParametrs(task)
+
     uniq = False
     if action_check_result is None:
         uniq = True
@@ -324,6 +331,10 @@ def expression2AplanImpl(
         action_name = action_check_result
         if sv_structure is not None:
             sv_structure.elements.addElement(action_pointer)
+
+    if self.inside_the_task == True and action_name is not None:
+        action_parametrs_count = action.parametrs.getLen()
+        action_name = f"{action_name}{action.parametrs.getIdentifiersListString(action_parametrs_count)}"
 
     if element_type != ElementsTypes.REPEAT_ELEMENT:
         Counters_Object.incrieseCounter(counter_type)

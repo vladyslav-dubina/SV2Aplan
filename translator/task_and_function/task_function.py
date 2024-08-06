@@ -146,6 +146,10 @@ def taskCall2AplanImpl(
         argument_list_with_replaced_names,
     ) = self.prepareExpressionString(argument_list, ElementsTypes.TASK_ELEMENT)
 
+    argument_list_with_replaced_names = self.module.findAndChangeNamesToAgentAttrCall(
+        argument_list_with_replaced_names
+    )
+
     if object_identifier:
         object = self.module.packages_and_objects.findModuleByUniqIdentifier(
             object_identifier

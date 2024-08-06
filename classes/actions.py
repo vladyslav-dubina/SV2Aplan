@@ -40,6 +40,15 @@ class Action(Basic):
         self.exist_parametrs: ActionParametrArray | None = exist_parametrs
         self.parametrs: ActionParametrArray = ActionParametrArray()
 
+    def findParametrInBodyAndSetParametrs(self, task ):
+        if task is not None:
+            for task_parametr in task.parametrs.getElements():
+                if isVariablePresent(str(self.precondition), task_parametr.identifier):
+                    self.parametrs.addElement(task_parametr)
+
+                if isVariablePresent(str(self.postcondition), task_parametr.identifier):
+                    self.parametrs.addElement(task_parametr)
+
     def getBody(self):
         if self.exist_parametrs is not None:
             return f""" = ( Exist ({self.exist_parametrs}) (\n\t\t({self.precondition})->\n\t\t("{self.description};")\n\t\t({self.postcondition})))"""
@@ -147,14 +156,7 @@ class Action(Basic):
                             package_task, element, index, False
                         )
 
-    def findParametrInBodyAndSetParametrs(self, task):
-        if task is not None:
-            for task_parametr in task.parametrs.getElements():
-                if isVariablePresent(str(self.precondition), task_parametr.identifier):
-                    self.parametrs.addElement(task_parametr)
 
-                if isVariablePresent(str(self.postcondition), task_parametr.identifier):
-                    self.parametrs.addElement(task_parametr)
 
     def __str__(self):
         if self.number is None:
