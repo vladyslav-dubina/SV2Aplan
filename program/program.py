@@ -167,6 +167,7 @@ class Program:
             if index != 0:
                 behaviour += ",\n"
             behaviour += f"{module.getBehInitProtocols()}"
+            print(module.structures)
             behaviour += module.structures.getStructuresInStrFormat()
 
             if module.isIncludeOutOfBlockElements():

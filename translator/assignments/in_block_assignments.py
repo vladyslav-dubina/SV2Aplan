@@ -11,10 +11,8 @@ def blockAssignment2AplanImpl(
     self: SV2aplan, ctx, module: Module, sv_structure: Structure
 ):
 
-    body = ctx
-
     action_pointer, action_name, source_interval, uniq_action = self.expression2Aplan(
-        body,
+        ctx,
         ElementsTypes.ASSIGN_ELEMENT,
         sv_structure=sv_structure,
     )

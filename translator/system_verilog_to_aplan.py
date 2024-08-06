@@ -203,6 +203,7 @@ class SV2aplan:
         )
         forDeclaration2ApanImpl(self, ctx, sv_structure)
     """
+
     # ====================================CALLS=========================================
     def moduleCall2Apan(
         self,
@@ -323,7 +324,10 @@ class SV2aplan:
     # =================================BIT SELECTION==============================
     def bitSelection2Aplan(
         self,
-        ctx: SystemVerilogParser.Bit_selectContext | SystemVerilogParser.Constant_bit_selectContext,
+        ctx: (
+            SystemVerilogParser.Bit_selectContext
+            | SystemVerilogParser.Constant_bit_selectContext
+        ),
         destination_node_array: NodeArray,
     ):
         from translator.expression.expression_node import bitSelection2AplanImpl
@@ -364,7 +368,9 @@ class SV2aplan:
     ):
         from translator.expression.expression import expression2AplanImpl
 
-        return expression2AplanImpl(self, ctx, element_type, sv_structure, name_space_element)
+        return expression2AplanImpl(
+            self, ctx, element_type, sv_structure, name_space_element
+        )
 
     # ==================================================================================
 
@@ -400,7 +406,7 @@ class SV2aplan:
         if ctx.getChildCount() == 0:
             return names_for_change
         for child in ctx.getChildren():
-            #print(type(child), child.getText())
+            # print(type(child), child.getText())
             # Assert handler
             if (
                 type(child)
@@ -423,7 +429,9 @@ class SV2aplan:
                 self.number2Aplan(child, destination_node_array)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Jump_statementContext:
-                if child.RETURN:
+                if child.BREAK:
+                    pass
+                elif child.RETURN:
                     self.blockAssignment2Aplan(child.expression(), sv_structure)
             # ---------------------------------------------------------------------------
             # Assign handler

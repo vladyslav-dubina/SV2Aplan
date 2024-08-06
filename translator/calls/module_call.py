@@ -67,7 +67,9 @@ def moduleCallAssign2Aplan(
                 if decl is None:
                     assign_str_list.append(assign_str)
                 else:
-                    precond_array: NodeArray = NodeArray(ElementsTypes.PRECONDITION_ELEMENT)
+                    precond_array: NodeArray = NodeArray(
+                        ElementsTypes.PRECONDITION_ELEMENT
+                    )
                     param_array: ActionParametrArray = ActionParametrArray()
                     uniq, param_index = param_array.addElement(
                         ActionParametr(
@@ -202,6 +204,7 @@ def moduleCall2AplanImpl(
         finder.setUp(file_data)
         finder.startTranslate(self.program, module_call)
     except Exception as e:
+
         self.program.module_calls.addElement(module_call)
 
     self.program.file_path = previous_file_path
