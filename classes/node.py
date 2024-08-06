@@ -1,8 +1,16 @@
+from enum import Enum, auto
 from typing import Tuple
 from classes.basic import Basic, BasicArray
 from classes.element_types import ElementsTypes
 from utils.string_formating import addEqueToBGET
 from utils.utils import isNumericString
+
+
+class RangeTypes(Enum):
+    START = auto()
+    END = auto()
+    UNDEFINED = auto()
+    START_END = auto()
 
 
 class Node(Basic):
@@ -15,20 +23,24 @@ class Node(Basic):
         super().__init__(identifier, source_interval, element_type)
         self.expression: str | None = None
         self.module_name: str | None = None
-        self.bit_selection: str | None = None
-        self.range_selection: str | None = None
+        self.bit_selection: bool = False
+        self.range_selection: RangeTypes = RangeTypes.UNDEFINED
 
     def getName(self) -> str:
         result = self.identifier
         if self.module_name:
             result = "{0}.{1}".format(self.module_name, result)
-        if self.range_selection:
-            result = "{0}({1})".format(result, self.range_selection)
+        if self.range_selection == RangeTypes.START_END:
+            result = "({0})".format(result)
+        if self.range_selection == RangeTypes.START:
+            result = "({0}".format(result)
+        if self.range_selection == RangeTypes.END:
+            result = "{0})".format(result)
         if self.bit_selection:
-            if isNumericString(self.bit_selection):
-                result = "{0}({1})".format(result, self.bit_selection)
+            if isNumericString(self.identifier):
+                result = "({0})".format(result)
             else:
-                result = "BGET({0}, {1})".format(result, self.bit_selection)
+                result = ", {0})".format(result)
         return result
 
     def __str__(self) -> str:
@@ -43,25 +55,41 @@ class NodeArray(BasicArray):
     def __str__(self) -> str:
         result = ""
         negation_operators = "~!"
-        doubl_operators = ["++", "--"]
         for index, element in enumerate(self.elements):
             bracket_flag = False
             if index != 0:
                 previus_element = self.elements[index - 1]
-                if "(" not in element.identifier:
-                    if previus_element.identifier in negation_operators:
-                        result += "("
-                        bracket_flag = True
-                    else:
-                        if (
-                            "(" in previus_element.identifier
-                            or ")" in element.identifier
-                        ):
-                            pass
+                if (
+                    element.bit_selection
+                    or element.range_selection == RangeTypes.START_END
+                    or element.range_selection == RangeTypes.START
+                    or element.range_selection == RangeTypes.END
+                ):
+                    pass
+                else:
+                    if "(" not in element.identifier:
+                        if previus_element.identifier in negation_operators:
+                            result += "("
+                            bracket_flag = True
                         else:
-                            result += " "
+                            if (
+                                "(" in previus_element.identifier
+                                or ")" in element.identifier
+                            ):
 
+                                pass
+                            else:
+                                result += " "
+                    else:
+                        result += " "
+            print(element.getName())
             identifier = str(element.getName())
+            if index + 1 < len(self.elements):
+                next_element = self.getElementByIndex(index + 1)
+                if next_element.bit_selection:
+                    if isNumericString(next_element.identifier) is None:
+                        identifier = "BGET({0}".format(identifier)
+
             if self.element_type == ElementsTypes.PRECONDITION_ELEMENT:
 
                 identifier = addEqueToBGET(identifier)

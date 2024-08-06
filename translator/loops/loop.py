@@ -165,7 +165,6 @@ def loop2AplanImpl(
             if loop_init_flag == True:
                 
                 initialization = ctx.for_initialization()
-                print(initialization.getText())
                 (
                     action_pointer,
                     action_name,
