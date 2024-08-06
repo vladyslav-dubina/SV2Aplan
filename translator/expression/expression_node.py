@@ -90,17 +90,18 @@ def rangeSelection2AplanImpl(
 ):
     if destination_node_array is not None:
         expressions = ctx.constant_range().constant_expression()
-        for index, element in enumerate():
+        for index, element in enumerate(expressions):
             if index != 0:
                 range = ","
                 destination_node_array.addElement(
-                    Node(range, ctx.getSourceInterval(), ElementsTypes.NUMBER_ELEMENT)
+                    Node(range, ctx.getSourceInterval(), ElementsTypes.OPERATOR_ELEMENT)
                 )
+                
             range = element.getText()
-            index = destination_node_array.addElement(
+            node_index = destination_node_array.addElement(
                 Node(range, ctx.getSourceInterval(), ElementsTypes.NUMBER_ELEMENT)
             )
-            node = destination_node_array.getElementByIndex(index)
+            node = destination_node_array.getElementByIndex(node_index)
             if len(ctx.constant_range().constant_expression()) == 1:
                 node.range_selection = RangeTypes.START_END
             else:

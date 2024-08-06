@@ -82,7 +82,7 @@ class NodeArray(BasicArray):
                                 result += " "
                     else:
                         result += " "
-            print(element.getName())
+
             identifier = str(element.getName())
             if index + 1 < len(self.elements):
                 next_element = self.getElementByIndex(index + 1)
