@@ -2,6 +2,7 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
 from classes.action_parametr import ActionParametrArray
 from classes.action_precondition import ActionPreconditionArray
+from classes.actions import Action
 from classes.module_call import ModuleCall
 from classes.node import NodeArray
 from classes.structure import Structure
@@ -354,6 +355,16 @@ class SV2aplan:
         from translator.expression.expression_node import operator2AplanImpl
 
         operator2AplanImpl(self, ctx, destination_node_array)
+        # ==================================================================================
+
+    def returnToAssign2Aplan(
+        self,
+        ctx: SystemVerilogParser.ExpressionContext,
+        sv_structure: Structure | None = None,
+    ):
+        from translator.assignments.return_to_assignment import returnToAssign2AplanImpl
+
+        returnToAssign2AplanImpl(self, ctx, sv_structure)
 
     # ==================================================================================
     def expression2Aplan(
@@ -365,7 +376,7 @@ class SV2aplan:
         element_type: ElementsTypes,
         sv_structure: Structure | None = None,
         name_space_element: ElementsTypes = ElementsTypes.NONE_ELEMENT,
-    ):
+    ) -> Tuple[Action, str, Tuple[int, int], bool]:
         from translator.expression.expression import expression2AplanImpl
 
         return expression2AplanImpl(
@@ -406,7 +417,7 @@ class SV2aplan:
         if ctx.getChildCount() == 0:
             return names_for_change
         for child in ctx.getChildren():
-            # print(type(child), child.getText())
+            #print(type(child), child.getText())
             # Assert handler
             if (
                 type(child)
@@ -429,10 +440,8 @@ class SV2aplan:
                 self.number2Aplan(child, destination_node_array)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Jump_statementContext:
-                if child.BREAK:
-                    pass
-                elif child.RETURN:
-                    self.blockAssignment2Aplan(child.expression(), sv_structure)
+                if child.RETURN and child.expression():
+                    self.returnToAssign2Aplan(child.expression(), sv_structure)
             # ---------------------------------------------------------------------------
             # Assign handler
             elif (

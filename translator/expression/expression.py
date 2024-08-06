@@ -233,7 +233,7 @@ def expression2AplanImpl(
     element_type: ElementsTypes,
     sv_structure: Structure | None = None,
     name_space_element: ElementsTypes = ElementsTypes.NONE_ELEMENT,
-):
+) -> Tuple[Action, str, Tuple[int, int], bool]:
     (name_part, counter_type) = getNamePartAndCounter(element_type)
 
     action_name = "{0}_{1}".format(name_part, Counters_Object.getCounter(counter_type))

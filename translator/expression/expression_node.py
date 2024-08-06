@@ -1,6 +1,7 @@
 import re
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
+from classes.action_parametr import ActionParametr
 from classes.element_types import ElementsTypes
 from classes.node import Node, NodeArray, RangeTypes
 from translator.system_verilog_to_aplan import SV2aplan
@@ -16,7 +17,6 @@ def paramsCallReplace(self: SV2aplan, expression):
     parametrs_array = self.module.parametrs
 
     return replaceParametrsCalls(parametrs_array, expression)
-    
 
 
 def identifier2AplanImpl(
@@ -26,7 +26,6 @@ def identifier2AplanImpl(
 ):
     if destination_node_array is not None:
         identifier = self.module.name_change.changeNamesInStr(ctx.getText())
-
         index = destination_node_array.addElement(
             Node(identifier, ctx.getSourceInterval(), ElementsTypes.IDENTIFIER_ELEMENT)
         )
@@ -138,7 +137,6 @@ def operator2AplanImpl(
             return
 
         operator = parallelAssignment2Assignment(operator)
-
         index = destination_node_array.addElement(
             Node(operator, ctx.getSourceInterval(), ElementsTypes.OPERATOR_ELEMENT)
         )
@@ -146,6 +144,19 @@ def operator2AplanImpl(
         decl = self.module.declarations.getElement(node.identifier)
         if decl:
             node.module_name = self.module.ident_uniq_name
+        if "=" in operator:
+            if self.inside_the_function:
+                previus_node = destination_node_array.getElementByIndex(index - 1)
+                task = self.module.tasks.getLastTask()
+                if previus_node.identifier == task.identifier:
+                    return_var_name = f"return_{task.identifier}"
+                    previus_node.identifier = return_var_name
+                    task.parametrs.addElement(
+                        ActionParametr(
+                            f"{return_var_name}",
+                            "var",
+                        )
+                    )
 
 
 unused_operators = "inputoutputbeginend[];intwirereg"

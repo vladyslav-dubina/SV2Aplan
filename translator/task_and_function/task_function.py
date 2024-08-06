@@ -97,15 +97,6 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
     self.inside_the_task = True
 
     if isinstance(ctx, SystemVerilogParser.Function_body_declarationContext):
-        for body_element in body:
-            if findReturnOrAssignment(identifier, body_element.getText()):
-                task.parametrs.addElement(
-                    ActionParametr(
-                        return_var_name,
-                        "var",
-                    )
-                )
-
         self.inside_the_function = True
 
     for body_element in body:
