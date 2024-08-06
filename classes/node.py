@@ -3,7 +3,7 @@ from typing import Tuple
 from classes.basic import Basic, BasicArray
 from classes.element_types import ElementsTypes
 from utils.string_formating import addEqueToBGET
-from utils.utils import isNumericString
+from utils.utils import containsOnlyPipe, isNumericString
 
 
 class RangeTypes(Enum):
@@ -58,30 +58,32 @@ class NodeArray(BasicArray):
         for index, element in enumerate(self.elements):
             bracket_flag = False
             if index != 0:
-                previus_element = self.elements[index - 1]
-                if (
-                    element.bit_selection
-                    or element.range_selection == RangeTypes.START_END
-                    or element.range_selection == RangeTypes.START
-                    or element.range_selection == RangeTypes.END
-                ):
+                if ";" in element.identifier:
                     pass
                 else:
-                    if "(" not in element.identifier:
-                        if previus_element.identifier in negation_operators:
-                            result += "("
-                            bracket_flag = True
-                        else:
-                            if (
-                                "(" in previus_element.identifier
-                                or ")" in element.identifier
-                            ):
-
-                                pass
-                            else:
-                                result += " "
+                    previus_element = self.elements[index - 1]
+                    if (
+                        element.bit_selection
+                        or element.range_selection == RangeTypes.START_END
+                        or element.range_selection == RangeTypes.START
+                        or element.range_selection == RangeTypes.END
+                    ):
+                        pass
                     else:
-                        result += " "
+                        if "(" not in element.identifier:
+                            if previus_element.identifier in negation_operators:
+                                result += "("
+                                bracket_flag = True
+                            else:
+                                if (
+                                    "(" in previus_element.identifier
+                                    or ")" in element.identifier
+                                ):
+                                    pass
+                                else:
+                                    result += " "
+                        else:
+                            result += " "
 
             identifier = str(element.getName())
             if index + 1 < len(self.elements):
@@ -93,6 +95,14 @@ class NodeArray(BasicArray):
             if self.element_type == ElementsTypes.PRECONDITION_ELEMENT:
 
                 identifier = addEqueToBGET(identifier)
+
+            if containsOnlyPipe(identifier) and (
+                previus_element.element_type is ElementsTypes.OPERATOR_ELEMENT
+            ):
+
+                identifier = "{0} {1}".format(
+                    self.getElementByIndex(0).getName(), identifier
+                )
 
             if "++" in str(element.identifier):
                 result += "= {0} + 1".format(previus_element.getName())

@@ -5,7 +5,9 @@ from classes.action_precondition import ActionPrecondition, ActionPreconditionAr
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.module_call import ModuleCall
+from classes.node import Node, NodeArray
 from classes.protocols import Protocol
+from translator.expression.expression import actionFromNodeStr
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replace_filename
 from utils.utils import Color, Counters_Object, printWithColor
@@ -65,30 +67,44 @@ def moduleCallAssign2Aplan(
                 if decl is None:
                     assign_str_list.append(assign_str)
                 else:
-                    precond_array: ActionPreconditionArray = ActionPreconditionArray()
+                    precond_array: NodeArray = NodeArray(ElementsTypes.PRECONDITION_ELEMENT)
                     param_array: ActionParametrArray = ActionParametrArray()
-                    param_index = param_array.addElement(
+                    uniq, param_index = param_array.addElement(
                         ActionParametr(
                             decl.identifier, decl.getAplanDecltypeForParametrs()
                         )
                     )
                     param_array.generateUniqNamesForParamets()
-                    precond_index = precond_array.addElement(
-                        ActionPrecondition(
-                            f"0 <= {decl.identifier} < {decl.dimension_size}"
-                        )
+                    precond_array.addElement(
+                        Node("0", (0, 0), ElementsTypes.NUMBER_ELEMENT)
+                    )
+                    precond_array.addElement(
+                        Node("<=", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
                     )
                     param = param_array.getElementByIndex(param_index)
-                    assign_str = "{0}.{1}[{4}]={2}.{3}[{4}]".format(
+                    precond_array.addElement(
+                        Node(
+                            f"{param.uniq_identifier}",
+                            (0, 0),
+                            ElementsTypes.IDENTIFIER_ELEMENT,
+                        )
+                    )
+                    precond_array.addElement(
+                        Node("<", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
+                    )
+                    precond_array.addElement(
+                        Node(
+                            f"{decl.dimension_size}",
+                            (0, 0),
+                            ElementsTypes.NUMBER_ELEMENT,
+                        )
+                    )
+                    assign_str = "{0}.{1}[{4}] = {2}.{3}[{4}]".format(
                         destination_module_name,
                         destination_var_name,
                         self.module.ident_uniq_name,
                         source_var_name,
                         param.uniq_identifier,
-                    )
-                    precond = precond_array.getElementByIndex(precond_index)
-                    precond.findAndChangeNamesToUniqNames(
-                        param.identifier, param.uniq_identifier
                     )
                     assign_arr_str_list.append(
                         (
@@ -103,11 +119,12 @@ def moduleCallAssign2Aplan(
                 action_name,
                 source_interval,
                 uniq_action,
-            ) = self.expression2Aplan(
+            ) = actionFromNodeStr(
+                self,
                 assign_str_list,
-                ElementsTypes.ASSIGN_FOR_CALL_ELEMENT,
                 ctx.getSourceInterval(),
-                (obj_def, None, None),
+                ElementsTypes.ASSIGN_FOR_CALL_ELEMENT,
+                input_parametrs=(obj_def, None, None),
             )
 
             action_2 = ""
@@ -118,11 +135,12 @@ def moduleCallAssign2Aplan(
                     action_name_2,
                     source_interval,
                     uniq_action,
-                ) = self.expression2Aplan(
+                ) = actionFromNodeStr(
+                    self,
                     expression,
-                    ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT,
                     ctx.getSourceInterval(),
-                    (
+                    ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT,
+                    input_parametrs=(
                         obj_def,
                         parametrs,
                         predicates,

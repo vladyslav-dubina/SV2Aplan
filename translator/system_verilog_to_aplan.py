@@ -400,7 +400,7 @@ class SV2aplan:
         if ctx.getChildCount() == 0:
             return names_for_change
         for child in ctx.getChildren():
-            print(type(child), child.getText())
+            #print(type(child), child.getText())
             # Assert handler
             if (
                 type(child)

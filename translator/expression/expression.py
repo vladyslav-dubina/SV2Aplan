@@ -36,16 +36,8 @@ def prepareExpressionStringImpl(
     expr_type: ElementsTypes,
 ):
     expression = valuesToAplanStandart(expression)
-    expression = doubleOperators2Aplan(expression)
-    expression = addLeftValueForUnaryOrOperator(expression)
     expression = addSpacesAroundOperators(expression)
-    expression_with_replaced_names = vectorSizes2AplanStandart(
-        expression_with_replaced_names
-    )
-    if ElementsTypes.ASSIGN_ELEMENT == expr_type:
-        expression_with_replaced_names = parallelAssignment2Assignment(
-            expression_with_replaced_names
-        )
+    expression_with_replaced_names = vectorSizes2AplanStandart(expression)
     expression_with_replaced_names = notConcreteIndex2AplanStandart(
         expression_with_replaced_names, self.module
     )
@@ -97,10 +89,14 @@ def getNamePartAndCounter(element_type: ElementsTypes) -> Tuple[str, CounterType
 
 def actionFromNodeStr(
     self: SV2aplan,
-    node_str: str,
+    node_str: str | List[str],
     source_interval: Tuple[int, int],
     element_type: ElementsTypes,
     sv_structure: Structure | None = None,
+    input_parametrs: (
+        Tuple[str | None, ActionParametrArray | None, ActionPreconditionArray | None]
+        | None
+    ) = None,
 ):
     (name_part, counter_type) = getNamePartAndCounter(element_type)
     action_name = "{0}_{1}".format(name_part, Counters_Object.getCounter(counter_type))
@@ -108,7 +104,8 @@ def actionFromNodeStr(
     action = Action(action_name, source_interval)
 
     action.description = f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({node_str})'"
-    node_str = node_str.split(" ")
+    if isinstance(node_str, str):
+        node_str = node_str.split(" ")
     if (
         element_type == ElementsTypes.ASSIGN_ELEMENT
         or element_type == ElementsTypes.REPEAT_ELEMENT
@@ -125,10 +122,67 @@ def actionFromNodeStr(
                 Node(element, (0, 0), node_element_type)
             )
             node = action.postcondition.getElementByIndex(index)
-            
+
             decl = self.module.declarations.getElement(node.identifier)
             if decl:
                 node.module_name = self.module.ident_uniq_name
+
+    elif element_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT:
+        if input_parametrs is not None:
+            action.precondition.addElement(
+                Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)
+            )
+            description = ""
+            for index, input_str in enumerate(node_str):
+                if index != 0:
+                    description += "; "
+                (
+                    expression,
+                    expression_with_replaced_names,
+                ) = self.prepareExpressionString(input_str, element_type)
+
+                node_element_type = ElementsTypes.IDENTIFIER_ELEMENT
+                if isNumericString(expression_with_replaced_names):
+                    node_element_type = ElementsTypes.NUMBER_ELEMENT
+                elif containsOperator(expression_with_replaced_names):
+                    node_element_type = ElementsTypes.OPERATOR_ELEMENT
+
+                action.postcondition.addElement(
+                    Node(expression_with_replaced_names, (0, 0), node_element_type)
+                )
+                action.postcondition.addElement(
+                    Node(";", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
+                )
+                description += expression
+            obj_def, parametrs, precondition = input_parametrs
+            body = ""
+            if obj_def is not None:
+                body = f"{obj_def}:action '{name_part} ({description})'"
+            else:
+                body = f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({description})'"
+            action.description = body
+    elif element_type == ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT:
+        if input_parametrs is not None:
+            for element in node_str:
+                obj_def, parametrs, precondition = input_parametrs
+                action.precondition = precondition
+                (
+                    expression,
+                    expression_with_replaced_names,
+                ) = self.prepareExpressionString(element, element_type)
+                node_element_type = ElementsTypes.IDENTIFIER_ELEMENT
+                if isNumericString(expression_with_replaced_names):
+                    node_element_type = ElementsTypes.NUMBER_ELEMENT
+                elif containsOperator(expression_with_replaced_names):
+                    node_element_type = ElementsTypes.OPERATOR_ELEMENT
+                action.postcondition.addElement(
+                    Node(expression_with_replaced_names, (0, 0), node_element_type)
+                )
+
+                action.exist_parametrs = parametrs
+
+                action.description = f"{obj_def}:action '{name_part} ({expression})'"
+
     else:
         for element in node_str:
             node_element_type = ElementsTypes.IDENTIFIER_ELEMENT
