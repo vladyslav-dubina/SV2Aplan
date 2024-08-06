@@ -1,37 +1,37 @@
 
 case_1 = (
-		(( case_example.mode ) == ( 0 ))->
-		("CASE_EXAMPLE#case_example:action 'case (( mode ) == ( 0 ))';")
+		((case_example.mode) == (0))->
+		("CASE_EXAMPLE#case_example:action 'case ((mode) == (0))';")
 		(1)),
 assign_1 = (
 		(1)->
-		("CASE_EXAMPLE#case_example:action 'assign (result = a + b)';")
+		("CASE_EXAMPLE#case_example:action 'assign (result=a+b)';")
 		(case_example.result = case_example.a + case_example.b)),
 case_2 = (
-		(( case_example.mode ) == ( 1 ))->
-		("CASE_EXAMPLE#case_example:action 'case (( mode ) == ( 1 ))';")
+		((case_example.mode) == (1))->
+		("CASE_EXAMPLE#case_example:action 'case ((mode) == (1))';")
 		(1)),
 assign_2 = (
 		(1)->
-		("CASE_EXAMPLE#case_example:action 'assign (result = a - b)';")
+		("CASE_EXAMPLE#case_example:action 'assign (result=a-b)';")
 		(case_example.result = case_example.a - case_example.b)),
 case_3 = (
-		(( case_example.mode ) == ( 2 ))->
-		("CASE_EXAMPLE#case_example:action 'case (( mode ) == ( 2 ))';")
+		((case_example.mode) == (2))->
+		("CASE_EXAMPLE#case_example:action 'case ((mode) == (2))';")
 		(1)),
 assign_3 = (
 		(1)->
-		("CASE_EXAMPLE#case_example:action 'assign (result = a * b)';")
+		("CASE_EXAMPLE#case_example:action 'assign (result=a*b)';")
 		(case_example.result = case_example.a * case_example.b)),
 case_4 = (
-		(( case_example.mode ) == ( 3 ))->
-		("CASE_EXAMPLE#case_example:action 'case (( mode ) == ( 3 ))';")
+		((case_example.mode) == (3))->
+		("CASE_EXAMPLE#case_example:action 'case ((mode) == (3))';")
 		(1)),
 assign_4 = (
 		(1)->
-		("CASE_EXAMPLE#case_example:action 'assign (result = a & b)';")
+		("CASE_EXAMPLE#case_example:action 'assign (result=a&b)';")
 		(case_example.result = case_example.a & case_example.b)),
 assign_5 = (
 		(1)->
-		("CASE_EXAMPLE#case_example:action 'assign (result = 0)';")
+		("CASE_EXAMPLE#case_example:action 'assign (result=0)';")
 		(case_example.result = 0))

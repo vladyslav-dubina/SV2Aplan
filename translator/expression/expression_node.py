@@ -7,8 +7,16 @@ from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import (
     addEqueToBGET,
     parallelAssignment2Assignment,
+    replaceParametrsCalls,
     valuesToAplanStandart,
 )
+
+
+def paramsCallReplace(self: SV2aplan, expression):
+    parametrs_array = self.module.parametrs
+
+    return replaceParametrsCalls(parametrs_array, expression)
+    
 
 
 def identifier2AplanImpl(
@@ -27,6 +35,8 @@ def identifier2AplanImpl(
         if decl:
             node.module_name = self.module.ident_uniq_name
 
+        node.identifier = paramsCallReplace(self, node.identifier)
+
 
 def number2AplanImpl(
     self: SV2aplan,
@@ -42,6 +52,8 @@ def number2AplanImpl(
         decl = self.module.declarations.getElement(node.identifier)
         if decl:
             node.module_name = self.module.ident_uniq_name
+
+        node.identifier = paramsCallReplace(self, node.identifier)
 
 
 def bitSelection2AplanImpl(
@@ -82,6 +94,8 @@ def bitSelection2AplanImpl(
             if decl:
                 node.module_name = self.module.ident_uniq_name
 
+            node.identifier = paramsCallReplace(self, node.identifier)
+
 
 def rangeSelection2AplanImpl(
     self: SV2aplan,
@@ -96,7 +110,7 @@ def rangeSelection2AplanImpl(
                 destination_node_array.addElement(
                     Node(range, ctx.getSourceInterval(), ElementsTypes.OPERATOR_ELEMENT)
                 )
-                
+
             range = element.getText()
             node_index = destination_node_array.addElement(
                 Node(range, ctx.getSourceInterval(), ElementsTypes.NUMBER_ELEMENT)
@@ -109,6 +123,8 @@ def rangeSelection2AplanImpl(
                     node.range_selection = RangeTypes.START
                 if index == len(ctx.constant_range().constant_expression()) - 1:
                     node.range_selection = RangeTypes.END
+
+            node.identifier = paramsCallReplace(self, node.identifier)
 
 
 def operator2AplanImpl(

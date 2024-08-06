@@ -1,9 +1,9 @@
 
 assign_1 = (
 		(1)->
-		("CODE_PATCH_CORE#code_patch_core:action 'assign (0)';")
-		(0)),
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (inputsi_read_i=0)';")
+		(code_patch_core.si_read_i = 0)),
 assign_2 = (
 		(1)->
-		("CODE_PATCH_CORE#code_patch_core:action 'assign (nopg_o = no_pg)';")
+		("CODE_PATCH_CORE#code_patch_core:action 'assign (nopg_o=no_pg)';")
 		(code_patch_core.nopg_o = code_patch_core.no_pg))

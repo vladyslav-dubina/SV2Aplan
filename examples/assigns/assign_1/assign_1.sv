@@ -15,8 +15,6 @@ module code_patch_core
     patch_enable = si_read_i & cfg_pat_gen_i;
 
     assign nopg_o = no_pg;
-     assign nopg_o = no_pg | no_pg;
-    assign nopg_o = (|no_pg);
 
 
 endmodule

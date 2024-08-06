@@ -1,5 +1,5 @@
 
 assert_1 = (
 		(register_write_once_example.write & ~(register_write_once_example.Write_once_status) && register_write_once_example.ip_resetn)->
-		("REGISTER_WRITE_ONCE_EXAMPLE#register_write_once_example:action 'assert (write & ~Write_once_status && ip_resetn)';")
+		("REGISTER_WRITE_ONCE_EXAMPLE#register_write_once_example:action 'assert (write&~Write_once_status&&ip_resetn)';")
 		(1))

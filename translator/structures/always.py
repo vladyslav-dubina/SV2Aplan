@@ -27,7 +27,6 @@ def always2AplanImpl(self: SV2aplan, ctx: SystemVerilogParser.Always_constructCo
         )
     else:
         always_body = statement_item
-    print(ctx.getText())
     Counters_Object.incrieseCounter(CounterTypes.ALWAYS_COUNTER)
     always_name = (
         always_keyword.upper()
