@@ -14,7 +14,15 @@ from utils.string_formating import (
 
 
 def paramsCallReplace(self: SV2aplan, expression):
-    parametrs_array = self.module.parametrs
+    parametrs_array = self.module.parametrs.copy()
+
+    packages = self.module.packages_and_objects.getElementsIE(
+        include=ElementsTypes.PACKAGE_ELEMENT,
+        exclude_ident_uniq_name=self.module.ident_uniq_name,
+    )
+
+    for element in packages.getElements():
+        parametrs_array += element.parametrs.copy()
 
     return replaceParametrsCalls(parametrs_array, expression)
 

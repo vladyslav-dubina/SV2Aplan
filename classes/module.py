@@ -98,13 +98,13 @@ class Module(Basic):
     def replaceNamesInActions(self):
         for action in self.actions.getElements():
             for index, body in enumerate(action.precondition.body):
-                action.precondition.body[
-                    index
-                ] = self.findAndChangeNamesToAgentAttrCall(body)
+                action.precondition.body[index] = (
+                    self.findAndChangeNamesToAgentAttrCall(body)
+                )
             for index, body in enumerate(action.postcondition.body):
-                action.postcondition.body[
-                    index
-                ] = self.findAndChangeNamesToAgentAttrCall(body)
+                action.postcondition.body[index] = (
+                    self.findAndChangeNamesToAgentAttrCall(body)
+                )
 
     def findAndChangeNamesToAgentAttrCall(self, input: str, packages=None):
         if self.element_type is ElementsTypes.CLASS_ELEMENT:
@@ -292,6 +292,9 @@ class ModuleArray(BasicArray):
             if element.ident_uniq_name == ident_uniq_name:
                 return element
         return None
+
+    def getElements(self) -> List[Module]:
+        return self.elements
 
     def getElementsIE(
         self,

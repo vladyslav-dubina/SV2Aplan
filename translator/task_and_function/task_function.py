@@ -159,6 +159,15 @@ def taskCall2AplanImpl(
         )
     else:
         task = self.module.tasks.findElement(task_identifier)
+        if task is None:
+            packages = self.module.packages_and_objects.getElementsIE(
+                include=ElementsTypes.PACKAGE_ELEMENT,
+                exclude_ident_uniq_name=self.module.ident_uniq_name,
+            )
+            for element in packages.getElements():
+                task = element.tasks.findElement(task_identifier)
+                if task is not None:
+                    break
 
     if task is not None:
 
