@@ -52,10 +52,6 @@ class Protocol(Basic):
         protocol.number = self.number
         return protocol
 
-    def setBody(self, body: BodyElement):
-        self.body.clear()
-        self.body.append(body)
-
     def addBody(self, body: BodyElement):
         self.body.append(body)
 

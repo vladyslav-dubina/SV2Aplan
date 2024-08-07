@@ -9,7 +9,7 @@ from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from classes.tasks import Task
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.utils import Counters_Object, extractParameters, findReturnOrAssignment
+from utils.utils import Counters_Object
 
 
 def taskOrFunctionDeclaration2AplanImpl(

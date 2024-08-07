@@ -25,7 +25,6 @@ class ActionParametr(Basic):
         action_param.number = self.number
         return action_param
 
-
     def __str__(self) -> str:
         if "var" in self.type:
             return f"{self.identifier}"
@@ -48,12 +47,6 @@ class ActionParametrArray(BasicArray):
 
     def insert(self, index: int, element: ActionParametr):
         {self.elements.insert(index, element)}
-
-    def isUniqParametr(self, parametr: ActionParametr):
-        for element in self.elements:
-            if element == parametr:
-                return (element.identifier, element.source_interval)
-        return None, (None, None)
 
     def addElement(self, new_element: ActionParametr):
         if isinstance(new_element, self.element_type):

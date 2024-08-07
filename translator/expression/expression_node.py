@@ -6,7 +6,6 @@ from classes.element_types import ElementsTypes
 from classes.node import Node, NodeArray, RangeTypes
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import (
-    addEqueToBGET,
     parallelAssignment2Assignment,
     replaceParametrsCalls,
     valuesToAplanStandart,
@@ -25,22 +24,6 @@ def paramsCallReplace(self: SV2aplan, expression):
         parametrs_array += element.parametrs.copy()
 
     return replaceParametrsCalls(parametrs_array, expression)
-
-
-def replaceClassCall(self: SV2aplan, expression):
-    classes = self.module.packages_and_objects.getElementsIE(
-        include=ElementsTypes.CLASS_ELEMENT,
-        exclude_ident_uniq_name=self.module.ident_uniq_name,
-    )
-
-    for element in classes.elements:
-        expression = re.sub(
-            r"\b{}\b".format(re.escape(element.identifier)),
-            "object_pointer",
-            expression,
-        )
-
-    return expression
 
 
 def identifier2AplanImpl(

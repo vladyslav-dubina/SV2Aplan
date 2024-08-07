@@ -144,25 +144,6 @@ def addBracketsAfterNegation(expression: str):
     return result
 
 
-def replaceArrayIndexing(expression: str):
-    """The function `replaceArrayIndexing` replaces square brackets used for array indexing with
-    parentheses in a given input expression.
-
-    Parameters
-    ----------
-    expression : str
-
-    Returns
-    -------
-        The function `replaceArrayIndexing` takes an input expression as a string, replaces square brackets
-    `[]` with parentheses `()` around the index value, and returns the modified expression.
-
-    """
-    pattern = r"\[(\w+)\]"
-    result = re.sub(pattern, r"(\1)", expression)
-    return result
-
-
 def addLeftValueForUnaryOrOperator(expression: str):
     """The function adds a left value for a unary or operator in a given input expression.
 

@@ -4,7 +4,7 @@ from classes.element_types import ElementsTypes
 from classes.protocols import BodyElement
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.utils import Counters_Object, removeTypeFromForInit
+from utils.utils import Counters_Object
 
 
 def loop2AplanImpl(

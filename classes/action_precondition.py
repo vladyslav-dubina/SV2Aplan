@@ -12,13 +12,6 @@ class ActionPrecondition(Basic):
         self.precondition = precondition
         super().__init__("", (0, 0))
 
-    def findAndChangeNamesToUniqNames(self, identifier, uniq_identifier):
-        self.precondition = re.sub(
-            r"\b{}\b".format(re.escape(identifier)),
-            "{}".format(uniq_identifier),
-            self.precondition,
-        )
-
     def __str__(self) -> str:
         return self.precondition
 

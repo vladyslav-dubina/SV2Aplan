@@ -76,10 +76,6 @@ def ifStatement2AplanImpl(
             if task is not None:
                 protocol_params = task.parametrs
 
-        local_if_counter = Counters_Object.getCounter(CounterTypes.IF_COUNTER)
-
-        if element["predicate"] is None:
-            local_if_counter -= 1
         if index == 0:
             Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
             beh_index = sv_structure.getLastBehaviorIndex()

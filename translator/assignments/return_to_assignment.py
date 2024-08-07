@@ -1,12 +1,9 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.action_parametr import ActionParametr
-from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
-from classes.node import Node, NodeArray
 from classes.protocols import BodyElement
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.utils import Counters_Object
 
 
 def returnToAssign2AplanImpl(

@@ -2,7 +2,7 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
-from classes.protocols import BodyElement, Protocol
+from classes.protocols import BodyElement
 from classes.structure import Structure
 from translator.expression.expression import actionFromNodeStr
 from translator.system_verilog_to_aplan import SV2aplan

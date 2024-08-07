@@ -86,26 +86,6 @@ class Module(Basic):
 
         return module
 
-    def setClassNumber(self, number):
-        for element in self.actions.getElements():
-            element.number = number
-        for element in self.structures.getElements():
-            element.setNumber(number)
-        for element in self.tasks.getElements():
-            element.number = number
-            element.structure.setNumber(number)
-
-    def replaceNamesInActions(self):
-        for action in self.actions.getElements():
-            for index, body in enumerate(action.precondition.body):
-                action.precondition.body[index] = (
-                    self.findAndChangeNamesToAgentAttrCall(body)
-                )
-            for index, body in enumerate(action.postcondition.body):
-                action.postcondition.body[index] = (
-                    self.findAndChangeNamesToAgentAttrCall(body)
-                )
-
     def findAndChangeNamesToAgentAttrCall(self, input: str, packages=None):
         if self.element_type is ElementsTypes.CLASS_ELEMENT:
             ident_uniq = "object_pointer"
@@ -279,7 +259,6 @@ class Module(Basic):
 class ModuleArray(BasicArray):
     def __init__(self):
         super().__init__(Module)
-        self.module_instantiations: ModuleCallArray = ModuleCallArray()
 
     def copy(self):
         new_aray: ModuleArray = ModuleArray()

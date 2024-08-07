@@ -1,14 +1,11 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
-from classes.action_parametr import ActionParametrArray
-from classes.action_precondition import ActionPreconditionArray
 from classes.actions import Action
 from classes.module_call import ModuleCall
 from classes.node import NodeArray
 from classes.structure import Structure
-from classes.module import Module, ModuleArray
+from classes.module import Module
 from classes.element_types import ElementsTypes
-from classes.tasks import Task
 from program.program import Program
 from typing import Tuple, List
 
@@ -193,17 +190,6 @@ class SV2aplan:
         return forInitialization2ApanImpl(self, ctx, sv_structure)
 
     # ---------------------------------------------------------------------------------
-    """
-    def forDeclaration2Apan(
-        self,
-        ctx: SystemVerilogParser.For_variable_declarationContext,
-        sv_structure: Structure,
-    ):
-        from translator.declarations.for_declaration import (
-            forDeclaration2ApanImpl,
-        )
-        forDeclaration2ApanImpl(self, ctx, sv_structure)
-    """
 
     # ====================================CALLS=========================================
     def moduleCall2Apan(

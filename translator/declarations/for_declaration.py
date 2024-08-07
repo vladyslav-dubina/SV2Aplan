@@ -1,6 +1,5 @@
 from typing import List, Tuple
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.actions import Action
 from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
@@ -298,60 +297,3 @@ def forInitialization2ApanImpl(
 
         return identifier
     return None
-
-
-def forDeclaration2ApanImpl(
-    self: SV2aplan,
-    ctx: SystemVerilogParser.For_variable_declarationContext,
-    sv_structure: Structure,
-):
-    """This function processes a SystemVerilog for loop variable declaration and adds it to a module's
-    declarations.
-
-    Parameters
-    ----------
-    self : SV2aplan
-        The `self` parameter in the `forDeclaration2ApanImpl` method refers to an instance of the
-    `SV2aplan` class. It is used to access the attributes and methods of the class within the method
-    implementation.
-    ctx : SystemVerilogParser.For_variable_declarationContext
-        The `ctx` parameter in the `forDeclaration2ApanImpl` function is of type
-    `SystemVerilogParser.For_variable_declarationContext`. It is used to extract information about the
-    variable declaration within a for loop in a SystemVerilog code snippet. This context object provides
-    access to the data type
-
-    """
-    assign_name = ""
-    data_type = ctx.data_type().getText()
-    size_expression = data_type
-    if ctx.expression(0) is not None:
-        action_txt = (
-            f"{ctx.variable_identifier(0).getText()} = {ctx.expression(0).getText()}"
-        )
-        (
-            action_pointer,
-            assign_name,
-            source_interval,
-            uniq_action,
-        ) = self.expression2Aplan(
-            ctx, ElementsTypes.ASSIGN_ELEMENT, sv_structure, ElementsTypes.LOOP_ELEMENT
-        )
-
-    data_type = DeclTypes.checkType(data_type, [])
-    identifier = ctx.variable_identifier(0).getText()
-    decl_unique, decl_index = self.module.declarations.addElement(
-        Declaration(
-            data_type,
-            identifier,
-            assign_name,
-            size_expression,
-            0,
-            "",
-            0,
-            ctx.getSourceInterval(),
-            ElementsTypes.NONE_ELEMENT,
-            action_pointer,
-        )
-    )
-    declaration = self.module.declarations.getElementByIndex(decl_index)
-    sv_structure.elements.addElement(declaration)
