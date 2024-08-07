@@ -136,7 +136,9 @@ def operator2AplanImpl(
         if isNotUsedOperator(operator):
             return
 
-        operator = parallelAssignment2Assignment(operator)
+        if destination_node_array.node_type == ElementsTypes.POSTCONDITION_ELEMENT:
+            operator = parallelAssignment2Assignment(operator)
+
         index = destination_node_array.addElement(
             Node(operator, ctx.getSourceInterval(), ElementsTypes.OPERATOR_ELEMENT)
         )

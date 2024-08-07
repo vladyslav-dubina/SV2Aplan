@@ -1,5 +1,5 @@
 B_FUNCTION_EXAMPLE = {FUNCTION_EXAMPLE_INITITAL},
-FACTORIAL(n, return_factorial) = B_1,
+FACTORIAL(n, return_factorial) = B_1(n, return_factorial),
 B_1(n, return_factorial) = if_1.IF_BODY_1(n, return_factorial) + !if_1.ELSE_BODY_1(n, return_factorial),
 IF_BODY_1(n, return_factorial) = assign_1(return_factorial),
 ELSE_BODY_1(n, return_factorial) = IF_BODY_2(n, return_factorial),

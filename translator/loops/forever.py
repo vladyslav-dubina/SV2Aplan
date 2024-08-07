@@ -3,6 +3,7 @@ from antlr4.tree import Tree
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
+from classes.protocols import BodyElement
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.utils import Counters_Object
@@ -39,10 +40,9 @@ def forever2AplanImpl(
     beh_index = sv_structure.getLastBehaviorIndex()
     if beh_index is not None:
         sv_structure.behavior[beh_index].addBody(
-            (
-                None,
-                forever_loop,
-                ElementsTypes.PROTOCOL_ELEMENT,
+            BodyElement(
+                identifier=forever_loop,
+                element_type=ElementsTypes.PROTOCOL_ELEMENT,
             )
         )
 
@@ -59,20 +59,18 @@ def forever2AplanImpl(
     )
 
     sv_structure.behavior[beh_index].addBody(
-        (
-            None,
-            forever_iteration,
-            ElementsTypes.PROTOCOL_ELEMENT,
+        BodyElement(
+            identifier=forever_iteration,
+            element_type=ElementsTypes.PROTOCOL_ELEMENT,
         )
     )
 
     beh_index = sv_structure.addProtocol(forever_iteration)
     forever_sensetive_name = "Sensetive({0}, {1})".format(forever_loop, sensetive)
     sv_structure.behavior[beh_index].addBody(
-        (
-            None,
-            forever_sensetive_name,
-            ElementsTypes.PROTOCOL_ELEMENT,
+        BodyElement(
+            identifier=forever_sensetive_name,
+            element_type=ElementsTypes.PROTOCOL_ELEMENT,
         )
     )
 

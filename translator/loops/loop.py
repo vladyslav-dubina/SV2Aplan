@@ -1,6 +1,7 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
+from classes.protocols import BodyElement
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.utils import Counters_Object, removeTypeFromForInit
@@ -52,13 +53,12 @@ def loop2AplanImpl(
     beh_index = sv_structure.getLastBehaviorIndex()
     if beh_index is not None:
         sv_structure.behavior[beh_index].addBody(
-            (
-                None,
-                "LOOP_{0}{1}".format(
+            BodyElement(
+                identifier="LOOP_{0}{1}".format(
                     Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
                     protocol_params,
                 ),
-                ElementsTypes.PROTOCOL_ELEMENT,
+                element_type=ElementsTypes.PROTOCOL_ELEMENT,
             )
         )
 
@@ -70,14 +70,13 @@ def loop2AplanImpl(
     )
 
     sv_structure.behavior[beh_index].addBody(
-        (
-            None,
-            "({0}LOOP_MAIN_{1}{2})".format(
+        BodyElement(
+            identifier="({0}LOOP_MAIN_{1}{2})".format(
                 loop_init,
                 Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
                 protocol_params,
             ),
-            ElementsTypes.PROTOCOL_ELEMENT,
+            element_type=ElementsTypes.PROTOCOL_ELEMENT,
         )
     )
 
@@ -102,7 +101,7 @@ def loop2AplanImpl(
             ElementsTypes.CONDITION_ELEMENT,
             ctx.genvar_expression().getSourceInterval(),
             source_interval=sv_structure,
-            name_space_element=ElementsTypes.LOOP_ELEMENT
+            name_space_element=ElementsTypes.LOOP_ELEMENT,
         )
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
         if ctx.FOREACH():
@@ -125,18 +124,18 @@ def loop2AplanImpl(
                 condition,
                 ElementsTypes.CONDITION_ELEMENT,
                 sv_structure,
-                name_space_element=ElementsTypes.LOOP_ELEMENT
+                name_space_element=ElementsTypes.LOOP_ELEMENT,
             )
 
         sv_structure.behavior[beh_index].addBody(
-            (
-                action_pointer,
+            BodyElement(
                 "{1}.(LOOP_BODY_{0}{3};{2}LOOP_MAIN_{0}{3}) + !{1}".format(
                     Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
                     condition_name,
                     loop_inc,
                     protocol_params,
                 ),
+                action_pointer,
                 ElementsTypes.ACTION_ELEMENT,
             )
         )
@@ -153,7 +152,7 @@ def loop2AplanImpl(
             initialization,
             ElementsTypes.ASSIGN_ELEMENT,
             sv_structure,
-            name_space_element=ElementsTypes.LOOP_ELEMENT
+            name_space_element=ElementsTypes.LOOP_ELEMENT,
         )
         loop_init_flag = True
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
@@ -163,7 +162,7 @@ def loop2AplanImpl(
             )
         else:
             if loop_init_flag == True:
-                
+
                 initialization = ctx.for_initialization()
                 (
                     action_pointer,
@@ -174,7 +173,7 @@ def loop2AplanImpl(
                     initialization,
                     ElementsTypes.ASSIGN_ELEMENT,
                     sv_structure,
-                    name_space_element=ElementsTypes.LOOP_ELEMENT
+                    name_space_element=ElementsTypes.LOOP_ELEMENT,
                 )
 
     if loop_init_flag == True:
@@ -186,11 +185,15 @@ def loop2AplanImpl(
         if ctx.FOREACH():
             for index, element in enumerate(action_names_list):
                 sv_structure.behavior[beh_index].addBody(
-                    (action_pointer_list[index], element, ElementsTypes.ACTION_ELEMENT)
+                    BodyElement(
+                        element,
+                        action_pointer_list[index],
+                        ElementsTypes.ACTION_ELEMENT,
+                    )
                 )
         else:
             sv_structure.behavior[beh_index].addBody(
-                (action_pointer, action_name, ElementsTypes.ACTION_ELEMENT)
+                BodyElement(action_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
             )
 
     # LOOP INC
@@ -205,7 +208,7 @@ def loop2AplanImpl(
             iteration,
             ElementsTypes.ASSIGN_ELEMENT,
             sv_structure,
-            name_space_element=ElementsTypes.LOOP_ELEMENT
+            name_space_element=ElementsTypes.LOOP_ELEMENT,
         )
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
         if ctx.FOREACH():
@@ -226,7 +229,7 @@ def loop2AplanImpl(
                     iteration,
                     ElementsTypes.ASSIGN_ELEMENT,
                     sv_structure,
-                    name_space_element=ElementsTypes.LOOP_ELEMENT
+                    name_space_element=ElementsTypes.LOOP_ELEMENT,
                 )
 
     if loop_inс_flag == True:
@@ -239,11 +242,15 @@ def loop2AplanImpl(
         if ctx.FOREACH():
             for index, element in enumerate(action_names_list):
                 sv_structure.behavior[beh_index].addBody(
-                    (action_pointer_list[index], element, ElementsTypes.ACTION_ELEMENT)
+                    BodyElement(
+                        element,
+                        action_pointer_list[index],
+                        ElementsTypes.ACTION_ELEMENT,
+                    )
                 )
         else:
             sv_structure.behavior[beh_index].addBody(
-                (action_pointer, action_name, ElementsTypes.ACTION_ELEMENT)
+                BodyElement(action_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
             )
 
     # BODY LOOP

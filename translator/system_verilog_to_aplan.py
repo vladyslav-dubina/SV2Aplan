@@ -227,32 +227,14 @@ class SV2aplan:
         packageImport2ApanImpl(self, ctx)
 
     def taskCall2Aplan(
-        self, ctx: SystemVerilogParser.Tf_callContext, sv_structure: Structure
+        self,
+        ctx: SystemVerilogParser.Tf_callContext,
+        sv_structure: Structure,
+        destination_node_array: NodeArray | None = None,
     ):
         from translator.task_and_function.task_function import taskCall2AplanImpl
 
-        taskCall2AplanImpl(self, ctx, sv_structure)
-
-    def funtionCall2Aplan(
-        self,
-        task: Task,
-        sv_structure: Structure,
-        function_result_var: str | None,
-        function_call: str,
-        source_interval: Tuple[int, int],
-        object_pointer: str | None,
-    ):
-        from translator.task_and_function.task_function import funtionCall2AplanImpl
-
-        funtionCall2AplanImpl(
-            self,
-            task,
-            sv_structure,
-            function_result_var,
-            function_call,
-            source_interval,
-            object_pointer,
-        )
+        taskCall2AplanImpl(self, ctx, sv_structure, destination_node_array)
 
     # ===================================ASSERTS=======================================
     def assertPropertyStatement2Aplan(
@@ -417,7 +399,7 @@ class SV2aplan:
         if ctx.getChildCount() == 0:
             return names_for_change
         for child in ctx.getChildren():
-            #print(type(child), child.getText())
+            # print(type(child), child.getText())
             # Assert handler
             if (
                 type(child)
@@ -455,7 +437,7 @@ class SV2aplan:
             # ---------------------------------------------------------------------------
             # Task and function handler
             elif type(child) is SystemVerilogParser.Tf_callContext:
-                self.taskCall2Aplan(child, sv_structure)
+                self.taskCall2Aplan(child, sv_structure, destination_node_array)
                 """
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.For_variable_declarationContext:

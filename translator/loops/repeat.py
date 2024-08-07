@@ -2,7 +2,7 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
-from classes.protocols import Protocol
+from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from translator.expression.expression import actionFromNodeStr
 from translator.system_verilog_to_aplan import SV2aplan
@@ -56,7 +56,7 @@ def repeat2AplanImpl(
     beh_index = sv_structure.getLastBehaviorIndex()
     if beh_index is not None:
         sv_structure.behavior[beh_index].addBody(
-            (action_pointer, assign_name, ElementsTypes.ACTION_ELEMENT)
+            BodyElement(assign_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
         )
     else:
         raise ValueError("sv_structure is empty")
@@ -81,7 +81,9 @@ def repeat2AplanImpl(
     beh_index = sv_structure.getLastBehaviorIndex()
     if beh_index is not None:
         sv_structure.behavior[beh_index].addBody(
-            (None, repeat_loop, ElementsTypes.ACTION_ELEMENT)
+            BodyElement(
+                identifier=repeat_loop, element_type=ElementsTypes.ACTION_ELEMENT
+            )
         )
     else:
         raise ValueError("sv_structure is empty")
@@ -90,15 +92,14 @@ def repeat2AplanImpl(
 
     beh_index = sv_structure.addProtocol(repeat_iteration)
     sv_structure.behavior[beh_index].addBody(
-        (
-            action_pointer,
+        BodyElement(
             "{0}.{1}".format(assign_name, protocol_call),
+            action_pointer,
             ElementsTypes.ACTION_ELEMENT,
         )
     )
 
-    condition_expr = "{0} < {1}".format(decl.identifier, expression
-    )
+    condition_expr = "{0} < {1}".format(decl.identifier, expression)
     action_pointer, assign_name, source_interval, uniq_action = actionFromNodeStr(
         self,
         condition_expr,
@@ -109,9 +110,9 @@ def repeat2AplanImpl(
 
     beh_index = sv_structure.addProtocol(repeat_loop)
     sv_structure.behavior[beh_index].addBody(
-        (
-            action_pointer,
+        BodyElement(
             "{0}.{1} + !{0}".format(assign_name, repeat_iteration),
+            action_pointer,
             ElementsTypes.ACTION_ELEMENT,
         )
     )

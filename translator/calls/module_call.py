@@ -6,7 +6,7 @@ from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.module_call import ModuleCall
 from classes.node import Node, NodeArray
-from classes.protocols import Protocol
+from classes.protocols import BodyElement, Protocol
 from translator.expression.expression import actionFromNodeStr
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replace_filename
@@ -153,7 +153,7 @@ def moduleCallAssign2Aplan(
 
             action_name = f"Sensetive({action_name}){action_2}"
             struct_call_assign.addBody(
-                (action_pointer, action_name, ElementsTypes.ACTION_ELEMENT)
+                BodyElement(action_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
             )
 
             self.module.out_of_block_elements.addElement(struct_call_assign)
@@ -217,6 +217,9 @@ def moduleCall2AplanImpl(
         call_b, ctx.getSourceInterval(), ElementsTypes.MODULE_CALL_ELEMENT
     )
     struct_call.addBody(
-        (None, f"B_{call_module_name.upper()}", ElementsTypes.PROTOCOL_ELEMENT)
+        BodyElement(
+            identifier=f"B_{call_module_name.upper()}",
+            element_type=ElementsTypes.PROTOCOL_ELEMENT,
+        )
     )
     self.module.out_of_block_elements.addElement(struct_call)

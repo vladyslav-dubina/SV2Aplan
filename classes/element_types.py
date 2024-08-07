@@ -37,3 +37,6 @@ class ElementsTypes(Enum):
 
     PRECONDITION_ELEMENT = auto()
     POSTCONDITION_ELEMENT = auto()
+    
+    IF_CONDITION_LEFT = auto()
+    IF_CONDITION_RIGTH = auto()

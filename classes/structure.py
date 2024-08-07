@@ -58,9 +58,14 @@ class Structure(Basic):
         return len(self.behavior) - 1
 
     def addProtocol(
-        self, protocol_identifier: str, element_type: ElementsTypes | None = None
+        self,
+        protocol_identifier: str,
+        element_type: ElementsTypes | None = None,
+        parametrs: ActionParametrArray | None = None,
     ):
-        self.behavior.append(Protocol(protocol_identifier, (0, 0), element_type))
+        self.behavior.append(
+            Protocol(protocol_identifier, (0, 0), element_type, parametrs)
+        )
         return len(self.behavior) - 1
 
     def getBehLen(self):

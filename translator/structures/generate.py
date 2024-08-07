@@ -4,6 +4,7 @@ from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.module import Module
 from classes.processed import ProcessedElement
+from classes.protocols import BodyElement
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import (
@@ -44,7 +45,7 @@ def generateBodyToAplan(
 
             action_name = f"Sensetive({action_name})"
             sv_structure.behavior[0].addBody(
-                (action_pointer, action_name, ElementsTypes.ACTION_ELEMENT)
+                BodyElement(action_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
             )
 
         else:

@@ -151,9 +151,10 @@ def actionFromNodeStr(
                 action.postcondition.addElement(
                     Node(expression_with_replaced_names, (0, 0), node_element_type)
                 )
-                action.postcondition.addElement(
-                    Node(";", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
-                )
+                if index != len(node_str) - 1:
+                    action.postcondition.addElement(
+                        Node(";", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
+                    )
                 description += expression
             obj_def, parametrs, precondition = input_parametrs
             body = ""
@@ -259,43 +260,6 @@ def expression2AplanImpl(
         )
 
         action.description = f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
-        """
-    elif element_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT:
-        action.precondition.body.append("1")
-        description = ""
-        for index, input_str in enumerate(input):
-            if index != 0:
-                description += "; "
-            (
-                expression,
-                expression_with_replaced_names,
-            ) = self.prepareExpressionString(input_str, element_type)
-            action.postcondition.body.append(expression_with_replaced_names)
-            description += expression
-        obj_def, parametrs, precondition = input_parametrs
-        body = ""
-        if obj_def is not None:
-            body = f"{obj_def}:action '{name_part} ({description})'"
-        else:
-            body = f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({description})'"
-        action.description.body.append(body)
-
-    elif element_type == ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT:
-        if input_parametrs is not None:
-            obj_def, parametrs, precondition = input_parametrs
-            action.precondition.body.append(str(precondition))
-
-            (
-                expression,
-                expression_with_replaced_names,
-            ) = self.prepareExpressionString(input, element_type)
-            action.postcondition.body.append(expression_with_replaced_names)
-            action.exist_parametrs = parametrs
-
-            action.description.body.append(
-                f"{obj_def}:action '{name_part} ({expression})'"
-            )
-            """
     else:
         # taskAssignIfPosible(self, ctx, action.precondition)
         self.body2Aplan(
@@ -447,14 +411,14 @@ def expression2AplanImpl2(
         )
 
         if is_present:
-            self.funtionCall2Aplan(
-                function,
-                sv_structure,
-                function_result_var,
-                function_call,
-                source_interval,
-                object_pointer,
-            )
+            # self.funtionCall2Aplan(
+            #       function,
+            #        sv_structure,
+            #       function_result_var,
+            #        function_call,
+            #        source_interval,
+            #        object_pointer,
+            #    )
             if function.element_type is ElementsTypes.CONSTRUCTOR_ELEMENT:
                 return (None, None, None, None)
 

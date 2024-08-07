@@ -8,7 +8,7 @@ from classes.declarations import Declaration
 from classes.element_types import ElementsTypes
 from classes.module_call import ModuleCall
 from classes.parametrs import Parametr
-from classes.protocols import Protocol
+from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from classes.tasks import Task
 from program.program import Program
@@ -78,10 +78,9 @@ def packageImport2ApanImpl(
                             ElementsTypes.MODULE_CALL_ELEMENT,
                         )
                         struct_call.addBody(
-                            (
-                                None,
-                                f"B_{package_identifier.upper()}",
-                                ElementsTypes.PROTOCOL_ELEMENT,
+                            BodyElement(
+                                identifier=f"B_{package_identifier.upper()}",
+                                element_type=ElementsTypes.PROTOCOL_ELEMENT,
                             )
                         )
                         self.module.out_of_block_elements.addElement(struct_call)

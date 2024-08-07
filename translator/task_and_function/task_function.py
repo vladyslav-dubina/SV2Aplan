@@ -4,7 +4,8 @@ from classes.action_parametr import ActionParametr
 from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
-from classes.protocols import Protocol
+from classes.node import Node, NodeArray
+from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from classes.tasks import Task
 from translator.system_verilog_to_aplan import SV2aplan
@@ -116,7 +117,10 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
 
 
 def taskCall2AplanImpl(
-    self: SV2aplan, ctx: SystemVerilogParser.Tf_callContext, sv_structure: Structure
+    self: SV2aplan,
+    ctx: SystemVerilogParser.Tf_callContext,
+    sv_structure: Structure,
+    destination_node_array: NodeArray | None = None,
 ):
     ps_or_hierarchical_tf = ctx.ps_or_hierarchical_tf_identifier()
     hierarchical_tf_identifier = ps_or_hierarchical_tf.hierarchical_tf_identifier()
@@ -137,6 +141,10 @@ def taskCall2AplanImpl(
         argument_list_with_replaced_names,
     ) = self.prepareExpressionString(argument_list, ElementsTypes.TASK_ELEMENT)
 
+    argument_list_with_replaced_names = self.module.name_change.changeNamesInStr(
+        argument_list_with_replaced_names
+    )
+
     argument_list_with_replaced_names = self.module.findAndChangeNamesToAgentAttrCall(
         argument_list_with_replaced_names
     )
@@ -153,82 +161,132 @@ def taskCall2AplanImpl(
         task = self.module.tasks.findElement(task_identifier)
 
     if task is not None:
-        task_call = "{0}".format(task.structure.identifier)
 
-        beh_index = sv_structure.getLastBehaviorIndex()
-        copy = task.structure.copy()
-        copy.additional_params = argument_list_with_replaced_names
-        if beh_index is not None:
-            sv_structure.behavior[beh_index].addBody(
-                (copy, task_call, ElementsTypes.PROTOCOL_ELEMENT)
+        if task.element_type == ElementsTypes.TASK_ELEMENT:
+            task_call = "{0}".format(task.structure.identifier)
+
+            beh_index = sv_structure.getLastBehaviorIndex()
+            copy = task.structure.copy()
+            copy.additional_params = argument_list_with_replaced_names
+            if beh_index is not None:
+                sv_structure.behavior[beh_index].addBody(
+                    BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
+                )
+            else:
+                Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+                task_call = "B_{0}".format(task.structure.identifier)
+                b_index = sv_structure.addProtocol(task_call)
+                sv_structure.behavior[b_index].addBody(
+                    BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
+                )
+        elif task.element_type == ElementsTypes.FUNCTION_ELEMENT:
+
+            objects = self.program.modules.getElementsIE(
+                include=ElementsTypes.OBJECT_ELEMENT,
+                include_ident_uniq_names=destination_node_array.getElementByIndex(
+                    destination_node_array.getLen() - 2
+                ).identifier,
+                exclude_ident_uniq_name=self.module.ident_uniq_name,
             )
-        else:
-            Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-            task_call = "B_{0}".format(task.structure.identifier)
-            b_index = sv_structure.addProtocol(task_call)
-            sv_structure.behavior[b_index].addBody(
-                (copy, task_call, ElementsTypes.PROTOCOL_ELEMENT)
+
+            object_pointer = None
+            if objects.getLen() > 0:
+                object_pointer = objects.elements[0].ident_uniq_name
+
+            packages = self.module.packages_and_objects.getElementsIE(
+                include=ElementsTypes.PACKAGE_ELEMENT,
+                exclude_ident_uniq_name=self.module.ident_uniq_name,
+            )
+            packages += self.program.modules.getElementsIE(
+                include=ElementsTypes.CLASS_ELEMENT,
+                exclude_ident_uniq_name=self.module.ident_uniq_name,
             )
 
+            functions_list = self.module.tasks.getElementsIE(
+                ElementsTypes.FUNCTION_ELEMENT
+            ).getElements()
+            functions_list += self.module.tasks.getElementsIE(
+                ElementsTypes.CONSTRUCTOR_ELEMENT
+            ).getElements()
 
-def funtionCall2AplanImpl(
-    self: SV2aplan,
-    task: Task,
-    sv_structure: Structure,
-    function_result_var: str | None,
-    function_call: str,
-    source_interval: Tuple[int, int],
-    object_pointer: str | None,
-):
-    parametrs = extractParameters(function_call, task.identifier)
+            for package in packages.getElements():
+                functions_list += package.tasks.getElementsIE(
+                    ElementsTypes.FUNCTION_ELEMENT
+                ).getElements()
+                functions_list += package.tasks.getElementsIE(
+                    ElementsTypes.CONSTRUCTOR_ELEMENT
+                ).getElements()
 
-    parametrs_str = ""
-    if function_result_var is not None:
-        new_decl = Declaration(
-            DeclTypes.INT,
-            function_result_var,
-            "",
-            "",
-            0,
-            "",
-            0,
-            source_interval,
-        )
-        sv_structure.elements.addElement(new_decl)
-        decl_unique, decl_index = self.module.declarations.addElement(new_decl)
+            for function in functions_list:
+                if function == task:
+                    function_result_var = None
+                    if function.element_type is ElementsTypes.CONSTRUCTOR_ELEMENT:
+                        function_result_var_for_replase = "{0}".format(
+                            self.module.ident_uniq_name
+                        )
+                    else:
+                        function_result_var = "{0}_call_result_{1}".format(
+                            function.identifier,
+                            Counters_Object.getCounter(CounterTypes.TASK_COUNTER),
+                        )
+                        function_result_var_for_replase = "{0}.{1}".format(
+                            self.module.ident_uniq_name, function_result_var
+                        )
+                        node_index = destination_node_array.addElement(
+                            Node(
+                                function_result_var,
+                                (0, 0),
+                                ElementsTypes.IDENTIFIER_ELEMENT,
+                            )
+                        )
+                        node = destination_node_array.getElementByIndex(node_index)
+                        node.module_name = self.module.ident_uniq_name
 
-    if object_pointer:
-        parametrs_str += object_pointer
+                    if function_result_var is not None:
+                        new_decl = Declaration(
+                            DeclTypes.INT,
+                            function_result_var,
+                            "",
+                            "",
+                            0,
+                            "",
+                            0,
+                            ctx.getSourceInterval(),
+                        )
+                        sv_structure.elements.addElement(new_decl)
+                        decl_unique, decl_index = self.module.declarations.addElement(
+                            new_decl
+                        )
+                        if object_pointer:
+                            if len(argument_list_with_replaced_names) > 0:
+                                argument_list_with_replaced_names += ", "
+                            argument_list_with_replaced_names += object_pointer
 
-    for index, element in enumerate(parametrs):
-        if index != 0:
-            parametrs_str += ", "
-        else:
-            if len(parametrs_str) > 0:
-                parametrs_str += ", "
-        parametrs_str += element
+                        if function_result_var is not None:
+                            if len(argument_list_with_replaced_names) > 0:
+                                argument_list_with_replaced_names += ", "
+                            argument_list_with_replaced_names += "{0}.{1}".format(
+                                self.module.ident_uniq_name, function_result_var
+                            )
 
-    if function_result_var is not None:
-        if len(parametrs_str) > 0:
-            parametrs_str += ", "
-        parametrs_str += "{0}.{1}".format(
-            self.module.ident_uniq_name, function_result_var
-        )
+                        task_call = "{0}".format(task.structure.identifier)
+                        beh_index = sv_structure.getLastBehaviorIndex()
+                        copy = task.structure.copy()
+                        copy.additional_params = argument_list_with_replaced_names
+                        if beh_index is not None:
+                            sv_structure.behavior[beh_index].addBody(
+                                BodyElement(
+                                    task_call, copy, ElementsTypes.PROTOCOL_ELEMENT
+                                )
+                            )
+                        else:
+                            Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+                            task_call = "B_{0}".format(task.structure.identifier)
+                            b_index = sv_structure.addProtocol(task_call)
+                            sv_structure.behavior[b_index].addBody(
+                                BodyElement(
+                                    task_call, copy, ElementsTypes.PROTOCOL_ELEMENT
+                                )
+                            )
 
-    task_call = "{0}".format(task.structure.identifier)
-    beh_index = sv_structure.getLastBehaviorIndex()
-    copy = task.structure.copy()
-    copy.additional_params = parametrs_str
-    if beh_index is not None:
-        sv_structure.behavior[beh_index].addBody(
-            (copy, task_call, ElementsTypes.PROTOCOL_ELEMENT)
-        )
-    else:
-        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-        task_call = "B_{0}".format(task.structure.identifier)
-        b_index = sv_structure.addProtocol(task_call)
-        sv_structure.behavior[b_index].addBody(
-            (copy, task_call, ElementsTypes.PROTOCOL_ELEMENT)
-        )
-
-    Counters_Object.incrieseCounter(CounterTypes.TASK_COUNTER)
+                        Counters_Object.incrieseCounter(CounterTypes.TASK_COUNTER)
