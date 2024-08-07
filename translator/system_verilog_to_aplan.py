@@ -438,12 +438,6 @@ class SV2aplan:
             # Task and function handler
             elif type(child) is SystemVerilogParser.Tf_callContext:
                 self.taskCall2Aplan(child, sv_structure, destination_node_array)
-                """
-            # ---------------------------------------------------------------------------
-            elif type(child) is SystemVerilogParser.For_variable_declarationContext:
-                print(child.getText(), "trrrrrrrrrrrrrrrr")
-                self.forDeclaration2Apan(child, sv_structure)
-            """
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Data_declarationContext:
                 data_type = child.data_type_or_implicit().getText()

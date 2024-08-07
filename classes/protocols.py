@@ -52,11 +52,11 @@ class Protocol(Basic):
         protocol.number = self.number
         return protocol
 
-    def setBody(self, body: Tuple[BodyElement]):
+    def setBody(self, body: BodyElement):
         self.body.clear()
         self.body.append(body)
 
-    def addBody(self, body: Tuple[BodyElement]):
+    def addBody(self, body: BodyElement):
         self.body.append(body)
 
     def getName(self):
@@ -129,16 +129,10 @@ class Protocol(Basic):
             if index == len(self.body) - 1:
                 body_to_str += ","
 
-        if self.parametrs.getLen() > 0:
-            return "{0} = {1}".format(
-                self.getName(),
-                body_to_str,
-            )
-        else:
-            return "{0} = {1}".format(
-                self.getName(),
-                body_to_str,
-            )
+        return "{0} = {1}".format(
+            self.getName(),
+            body_to_str,
+        )
 
     def __repr__(self):
         return f"\tProtocol({self.identifier!r}, {self.sequence!r})\n"
