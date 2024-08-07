@@ -2,6 +2,7 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from classes.name_change import NameChange
+from classes.protocols import BodyElement
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replaceParametrsCalls
@@ -149,16 +150,15 @@ def dataDecaration2AplanImpl(
                                 source_interval,
                                 uniq_action,
                             ) = self.expression2Aplan(
-                                elem.getText(),
+                                elem,
                                 ElementsTypes.ASSIGN_ELEMENT,
-                                elem.getSourceInterval(),
                                 sv_structure=sv_structure,
                             )
                             if beh_index is not None and assign_name is not None:
                                 sv_structure.behavior[beh_index].addBody(
-                                    (
-                                        action_pointer,
+                                    BodyElement(
                                         assign_name,
+                                        action_pointer,
                                         ElementsTypes.ACTION_ELEMENT,
                                     )
                                 )
@@ -170,9 +170,8 @@ def dataDecaration2AplanImpl(
                                 source_interval,
                                 uniq_action,
                             ) = self.expression2Aplan(
-                                elem.getText(),
+                                elem,
                                 ElementsTypes.ASSIGN_ELEMENT,
-                                elem.getSourceInterval(),
                                 sv_structure=sv_structure,
                             )
                             declaration.expression = assign_name

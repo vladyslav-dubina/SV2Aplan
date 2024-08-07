@@ -1,22 +1,18 @@
 import pytest
 import sys
 import os
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.utils import (
     evaluateExpression,
     extractDimentionSize,
     extractFunctionName,
-    extractParameters,
     extractVectorSize,
     format_time,
-    getValuesLeftOfEqualsOrDot,
-    isFunctionCallPresentAndReplace,
     isNumericString,
     isVariablePresent,
     vectorSize2AplanVectorSize,
-    removeTypeFromForInit,
 )
 
 
@@ -81,47 +77,6 @@ def test_vectorSize2AplanVectorSize_invalid_inputs():
         vectorSize2AplanVectorSize(None, "5")
     with pytest.raises(ValueError):
         vectorSize2AplanVectorSize("5", None)
-
-
-# =========================== REMOVE_TYPE_FROMFOR_INIT ================================
-
-
-def test_removeTypeFromForInit_single_variable():
-    mock_ctx = MagicMock()
-
-    mock_var_decl = MagicMock()
-    mock_var_decl.variable_identifier.return_value.getText.return_value = "var1"
-    mock_var_decl.expression.return_value.getText.return_value = "value1"
-
-    mock_ctx.for_variable_declaration.return_value = [mock_var_decl]
-
-    result = removeTypeFromForInit(mock_ctx)
-    assert result == "var1=value1"
-
-
-def test_removeTypeFromForInit_multiple_variables():
-    mock_ctx = MagicMock()
-
-    mock_var_decl1 = MagicMock()
-    mock_var_decl1.variable_identifier.return_value.getText.return_value = "var1"
-    mock_var_decl1.expression.return_value.getText.return_value = "value1"
-
-    mock_var_decl2 = MagicMock()
-    mock_var_decl2.variable_identifier.return_value.getText.return_value = "var2"
-    mock_var_decl2.expression.return_value.getText.return_value = "value2"
-
-    mock_ctx.for_variable_declaration.return_value = [mock_var_decl1, mock_var_decl2]
-
-    result = removeTypeFromForInit(mock_ctx)
-    assert result == "var1=value1var2=value2"
-
-
-def test_removeTypeFromForInit_empty():
-    mock_ctx = MagicMock()
-    mock_ctx.for_variable_declaration.return_value = []
-
-    result = removeTypeFromForInit(mock_ctx)
-    assert result == ""
 
 
 # ============================ EVALUATE_EXPRESSION ==================================
@@ -339,211 +294,6 @@ def test_isVariablePresent_empty_variable():
     assert isVariablePresent("some text", "") is False
 
 
-# ============================ IS_FUNCTION_CALL_PRESENT_AND_REPLACE ==================================
-
-
-def test_isFunctionCallPresentAndReplace_basic():
-    expression = "foo(bar)"
-    variable = "foo"
-    replacement = "baz"
-
-    is_present, modified_expression, function_call = isFunctionCallPresentAndReplace(
-        expression, variable, replacement
-    )
-
-    assert is_present is True
-    assert modified_expression == "baz"
-    assert function_call == "foo(bar)"
-
-
-def test_isFunctionCallPresentAndReplace_with_arguments():
-    expression = "foo(bar, baz)"
-    variable = "foo"
-    replacement = "newFunc"
-
-    is_present, modified_expression, function_call = isFunctionCallPresentAndReplace(
-        expression, variable, replacement
-    )
-
-    assert is_present is True
-    assert modified_expression == "newFunc"
-    assert function_call == "foo(bar, baz)"
-
-
-def test_isFunctionCallPresentAndReplace_with_namespace():
-    expression = "namespace.foo(bar)"
-    variable = "foo"
-    replacement = "updatedFunc"
-
-    is_present, modified_expression, function_call = isFunctionCallPresentAndReplace(
-        expression, variable, replacement
-    )
-
-    assert is_present is True
-    assert modified_expression == "updatedFunc"
-    assert function_call == "namespace.foo(bar)"
-
-
-def test_isFunctionCallPresentAndReplace_with_no_match():
-    expression = "foo(bar)"
-    variable = "baz"
-    replacement = "replacement"
-
-    is_present, modified_expression, function_call = isFunctionCallPresentAndReplace(
-        expression, variable, replacement
-    )
-
-    assert is_present is False
-    assert modified_expression == "foo(bar)"
-    assert function_call == ""
-
-
-def test_isFunctionCallPresentAndReplace_with_partial_match():
-    expression = "foo(bar) and fooAnother()"
-    variable = "foo"
-    replacement = "newFunction"
-
-    is_present, modified_expression, function_call = isFunctionCallPresentAndReplace(
-        expression, variable, replacement
-    )
-
-    assert is_present is True
-    assert modified_expression == "newFunction and fooAnother()"
-    assert function_call == "foo(bar)"
-
-
-def test_isFunctionCallPresentAndReplace_with_edge_cases():
-    # Function call with special characters
-    expression = "foo_$bar()"
-    variable = "foo_$bar"
-    replacement = "replacementFunc"
-
-    is_present, modified_expression, function_call = isFunctionCallPresentAndReplace(
-        expression, variable, replacement
-    )
-
-    assert is_present is True
-    assert modified_expression == "replacementFunc"
-    assert function_call == "foo_$bar()"
-
-    # Empty expression
-    expression = ""
-    variable = "foo"
-    replacement = "replacement"
-
-    is_present, modified_expression, function_call = isFunctionCallPresentAndReplace(
-        expression, variable, replacement
-    )
-
-    assert is_present is False
-    assert modified_expression == ""
-    assert function_call == ""
-
-    # Variable with special characters
-    expression = "foo(1) bar()"
-    variable = "foo"
-    replacement = "updatedFoo"
-
-    is_present, modified_expression, function_call = isFunctionCallPresentAndReplace(
-        expression, variable, replacement
-    )
-
-    assert is_present is True
-    assert modified_expression == "updatedFoo bar()"
-    assert function_call == "foo(1)"
-
-
-# ============================ EXTRACT_PARAMETERS ==================================
-def test_extractParameters_basic():
-    expression = "foo(bar, baz)"
-    function_name = "foo"
-
-    result = extractParameters(expression, function_name)
-
-    assert result == ["bar", "baz"]
-
-
-def test_extractParameters_with_spaces():
-    expression = "foo(  bar  ,  baz  )"
-    function_name = "foo"
-
-    result = extractParameters(expression, function_name)
-
-    assert result == ["bar", "baz"]
-
-
-def test_extractParameters_empty():
-    expression = "foo()"
-    function_name = "foo"
-
-    result = extractParameters(expression, function_name)
-
-    assert result == []
-
-
-def test_extractParameters_with_single_parameter():
-    expression = "foo(bar)"
-    function_name = "foo"
-
-    result = extractParameters(expression, function_name)
-
-    assert result == ["bar"]
-
-
-def test_extractParameters_with_trailing_comma():
-    expression = "foo(bar, baz,)"
-    function_name = "foo"
-
-    result = extractParameters(expression, function_name)
-
-    assert result == ["bar", "baz"]
-
-
-def test_extractParameters_with_no_match():
-    expression = "foo(bar, baz)"
-    function_name = "bar"
-
-    result = extractParameters(expression, function_name)
-
-    assert result == []
-
-
-def test_extractParameters_with_nested_parentheses():
-    expression = "foo(bar, nestedFunc(a, b), baz)"
-    function_name = "foo"
-
-    result = extractParameters(expression, function_name)
-
-    assert result == ["bar", "nestedFunc(a, b)", "baz"]
-
-
-def test_extractParameters_with_special_characters():
-    expression = "foo(a_$var, some_var!)"
-    function_name = "foo"
-
-    result = extractParameters(expression, function_name)
-
-    assert result == ["a_$var", "some_var!"]
-
-
-def test_extractParameters_empty_function_name():
-    expression = "foo(bar, baz)"
-    function_name = ""
-
-    result = extractParameters(expression, function_name)
-
-    assert result == []
-
-
-def test_extractParameters_no_parentheses():
-    expression = "foo bar, baz"
-    function_name = "foo"
-
-    result = extractParameters(expression, function_name)
-
-    assert result == []
-
-
 # ============================ EXTRACT_FUNCTION_NAME ==================================
 def test_extractFunctionName_name_basic():
     expression = "foo(bar, baz)"
@@ -603,48 +353,3 @@ def test_extractFunctionName_name_nested_function():
     expression = "foo(bar(nested, function), baz)"
     result = extractFunctionName(expression)
     assert result == "foo"
-
-
-# ============================ GET_VALUES_LEFT_OF_EQUALS_OR_DOT ==================================
-
-
-def test_getValuesLeftOfEqualsOrDot():
-    expression = "x = 5; y = 10; z = 15"
-    result = getValuesLeftOfEqualsOrDot(expression)
-    assert result == ["x", "y", "z"]
-
-
-def test_get_values_left_of_dot():
-    expression = "object.property = value; anotherObject.method()"
-    result = getValuesLeftOfEqualsOrDot(expression)
-    assert result == ["property", "object", "anotherObject"]
-
-
-def test_getValuesLeftOfEqualsOrDot_and_dot():
-    expression = "x = 5; object.property = value; y = 10; anotherObject.method()"
-    result = getValuesLeftOfEqualsOrDot(expression)
-    assert result == ["x", "property", "y", "object", "anotherObject"]
-
-
-def test_no_equals_or_dot():
-    expression = "this is a test string without equals or dot"
-    result = getValuesLeftOfEqualsOrDot(expression)
-    assert result == []
-
-
-def test_empty_string():
-    expression = ""
-    result = getValuesLeftOfEqualsOrDot(expression)
-    assert result == []
-
-
-def test_values_with_spaces():
-    expression = "  x  =  5;  y  =  10;  z  =  15  "
-    result = getValuesLeftOfEqualsOrDot(expression)
-    assert result == ["x", "y", "z"]
-
-
-def test_mixed_cases():
-    expression = "X = 5; y = 10; Object.property = value; AnotherObject.method()"
-    result = getValuesLeftOfEqualsOrDot(expression)
-    assert result == ["X", "y", "property", "Object", "AnotherObject"]

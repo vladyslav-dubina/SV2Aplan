@@ -141,6 +141,11 @@ class BasicArray:
 
     def removeElement(self, element):
         self.elements.remove(element)
+        
+    def removeElementByIndex(self, index):
+        element = self.getElementByIndex(index)
+        if element:
+            self.elements.remove(element)
 
     def getElements(self):
         return self.elements

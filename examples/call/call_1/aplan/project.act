@@ -1,7 +1,7 @@
 
 assign_1 = (
 		(1)->
-		("CALL_2#call_2:action 'assign (bus_read = wb_si_cyc_i)';")
+		("CALL_2#call_2:action 'assign (bus_read=wb_si_cyc_i)';")
 		(call_2.bus_read = wb_si_cyc_i)),
 assign_3 = (
 		(1)->
@@ -9,5 +9,5 @@ assign_3 = (
 		(core.si_addr_i = call_2.wb_si_adr_i; core.cfg_pat_gen_i = call_2.cfg_pat_gen_i; core.ctl_pat_data_i = call_2.ctl_pat_data_i; core.nopg_o = call_2.no_pg_gen_ack)),
 assign_2 = (
 		(1)->
-		("CALL_1#core:action 'assign (nopg_o = no_pg)';")
+		("CALL_1#core:action 'assign (nopg_o=no_pg)';")
 		(core.nopg_o = core.no_pg))

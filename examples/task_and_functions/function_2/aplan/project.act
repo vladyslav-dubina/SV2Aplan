@@ -1,25 +1,25 @@
 
 if_1 = (
 		(n <= 1)->
-		("FUNCTION_EXAMPLE#function_example:action 'if (n <= 1)';")
+		("FUNCTION_EXAMPLE#function_example:action 'if (n<=1)';")
 		(1)),
 assign_1(return_factorial) = (
 		(1)->
-		("FUNCTION_EXAMPLE#function_example:action 'assign (factorial = 1)';")
+		("FUNCTION_EXAMPLE#function_example:action 'assign (factorial=1)';")
 		(return_factorial = 1)),
 assign_2(n, return_factorial) = (
 		(1)->
-		("FUNCTION_EXAMPLE#function_example:action 'assign (factorial = n * factorial ( n - 1 ))';")
+		("FUNCTION_EXAMPLE#function_example:action 'assign (factorial=n*factorial(n-1))';")
 		(return_factorial = n * function_example.factorial_call_result_1)),
 assign_3 = (
 		(1)->
-		("FUNCTION_EXAMPLE#function_example:action 'assign (number = 5)';")
+		("FUNCTION_EXAMPLE#function_example:action 'assign (number=5)';")
 		(function_example.number = 5)),
 assign_4 = (
 		(1)->
-		("FUNCTION_EXAMPLE#function_example:action 'assign (number_1 = 5)';")
+		("FUNCTION_EXAMPLE#function_example:action 'assign (number=5)';")
 		(function_example.number_1 = 5)),
 assign_5 = (
 		(1)->
-		("FUNCTION_EXAMPLE#function_example:action 'assign (result_2 = factorial ( number_1 ))';")
+		("FUNCTION_EXAMPLE#function_example:action 'assign (result=factorial(number))';")
 		(function_example.result_2 = function_example.factorial_call_result_2))

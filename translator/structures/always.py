@@ -8,7 +8,7 @@ from utils.utils import Counters_Object
 
 
 def always2AplanImpl(self: SV2aplan, ctx: SystemVerilogParser.Always_constructContext):
-
+   
     sensetive = None
 
     always_keyword = ctx.always_keyword().getText()
@@ -27,7 +27,6 @@ def always2AplanImpl(self: SV2aplan, ctx: SystemVerilogParser.Always_constructCo
         )
     else:
         always_body = statement_item
-
     Counters_Object.incrieseCounter(CounterTypes.ALWAYS_COUNTER)
     always_name = (
         always_keyword.upper()

@@ -1,7 +1,6 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
-from program.program import Program
 from translator.declarations.object_declaration import objectDeclaration2AplanImpl
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replaceParametrsCalls

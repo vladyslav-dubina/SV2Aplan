@@ -120,9 +120,5 @@ class ParametrArray(BasicArray):
             parametr.value = expression
         return expression
 
-    def recalculateParametrValue(self):
-        for index, element in enumerate(self.getElements()):
-            self.evaluateParametrExpressionByIndex(index)
-
     def __repr__(self):
         return f"ParametrsArray(\n{self.elements!r}\n)"

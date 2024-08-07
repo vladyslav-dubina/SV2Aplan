@@ -1,7 +1,7 @@
 
 assign_1 = (
 		(1)->
-		("FOREACH_EXAMPLE#foreach_example:action 'assign (sum = 0)';")
+		("FOREACH_EXAMPLE#foreach_example:action 'assign (sum=0)';")
 		(foreach_example.sum = 0)),
 cond_1 = (
 		(foreach_example.i_1 < 8)->
@@ -17,5 +17,5 @@ assign_3 = (
 		(foreach_example.i_1 = foreach_example.i_1 + 1)),
 assign_4 = (
 		(1)->
-		("FOREACH_EXAMPLE#foreach_example:action 'assign (sum = sum + data[i_1])';")
+		("FOREACH_EXAMPLE#foreach_example:action 'assign (sum=sum+data[i])';")
 		(foreach_example.sum = foreach_example.sum + BGET(foreach_example.data, foreach_example.i_1)))

@@ -7,16 +7,42 @@ from classes.element_types import ElementsTypes
 from utils.utils import extractFunctionName
 
 
+class BodyElement(Basic):
+    def __init__(
+        self,
+        identifier: str,
+        pointer_to_related: Basic | None = None,
+        element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT,
+        parametrs: ActionParametrArray = ActionParametrArray(),
+    ):
+
+        super().__init__(identifier, (0, 0), element_type)
+        self.parametrs = parametrs
+        self.pointer_to_related = pointer_to_related
+
+    def getName(self):
+        if self.parametrs:
+            if self.parametrs.getLen() == 0:
+                return self.identifier
+            else:
+                return "{0}({1})".format(self.identifier, str(self.parametrs))
+        else:
+            return self.identifier
+
+
 class Protocol(Basic):
     def __init__(
         self,
         identifier: str,
         source_interval: Tuple[int, int],
         element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT,
+        parametrs: ActionParametrArray | None = None,
     ):
         super().__init__(identifier, source_interval, element_type)
-        self.body: List[Tuple[Basic | None, str, ElementsTypes]] = []
+        self.body: List[BodyElement] = []
         self.parametrs: ActionParametrArray = ActionParametrArray()
+        if parametrs is not None:
+            self.parametrs = parametrs
 
     def copy(self):
         protocol = Protocol(self.identifier, self.source_interval, self.element_type)
@@ -26,11 +52,7 @@ class Protocol(Basic):
         protocol.number = self.number
         return protocol
 
-    def setBody(self, body: Tuple[Basic | None, str, ElementsTypes]):
-        self.body.clear()
-        self.body.append(body)
-
-    def addBody(self, body: Tuple[Basic | None, str, ElementsTypes]):
+    def addBody(self, body: BodyElement):
         self.body.append(body)
 
     def getName(self):
@@ -44,44 +66,57 @@ class Protocol(Basic):
 
     def updateLinks(self, module):
         for index, element in enumerate(self.body):
-            obj, protocol_str, elem_type = element
-            func_name = extractFunctionName(protocol_str)
+            func_name = extractFunctionName(element.identifier)
             if func_name:
                 action = module.actions.findElement(func_name)
                 if action:
-                    self.body[index] = (action, protocol_str, elem_type)
+                    self.body[index] = (
+                        action,
+                        element.element_type,
+                        element.element_type,
+                    )
 
     def __str__(self):
         body_to_str = ""
         for index, body_element in enumerate(self.body):
+            element_str = body_element.getName()
             protocol_element = False
-            element, element_str, element_type = body_element
             if index != 0:
                 if self.element_type == ElementsTypes.GENERATE_ELEMENT:
                     body_to_str += " || "
                 else:
-                    prev_element, prev_element_str, prev_element_type = self.body[
-                        index - 1
-                    ]
-                    if element_type == ElementsTypes.FOREVER_ELEMENT:
+                    prev_body_element = self.body[index - 1]
+                    if body_element.element_type == ElementsTypes.FOREVER_ELEMENT:
                         body_to_str += ";"
-                    elif prev_element_type == ElementsTypes.ACTION_ELEMENT and (
-                        element_type == ElementsTypes.ACTION_ELEMENT
-                        or element_type == ElementsTypes.PROTOCOL_ELEMENT
+                    elif (
+                        body_element.element_type == ElementsTypes.IF_CONDITION_RIGTH
+                        and prev_body_element.element_type
+                        == ElementsTypes.IF_CONDITION_LEFT
+                    ):
+                        body_to_str += " + "
+                    elif (
+                        prev_body_element.element_type == ElementsTypes.ACTION_ELEMENT
+                        and (
+                            body_element.element_type == ElementsTypes.ACTION_ELEMENT
+                            or body_element.element_type
+                            == ElementsTypes.PROTOCOL_ELEMENT
+                        )
                     ):
                         body_to_str += "."
                     else:
                         protocol_element = True
                         body_to_str += ";"
 
-            if element is not None:
+            if body_element.pointer_to_related is not None:
                 element_str = re.sub(
-                    r"\b{}\b".format(re.escape(element.identifier)),
-                    element.getName(),
+                    r"\b{}\b".format(
+                        re.escape(body_element.pointer_to_related.identifier)
+                    ),
+                    body_element.pointer_to_related.getName(),
                     element_str,
                 )
 
-            if element_type == ElementsTypes.FOREVER_ELEMENT:
+            if body_element.element_type == ElementsTypes.FOREVER_ELEMENT:
                 body_to_str += "{" + element_str + "}"
             elif protocol_element == False:
                 body_to_str += element_str
@@ -90,16 +125,10 @@ class Protocol(Basic):
             if index == len(self.body) - 1:
                 body_to_str += ","
 
-        if self.parametrs.getLen() > 0:
-            return "{0} = {1}".format(
-                self.getName(),
-                body_to_str,
-            )
-        else:
-            return "{0} = {1}".format(
-                self.getName(),
-                body_to_str,
-            )
+        return "{0} = {1}".format(
+            self.getName(),
+            body_to_str,
+        )
 
     def __repr__(self):
         return f"\tProtocol({self.identifier!r}, {self.sequence!r})\n"

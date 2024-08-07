@@ -16,7 +16,6 @@ class DeclTypes(Enum):
     INPORT = auto()
     OUTPORT = auto()
     STRING = auto()
-    IF_STATEMENT = auto()
     ENUM = auto()
     ENUM_TYPE = auto()
     CLASS = auto()
@@ -149,6 +148,9 @@ class DeclarationArray(BasicArray):
             new_aray.addElement(element.copy())
         return new_aray
 
+    def getElementByIndex(self, index) -> Declaration:
+        return self.elements[index]
+
     def getElementsIE(
         self,
         include: ElementsTypes | None = None,
@@ -222,41 +224,10 @@ class DeclarationArray(BasicArray):
                 result.append(element)
         return result
 
-    def recalculateSizeExpressions(self, parametrs):
-        for element in self.elements:
-            if len(element.size_expression) > 0:
-                expression = replaceParametrsCalls(parametrs, element.size_expression)
-                vector_size = extractVectorSize(expression)
-                aplan_vector_size = [0]
-                if vector_size is not None:
-                    aplan_vector_size = vectorSize2AplanVectorSize(
-                        vector_size[0], vector_size[1]
-                    )
-                element.size = aplan_vector_size[0]
-
-    def isIncludeInputPorts(self):
-        for element in self.elements:
-            if element.data_type == DeclTypes.INPORT:
-                return True
-        return False
-
     def getInputPorts(self):
         result: List[Declaration] = []
         for element in self.elements:
             if element.data_type == DeclTypes.INPORT:
-                result.append(element)
-        return result
-
-    def isIncludeOutputPorts(self):
-        for element in self.elements:
-            if element.data_type == DeclTypes.OUTPORT:
-                return True
-        return False
-
-    def getOutputPorts(self):
-        result: List[Declaration] = []
-        for element in self.elements:
-            if element.data_type == DeclTypes.OUTPORT:
                 result.append(element)
         return result
 

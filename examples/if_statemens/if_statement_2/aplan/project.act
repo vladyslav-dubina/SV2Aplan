@@ -5,5 +5,5 @@ if_1 = (
 		(1)),
 assign_1 = (
 		(1)->
-		("REGISTER_WRITE_ONCE_EXAMPLE#register_write_once_example:action 'assign (Data_out[0] <= Write_once_status)';")
+		("REGISTER_WRITE_ONCE_EXAMPLE#register_write_once_example:action 'assign (Data_out[0]<=Write_once_status)';")
 		(register_write_once_example.Data_out(0) = register_write_once_example.Write_once_status))

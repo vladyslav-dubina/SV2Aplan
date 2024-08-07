@@ -1,7 +1,7 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
-from classes.protocols import Protocol
+from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.utils import Counters_Object
@@ -18,9 +18,8 @@ def assertPropertyStatement2AplanImpl(
             source_interval,
             uniq_action,
         ) = self.expression2Aplan(
-            expression.getText(),
+            expression,
             ElementsTypes.ASSERT_ELEMENT,
-            ctx.getSourceInterval(),
         )
         if assert_name is not None:
             Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
@@ -32,11 +31,11 @@ def assertPropertyStatement2AplanImpl(
                 ctx.getSourceInterval(),
             )
             struct_assert.addBody(
-                (
-                    action_pointer,
+                BodyElement(
                     "{0}.Delta + !{0}.0".format(assert_name),
+                    action_pointer,
                     ElementsTypes.ACTION_ELEMENT,
-                ),
+                )
             )
             self.module.out_of_block_elements.addElement(struct_assert)
 
@@ -47,9 +46,8 @@ def assertInBlock2AplanImpl(
     sv_structure: Structure,
 ):
     action_pointer, assert_name, source_interval, uniq_action = self.expression2Aplan(
-        ctx.expression().getText(),
+        ctx.expression(),
         ElementsTypes.ASSERT_ELEMENT,
-        ctx.expression().getSourceInterval(),
         sv_structure=sv_structure,
     )
     if assert_name is not None:
@@ -64,13 +62,13 @@ def assertInBlock2AplanImpl(
         )
         beh_index = sv_structure.addProtocol(assert_b)
         sv_structure.behavior[beh_index].addBody(
-            (
-                action_pointer,
+            BodyElement(
                 "{0}.Delta + !{0}.0".format(assert_name),
+                action_pointer,
                 ElementsTypes.ACTION_ELEMENT,
             )
         )
         if beh_index != 0:
             sv_structure.behavior[beh_index - 1].addBody(
-                (action_pointer, assert_b, ElementsTypes.PROTOCOL_ELEMENT)
+                BodyElement(assert_b, action_pointer, ElementsTypes.PROTOCOL_ELEMENT)
             )

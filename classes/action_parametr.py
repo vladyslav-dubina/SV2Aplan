@@ -16,6 +16,7 @@ class ActionParametr(Basic):
             action_name += "_"
         self.type = type
         self.uniq_identifier = action_name + ""
+        self.module_name: str | None = None
         super().__init__(identifier, source_interval)
 
     def copy(self):
@@ -46,12 +47,6 @@ class ActionParametrArray(BasicArray):
 
     def insert(self, index: int, element: ActionParametr):
         {self.elements.insert(index, element)}
-
-    def isUniqParametr(self, parametr: ActionParametr):
-        for element in self.elements:
-            if element == parametr:
-                return (element.identifier, element.source_interval)
-        return None, (None, None)
 
     def addElement(self, new_element: ActionParametr):
         if isinstance(new_element, self.element_type):

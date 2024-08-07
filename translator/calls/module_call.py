@@ -5,7 +5,9 @@ from classes.action_precondition import ActionPrecondition, ActionPreconditionAr
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.module_call import ModuleCall
-from classes.protocols import Protocol
+from classes.node import Node, NodeArray
+from classes.protocols import BodyElement, Protocol
+from translator.expression.expression import actionFromNodeStr
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replace_filename
 from utils.utils import Color, Counters_Object, printWithColor
@@ -65,30 +67,46 @@ def moduleCallAssign2Aplan(
                 if decl is None:
                     assign_str_list.append(assign_str)
                 else:
-                    precond_array: ActionPreconditionArray = ActionPreconditionArray()
+                    precond_array: NodeArray = NodeArray(
+                        ElementsTypes.PRECONDITION_ELEMENT
+                    )
                     param_array: ActionParametrArray = ActionParametrArray()
-                    param_index = param_array.addElement(
+                    uniq, param_index = param_array.addElement(
                         ActionParametr(
                             decl.identifier, decl.getAplanDecltypeForParametrs()
                         )
                     )
                     param_array.generateUniqNamesForParamets()
-                    precond_index = precond_array.addElement(
-                        ActionPrecondition(
-                            f"0 <= {decl.identifier} < {decl.dimension_size}"
-                        )
+                    precond_array.addElement(
+                        Node("0", (0, 0), ElementsTypes.NUMBER_ELEMENT)
+                    )
+                    precond_array.addElement(
+                        Node("<=", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
                     )
                     param = param_array.getElementByIndex(param_index)
-                    assign_str = "{0}.{1}[{4}]={2}.{3}[{4}]".format(
+                    precond_array.addElement(
+                        Node(
+                            f"{param.uniq_identifier}",
+                            (0, 0),
+                            ElementsTypes.IDENTIFIER_ELEMENT,
+                        )
+                    )
+                    precond_array.addElement(
+                        Node("<", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
+                    )
+                    precond_array.addElement(
+                        Node(
+                            f"{decl.dimension_size}",
+                            (0, 0),
+                            ElementsTypes.NUMBER_ELEMENT,
+                        )
+                    )
+                    assign_str = "{0}.{1}[{4}] = {2}.{3}[{4}]".format(
                         destination_module_name,
                         destination_var_name,
                         self.module.ident_uniq_name,
                         source_var_name,
                         param.uniq_identifier,
-                    )
-                    precond = precond_array.getElementByIndex(precond_index)
-                    precond.findAndChangeNamesToUniqNames(
-                        param.identifier, param.uniq_identifier
                     )
                     assign_arr_str_list.append(
                         (
@@ -103,11 +121,12 @@ def moduleCallAssign2Aplan(
                 action_name,
                 source_interval,
                 uniq_action,
-            ) = self.expression2Aplan(
+            ) = actionFromNodeStr(
+                self,
                 assign_str_list,
-                ElementsTypes.ASSIGN_FOR_CALL_ELEMENT,
                 ctx.getSourceInterval(),
-                (obj_def, None, None),
+                ElementsTypes.ASSIGN_FOR_CALL_ELEMENT,
+                input_parametrs=(obj_def, None, None),
             )
 
             action_2 = ""
@@ -118,11 +137,12 @@ def moduleCallAssign2Aplan(
                     action_name_2,
                     source_interval,
                     uniq_action,
-                ) = self.expression2Aplan(
+                ) = actionFromNodeStr(
+                    self,
                     expression,
-                    ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT,
                     ctx.getSourceInterval(),
-                    (
+                    ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT,
+                    input_parametrs=(
                         obj_def,
                         parametrs,
                         predicates,
@@ -133,7 +153,7 @@ def moduleCallAssign2Aplan(
 
             action_name = f"Sensetive({action_name}){action_2}"
             struct_call_assign.addBody(
-                (action_pointer, action_name, ElementsTypes.ACTION_ELEMENT)
+                BodyElement(action_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
             )
 
             self.module.out_of_block_elements.addElement(struct_call_assign)
@@ -184,6 +204,7 @@ def moduleCall2AplanImpl(
         finder.setUp(file_data)
         finder.startTranslate(self.program, module_call)
     except Exception as e:
+
         self.program.module_calls.addElement(module_call)
 
     self.program.file_path = previous_file_path
@@ -196,6 +217,9 @@ def moduleCall2AplanImpl(
         call_b, ctx.getSourceInterval(), ElementsTypes.MODULE_CALL_ELEMENT
     )
     struct_call.addBody(
-        (None, f"B_{call_module_name.upper()}", ElementsTypes.PROTOCOL_ELEMENT)
+        BodyElement(
+            identifier=f"B_{call_module_name.upper()}",
+            element_type=ElementsTypes.PROTOCOL_ELEMENT,
+        )
     )
     self.module.out_of_block_elements.addElement(struct_call)

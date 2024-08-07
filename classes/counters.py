@@ -46,31 +46,6 @@ class Counters:
         self.enum_counter = 1
         self.object_counter = 1
 
-    def selectCounter(self, element_type: ElementsTypes):
-        if element_type is ElementsTypes.ASSIGN_ELEMENT:
-            return CounterTypes.ASSIGNMENT_COUNTER
-        if element_type is ElementsTypes.IF_STATEMENT_ELEMENT:
-            return CounterTypes.IF_COUNTER
-        if element_type is ElementsTypes.ALWAYS_ELEMENT:
-            return CounterTypes.ALWAYS_COUNTER
-        if element_type is ElementsTypes.ASSERT_ELEMENT:
-            return CounterTypes.ASSERT_COUNTER
-        if element_type is ElementsTypes.ELSE_BODY_ELEMENT:
-            return CounterTypes.ELSE_BODY_COUNTER
-        if element_type is ElementsTypes.LOOP_ELEMENT:
-            return CounterTypes.LOOP_COUNTER
-        if element_type is ElementsTypes.REPEAT_ELEMENT:
-            return CounterTypes.REPEAT_COUNTER
-        if element_type is ElementsTypes.CASE_ELEMENT:
-            return CounterTypes.CASE_COUNTER
-        if element_type is ElementsTypes.FOREVER_ELEMENT:
-            return CounterTypes.FOREVER_COUNTER
-        if element_type is ElementsTypes.TASK_ELEMENT:
-            return CounterTypes.TASK_COUNTER
-        if element_type is ElementsTypes.OBJECT_ELEMENT:
-            return CounterTypes.OBJECT_COUNTER
-        return CounterTypes.NONE_COUNTER
-
     def incrieseCounter(self, counter_type: CounterTypes):
         if counter_type is CounterTypes.ASSIGNMENT_COUNTER:
             self.assignment_counter += 1

@@ -1,9 +1,9 @@
-import re
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.module import Module
 from classes.processed import ProcessedElement
+from classes.protocols import BodyElement
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import (
@@ -12,15 +12,6 @@ from utils.string_formating import (
     replaceParametrsCalls,
 )
 from utils.utils import Counters_Object
-
-
-def replaceGenvarToValue(expression: str, genvar: str, value: int):
-    expression = re.sub(
-        r"\b{}\b".format(re.escape(genvar)),
-        f"{value}",
-        expression,
-    )
-    return expression
 
 
 def generateBodyToAplan(
@@ -35,8 +26,7 @@ def generateBodyToAplan(
             or type(child) is SystemVerilogParser.Net_assignmentContext
             or type(child) is SystemVerilogParser.Variable_assignmentContext
         ):
-            expression = child.getText()
-            expression = replaceGenvarToValue(expression, init_var_name, current_value)
+            self.current_genvar_value = (init_var_name, current_value)
             self.module.processed_elements.addElement(
                 ProcessedElement("action", child.getSourceInterval())
             )
@@ -46,15 +36,15 @@ def generateBodyToAplan(
                 source_interval,
                 uniq_action,
             ) = self.expression2Aplan(
-                expression,
+                child,
                 ElementsTypes.ASSIGN_ELEMENT,
-                child.getSourceInterval(),
                 sv_structure=sv_structure,
             )
+            self.current_genvar_value = None
 
             action_name = f"Sensetive({action_name})"
             sv_structure.behavior[0].addBody(
-                (action_pointer, action_name, ElementsTypes.ACTION_ELEMENT)
+                BodyElement(action_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
             )
 
         else:

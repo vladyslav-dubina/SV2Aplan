@@ -5,7 +5,7 @@ if_1 = (
 		(1)),
 assign_1 = (
 		(1)->
-		("LOCKED_REGISTER_EXAMPLE#Locked_register_example:action 'assign (lock_status <= 0)';")
+		("LOCKED_REGISTER_EXAMPLE#Locked_register_example:action 'assign (lock_status<=0)';")
 		(Locked_register_example.lock_status = 0)),
 if_2 = (
 		(Locked_register_example.Lock)->
@@ -13,7 +13,7 @@ if_2 = (
 		(1)),
 assign_2 = (
 		(1)->
-		("LOCKED_REGISTER_EXAMPLE#Locked_register_example:action 'assign (lock_status <= 1)';")
+		("LOCKED_REGISTER_EXAMPLE#Locked_register_example:action 'assign (lock_status<=1)';")
 		(Locked_register_example.lock_status = 1)),
 if_3 = (
 		(~(Locked_register_example.Lock))->
@@ -21,23 +21,23 @@ if_3 = (
 		(1)),
 assign_3 = (
 		(1)->
-		("LOCKED_REGISTER_EXAMPLE#Locked_register_example:action 'assign (lock_status <= lock_status)';")
+		("LOCKED_REGISTER_EXAMPLE#Locked_register_example:action 'assign (lock_status<=lock_status)';")
 		(Locked_register_example.lock_status = Locked_register_example.lock_status)),
 assign_4 = (
 		(1)->
-		("LOCKED_REGISTER_EXAMPLE#Locked_register_example:action 'assign (Data_out <= 0)';")
+		("LOCKED_REGISTER_EXAMPLE#Locked_register_example:action 'assign (Data_out<=0)';")
 		(Locked_register_example.Data_out = 0)),
 if_4 = (
-		(Locked_register_example.write & ( ~(Locked_register_example.lock_status) | Locked_register_example.scan_mode | Locked_register_example.debug_unlocked ))->
-		("LOCKED_REGISTER_EXAMPLE#Locked_register_example:action 'if (write & ( ~lock_status | scan_mode | debug_unlocked ))';")
+		(Locked_register_example.write & (~(Locked_register_example.lock_status) | Locked_register_example.scan_mode | Locked_register_example.debug_unlocked))->
+		("LOCKED_REGISTER_EXAMPLE#Locked_register_example:action 'if (write&(~lock_status|scan_mode|debug_unlocked))';")
 		(1)),
 assign_5 = (
 		(1)->
-		("LOCKED_REGISTER_EXAMPLE#Locked_register_example:action 'assign (Data_out <= Data_in)';")
+		("LOCKED_REGISTER_EXAMPLE#Locked_register_example:action 'assign (Data_out<=Data_in)';")
 		(Locked_register_example.Data_out = Locked_register_example.Data_in)),
 assert_1 = (
 		(Locked_register_example.write && Locked_register_example.lock_status)->
-		("LOCKED_REGISTER_EXAMPLE#Locked_register_example:action 'assert (write && lock_status)';")
+		("LOCKED_REGISTER_EXAMPLE#Locked_register_example:action 'assert (write&&lock_status)';")
 		(1)),
 if_5 = (
 		(~(Locked_register_example.write))->
@@ -45,5 +45,5 @@ if_5 = (
 		(1)),
 assign_6 = (
 		(1)->
-		("LOCKED_REGISTER_EXAMPLE#Locked_register_example:action 'assign (Data_out <= Data_out)';")
+		("LOCKED_REGISTER_EXAMPLE#Locked_register_example:action 'assign (Data_out<=Data_out)';")
 		(Locked_register_example.Data_out = Locked_register_example.Data_out))

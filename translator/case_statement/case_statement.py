@@ -3,9 +3,11 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.actions import Action
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
+from classes.node import Node
+from classes.protocols import BodyElement
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.string_formating import addEqueToBGET
+from utils.string_formating import addEqueToBGET, valuesToAplanStandart
 from utils.utils import Counters_Object
 
 
@@ -15,7 +17,7 @@ def caseStatement2AplanImpl(
     sv_structure: Structure,
     names_for_change: List[str],
 ):
-    case_expression = ctx.case_expression().getText()
+    case_expression = ctx.case_expression()
     case_item_list = ctx.case_item()
     for index, case_item in enumerate(case_item_list):
         statement = case_item.statement_or_null().statement()
@@ -29,7 +31,7 @@ def caseStatement2AplanImpl(
         for case_item_expression in case_item_expressions:
             if case_item_expression is not None:
                 condition_txt = "({0}) == ({1})".format(
-                    case_expression, case_item_expression.getText()
+                    case_expression.getText(), case_item_expression.getText()
                 )
                 action_name = "case_{0}".format(
                     Counters_Object.getCounter(CounterTypes.CASE_COUNTER)
@@ -41,23 +43,36 @@ def caseStatement2AplanImpl(
                     case_item_expression.getSourceInterval(),
                 )
 
-                condition_txt = self.module.name_change.changeNamesInStr(condition_txt)
-                (
-                    condition_string,
-                    condition_with_replaced_names,
-                ) = self.prepareExpressionString(
-                    condition_txt,
-                    ElementsTypes.CASE_ELEMENT,
+                case_action.precondition.addElement(
+                    Node("(", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
+                )
+                self.body2Aplan(
+                    case_expression, destination_node_array=case_action.precondition
+                )
+                case_action.precondition.addElement(
+                    Node(")", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
+                )
+                case_action.precondition.addElement(
+                    Node("==", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
+                )
+                case_action.precondition.addElement(
+                    Node("(", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
+                )
+                self.body2Aplan(
+                    case_item_expression,
+                    destination_node_array=case_action.precondition,
+                )
+                case_action.precondition.addElement(
+                    Node(")", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
                 )
 
-                predicate_with_replaced_names = addEqueToBGET(
-                    condition_with_replaced_names
+                condition_txt = valuesToAplanStandart(condition_txt)
+
+                case_action.description = f"{self.module.identifier}#{self.module.ident_uniq_name}:action 'case ({condition_txt})'"
+
+                case_action.postcondition.addElement(
+                    Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)
                 )
-                case_action.precondition.body.append(predicate_with_replaced_names)
-                case_action.description.body.append(
-                    f"{self.module.identifier}#{self.module.ident_uniq_name}:action 'case ({condition_string})'"
-                )
-                case_action.postcondition.body.append("1")
 
                 (
                     action_pointer,
@@ -69,71 +84,118 @@ def caseStatement2AplanImpl(
                 else:
                     action_name = case_check_result
 
-            protocol_params = ""
+            protocol_params = None
             if self.inside_the_task == True:
                 task = self.module.tasks.getLastTask()
                 if task is not None:
-                    protocol_params = "({0})".format(task.parametrs)
+                    protocol_params = task.parametrs
 
             if index == 0:
                 Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
                 beh_index = sv_structure.getLastBehaviorIndex()
                 if beh_index is not None:
                     sv_structure.behavior[beh_index].addBody(
-                        (
-                            None,
-                            "B_{0}{1}".format(
+                        BodyElement(
+                            identifier="B_{0}".format(
                                 Counters_Object.getCounter(CounterTypes.B_COUNTER),
-                                protocol_params,
                             ),
-                            ElementsTypes.PROTOCOL_ELEMENT,
+                            element_type=ElementsTypes.PROTOCOL_ELEMENT,
+                            parametrs=protocol_params,
                         )
                     )
                 sv_structure.addProtocol(
-                    "B_{0}{1}".format(
+                    "B_{0}".format(
                         Counters_Object.getCounter(CounterTypes.B_COUNTER),
-                        protocol_params,
-                    )
+                    ),
+                    parametrs=protocol_params,
                 )
             else:
                 sv_structure.addProtocol(
-                    "ELSE_BODY_{0}{1}".format(
+                    "ELSE_BODY_{0}".format(
                         Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER),
-                        protocol_params,
-                    )
+                    ),
+                    parametrs=protocol_params,
                 )
                 Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
 
             beh_index = sv_structure.getLastBehaviorIndex()
             if beh_index is not None:
                 if case_item.DEFAULT():
-                    body = "CASE_BODY_{0}{1}".format(
+                    body = "CASE_BODY_{0}".format(
                         Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
-                        protocol_params,
-                    )
-                elif index == len(case_item_list) - 1:
-                    body = "{0}.CASE_BODY_{1}{2} + !{0}".format(
-                        action_name,
-                        Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
-                        protocol_params,
-                    )
-                else:
-                    body = "{0}.CASE_BODY_{1}{3} + !{0}.ELSE_BODY_{2}{3}".format(
-                        action_name,
-                        Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
-                        Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER),
-                        protocol_params,
                     )
 
-                sv_structure.behavior[beh_index].addBody(
-                    (action_pointer, body, ElementsTypes.ACTION_ELEMENT)
-                )
+                    sv_structure.behavior[beh_index].addBody(
+                        BodyElement(
+                            body,
+                            action_pointer,
+                            ElementsTypes.ACTION_ELEMENT,
+                            parametrs=protocol_params,
+                        )
+                    )
+
+                elif index == len(case_item_list) - 1:
+                    body = "{0}.CASE_BODY_{1}".format(
+                        action_name,
+                        Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
+                    )
+
+                    sv_structure.behavior[beh_index].addBody(
+                        BodyElement(
+                            body,
+                            action_pointer,
+                            ElementsTypes.IF_CONDITION_LEFT,
+                            parametrs=protocol_params,
+                        )
+                    )
+
+                    body = "!{0}".format(
+                        action_name,
+                    )
+
+                    sv_structure.behavior[beh_index].addBody(
+                        BodyElement(
+                            body,
+                            action_pointer,
+                            ElementsTypes.IF_CONDITION_RIGTH,
+                            parametrs=protocol_params,
+                        )
+                    )
+
+                else:
+                    body = "{0}.CASE_BODY_{1}".format(
+                        action_name,
+                        Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
+                    )
+
+                    sv_structure.behavior[beh_index].addBody(
+                        BodyElement(
+                            body,
+                            action_pointer,
+                            ElementsTypes.IF_CONDITION_LEFT,
+                            parametrs=protocol_params,
+                        )
+                    )
+
+                    body = "!{0}.ELSE_BODY_{1}".format(
+                        action_name,
+                        Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER),
+                    )
+
+                    sv_structure.behavior[beh_index].addBody(
+                        BodyElement(
+                            body,
+                            action_pointer,
+                            ElementsTypes.IF_CONDITION_RIGTH,
+                            parametrs=protocol_params,
+                        )
+                    )
 
             sv_structure.addProtocol(
-                "CASE_BODY_{0}{1}".format(
+                "CASE_BODY_{0}".format(
                     Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
-                    protocol_params,
-                )
+                ),
+                parametrs=protocol_params,
             )
 
             Counters_Object.incrieseCounter(CounterTypes.BODY_COUNTER)

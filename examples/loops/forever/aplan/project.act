@@ -1,7 +1,7 @@
 
 assign_1 = (
 		(1)->
-		("FOREVER_EXAMPLE#forever_example:action 'assign (count = 0)';")
+		("FOREVER_EXAMPLE#forever_example:action 'assign (count=0)';")
 		(forever_example.count = 0)),
 if_1 = (
 		(!(forever_example.reset_n))->
@@ -9,9 +9,9 @@ if_1 = (
 		(1)),
 assign_2 = (
 		(1)->
-		("FOREVER_EXAMPLE#forever_example:action 'assign (count = count + 1)';")
+		("FOREVER_EXAMPLE#forever_example:action 'assign (count=count+1)';")
 		(forever_example.count = forever_example.count + 1)),
 assign_3 = (
 		(1)->
-		("FOREVER_EXAMPLE#forever_example:action 'assign (counter = count)';")
+		("FOREVER_EXAMPLE#forever_example:action 'assign (counter=count)';")
 		(forever_example.counter = forever_example.count))

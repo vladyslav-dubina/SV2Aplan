@@ -7,9 +7,6 @@ module main;
     } state_t;
 
     
-    
-    initial begin
-        state_t current_state;
-    end
+    state_t current_state;
 
 endmodule

@@ -1,27 +1,27 @@
 
 assign_1 = (
 		(1)->
-		("REPEAT_EXAMPLE#repeat_example:action 'assign (done = 0)';")
+		("REPEAT_EXAMPLE#repeat_example:action 'assign (done=0)';")
 		(repeat_example.done = 0)),
 assign_2 = (
 		(1)->
-		("REPEAT_EXAMPLE#repeat_example:action 'assign (start = 0)';")
+		("REPEAT_EXAMPLE#repeat_example:action 'assign (start=0)';")
 		(repeat_example.start = 0)),
 assign_3 = (
 		(1)->
 		("REPEAT_EXAMPLE#repeat_example:action 'assign (repeat_var_1 = 0)';")
-		(repeat_var_1 = 0)),
+		(repeat_example.repeat_var_1 = 0)),
 repeat_iteration_1 = (
 		(1)->
 		("REPEAT_EXAMPLE#repeat_example:action 'repeat_iteration (repeat_var_1 = repeat_var_1 + 1)';")
 		(repeat_example.repeat_var_1 = repeat_example.repeat_var_1 + 1)),
 cond_1 = (
-		(repeat_example.repeat_example.repeat_var_1 < 5)->
-		("REPEAT_EXAMPLE#repeat_example:action 'cond (repeat_example.repeat_var_1 < 5)';")
+		(repeat_example.repeat_var_1 < 5)->
+		("REPEAT_EXAMPLE#repeat_example:action 'cond (repeat_var_1 < 5)';")
 		(1)),
 assign_4 = (
 		(1)->
-		("REPEAT_EXAMPLE#repeat_example:action 'assign (start = 1)';")
+		("REPEAT_EXAMPLE#repeat_example:action 'assign (start=1)';")
 		(repeat_example.start = 1)),
 if_1 = (
 		(!(repeat_example.reset_n))->
@@ -29,11 +29,11 @@ if_1 = (
 		(1)),
 assign_5 = (
 		(1)->
-		("REPEAT_EXAMPLE#repeat_example:action 'assign (count <= 0)';")
+		("REPEAT_EXAMPLE#repeat_example:action 'assign (count<=0)';")
 		(repeat_example.count = 0)),
 assign_6 = (
 		(1)->
-		("REPEAT_EXAMPLE#repeat_example:action 'assign (done <= 0)';")
+		("REPEAT_EXAMPLE#repeat_example:action 'assign (done<=0)';")
 		(repeat_example.done = 0)),
 if_2 = (
 		(repeat_example.start)->
@@ -41,13 +41,13 @@ if_2 = (
 		(1)),
 if_3 = (
 		(repeat_example.count < 10)->
-		("REPEAT_EXAMPLE#repeat_example:action 'if (count < 10)';")
+		("REPEAT_EXAMPLE#repeat_example:action 'if (count<10)';")
 		(1)),
 assign_7 = (
 		(1)->
-		("REPEAT_EXAMPLE#repeat_example:action 'assign (count <= count + 1)';")
+		("REPEAT_EXAMPLE#repeat_example:action 'assign (count<=count+1)';")
 		(repeat_example.count = repeat_example.count + 1)),
 assign_8 = (
 		(1)->
-		("REPEAT_EXAMPLE#repeat_example:action 'assign (done <= 1)';")
+		("REPEAT_EXAMPLE#repeat_example:action 'assign (done<=1)';")
 		(repeat_example.done = 1))

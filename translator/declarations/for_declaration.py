@@ -5,6 +5,7 @@ from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from classes.name_change import NameChange
 from classes.structure import Structure
+from translator.expression.expression import actionFromNodeStr
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.utils import Counters_Object
 
@@ -112,17 +113,18 @@ def loopVarsDeclarations2AplanImpl(
     assign_names: List[str] = []
     action_pointers = []
     for index, identifier in enumerate(vars_names):
-        action_txt = f"{identifier}=0"
+        action_txt = f"{identifier} = 0"
         (
             action_pointer,
             assign_name,
             source_interval,
             uniq_action,
-        ) = self.expression2Aplan(
+        ) = actionFromNodeStr(
+            self,
             action_txt,
-            ElementsTypes.ASSIGN_ELEMENT,
             source_intervals[index],
-            sv_structure=sv_structure,
+            ElementsTypes.ASSIGN_ELEMENT,
+            sv_structure,
         )
         assign_names.append(assign_name)
         action_pointers.append(action_pointer)
@@ -159,17 +161,18 @@ def loopVarsToIteration2AplanImpl(
     assign_names: List[str] = []
     action_pointers = []
     for index, identifier in enumerate(vars_names):
-        action_txt = f"{identifier}={identifier}+1"
+        action_txt = f"{identifier} = {identifier} + 1"
         (
             action_pointer,
             assign_name,
             source_interval,
             uniq_action,
-        ) = self.expression2Aplan(
+        ) = actionFromNodeStr(
+            self,
             action_txt,
-            ElementsTypes.ASSIGN_ELEMENT,
             source_intervals[index],
-            sv_structure=sv_structure,
+            ElementsTypes.ASSIGN_ELEMENT,
+            sv_structure,
         )
         assign_names.append(assign_name)
         action_pointers.append(action_pointer)
@@ -210,20 +213,22 @@ def loopVarsAndArrayIdentifierToCondition2AplanImpl(
     array_identifier = ctx.hierarchical_array_identifier().getText()
     condition = ""
     decl = self.module.declarations.findElement(array_identifier)
+
     for index, element in enumerate(vars_names):
         if index != 0:
-            condition += "&&"
-        condition = "{0}<{1}".format(element, decl.size)
+            condition += " && "
+        condition = "{0} < {1}".format(element, decl.size)
     (
         action_pointer,
         condition_name,
         source_interval,
         uniq_action,
-    ) = self.expression2Aplan(
+    ) = actionFromNodeStr(
+        self,
         condition,
-        ElementsTypes.CONDITION_ELEMENT,
         ctx.getSourceInterval(),
-        sv_structure=sv_structure,
+        ElementsTypes.CONDITION_ELEMENT,
+        sv_structure,
     )
     return (action_pointer, condition_name)
 
@@ -292,63 +297,3 @@ def forInitialization2ApanImpl(
 
         return identifier
     return None
-
-
-def forDeclaration2ApanImpl(
-    self: SV2aplan,
-    ctx: SystemVerilogParser.For_variable_declarationContext,
-    sv_structure: Structure,
-):
-    """This function processes a SystemVerilog for loop variable declaration and adds it to a module's
-    declarations.
-
-    Parameters
-    ----------
-    self : SV2aplan
-        The `self` parameter in the `forDeclaration2ApanImpl` method refers to an instance of the
-    `SV2aplan` class. It is used to access the attributes and methods of the class within the method
-    implementation.
-    ctx : SystemVerilogParser.For_variable_declarationContext
-        The `ctx` parameter in the `forDeclaration2ApanImpl` function is of type
-    `SystemVerilogParser.For_variable_declarationContext`. It is used to extract information about the
-    variable declaration within a for loop in a SystemVerilog code snippet. This context object provides
-    access to the data type
-
-    """
-    assign_name = ""
-    data_type = ctx.data_type().getText()
-    size_expression = data_type
-    if ctx.expression(0) is not None:
-        action_txt = (
-            f"{ctx.variable_identifier(0).getText()}={ctx.expression(0).getText()}"
-        )
-        (
-            action_pointer,
-            assign_name,
-            source_interval,
-            uniq_action,
-        ) = self.expression2Aplan(
-            action_txt,
-            ElementsTypes.ASSIGN_ELEMENT,
-            ctx.getSourceInterval(),
-            sv_structure=sv_structure,
-        )
-
-    data_type = DeclTypes.checkType(data_type)
-    identifier = ctx.variable_identifier(0).getText()
-    decl_unique, decl_index = self.module.declarations.addElement(
-        Declaration(
-            data_type,
-            identifier,
-            assign_name,
-            size_expression,
-            0,
-            "",
-            0,
-            ctx.getSourceInterval(),
-            ElementsTypes.NONE_ELEMENT,
-            action_pointer,
-        )
-    )
-    declaration = self.module.declarations.getElementByIndex(decl_index)
-    sv_structure.elements.addElement(declaration)

@@ -4,11 +4,12 @@ from classes.action_parametr import ActionParametr
 from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
-from classes.protocols import Protocol
+from classes.node import Node, NodeArray
+from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from classes.tasks import Task
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.utils import Counters_Object, extractParameters, findReturnOrAssignment
+from utils.utils import Counters_Object
 
 
 def taskOrFunctionDeclaration2AplanImpl(
@@ -45,7 +46,6 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
         task_Type = ElementsTypes.TASK_ELEMENT
     elif isinstance(ctx, SystemVerilogParser.Function_body_declarationContext):
         identifier = ctx.function_identifier(0).getText()
-        return_var_name = f"return_{identifier}"
         body += ctx.function_statement_or_null()
 
         task_Type = ElementsTypes.FUNCTION_ELEMENT
@@ -56,7 +56,7 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
         elif ctx.SUPER():
             identifier = "super"
         body += ctx.function_statement_or_null()
-        task_Type = ElementsTypes.CONSTRUCTOR_ELEMENT
+        task_Type = ElementsTypes.FUNCTION_ELEMENT
 
     task = Task(identifier, ctx.getSourceInterval(), task_Type)
     if self.module.element_type is ElementsTypes.CLASS_ELEMENT:
@@ -97,15 +97,6 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
     self.inside_the_task = True
 
     if isinstance(ctx, SystemVerilogParser.Function_body_declarationContext):
-        for body_element in body:
-            if findReturnOrAssignment(identifier, body_element.getText()):
-                task.parametrs.addElement(
-                    ActionParametr(
-                        return_var_name,
-                        "var",
-                    )
-                )
-
         self.inside_the_function = True
 
     for body_element in body:
@@ -124,8 +115,95 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
     self.module.structures.addElement(task_structure)
 
 
+def methodCall2AplanImpl(
+    self: SV2aplan,
+    ctx: SystemVerilogParser.Method_call_bodyContext,
+    sv_structure: Structure,
+    destination_node_array: NodeArray | None = None,
+):
+
+    task_identifier = ctx.method_identifier().getText()
+    destination_node_array.removeElementByIndex(destination_node_array.getLen() - 1)
+    node = destination_node_array.getElementByIndex(destination_node_array.getLen() - 1)
+    object_identifier = node.identifier
+    destination_node_array.removeElementByIndex(destination_node_array.getLen() - 1)
+    argument_list = ctx.list_of_arguments().getText()
+    (
+        argument_list,
+        argument_list_with_replaced_names,
+    ) = self.prepareExpressionString(argument_list, ElementsTypes.TASK_ELEMENT)
+
+    argument_list_with_replaced_names = self.module.name_change.changeNamesInStr(
+        argument_list_with_replaced_names
+    )
+
+    argument_list_with_replaced_names = self.module.findAndChangeNamesToAgentAttrCall(
+        argument_list_with_replaced_names
+    )
+
+    object = self.module.packages_and_objects.findModuleByUniqIdentifier(
+        object_identifier
+    )
+
+    task = object.tasks.findElement(task_identifier)
+    createTFNMCall(
+        self,
+        task,
+        sv_structure,
+        destination_node_array,
+        object_identifier,
+        argument_list_with_replaced_names,
+        ctx.getSourceInterval(),
+    )
+
+
+def classNew2AplanImpl(
+    self: SV2aplan,
+    ctx: SystemVerilogParser.Class_newContext,
+    sv_structure: Structure,
+    destination_node_array: NodeArray | None = None,
+):
+    destination_node_array.removeElementByIndex(destination_node_array.getLen() - 1)
+    node = destination_node_array.getElementByIndex(destination_node_array.getLen() - 1)
+    object_identifier = node.identifier
+    destination_node_array.removeElementByIndex(destination_node_array.getLen() - 1)
+    task_identifier = "new"
+
+    argument_list = ctx.list_of_arguments().getText()
+    (
+        argument_list,
+        argument_list_with_replaced_names,
+    ) = self.prepareExpressionString(argument_list, ElementsTypes.TASK_ELEMENT)
+
+    argument_list_with_replaced_names = self.module.name_change.changeNamesInStr(
+        argument_list_with_replaced_names
+    )
+
+    argument_list_with_replaced_names = self.module.findAndChangeNamesToAgentAttrCall(
+        argument_list_with_replaced_names
+    )
+
+    object = self.module.packages_and_objects.findModuleByUniqIdentifier(
+        object_identifier
+    )
+
+    task = object.tasks.findElement(task_identifier)
+    createTFNMCall(
+        self,
+        task,
+        sv_structure,
+        destination_node_array,
+        object_identifier,
+        argument_list_with_replaced_names,
+        ctx.getSourceInterval(),
+    )
+
+
 def taskCall2AplanImpl(
-    self: SV2aplan, ctx: SystemVerilogParser.Tf_callContext, sv_structure: Structure
+    self: SV2aplan,
+    ctx: SystemVerilogParser.Class_newContext,
+    sv_structure: Structure,
+    destination_node_array: NodeArray | None = None,
 ):
     ps_or_hierarchical_tf = ctx.ps_or_hierarchical_tf_identifier()
     hierarchical_tf_identifier = ps_or_hierarchical_tf.hierarchical_tf_identifier()
@@ -146,94 +224,129 @@ def taskCall2AplanImpl(
         argument_list_with_replaced_names,
     ) = self.prepareExpressionString(argument_list, ElementsTypes.TASK_ELEMENT)
 
+    argument_list_with_replaced_names = self.module.name_change.changeNamesInStr(
+        argument_list_with_replaced_names
+    )
+
+    argument_list_with_replaced_names = self.module.findAndChangeNamesToAgentAttrCall(
+        argument_list_with_replaced_names
+    )
+
     if object_identifier:
         object = self.module.packages_and_objects.findModuleByUniqIdentifier(
             object_identifier
         )
         task = object.tasks.findElement(task_identifier)
-        argument_list_with_replaced_names = "{0}, {1}".format(
-            object_identifier, argument_list_with_replaced_names
-        )
     else:
         task = self.module.tasks.findElement(task_identifier)
+        if task is None:
+            packages = self.module.packages_and_objects.getElementsIE(
+                include=ElementsTypes.PACKAGE_ELEMENT,
+                exclude_ident_uniq_name=self.module.ident_uniq_name,
+            )
+            for element in packages.getElements():
+                task = element.tasks.findElement(task_identifier)
+                if task is not None:
+                    break
+    createTFNMCall(
+        self,
+        task,
+        sv_structure,
+        destination_node_array,
+        object_identifier,
+        argument_list_with_replaced_names,
+        ctx.getSourceInterval(),
+    )
+
+
+def createTFNMCall(
+    self: SV2aplan,
+    task: Task | None,
+    sv_structure: Structure,
+    destination_node_array: NodeArray | None = None,
+    object_identifier: str | None = None,
+    arguments: str = "",
+    source_interval: Tuple[int, int] = (0, 0),
+):
 
     if task is not None:
-        task_call = "{0}".format(task.structure.identifier)
+        if task.element_type == ElementsTypes.TASK_ELEMENT:
+            task_call = "{0}".format(task.structure.identifier)
 
-        beh_index = sv_structure.getLastBehaviorIndex()
-        copy = task.structure.copy()
-        copy.additional_params = argument_list_with_replaced_names
-        if beh_index is not None:
-            sv_structure.behavior[beh_index].addBody(
-                (copy, task_call, ElementsTypes.PROTOCOL_ELEMENT)
-            )
-        else:
-            Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-            task_call = "B_{0}".format(task.structure.identifier)
-            b_index = sv_structure.addProtocol(task_call)
-            sv_structure.behavior[b_index].addBody(
-                (copy, task_call, ElementsTypes.PROTOCOL_ELEMENT)
-            )
+            beh_index = sv_structure.getLastBehaviorIndex()
+            copy = task.structure.copy()
+            copy.additional_params = arguments
+            if beh_index is not None:
+                sv_structure.behavior[beh_index].addBody(
+                    BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
+                )
+            else:
+                Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+                task_call = "B_{0}".format(task.structure.identifier)
+                b_index = sv_structure.addProtocol(task_call)
+                sv_structure.behavior[b_index].addBody(
+                    BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
+                )
+        elif task.element_type == ElementsTypes.FUNCTION_ELEMENT:
 
+            function_result_var = None
 
-def funtionCall2AplanImpl(
-    self: SV2aplan,
-    task: Task,
-    sv_structure: Structure,
-    function_result_var: str | None,
-    function_call: str,
-    source_interval: Tuple[int, int],
-    object_pointer: str | None,
-):
-    parametrs = extractParameters(function_call, task.identifier)
+            if task.findReturnParam():
+                function_result_var = "{0}_call_result_{1}".format(
+                    task.identifier,
+                    Counters_Object.getCounter(CounterTypes.TASK_COUNTER),
+                )
+                if destination_node_array:
+                    node_index = destination_node_array.addElement(
+                        Node(
+                            function_result_var,
+                            (0, 0),
+                            ElementsTypes.IDENTIFIER_ELEMENT,
+                        )
+                    )
+                    node = destination_node_array.getElementByIndex(node_index)
+                    node.module_name = self.module.ident_uniq_name
 
-    parametrs_str = ""
-    if function_result_var is not None:
-        new_decl = Declaration(
-            DeclTypes.INT,
-            function_result_var,
-            "",
-            "",
-            0,
-            "",
-            0,
-            source_interval,
-        )
-        sv_structure.elements.addElement(new_decl)
-        decl_unique, decl_index = self.module.declarations.addElement(new_decl)
+            if function_result_var is not None:
+                new_decl = Declaration(
+                    DeclTypes.INT,
+                    function_result_var,
+                    "",
+                    "",
+                    0,
+                    "",
+                    0,
+                    source_interval,
+                )
+                sv_structure.elements.addElement(new_decl)
+                decl_unique, decl_index = self.module.declarations.addElement(new_decl)
 
-    if object_pointer:
-        parametrs_str += object_pointer
+            if object_identifier:
+                if len(arguments) > 0:
+                    arguments = ", " + arguments
+                arguments = object_identifier + arguments
 
-    for index, element in enumerate(parametrs):
-        if index != 0:
-            parametrs_str += ", "
-        else:
-            if len(parametrs_str) > 0:
-                parametrs_str += ", "
-        parametrs_str += element
+            if function_result_var is not None:
+                if len(arguments) > 0:
+                    arguments += ", "
+                arguments += "{0}.{1}".format(
+                    self.module.ident_uniq_name, function_result_var
+                )
 
-    if function_result_var is not None:
-        if len(parametrs_str) > 0:
-            parametrs_str += ", "
-        parametrs_str += "{0}.{1}".format(
-            self.module.ident_uniq_name, function_result_var
-        )
+            task_call = "{0}".format(task.structure.identifier)
+            beh_index = sv_structure.getLastBehaviorIndex()
+            copy = task.structure.copy()
+            copy.additional_params = arguments
+            if beh_index is not None:
+                sv_structure.behavior[beh_index].addBody(
+                    BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
+                )
+            else:
+                Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+                task_call = "B_{0}".format(task.structure.identifier)
+                b_index = sv_structure.addProtocol(task_call)
+                sv_structure.behavior[b_index].addBody(
+                    BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
+                )
 
-    task_call = "{0}".format(task.structure.identifier)
-    beh_index = sv_structure.getLastBehaviorIndex()
-    copy = task.structure.copy()
-    copy.additional_params = parametrs_str
-    if beh_index is not None:
-        sv_structure.behavior[beh_index].addBody(
-            (copy, task_call, ElementsTypes.PROTOCOL_ELEMENT)
-        )
-    else:
-        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-        task_call = "B_{0}".format(task.structure.identifier)
-        b_index = sv_structure.addProtocol(task_call)
-        sv_structure.behavior[b_index].addBody(
-            (copy, task_call, ElementsTypes.PROTOCOL_ELEMENT)
-        )
-
-    Counters_Object.incrieseCounter(CounterTypes.TASK_COUNTER)
+            Counters_Object.incrieseCounter(CounterTypes.TASK_COUNTER)
