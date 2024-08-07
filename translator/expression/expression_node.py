@@ -27,6 +27,22 @@ def paramsCallReplace(self: SV2aplan, expression):
     return replaceParametrsCalls(parametrs_array, expression)
 
 
+def replaceClassCall(self: SV2aplan, expression):
+    classes = self.module.packages_and_objects.getElementsIE(
+        include=ElementsTypes.CLASS_ELEMENT,
+        exclude_ident_uniq_name=self.module.ident_uniq_name,
+    )
+
+    for element in classes.elements:
+        expression = re.sub(
+            r"\b{}\b".format(re.escape(element.identifier)),
+            "object_pointer",
+            expression,
+        )
+
+    return expression
+
+
 def identifier2AplanImpl(
     self: SV2aplan,
     ctx: SystemVerilogParser.IdentifierContext,
@@ -40,7 +56,10 @@ def identifier2AplanImpl(
         node = destination_node_array.getElementByIndex(index)
         decl = self.module.declarations.getElement(node.identifier)
         if decl:
-            node.module_name = self.module.ident_uniq_name
+            if self.module.element_type == ElementsTypes.CLASS_ELEMENT:
+                node.module_name = "object_pointer"
+            else:
+                node.module_name = self.module.ident_uniq_name
 
         node.identifier = paramsCallReplace(self, node.identifier)
 

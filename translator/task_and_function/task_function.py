@@ -46,7 +46,6 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
         task_Type = ElementsTypes.TASK_ELEMENT
     elif isinstance(ctx, SystemVerilogParser.Function_body_declarationContext):
         identifier = ctx.function_identifier(0).getText()
-        return_var_name = f"return_{identifier}"
         body += ctx.function_statement_or_null()
 
         task_Type = ElementsTypes.FUNCTION_ELEMENT
@@ -57,7 +56,7 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
         elif ctx.SUPER():
             identifier = "super"
         body += ctx.function_statement_or_null()
-        task_Type = ElementsTypes.CONSTRUCTOR_ELEMENT
+        task_Type = ElementsTypes.FUNCTION_ELEMENT
 
     task = Task(identifier, ctx.getSourceInterval(), task_Type)
     if self.module.element_type is ElementsTypes.CLASS_ELEMENT:
@@ -116,9 +115,93 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
     self.module.structures.addElement(task_structure)
 
 
+def methodCall2AplanImpl(
+    self: SV2aplan,
+    ctx: SystemVerilogParser.Method_call_bodyContext,
+    sv_structure: Structure,
+    destination_node_array: NodeArray | None = None,
+):
+
+    task_identifier = ctx.method_identifier().getText()
+    destination_node_array.removeElementByIndex(destination_node_array.getLen() - 1)
+    node = destination_node_array.getElementByIndex(destination_node_array.getLen() - 1)
+    object_identifier = node.identifier
+    destination_node_array.removeElementByIndex(destination_node_array.getLen() - 1)
+    argument_list = ctx.list_of_arguments().getText()
+    (
+        argument_list,
+        argument_list_with_replaced_names,
+    ) = self.prepareExpressionString(argument_list, ElementsTypes.TASK_ELEMENT)
+
+    argument_list_with_replaced_names = self.module.name_change.changeNamesInStr(
+        argument_list_with_replaced_names
+    )
+
+    argument_list_with_replaced_names = self.module.findAndChangeNamesToAgentAttrCall(
+        argument_list_with_replaced_names
+    )
+
+    object = self.module.packages_and_objects.findModuleByUniqIdentifier(
+        object_identifier
+    )
+
+    task = object.tasks.findElement(task_identifier)
+    createTFNMCall(
+        self,
+        task,
+        sv_structure,
+        destination_node_array,
+        object_identifier,
+        argument_list_with_replaced_names,
+        ctx.getSourceInterval(),
+    )
+
+
+def classNew2AplanImpl(
+    self: SV2aplan,
+    ctx: SystemVerilogParser.Class_newContext,
+    sv_structure: Structure,
+    destination_node_array: NodeArray | None = None,
+):
+    destination_node_array.removeElementByIndex(destination_node_array.getLen() - 1)
+    node = destination_node_array.getElementByIndex(destination_node_array.getLen() - 1)
+    object_identifier = node.identifier
+    destination_node_array.removeElementByIndex(destination_node_array.getLen() - 1)
+    task_identifier = "new"
+
+    argument_list = ctx.list_of_arguments().getText()
+    (
+        argument_list,
+        argument_list_with_replaced_names,
+    ) = self.prepareExpressionString(argument_list, ElementsTypes.TASK_ELEMENT)
+
+    argument_list_with_replaced_names = self.module.name_change.changeNamesInStr(
+        argument_list_with_replaced_names
+    )
+
+    argument_list_with_replaced_names = self.module.findAndChangeNamesToAgentAttrCall(
+        argument_list_with_replaced_names
+    )
+
+    object = self.module.packages_and_objects.findModuleByUniqIdentifier(
+        object_identifier
+    )
+
+    task = object.tasks.findElement(task_identifier)
+    createTFNMCall(
+        self,
+        task,
+        sv_structure,
+        destination_node_array,
+        object_identifier,
+        argument_list_with_replaced_names,
+        ctx.getSourceInterval(),
+    )
+
+
 def taskCall2AplanImpl(
     self: SV2aplan,
-    ctx: SystemVerilogParser.Tf_callContext,
+    ctx: SystemVerilogParser.Class_newContext,
     sv_structure: Structure,
     destination_node_array: NodeArray | None = None,
 ):
@@ -154,9 +237,6 @@ def taskCall2AplanImpl(
             object_identifier
         )
         task = object.tasks.findElement(task_identifier)
-        argument_list_with_replaced_names = "{0}, {1}".format(
-            object_identifier, argument_list_with_replaced_names
-        )
     else:
         task = self.module.tasks.findElement(task_identifier)
         if task is None:
@@ -168,15 +248,34 @@ def taskCall2AplanImpl(
                 task = element.tasks.findElement(task_identifier)
                 if task is not None:
                     break
+    createTFNMCall(
+        self,
+        task,
+        sv_structure,
+        destination_node_array,
+        object_identifier,
+        argument_list_with_replaced_names,
+        ctx.getSourceInterval(),
+    )
+
+
+def createTFNMCall(
+    self: SV2aplan,
+    task: Task | None,
+    sv_structure: Structure,
+    destination_node_array: NodeArray | None = None,
+    object_identifier: str | None = None,
+    arguments: str = "",
+    source_interval: Tuple[int, int] = (0, 0),
+):
 
     if task is not None:
-
         if task.element_type == ElementsTypes.TASK_ELEMENT:
             task_call = "{0}".format(task.structure.identifier)
 
             beh_index = sv_structure.getLastBehaviorIndex()
             copy = task.structure.copy()
-            copy.additional_params = argument_list_with_replaced_names
+            copy.additional_params = arguments
             if beh_index is not None:
                 sv_structure.behavior[beh_index].addBody(
                     BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
@@ -190,112 +289,64 @@ def taskCall2AplanImpl(
                 )
         elif task.element_type == ElementsTypes.FUNCTION_ELEMENT:
 
-            objects = self.program.modules.getElementsIE(
-                include=ElementsTypes.OBJECT_ELEMENT,
-                include_ident_uniq_names=destination_node_array.getElementByIndex(
-                    destination_node_array.getLen() - 2
-                ).identifier,
-                exclude_ident_uniq_name=self.module.ident_uniq_name,
-            )
+            function_result_var = None
 
-            object_pointer = None
-            if objects.getLen() > 0:
-                object_pointer = objects.elements[0].ident_uniq_name
-
-            packages = self.module.packages_and_objects.getElementsIE(
-                include=ElementsTypes.PACKAGE_ELEMENT,
-                exclude_ident_uniq_name=self.module.ident_uniq_name,
-            )
-            packages += self.program.modules.getElementsIE(
-                include=ElementsTypes.CLASS_ELEMENT,
-                exclude_ident_uniq_name=self.module.ident_uniq_name,
-            )
-
-            functions_list = self.module.tasks.getElementsIE(
-                ElementsTypes.FUNCTION_ELEMENT
-            ).getElements()
-            functions_list += self.module.tasks.getElementsIE(
-                ElementsTypes.CONSTRUCTOR_ELEMENT
-            ).getElements()
-
-            for package in packages.getElements():
-                functions_list += package.tasks.getElementsIE(
-                    ElementsTypes.FUNCTION_ELEMENT
-                ).getElements()
-                functions_list += package.tasks.getElementsIE(
-                    ElementsTypes.CONSTRUCTOR_ELEMENT
-                ).getElements()
-
-            for function in functions_list:
-                if function == task:
-                    function_result_var = None
-                    if function.element_type is ElementsTypes.CONSTRUCTOR_ELEMENT:
-                        function_result_var_for_replase = "{0}".format(
-                            self.module.ident_uniq_name
-                        )
-                    else:
-                        function_result_var = "{0}_call_result_{1}".format(
-                            function.identifier,
-                            Counters_Object.getCounter(CounterTypes.TASK_COUNTER),
-                        )
-                        function_result_var_for_replase = "{0}.{1}".format(
-                            self.module.ident_uniq_name, function_result_var
-                        )
-                        node_index = destination_node_array.addElement(
-                            Node(
-                                function_result_var,
-                                (0, 0),
-                                ElementsTypes.IDENTIFIER_ELEMENT,
-                            )
-                        )
-                        node = destination_node_array.getElementByIndex(node_index)
-                        node.module_name = self.module.ident_uniq_name
-
-                    if function_result_var is not None:
-                        new_decl = Declaration(
-                            DeclTypes.INT,
+            if task.findReturnParam():
+                function_result_var = "{0}_call_result_{1}".format(
+                    task.identifier,
+                    Counters_Object.getCounter(CounterTypes.TASK_COUNTER),
+                )
+                if destination_node_array:
+                    node_index = destination_node_array.addElement(
+                        Node(
                             function_result_var,
-                            "",
-                            "",
-                            0,
-                            "",
-                            0,
-                            ctx.getSourceInterval(),
+                            (0, 0),
+                            ElementsTypes.IDENTIFIER_ELEMENT,
                         )
-                        sv_structure.elements.addElement(new_decl)
-                        decl_unique, decl_index = self.module.declarations.addElement(
-                            new_decl
-                        )
-                        if object_pointer:
-                            if len(argument_list_with_replaced_names) > 0:
-                                argument_list_with_replaced_names += ", "
-                            argument_list_with_replaced_names += object_pointer
+                    )
+                    node = destination_node_array.getElementByIndex(node_index)
+                    node.module_name = self.module.ident_uniq_name
 
-                        if function_result_var is not None:
-                            if len(argument_list_with_replaced_names) > 0:
-                                argument_list_with_replaced_names += ", "
-                            argument_list_with_replaced_names += "{0}.{1}".format(
-                                self.module.ident_uniq_name, function_result_var
-                            )
+            if function_result_var is not None:
+                new_decl = Declaration(
+                    DeclTypes.INT,
+                    function_result_var,
+                    "",
+                    "",
+                    0,
+                    "",
+                    0,
+                    source_interval,
+                )
+                sv_structure.elements.addElement(new_decl)
+                decl_unique, decl_index = self.module.declarations.addElement(new_decl)
 
-                        task_call = "{0}".format(task.structure.identifier)
-                        beh_index = sv_structure.getLastBehaviorIndex()
-                        copy = task.structure.copy()
-                        copy.additional_params = argument_list_with_replaced_names
-                        if beh_index is not None:
-                            sv_structure.behavior[beh_index].addBody(
-                                BodyElement(
-                                    task_call, copy, ElementsTypes.PROTOCOL_ELEMENT
-                                )
-                            )
-                        else:
-                            Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-                            task_call = "B_{0}".format(task.structure.identifier)
-                            b_index = sv_structure.addProtocol(task_call)
-                            sv_structure.behavior[b_index].addBody(
-                                BodyElement(
-                                    task_call, copy, ElementsTypes.PROTOCOL_ELEMENT
-                                )
-                            )
+            if object_identifier:
+                if len(arguments) > 0:
+                    arguments = ", " + arguments
+                arguments = object_identifier + arguments
 
-                        Counters_Object.incrieseCounter(CounterTypes.TASK_COUNTER)
+            if function_result_var is not None:
+                if len(arguments) > 0:
+                    arguments += ", "
+                arguments += "{0}.{1}".format(
+                    self.module.ident_uniq_name, function_result_var
+                )
+
+            task_call = "{0}".format(task.structure.identifier)
+            beh_index = sv_structure.getLastBehaviorIndex()
+            copy = task.structure.copy()
+            copy.additional_params = arguments
+            if beh_index is not None:
+                sv_structure.behavior[beh_index].addBody(
+                    BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
+                )
+            else:
+                Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+                task_call = "B_{0}".format(task.structure.identifier)
+                b_index = sv_structure.addProtocol(task_call)
+                sv_structure.behavior[b_index].addBody(
+                    BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
+                )
+
+            Counters_Object.incrieseCounter(CounterTypes.TASK_COUNTER)

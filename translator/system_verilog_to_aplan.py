@@ -236,6 +236,26 @@ class SV2aplan:
 
         taskCall2AplanImpl(self, ctx, sv_structure, destination_node_array)
 
+    def methodCall2Aplan(
+        self,
+        ctx: SystemVerilogParser.Method_call_bodyContext,
+        sv_structure: Structure,
+        destination_node_array: NodeArray | None = None,
+    ):
+        from translator.task_and_function.task_function import methodCall2AplanImpl
+
+        methodCall2AplanImpl(self, ctx, sv_structure, destination_node_array)
+
+    def classNew2Aplan(
+        self,
+        ctx: SystemVerilogParser.Class_newContext,
+        sv_structure: Structure,
+        destination_node_array: NodeArray | None = None,
+    ):
+        from translator.task_and_function.task_function import classNew2AplanImpl
+
+        classNew2AplanImpl(self, ctx, sv_structure, destination_node_array)
+
     # ===================================ASSERTS=======================================
     def assertPropertyStatement2Aplan(
         self, ctx: SystemVerilogParser.Assert_property_statementContext
@@ -399,7 +419,6 @@ class SV2aplan:
         if ctx.getChildCount() == 0:
             return names_for_change
         for child in ctx.getChildren():
-            # print(type(child), child.getText())
             # Assert handler
             if (
                 type(child)
@@ -438,6 +457,13 @@ class SV2aplan:
             # Task and function handler
             elif type(child) is SystemVerilogParser.Tf_callContext:
                 self.taskCall2Aplan(child, sv_structure, destination_node_array)
+            # ---------------------------------------------------------------------------
+            # Class new() handler
+            elif type(child) is SystemVerilogParser.Class_newContext:
+                self.classNew2Aplan(child, sv_structure, destination_node_array)
+            # ---------------------------------------------------------------------------
+            elif type(child) is SystemVerilogParser.Method_call_bodyContext:
+                self.methodCall2Aplan(child, sv_structure, destination_node_array)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Data_declarationContext:
                 data_type = child.data_type_or_implicit().getText()

@@ -258,7 +258,8 @@ def expression2AplanImpl(
             name_space=name_space_element,
             destination_node_array=action.postcondition,
         )
-
+        if action.postcondition.getLen() == 0:
+            return (None, None, None, None)
         action.description = f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
     else:
         # taskAssignIfPosible(self, ctx, action.precondition)
@@ -267,7 +268,10 @@ def expression2AplanImpl(
             sv_structure=sv_structure,
             name_space=name_space_element,
             destination_node_array=action.precondition,
+            
         )
+        if action.precondition.getLen() == 0:
+            return (None, None, None, None)
         action.postcondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
         action.description = f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
 

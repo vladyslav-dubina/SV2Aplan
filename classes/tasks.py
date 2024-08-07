@@ -20,6 +20,12 @@ class Task(Basic):
         self.postcondition: ActionParts = ActionParts()
         self.parametrs: ActionParametrArray = ActionParametrArray()
 
+    def findReturnParam(self):
+        retunr_var = f"return_{self.identifier}"
+        for element in self.parametrs.getElements():
+            if element.identifier == retunr_var:
+                return True
+
     def copy(self):
         task = Task(self.identifier, self.source_interval, self.element_type)
         task.initial_parametrs = self.initial_parametrs.copy()
