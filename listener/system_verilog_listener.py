@@ -2,10 +2,10 @@ from antlr4_verilog.systemverilog import (
     SystemVerilogParserListener,
     SystemVerilogParser,
 )
-from classes.element_types import ElementsTypes
-from translator.declarations.module_declaration import (
-    modulePackageClassDeclaration2Aplan,
-)
+from translator.declarations.class_declaration import classDeclaration2Aplan
+from translator.declarations.interface_declaration import interfaceDeclaration2Aplan
+from translator.declarations.module_declaration import moduleDeclaration2Aplan
+from translator.declarations.package_declaration import packageDeclaration2Aplan
 from translator.system_verilog_to_aplan import (
     SV2aplan,
 )
@@ -30,12 +30,16 @@ class SVListener(SystemVerilogParserListener):
         self.sv2aplan: SV2aplan = SV2aplan(None)
         self.module_call: ModuleCall | None = module_call
 
+    def enterInterface_declaration(
+        self, ctx: SystemVerilogParser.Interface_declarationContext
+    ):
+        self.module = interfaceDeclaration2Aplan(ctx, self.program, self.module_call)
+        self.sv2aplan = SV2aplan(self.module, self.program)
+
     def enterModule_declaration(
         self, ctx: SystemVerilogParser.Module_declarationContext
     ):
-        self.module = modulePackageClassDeclaration2Aplan(
-            ctx, self.program, self.module_call
-        )
+        self.module = moduleDeclaration2Aplan(ctx, self.program, self.module_call)
         self.sv2aplan = SV2aplan(
             self.module,
             self.program,
@@ -44,15 +48,11 @@ class SVListener(SystemVerilogParserListener):
     def enterPackage_declaration(
         self, ctx: SystemVerilogParser.Package_declarationContext
     ):
-        self.module = modulePackageClassDeclaration2Aplan(
-            ctx, self.program, self.module_call
-        )
+        self.module = packageDeclaration2Aplan(ctx, self.program, self.module_call)
         self.sv2aplan = SV2aplan(self.module, self.program)
 
     def enterClass_declaration(self, ctx: SystemVerilogParser.Class_declarationContext):
-        self.module = modulePackageClassDeclaration2Aplan(
-            ctx, self.program, self.module_call
-        )
+        self.module = classDeclaration2Aplan(ctx, self.program, self.module_call)
         self.sv2aplan = SV2aplan(self.module, self.program)
 
     def exitGenvar_declaration(self, ctx):
