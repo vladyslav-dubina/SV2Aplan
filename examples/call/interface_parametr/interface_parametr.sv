@@ -1,6 +1,4 @@
-module interface_install;
-    my_interface intf();
-
+module interface_parametr(input my_interface intf);
     always begin
         intf.clk = ~intf.clk;
     end

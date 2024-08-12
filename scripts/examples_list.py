@@ -20,6 +20,11 @@ examples_list = [
         "examples/struct/enum_2/aplan",
     ),
     (
+        "examples/struct/interface/my_interface.sv",
+        "examples/struct/interface/test_result",
+        "examples/struct/interface/aplan",
+    ),
+    (
         "examples/parametrs/parametrs_1/parametrs_1.sv",
         "examples/parametrs/parametrs_1/test_result",
         "examples/parametrs/parametrs_1/aplan",
@@ -118,6 +123,16 @@ examples_list = [
         "examples/call/call_1/call_2.sv",
         "examples/call/call_1/test_result",
         "examples/call/call_1/aplan",
+    ),
+    (
+        "examples/call/call_2/call_2.sv",
+        "examples/call/call_2/test_result",
+        "examples/call/call_2/aplan",
+    ),
+    (
+        "examples/call/interface_object/interface_object.sv",
+        "examples/call/interface_object/test_result",
+        "examples/call/interface_object/aplan",
     ),
     (
         "examples/call/package_import_1/package_import_1.sv",

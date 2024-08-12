@@ -18,6 +18,7 @@ def body_run(ctx):
     if ctx.getChildCount() == 0:
         return
     for child in ctx.getChildren():
+        print(type(child), child.getText())
         body_run(child)
 
 

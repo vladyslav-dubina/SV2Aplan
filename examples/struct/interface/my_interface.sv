@@ -1,4 +1,4 @@
-interface my_interface;
+interface my_interface(input bit clk);
     logic clk;
     logic reset_n;
     logic [7:0] data_in;

@@ -53,6 +53,12 @@ class ModuleCallArray(BasicArray):
     def __init__(self):
         super().__init__(ModuleCall)
 
+    def findModuleByUniqIdentifier(self, object_name: str):
+        for element in self.elements:
+            if element.object_name == object_name:
+                return element
+        return None
+
     def getElementsIE(
         self,
         include: ElementsTypes | None = None,

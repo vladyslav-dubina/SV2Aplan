@@ -58,11 +58,16 @@ class NodeArray(BasicArray):
         for index, element in enumerate(self.elements):
             bracket_flag = False
             if index != 0:
-                if ";" in element.identifier:
+                if (
+                    element.element_type is ElementsTypes.DOT_ELEMENT
+                    or ";" in element.identifier
+                ):
                     pass
                 else:
                     previus_element = self.elements[index - 1]
-                    if (
+                    if previus_element.element_type is ElementsTypes.DOT_ELEMENT:
+                        pass
+                    elif (
                         element.bit_selection
                         or element.range_selection == RangeTypes.START_END
                         or element.range_selection == RangeTypes.START

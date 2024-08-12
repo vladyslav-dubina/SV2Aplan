@@ -207,19 +207,25 @@ def moduleCall2AplanImpl(
 
         self.program.module_calls.addElement(module_call)
 
-    self.program.file_path = previous_file_path
-    moduleCallAssign2Aplan(self, ctx, call_module_name, destination_identifier)
-    Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-    call_b = "MODULE_CALL_B_{}".format(
-        Counters_Object.getCounter(CounterTypes.B_COUNTER)
-    )
-    struct_call = Protocol(
-        call_b, ctx.getSourceInterval(), ElementsTypes.MODULE_CALL_ELEMENT
-    )
-    struct_call.addBody(
-        BodyElement(
-            identifier=f"B_{call_module_name.upper()}",
-            element_type=ElementsTypes.PROTOCOL_ELEMENT,
+    call_module = self.program.modules.findModuleByUniqIdentifier(call_module_name)
+    if call_module is None:
+        call_module = self.program.module_calls.findModuleByUniqIdentifier(
+            call_module_name
         )
-    )
-    self.module.out_of_block_elements.addElement(struct_call)
+    if call_module.element_type != ElementsTypes.INTERFACE_ELEMENT:
+        self.program.file_path = previous_file_path
+        moduleCallAssign2Aplan(self, ctx, call_module_name, destination_identifier)
+        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+        call_b = "MODULE_CALL_B_{}".format(
+            Counters_Object.getCounter(CounterTypes.B_COUNTER)
+        )
+        struct_call = Protocol(
+            call_b, ctx.getSourceInterval(), ElementsTypes.MODULE_CALL_ELEMENT
+        )
+        struct_call.addBody(
+            BodyElement(
+                identifier=f"B_{call_module_name.upper()}",
+                element_type=ElementsTypes.PROTOCOL_ELEMENT,
+            )
+        )
+        self.module.out_of_block_elements.addElement(struct_call)

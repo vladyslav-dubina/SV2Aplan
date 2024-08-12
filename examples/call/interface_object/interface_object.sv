@@ -1,5 +1,5 @@
-module interface_import;
-    input my_interface intf
+module interface_object;
+    my_interface intf();
 
     always begin
         intf.clk = ~intf.clk;

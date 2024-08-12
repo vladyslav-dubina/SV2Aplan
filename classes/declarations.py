@@ -16,6 +16,7 @@ class DeclTypes(Enum):
     INPORT = auto()
     OUTPORT = auto()
     STRING = auto()
+    BIT = auto()
     ENUM = auto()
     ENUM_TYPE = auto()
     CLASS = auto()
@@ -34,6 +35,8 @@ class DeclTypes(Enum):
             return DeclTypes.WIRE
         elif "string" in type_str:
             return DeclTypes.STRING
+        elif "bit" in type_str:
+            return DeclTypes.BIT
         else:
             for type in types:
                 if isinstance(type, Module):
@@ -95,6 +98,7 @@ class Declaration(Basic):
             or self.data_type == DeclTypes.WIRE
             or self.data_type == DeclTypes.REG
             or self.data_type == DeclTypes.LOGIC
+            or self.data_type == DeclTypes.BIT
         ):
             if self.size > 0:
                 return f"Bits ({self.size})"
