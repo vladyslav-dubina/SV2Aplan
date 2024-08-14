@@ -37,11 +37,12 @@ def forever2AplanImpl(
     forever_loop = "FOREVER_LOOP_{0}{1}".format(
         Counters_Object.getCounter(CounterTypes.FOREVER_COUNTER), protocol_params
     )
+    forever_sensetive_name = "Sensetive({0}, {1})".format(forever_loop, sensetive)
     beh_index = sv_structure.getLastBehaviorIndex()
     if beh_index is not None:
         sv_structure.behavior[beh_index].addBody(
             BodyElement(
-                identifier=forever_loop,
+                identifier=forever_sensetive_name,
                 element_type=ElementsTypes.PROTOCOL_ELEMENT,
             )
         )
@@ -66,7 +67,7 @@ def forever2AplanImpl(
     )
 
     beh_index = sv_structure.addProtocol(forever_iteration)
-    forever_sensetive_name = "Sensetive({0}, {1})".format(forever_loop, sensetive)
+    
     sv_structure.behavior[beh_index].addBody(
         BodyElement(
             identifier=forever_sensetive_name,
