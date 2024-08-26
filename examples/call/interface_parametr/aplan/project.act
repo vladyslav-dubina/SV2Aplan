@@ -2,7 +2,7 @@
 assign_1(intf) = (
 		(1)->
 		("INTERFACE_PARAMETR#interface_parametr:action 'assign (intf.clk=~intf.clk)';")
-		(intf.clk = ~(intf).clk)),
+		(intf.clk = ~(intf.clk))),
 assign_2(intf) = (
 		(1)->
 		("INTERFACE_PARAMETR#interface_parametr:action 'assign (intf.clk=0)';")

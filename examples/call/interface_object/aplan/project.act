@@ -2,7 +2,7 @@
 assign_1 = (
 		(1)->
 		("INTERFACE_OBJECT#interface_object:action 'assign (intf.clk=~intf.clk)';")
-		(intf.clk = ~(intf).clk)),
+		(intf.clk = ~(intf.clk))),
 assign_2 = (
 		(1)->
 		("INTERFACE_OBJECT#interface_object:action 'assign (intf.clk=0)';")
