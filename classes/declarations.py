@@ -25,25 +25,25 @@ class DeclTypes(Enum):
     def checkType(type_str: str, types):
         from classes.module import Module
 
-        if "int" in type_str:
+        if "int" == type_str:
             return DeclTypes.INT
-        elif "reg" in type_str:
+        elif "reg" == type_str:
             return DeclTypes.REG
-        elif "logic" in type_str:
+        elif "logic" == type_str:
             return DeclTypes.LOGIC
-        elif "wire" in type_str:
+        elif "wire" == type_str:
             return DeclTypes.WIRE
-        elif "string" in type_str:
+        elif "string" == type_str:
             return DeclTypes.STRING
-        elif "bit" in type_str:
+        elif "bit" == type_str:
             return DeclTypes.BIT
         else:
             for type in types:
                 if isinstance(type, Module):
-                    if type_str in type.ident_uniq_name:
+                    if type_str == type.ident_uniq_name:
                         return DeclTypes.CLASS
                 else:
-                    if type_str in type.identifier:
+                    if type_str == type.identifier:
                         if type.data_type is DeclTypes.ENUM_TYPE:
                             return DeclTypes.ENUM
 

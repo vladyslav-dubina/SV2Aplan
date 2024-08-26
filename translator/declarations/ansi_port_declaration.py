@@ -1,6 +1,7 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
+from translator.declarations.interface_declaration import interfaceDeclaration2Aplan
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
@@ -30,7 +31,7 @@ def ansiPortDeclaration2AplanImpl(
     of the ANSI port
 
     """
-    header = ctx.net_port_header().getText()
+    header = ctx.net_port_header().port_direction()
     unpacked_dimention = ctx.unpacked_dimension(0)
     dimension_size = 0
     dimension_size_expression = ""
@@ -41,17 +42,41 @@ def ansiPortDeclaration2AplanImpl(
         dimension_size = extractDimentionSize(dimension)
 
     data_type = DeclTypes.INPORT
-    index = header.find("output")
-    if index != -1:
+    if header.OUTPUT():
         data_type = DeclTypes.OUTPORT
 
-    index = header.find("input")
-    if index != -1:
+    if header.INPUT():
         data_type = DeclTypes.INPORT
 
-    size_expression = header
-    header = replaceValueParametrsCalls(self.module.value_parametrs, header)
-    vector_size = extractVectorSize(header)
+    port_type = ctx.net_port_header().net_port_type()
+
+    port_data_type = port_type.data_type_or_implicit().data_type()
+
+    port_dimention = None
+    vector_size = None
+    if port_data_type is not None:
+
+        if port_data_type.INTERFACE():
+            print(ctx.net_port_header().getText())
+        port_dimention = port_data_type.packed_dimension(0)
+
+        if port_dimention is not None:
+            vector_size = port_dimention.getText()
+    else:
+        port_data_type = port_type.data_type_or_implicit().implicit_data_type()
+        if port_data_type is not None:
+            port_dimention = port_data_type.packed_dimension(0)
+            if port_dimention is not None:
+                vector_size = port_dimention.getText()
+
+    size_expression = ""
+    if vector_size is not None:
+        size_expression = vector_size
+        vector_size = replaceValueParametrsCalls(
+            self.module.value_parametrs, vector_size
+        )
+        vector_size = extractVectorSize(vector_size)
+
     aplan_vector_size = [0]
 
     if vector_size is not None:
