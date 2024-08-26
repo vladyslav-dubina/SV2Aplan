@@ -69,6 +69,8 @@ def generate2AplanImpl(
         generate_name,
         ctx.getSourceInterval(),
     )
+    if self.module.input_parametrs is not None:
+        struct.parametrs += self.module.input_parametrs
     struct.addProtocol(generate_name, ElementsTypes.GENERATE_ELEMENT)
     initialization = ctx.genvar_initialization().getText()
     initialization = prepareGenerateExpression(self.module, initialization)

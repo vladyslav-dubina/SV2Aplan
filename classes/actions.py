@@ -1,6 +1,6 @@
 import re
 from typing import Tuple, List
-from classes.action_parametr import ActionParametr, ParametrArray
+from classes.parametrs import Parametr, ParametrArray
 from classes.basic import Basic, BasicArray
 from classes.element_types import ElementsTypes
 from classes.node import NodeArray
@@ -40,14 +40,13 @@ class Action(Basic):
         self.exist_parametrs: ParametrArray | None = exist_parametrs
         self.parametrs: ParametrArray = ParametrArray()
 
-    def findParametrInBodyAndSetParametrs(self, task ):
-        if task is not None:
-            for task_parametr in task.parametrs.getElements():
-                if isVariablePresent(str(self.precondition), task_parametr.identifier):
-                    self.parametrs.addElement(task_parametr)
+    def findParametrInBodyAndSetParametrs(self, parametrs):
+        for parametr in parametrs.getElements():
+            if isVariablePresent(str(self.precondition), parametr.identifier):
+                self.parametrs.addElement(parametr)
 
-                if isVariablePresent(str(self.postcondition), task_parametr.identifier):
-                    self.parametrs.addElement(task_parametr)
+            if isVariablePresent(str(self.postcondition), parametr.identifier):
+                self.parametrs.addElement(parametr)
 
     def getBody(self):
         if self.exist_parametrs is not None:
@@ -127,7 +126,7 @@ class Action(Basic):
             else:
                 self.postcondition.body[index] = element
             task.parametrs.addElement(
-                ActionParametr(
+                Parametr(
                     return_var_name,
                     "var",
                 )

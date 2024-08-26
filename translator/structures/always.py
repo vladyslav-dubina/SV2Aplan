@@ -8,7 +8,7 @@ from utils.utils import Counters_Object
 
 
 def always2AplanImpl(self: SV2aplan, ctx: SystemVerilogParser.Always_constructContext):
-   
+
     sensetive = None
 
     always_keyword = ctx.always_keyword().getText()
@@ -38,6 +38,8 @@ def always2AplanImpl(self: SV2aplan, ctx: SystemVerilogParser.Always_constructCo
         sensetive,
         ctx.getSourceInterval(),
     )
+    if self.module.input_parametrs is not None:
+        always.parametrs += self.module.input_parametrs
     always.addProtocol(always_name)
     names_for_change = self.body2Aplan(
         always_body, always, ElementsTypes.ALWAYS_ELEMENT

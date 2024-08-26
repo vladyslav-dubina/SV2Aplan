@@ -4,7 +4,7 @@ from classes.basic import Basic, BasicArray
 from utils.string_formating import removeTrailingComma
 
 
-class ActionParametr(Basic):
+class Parametr(Basic):
     def __init__(
         self,
         identifier: str,
@@ -20,7 +20,7 @@ class ActionParametr(Basic):
         super().__init__(identifier, source_interval)
 
     def copy(self):
-        action_param = ActionParametr(self.identifier, self.type, self.source_interval)
+        action_param = Parametr(self.identifier, self.type, self.source_interval)
         action_param.uniq_identifier = self.uniq_identifier
         action_param.number = self.number
         return action_param
@@ -32,12 +32,12 @@ class ActionParametr(Basic):
             return f"{self.uniq_identifier}:{self.type}"
 
     def __repr__(self):
-        return f"\ActionParametr({self.identifier!r}, {self.type!r})\n"
+        return f"\Parametr({self.identifier!r}, {self.type!r})\n"
 
 
 class ParametrArray(BasicArray):
     def __init__(self):
-        super().__init__(ActionParametr)
+        super().__init__(Parametr)
 
     def copy(self):
         new_aray: ParametrArray = ParametrArray()
@@ -45,10 +45,10 @@ class ParametrArray(BasicArray):
             new_aray.addElement(element.copy())
         return new_aray
 
-    def insert(self, index: int, element: ActionParametr):
+    def insert(self, index: int, element: Parametr):
         {self.elements.insert(index, element)}
 
-    def addElement(self, new_element: ActionParametr):
+    def addElement(self, new_element: Parametr):
         if isinstance(new_element, self.element_type):
             is_uniq_element = self.findElement(new_element.identifier)
             if is_uniq_element is not None:

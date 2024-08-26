@@ -1,6 +1,6 @@
 from typing import Tuple
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.action_parametr import ActionParametr
+from classes.parametrs import Parametr
 from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
@@ -61,7 +61,7 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
     task = Task(identifier, ctx.getSourceInterval(), task_Type)
     if self.module.element_type is ElementsTypes.CLASS_ELEMENT:
         task.parametrs.addElement(
-            ActionParametr(
+            Parametr(
                 "object_pointer",
                 "var",
             )
@@ -71,7 +71,7 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
         port_identifier = element.port_identifier()
         if port_identifier is not None:
             task.parametrs.addElement(
-                ActionParametr(
+                Parametr(
                     port_identifier.getText(),
                     "var",
                 )
@@ -84,6 +84,9 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
     task_structure = Structure(
         task_name, ctx.getSourceInterval(), ElementsTypes.TASK_ELEMENT
     )
+    if self.module.input_parametrs is not None:
+        task.parametrs += self.module.input_parametrs
+
     task_structure.parametrs = task.parametrs
 
     task.structure = task_structure

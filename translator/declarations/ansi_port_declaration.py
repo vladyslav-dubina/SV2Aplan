@@ -1,7 +1,6 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
-from translator.declarations.interface_declaration import interfaceDeclaration2Aplan
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
@@ -55,9 +54,10 @@ def ansiPortDeclaration2AplanImpl(
     port_dimention = None
     vector_size = None
     if port_data_type is not None:
+        if DeclTypes.checkType(port_data_type.getText(), []) == DeclTypes.NONE:
+            self.interfaceCall2Apan(ctx)
+            return
 
-        if port_data_type.INTERFACE():
-            print(ctx.net_port_header().getText())
         port_dimention = port_data_type.packed_dimension(0)
 
         if port_dimention is not None:

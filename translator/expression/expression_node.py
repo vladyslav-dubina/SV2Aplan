@@ -1,7 +1,7 @@
 import re
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
-from classes.action_parametr import ActionParametr
+from classes.parametrs import Parametr
 from classes.element_types import ElementsTypes
 from classes.node import Node, NodeArray, RangeTypes
 from translator.system_verilog_to_aplan import SV2aplan
@@ -168,7 +168,7 @@ def operator2AplanImpl(
                     return_var_name = f"return_{task.identifier}"
                     previus_node.identifier = return_var_name
                     task.parametrs.addElement(
-                        ActionParametr(
+                        Parametr(
                             f"{return_var_name}",
                             "var",
                         )

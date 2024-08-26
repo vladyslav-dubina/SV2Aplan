@@ -1,6 +1,6 @@
 from typing import List, Tuple
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.action_parametr import ActionParametr, ParametrArray
+from classes.parametrs import Parametr, ParametrArray
 from classes.action_precondition import ActionPrecondition, ActionPreconditionArray
 from classes.actions import Action
 from classes.counters import CounterTypes

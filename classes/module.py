@@ -1,4 +1,4 @@
-from classes.action_parametr import ParametrArray
+from classes.parametrs import ParametrArray
 from classes.processed import ProcessedElementArray
 from classes.actions import ActionArray
 from classes.value_parametrs import ValueParametrArray
@@ -146,9 +146,15 @@ class Module(Basic):
 
         return result
 
+    def getInputParametrs(self):
+        result = ""
+        if self.input_parametrs.getLen() > 0:
+            result = f"({str(self.input_parametrs)})"
+        return result
+
     def getBehInitProtocols(self):
         result = ""
-
+        parametrs = self.getInputParametrs()
         # MAIN PROTOCOL
         main_protocol = ""
         main_protocol_part = ""
@@ -188,9 +194,11 @@ class Module(Basic):
         if len(main_protocol) > 0:
             main_flag = True
             main_protocol = (
-                f"MAIN_{self.ident_uniq_name_upper} = (" + main_protocol + "),"
+                f"MAIN_{self.ident_uniq_name_upper}{parametrs} = ("
+                + main_protocol
+                + "),"
             )
-            main_protocol_part = f"MAIN_{self.ident_uniq_name_upper}"
+            main_protocol_part = f"MAIN_{self.ident_uniq_name_upper}{parametrs}"
             result += main_protocol
 
         # ALWAYS PART
@@ -236,9 +244,9 @@ class Module(Basic):
         if len(init_protocol) > 0:
             init_flag = True
             init_protocol = (
-                f"INIT_{self.ident_uniq_name_upper} = " + init_protocol + ","
+                f"INIT_{self.ident_uniq_name_upper}{parametrs} = " + init_protocol + ","
             )
-            init_protocol_part = f"INIT_{self.ident_uniq_name_upper}"
+            init_protocol_part = f"INIT_{self.ident_uniq_name_upper}{parametrs}"
             if main_flag or always_flag or struct_flag:
                 init_protocol_part += " || "
             if main_flag:
@@ -248,7 +256,7 @@ class Module(Basic):
         b0 = ""
 
         if len(b_body) > 0:
-            b0 = f"B_{self.ident_uniq_name_upper} = {{{b_body}}},"
+            b0 = f"B_{self.ident_uniq_name_upper}{parametrs} = {{{b_body}}},"
             if main_flag or init_flag:
                 b0 += "\n"
 

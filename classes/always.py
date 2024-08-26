@@ -15,11 +15,10 @@ class Always(Structure):
     def getSensetiveForB0(self):
         result = ""
         if self.sensetive is not None:
-            result = "Sensetive({0}, {1})".format(self.identifier, self.sensetive)
+            result = "Sensetive({0}, {1})".format(self.getName(), self.sensetive)
         else:
-            result = "{0}".format(self.identifier)
+            result = "{0}".format(self.getName())
         return result
 
     def __repr__(self):
         return f"\tAlways({self.identifier!r}, {self.sensetive!r}, {self.sequence!r})\n"
-

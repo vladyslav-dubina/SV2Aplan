@@ -13,6 +13,8 @@ def initital2AplanImpl(
         initial_name,
         ctx.getSourceInterval(),
     )
+    if self.module.input_parametrs is not None:
+        structure.parametrs += self.module.input_parametrs
     structure.addProtocol(initial_name)
     names_for_change = self.body2Aplan(ctx, structure, ElementsTypes.INITIAL_ELEMENT)
     for element in names_for_change:

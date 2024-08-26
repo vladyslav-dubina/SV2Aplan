@@ -212,6 +212,16 @@ class SV2aplan:
 
         packageImport2ApanImpl(self, ctx)
 
+    def interfaceCall2Apan(
+        self,
+        ctx: SystemVerilogParser.Ansi_port_declarationContext,
+    ):
+        from translator.calls.interface_call import (
+            interfaceCall2AplanImpl,
+        )
+
+        interfaceCall2AplanImpl(self, ctx)
+
     def taskCall2Aplan(
         self,
         ctx: SystemVerilogParser.Tf_callContext,

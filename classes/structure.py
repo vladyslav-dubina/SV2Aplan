@@ -1,5 +1,5 @@
 from typing import Tuple, List
-from classes.action_parametr import ParametrArray
+from classes.parametrs import ParametrArray
 from classes.basic import Basic, BasicArray
 from classes.protocols import Protocol
 from classes.element_types import ElementsTypes
@@ -63,9 +63,13 @@ class Structure(Basic):
         element_type: ElementsTypes | None = None,
         parametrs: ParametrArray | None = None,
     ):
-        self.behavior.append(
-            Protocol(protocol_identifier, (0, 0), element_type, parametrs)
-        )
+        tmp: ParametrArray = ParametrArray()
+        if self.parametrs is not None:
+            tmp += self.parametrs
+        if parametrs is not None:
+            tmp += parametrs
+
+        self.behavior.append(Protocol(protocol_identifier, (0, 0), element_type, tmp))
         return len(self.behavior) - 1
 
     def getBehLen(self):

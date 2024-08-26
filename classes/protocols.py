@@ -1,6 +1,6 @@
 import re
 from typing import Tuple, List
-from classes.action_parametr import ParametrArray
+from classes.parametrs import ParametrArray
 from classes.basic import Basic, BasicArray
 from utils.string_formating import removeTrailingComma
 from classes.element_types import ElementsTypes
