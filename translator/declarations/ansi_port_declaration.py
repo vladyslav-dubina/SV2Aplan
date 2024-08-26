@@ -4,6 +4,7 @@ from classes.element_types import ElementsTypes
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
+    dataTypeToStr,
     extractDimentionSize,
     extractVectorSize,
     vectorSize2AplanVectorSize,
@@ -54,7 +55,7 @@ def ansiPortDeclaration2AplanImpl(
     port_dimention = None
     vector_size = None
     if port_data_type is not None:
-        if DeclTypes.checkType(port_data_type.getText(), []) == DeclTypes.NONE:
+        if DeclTypes.checkType(dataTypeToStr(port_data_type), []) == DeclTypes.NONE:
             self.interfaceCall2Apan(ctx)
             return
 

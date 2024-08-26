@@ -9,29 +9,11 @@ from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
     Counters_Object,
     CounterTypes,
+    dataTypeToStr,
     extractDimentionSize,
     extractVectorSize,
     vectorSize2AplanVectorSize,
 )
-
-
-def dataTypeToStr(
-    self: SV2aplan,
-    ctx: SystemVerilogParser.Data_typeContext,
-):
-    result = None
-    if ctx.integer_vector_type() is not None:
-        result = ctx.integer_vector_type().getText()
-    elif ctx.signing() is not None:
-        result = ctx.signing().getText()
-    elif ctx.integer_atom_type() is not None:
-        result = ctx.integer_atom_type().getText()
-    elif ctx.non_integer_type() is not None:
-        result = ctx.non_integer_type().getText()
-    elif ctx.struct_union() is not None:
-        result = ctx.struct_union().getText()
-
-    return result
 
 
 def dataDecaration2AplanImpl(
@@ -78,7 +60,7 @@ def dataDecaration2AplanImpl(
     if ctx.data_type_or_implicit() is not None:
         data_type = ctx.data_type_or_implicit().data_type()
         if data_type is not None:
-            data_type = dataTypeToStr(self, data_type)
+            data_type = dataTypeToStr(data_type)
             if len(data_type) > 0:
                 types = self.module.declarations.getElementsForTypes()
                 packages = self.module.packages_and_objects.getElementsIE(

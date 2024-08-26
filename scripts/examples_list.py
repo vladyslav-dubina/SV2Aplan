@@ -134,6 +134,11 @@ examples_list = [
         "examples/call/interface_object/test_result",
         "examples/call/interface_object/aplan",
     ),
+        (
+        "examples/call/interface_parametr/interface_parametr.sv",
+        "examples/call/interface_parametr/test_result",
+        "examples/call/interface_parametr/aplan",
+    ),
     (
         "examples/call/package_import_1/package_import_1.sv",
         "examples/call/package_import_1/test_result",
