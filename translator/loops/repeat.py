@@ -90,7 +90,10 @@ def repeat2AplanImpl(
 
     protocol_call = "Sensetive({0}, {1})".format(repeat_loop, sensetive)
 
-    beh_index = sv_structure.addProtocol(repeat_iteration)
+    beh_index = sv_structure.addProtocol(
+        repeat_iteration,
+        inside_the_task=(self.inside_the_task or self.inside_the_function),
+    )
     sv_structure.behavior[beh_index].addBody(
         BodyElement(
             "{0}.{1}".format(assign_name, protocol_call),
@@ -108,7 +111,10 @@ def repeat2AplanImpl(
         sv_structure=sv_structure,
     )
 
-    beh_index = sv_structure.addProtocol(repeat_loop)
+    beh_index = sv_structure.addProtocol(
+        repeat_loop,
+        inside_the_task=(self.inside_the_task or self.inside_the_function),
+    )
     sv_structure.behavior[beh_index].addBody(
         BodyElement(
             "{0}.{1} + !{0}".format(assign_name, repeat_iteration),

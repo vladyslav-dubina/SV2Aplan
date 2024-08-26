@@ -60,7 +60,9 @@ def assertInBlock2AplanImpl(
         assert_b = "ASSERT_B_{0}{1}".format(
             Counters_Object.getCounter(CounterTypes.B_COUNTER), protocol_params
         )
-        beh_index = sv_structure.addProtocol(assert_b)
+        beh_index = sv_structure.addProtocol(
+            assert_b, inside_the_task=(self.inside_the_task or self.inside_the_function)
+        )
         sv_structure.behavior[beh_index].addBody(
             BodyElement(
                 "{0}.Delta + !{0}.0".format(assert_name),

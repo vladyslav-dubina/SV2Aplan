@@ -71,7 +71,11 @@ def generate2AplanImpl(
     )
     if self.module.input_parametrs is not None:
         struct.parametrs += self.module.input_parametrs
-    struct.addProtocol(generate_name, ElementsTypes.GENERATE_ELEMENT)
+    struct.addProtocol(
+        generate_name,
+        ElementsTypes.GENERATE_ELEMENT,
+        inside_the_task=(self.inside_the_task or self.inside_the_function),
+    )
     initialization = ctx.genvar_initialization().getText()
     initialization = prepareGenerateExpression(self.module, initialization)
 

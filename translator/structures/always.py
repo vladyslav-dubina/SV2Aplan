@@ -40,7 +40,10 @@ def always2AplanImpl(self: SV2aplan, ctx: SystemVerilogParser.Always_constructCo
     )
     if self.module.input_parametrs is not None:
         always.parametrs += self.module.input_parametrs
-    always.addProtocol(always_name)
+    always.addProtocol(
+        always_name,
+        inside_the_task=(self.inside_the_task or self.inside_the_function),
+    )
     names_for_change = self.body2Aplan(
         always_body, always, ElementsTypes.ALWAYS_ELEMENT
     )

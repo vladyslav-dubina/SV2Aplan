@@ -47,7 +47,9 @@ def forever2AplanImpl(
             )
         )
 
-    beh_index = sv_structure.addProtocol(forever_loop)
+    beh_index = sv_structure.addProtocol(
+        forever_loop, inside_the_task=(self.inside_the_task or self.inside_the_function)
+    )
 
     names_for_change = self.body2Aplan(
         ctx.statement_or_null(), sv_structure, ElementsTypes.FOREVER_ELEMENT
@@ -66,8 +68,11 @@ def forever2AplanImpl(
         )
     )
 
-    beh_index = sv_structure.addProtocol(forever_iteration)
-    
+    beh_index = sv_structure.addProtocol(
+        forever_iteration,
+        inside_the_task=(self.inside_the_task or self.inside_the_function),
+    )
+
     sv_structure.behavior[beh_index].addBody(
         BodyElement(
             identifier=forever_sensetive_name,

@@ -62,13 +62,17 @@ class Structure(Basic):
         protocol_identifier: str,
         element_type: ElementsTypes | None = None,
         parametrs: ParametrArray | None = None,
+        inside_the_task: bool = False,
     ):
         tmp: ParametrArray = ParametrArray()
-        if self.parametrs is not None:
-            tmp += self.parametrs
-        if parametrs is not None:
-            tmp += parametrs
-
+        print(inside_the_task, protocol_identifier)
+        if inside_the_task is False:
+            if self.parametrs is not None:
+                tmp += self.parametrs
+            if parametrs is not None:
+                tmp.elements += parametrs
+        else:
+            tmp = parametrs
         self.behavior.append(Protocol(protocol_identifier, (0, 0), element_type, tmp))
         return len(self.behavior) - 1
 

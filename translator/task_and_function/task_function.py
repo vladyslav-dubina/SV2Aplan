@@ -131,6 +131,7 @@ def methodCall2AplanImpl(
     object_identifier = node.identifier
     destination_node_array.removeElementByIndex(destination_node_array.getLen() - 1)
     argument_list = ctx.list_of_arguments().getText()
+
     (
         argument_list,
         argument_list_with_replaced_names,
@@ -286,7 +287,10 @@ def createTFNMCall(
             else:
                 Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
                 task_call = "B_{0}".format(task.structure.identifier)
-                b_index = sv_structure.addProtocol(task_call)
+                b_index = sv_structure.addProtocol(
+                    task_call,
+                    inside_the_task=(self.inside_the_task or self.inside_the_function),
+                )
                 sv_structure.behavior[b_index].addBody(
                     BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
                 )
@@ -347,7 +351,10 @@ def createTFNMCall(
             else:
                 Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
                 task_call = "B_{0}".format(task.structure.identifier)
-                b_index = sv_structure.addProtocol(task_call)
+                b_index = sv_structure.addProtocol(
+                    task_call,
+                    inside_the_task=(self.inside_the_task or self.inside_the_function),
+                )
                 sv_structure.behavior[b_index].addBody(
                     BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
                 )

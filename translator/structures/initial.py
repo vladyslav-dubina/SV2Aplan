@@ -15,7 +15,10 @@ def initital2AplanImpl(
     )
     if self.module.input_parametrs is not None:
         structure.parametrs += self.module.input_parametrs
-    structure.addProtocol(initial_name)
+    structure.addProtocol(
+        initial_name,
+        inside_the_task=(self.inside_the_task or self.inside_the_function),
+    )
     names_for_change = self.body2Aplan(ctx, structure, ElementsTypes.INITIAL_ELEMENT)
     for element in names_for_change:
         self.module.name_change.deleteElement(element)

@@ -92,6 +92,7 @@ def ifStatement2AplanImpl(
             sv_structure.addProtocol(
                 "B_{0}".format(Counters_Object.getCounter(CounterTypes.B_COUNTER)),
                 parametrs=protocol_params,
+                inside_the_task=(self.inside_the_task or self.inside_the_function),
             )
         else:
             sv_structure.addProtocol(
@@ -99,6 +100,7 @@ def ifStatement2AplanImpl(
                     Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER),
                 ),
                 parametrs=protocol_params,
+                inside_the_task=(self.inside_the_task or self.inside_the_function),
             )
             Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
 
@@ -166,6 +168,7 @@ def ifStatement2AplanImpl(
         sv_structure.addProtocol(
             "IF_BODY_{0}".format(Counters_Object.getCounter(CounterTypes.BODY_COUNTER)),
             parametrs=protocol_params,
+            inside_the_task=(self.inside_the_task or self.inside_the_function),
         )
         Counters_Object.incrieseCounter(CounterTypes.BODY_COUNTER)
         if index == 0:

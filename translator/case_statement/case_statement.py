@@ -108,6 +108,7 @@ def caseStatement2AplanImpl(
                         Counters_Object.getCounter(CounterTypes.B_COUNTER),
                     ),
                     parametrs=protocol_params,
+                    inside_the_task=(self.inside_the_task or self.inside_the_function),
                 )
             else:
                 sv_structure.addProtocol(
@@ -115,6 +116,7 @@ def caseStatement2AplanImpl(
                         Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER),
                     ),
                     parametrs=protocol_params,
+                    inside_the_task=(self.inside_the_task or self.inside_the_function),
                 )
                 Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
 
@@ -196,6 +198,7 @@ def caseStatement2AplanImpl(
                     Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
                 ),
                 parametrs=protocol_params,
+                inside_the_task=(self.inside_the_task or self.inside_the_function),
             )
 
             Counters_Object.incrieseCounter(CounterTypes.BODY_COUNTER)
