@@ -6,7 +6,7 @@ from classes.protocols import BodyElement
 from classes.structure import Structure
 from translator.expression.expression import actionFromNodeStr
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.string_formating import replaceParametrsCalls
+from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import Counters_Object
 
 
@@ -20,7 +20,7 @@ def repeat2AplanImpl(
     )
     expression = ctx.expression().getText()
     expression_source_interval = ctx.expression().getSourceInterval()
-    expression = replaceParametrsCalls(self.module.parametrs, expression)
+    expression = replaceValueParametrsCalls(self.module.value_parametrs, expression)
 
     assing_expr = "{0} = {1}".format(identifier, 0)
 

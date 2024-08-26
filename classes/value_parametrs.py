@@ -3,7 +3,7 @@ from classes.basic import Basic, BasicArray
 from classes.element_types import ElementsTypes
 
 
-class Parametr(Basic):
+class ValueParametr(Basic):
     def __init__(
         self,
         identifier: str,
@@ -16,7 +16,7 @@ class Parametr(Basic):
         self.expression = expression
 
     def copy(self):
-        parametr = Parametr(
+        parametr = ValueParametr(
             self.identifier, self.source_interval, self.value, self.expression
         )
         parametr.number = self.number
@@ -50,12 +50,12 @@ class Parametr(Basic):
         return f"\tParametr({self.identifier!r}, {self.value!r}, {self.expression!r})\n"
 
 
-class ParametrArray(BasicArray):
+class ValueParametrArray(BasicArray):
     def __init__(self):
-        super().__init__(Parametr)
+        super().__init__(ValueParametr)
 
     def copy(self):
-        new_aray: ParametrArray = ParametrArray()
+        new_aray: ValueParametrArray = ValueParametrArray()
         for element in self.getElements():
             new_aray.addElement(element.copy())
         return new_aray
@@ -67,7 +67,7 @@ class ParametrArray(BasicArray):
         include_identifier: str | None = None,
         exclude_identifier: str | None = None,
     ):
-        result: ParametrArray = ParametrArray()
+        result: ValueParametrArray = ValueParametrArray()
         elements = self.elements
 
         if include is None and exclude is None:
@@ -93,7 +93,7 @@ class ParametrArray(BasicArray):
 
         return result
 
-    def addElement(self, new_element: Parametr):
+    def addElement(self, new_element: ValueParametr):
         if isinstance(new_element, self.element_type):
             new_element.prepareExpression()
             self.elements.append(new_element)
@@ -109,13 +109,13 @@ class ParametrArray(BasicArray):
             )
 
     def evaluateParametrExpressionByIndex(self, index: int):
-        from utils.string_formating import replaceParametrsCalls
+        from utils.string_formating import replaceValueParametrsCalls
         from utils.utils import evaluateExpression
 
         parametr = self.getElementByIndex(index)
         expression = parametr.expression
         if len(expression) > 0:
-            expression = replaceParametrsCalls(self, expression)
+            expression = replaceValueParametrsCalls(self, expression)
             expression = evaluateExpression(expression)
             parametr.value = expression
         return expression

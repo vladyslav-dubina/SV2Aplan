@@ -9,7 +9,7 @@ from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import (
     parallelAssignment2Assignment,
     replace_cpp_operators,
-    replaceParametrsCalls,
+    replaceValueParametrsCalls,
 )
 from utils.utils import Counters_Object
 
@@ -54,7 +54,7 @@ def generateBodyToAplan(
 def prepareGenerateExpression(module: Module, expression: str):
     expression = replace_cpp_operators(expression)
     expression = parallelAssignment2Assignment(expression)
-    expression = replaceParametrsCalls(module.parametrs, expression)
+    expression = replaceValueParametrsCalls(module.value_parametrs, expression)
 
     return expression
 

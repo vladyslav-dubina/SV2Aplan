@@ -2,7 +2,7 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.string_formating import replaceParametrsCalls
+from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
     extractDimentionSize,
     extractVectorSize,
@@ -37,7 +37,7 @@ def ansiPortDeclaration2AplanImpl(
     if unpacked_dimention is not None:
         dimension = unpacked_dimention.getText()
         dimension_size_expression = dimension
-        dimension = replaceParametrsCalls(self.module.parametrs, dimension)
+        dimension = replaceValueParametrsCalls(self.module.value_parametrs, dimension)
         dimension_size = extractDimentionSize(dimension)
 
     data_type = DeclTypes.INPORT
@@ -50,7 +50,7 @@ def ansiPortDeclaration2AplanImpl(
         data_type = DeclTypes.INPORT
 
     size_expression = header
-    header = replaceParametrsCalls(self.module.parametrs, header)
+    header = replaceValueParametrsCalls(self.module.value_parametrs, header)
     vector_size = extractVectorSize(header)
     aplan_vector_size = [0]
 

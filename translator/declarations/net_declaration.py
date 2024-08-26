@@ -3,7 +3,7 @@ from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from translator.declarations.object_declaration import objectDeclaration2AplanImpl
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.string_formating import replaceParametrsCalls
+from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
     extractDimentionSize,
     extractVectorSize,
@@ -37,14 +37,14 @@ def netDeclaration2AplanImpl(
     if unpacked_dimention is not None:
         dimension = unpacked_dimention.getText()
         dimension_size_expression = dimension
-        dimension = replaceParametrsCalls(self.module.parametrs, dimension)
+        dimension = replaceValueParametrsCalls(self.module.value_parametrs, dimension)
         dimension_size = extractDimentionSize(dimension)
 
     aplan_vector_size = [0]
     size_expression = ""
     if data_type:
         size_expression = data_type.getText()
-        data_type = replaceParametrsCalls(self.module.parametrs, data_type.getText())
+        data_type = replaceValueParametrsCalls(self.module.value_parametrs, data_type.getText())
         vector_size = extractVectorSize(data_type)
         if vector_size is not None:
             aplan_vector_size = vectorSize2AplanVectorSize(

@@ -11,7 +11,7 @@ from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import (
     addSpacesAroundOperators,
     notConcreteIndex2AplanStandart,
-    replaceParametrsCalls,
+    replaceValueParametrsCalls,
     valuesToAplanStandart,
     vectorSizes2AplanStandart,
 )
@@ -34,9 +34,9 @@ def prepareExpressionStringImpl(
         expression_with_replaced_names, self.module
     )
 
-    parametrs_array = self.module.parametrs
+    parametrs_array = self.module.value_parametrs
 
-    expression_with_replaced_names = replaceParametrsCalls(
+    expression_with_replaced_names = replaceValueParametrsCalls(
         parametrs_array, expression_with_replaced_names
     )
     return (expression, expression_with_replaced_names)

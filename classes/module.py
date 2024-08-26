@@ -1,6 +1,6 @@
 from classes.processed import ProcessedElementArray
 from classes.actions import ActionArray
-from classes.parametrs import ParametrArray
+from classes.value_parametrs import ValueParametrArray
 from classes.protocols import ProtocolArray
 from classes.declarations import DeclTypes, DeclarationArray
 from classes.structure import StructureArray
@@ -35,7 +35,7 @@ class Module(Basic):
 
         self.out_of_block_elements: ProtocolArray = ProtocolArray()
 
-        self.parametrs: ParametrArray = ParametrArray()
+        self.value_parametrs: ValueParametrArray = ValueParametrArray()
 
         self.name_change: NameChangeArray = NameChangeArray()
 
@@ -56,7 +56,7 @@ class Module(Basic):
         module.actions = self.actions
         module.structures = self.structures
         module.out_of_block_elements = self.out_of_block_elements
-        module.parametrs = self.parametrs
+        module.value_parametrs = self.value_parametrs
         module.name_change = self.name_change
         module.processed_elements = self.processed_elements
         module.tasks = self.tasks
@@ -78,7 +78,7 @@ class Module(Basic):
         module.structures.updateLinks(module)
         module.out_of_block_elements = self.out_of_block_elements.copy()
         self.out_of_block_elements.updateLinks(module)
-        module.parametrs = self.parametrs.copy()
+        module.value_parametrs = self.value_parametrs.copy()
         module.name_change = self.name_change.copy()
         module.processed_elements = self.processed_elements.copy()
         module.tasks = self.tasks.copy()
@@ -137,7 +137,7 @@ class Module(Basic):
                 for struct_element in element.structure.elements.getElements():
                     result.append(struct_element)
 
-        for element in self.parametrs.getElements():
+        for element in self.value_parametrs.getElements():
             if element.identifier == identifier:
                 result.append(element)
 

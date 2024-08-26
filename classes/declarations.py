@@ -4,7 +4,7 @@ from classes.actions import Action
 from classes.basic import Basic, BasicArray
 from classes.element_types import ElementsTypes
 
-from utils.string_formating import replaceParametrsCalls
+from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import extractVectorSize, vectorSize2AplanVectorSize
 
 

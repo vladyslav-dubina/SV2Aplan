@@ -5,7 +5,7 @@ from classes.name_change import NameChange
 from classes.protocols import BodyElement
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.string_formating import replaceParametrsCalls
+from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
     Counters_Object,
     CounterTypes,
@@ -72,7 +72,7 @@ def dataDecaration2AplanImpl(
             data_check_type = DeclTypes.checkType(data_type, types)
             aplan_vector_size = [0]
             size_expression = data_type
-            data_type = replaceParametrsCalls(self.module.parametrs, data_type)
+            data_type = replaceValueParametrsCalls(self.module.value_parametrs, data_type)
             vector_size = extractVectorSize(data_type)
             if vector_size is not None:
                 aplan_vector_size = vectorSize2AplanVectorSize(
@@ -102,7 +102,7 @@ def dataDecaration2AplanImpl(
                 if unpacked_dimention is not None:
                     dimension = unpacked_dimention.getText()
                     dimension_size_expression = dimension
-                    dimension = replaceParametrsCalls(self.module.parametrs, dimension)
+                    dimension = replaceValueParametrsCalls(self.module.value_parametrs, dimension)
                     dimension_size = extractDimentionSize(dimension)
 
                 assign_name = ""

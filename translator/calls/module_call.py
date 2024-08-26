@@ -190,7 +190,7 @@ def moduleCall2AplanImpl(
         self.module.identifier,
         destination_identifier,
         parametrs,
-        self.module.parametrs,
+        self.module.value_parametrs,
     )
     call_module_name = object_name
 

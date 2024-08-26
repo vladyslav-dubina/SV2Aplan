@@ -7,13 +7,13 @@ from classes.node import Node, NodeArray, RangeTypes
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import (
     parallelAssignment2Assignment,
-    replaceParametrsCalls,
+    replaceValueParametrsCalls,
     valuesToAplanStandart,
 )
 
 
 def paramsCallReplace(self: SV2aplan, expression):
-    parametrs_array = self.module.parametrs.copy()
+    parametrs_array = self.module.value_parametrs.copy()
 
     packages = self.module.packages_and_objects.getElementsIE(
         include=ElementsTypes.PACKAGE_ELEMENT,
@@ -21,9 +21,9 @@ def paramsCallReplace(self: SV2aplan, expression):
     )
 
     for element in packages.getElements():
-        parametrs_array += element.parametrs.copy()
+        parametrs_array += element.value_parametrs.copy()
 
-    return replaceParametrsCalls(parametrs_array, expression)
+    return replaceValueParametrsCalls(parametrs_array, expression)
 
 
 def identifier2AplanImpl(
