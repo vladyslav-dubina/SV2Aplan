@@ -1,6 +1,6 @@
 from typing import List, Tuple
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.action_parametr import ActionParametrArray
+from classes.action_parametr import ParametrArray
 from classes.action_precondition import ActionPreconditionArray
 from classes.actions import Action
 from classes.counters import CounterTypes
@@ -87,7 +87,7 @@ def actionFromNodeStr(
     element_type: ElementsTypes,
     sv_structure: Structure | None = None,
     input_parametrs: (
-        Tuple[str | None, ActionParametrArray | None, ActionPreconditionArray | None]
+        Tuple[str | None, ParametrArray | None, ActionPreconditionArray | None]
         | None
     ) = None,
 ):

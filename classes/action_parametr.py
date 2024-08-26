@@ -35,12 +35,12 @@ class ActionParametr(Basic):
         return f"\ActionParametr({self.identifier!r}, {self.type!r})\n"
 
 
-class ActionParametrArray(BasicArray):
+class ParametrArray(BasicArray):
     def __init__(self):
         super().__init__(ActionParametr)
 
     def copy(self):
-        new_aray: ActionParametrArray = ActionParametrArray()
+        new_aray: ParametrArray = ParametrArray()
         for element in self.getElements():
             new_aray.addElement(element.copy())
         return new_aray
@@ -110,4 +110,4 @@ class ActionParametrArray(BasicArray):
         return result
 
     def __repr__(self):
-        return f"ActionParametrArray(\n{self.elements!r}\t)"
+        return f"ParametrArray(\n{self.elements!r}\t)"

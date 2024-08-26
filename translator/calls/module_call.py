@@ -1,6 +1,6 @@
 from typing import List, Tuple
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.action_parametr import ActionParametr, ActionParametrArray
+from classes.action_parametr import ActionParametr, ParametrArray
 from classes.action_precondition import ActionPrecondition, ActionPreconditionArray
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
@@ -44,7 +44,7 @@ def moduleCallAssign2Aplan(
             assign_arr_str_list: List[
                 Tuple[
                     str,
-                    ActionParametrArray,
+                    ParametrArray,
                     ActionPreconditionArray,
                 ]
             ] = []
@@ -70,7 +70,7 @@ def moduleCallAssign2Aplan(
                     precond_array: NodeArray = NodeArray(
                         ElementsTypes.PRECONDITION_ELEMENT
                     )
-                    param_array: ActionParametrArray = ActionParametrArray()
+                    param_array: ParametrArray = ParametrArray()
                     uniq, param_index = param_array.addElement(
                         ActionParametr(
                             decl.identifier, decl.getAplanDecltypeForParametrs()

@@ -1,3 +1,4 @@
+from classes.action_parametr import ParametrArray
 from classes.processed import ProcessedElementArray
 from classes.actions import ActionArray
 from classes.value_parametrs import ValueParametrArray
@@ -36,6 +37,8 @@ class Module(Basic):
         self.out_of_block_elements: ProtocolArray = ProtocolArray()
 
         self.value_parametrs: ValueParametrArray = ValueParametrArray()
+
+        self.input_parametrs: ParametrArray = ParametrArray()
 
         self.name_change: NameChangeArray = NameChangeArray()
 

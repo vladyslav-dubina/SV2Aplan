@@ -1,5 +1,5 @@
 from typing import Tuple, List
-from classes.action_parametr import ActionParametrArray
+from classes.action_parametr import ParametrArray
 from classes.basic import Basic, BasicArray
 from classes.protocols import Protocol
 from classes.element_types import ElementsTypes
@@ -15,7 +15,7 @@ class Structure(Basic):
         super().__init__(identifier, source_interval, element_type)
         self.behavior: List[Protocol] = []
         self.elements: BasicArray = BasicArray(Basic)
-        self.parametrs: ActionParametrArray = ActionParametrArray()
+        self.parametrs: ParametrArray = ParametrArray()
         self.additional_params: str | None = None
 
     def copy(self):
@@ -61,7 +61,7 @@ class Structure(Basic):
         self,
         protocol_identifier: str,
         element_type: ElementsTypes | None = None,
-        parametrs: ActionParametrArray | None = None,
+        parametrs: ParametrArray | None = None,
     ):
         self.behavior.append(
             Protocol(protocol_identifier, (0, 0), element_type, parametrs)

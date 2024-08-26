@@ -1,6 +1,6 @@
 import re
 from typing import Tuple, List
-from classes.action_parametr import ActionParametr, ActionParametrArray
+from classes.action_parametr import ActionParametr, ParametrArray
 from classes.basic import Basic, BasicArray
 from classes.element_types import ElementsTypes
 from classes.node import NodeArray
@@ -31,14 +31,14 @@ class Action(Basic):
         self,
         identifier: str,
         source_interval: Tuple[int, int],
-        exist_parametrs: ActionParametrArray | None = None,
+        exist_parametrs: ParametrArray | None = None,
     ):
         super().__init__(identifier, source_interval)
         self.precondition: NodeArray = NodeArray(ElementsTypes.PRECONDITION_ELEMENT)
         self.postcondition: NodeArray = NodeArray(ElementsTypes.POSTCONDITION_ELEMENT)
         self.description: str = ""
-        self.exist_parametrs: ActionParametrArray | None = exist_parametrs
-        self.parametrs: ActionParametrArray = ActionParametrArray()
+        self.exist_parametrs: ParametrArray | None = exist_parametrs
+        self.parametrs: ParametrArray = ParametrArray()
 
     def findParametrInBodyAndSetParametrs(self, task ):
         if task is not None:
@@ -73,14 +73,14 @@ class Action(Basic):
         self,
         identifier: str,
         source_interval: Tuple[int, int],
-        exist_parametrs: ActionParametrArray | None = None,
+        exist_parametrs: ParametrArray | None = None,
     ):
         super().__init__(identifier, source_interval)
         self.precondition: ActionParts = ActionParts()
         self.postcondition: ActionParts = ActionParts()
         self.description: ActionParts = ActionParts()
-        self.exist_parametrs: ActionParametrArray | None = exist_parametrs
-        self.parametrs: ActionParametrArray = ActionParametrArray()
+        self.exist_parametrs: ParametrArray | None = exist_parametrs
+        self.parametrs: ParametrArray = ParametrArray()
 
     def copy(self):
         action = Action(
