@@ -65,7 +65,6 @@ class Structure(Basic):
         inside_the_task: bool = False,
     ):
         tmp: ParametrArray = ParametrArray()
-        print(inside_the_task, protocol_identifier)
         if inside_the_task is False:
             if self.parametrs is not None:
                 tmp += self.parametrs
