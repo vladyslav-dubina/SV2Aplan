@@ -39,4 +39,5 @@ def enumDecaration2AplanImpl(
                         new_decl
                     )
                 else:
+                    new_decl.file_path = self.program.path_to_result
                     decl_unique, decl_index = self.program.typedefs.addElement(new_decl)

@@ -1,0 +1,13 @@
+
+assign_1 = (
+		(1)->
+		("MAIN#main:action 'assign (current_state=IDLE)';")
+		(main.current_state = IDLE)),
+if_1 = (
+		(main.current_state == IDLE)->
+		("MAIN#main:action 'if (current_state==IDLE)';")
+		(1)),
+assign_2 = (
+		(1)->
+		("MAIN#main:action 'assign (start=1)';")
+		(main.start = 1))

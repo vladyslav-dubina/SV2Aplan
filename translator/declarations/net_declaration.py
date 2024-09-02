@@ -30,6 +30,7 @@ def netDeclaration2AplanImpl(
     dimensions, and assignments associated with the
 
     """
+
     data_type = ctx.data_type_or_implicit()
     unpacked_dimention = ctx.unpacked_dimension(0)
     dimension_size = 0
@@ -44,7 +45,9 @@ def netDeclaration2AplanImpl(
     size_expression = ""
     if data_type:
         size_expression = data_type.getText()
-        data_type = replaceValueParametrsCalls(self.module.value_parametrs, data_type.getText())
+        data_type = replaceValueParametrsCalls(
+            self.module.value_parametrs, data_type.getText()
+        )
         vector_size = extractVectorSize(data_type)
         if vector_size is not None:
             aplan_vector_size = vectorSize2AplanVectorSize(
@@ -61,6 +64,11 @@ def netDeclaration2AplanImpl(
 
     if data_type is not None:
         types = self.module.declarations.getElementsForTypes()
+
+        types += self.program.typedefs.getElementsIE(
+            file_path=self.program.path_to_result
+        ).getElements()
+
         types += self.program.modules.getElementsIE(
             include=ElementsTypes.CLASS_ELEMENT
         ).getElements()

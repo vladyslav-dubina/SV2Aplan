@@ -60,6 +60,11 @@ examples_list = [
         "examples/if_statemens/if_statement_2/aplan",
     ),
     (
+        "examples/struct/enum_3/enum_3.sv",
+        "examples/struct/enum_3/test_result",
+        "examples/struct/enum_3/aplan",
+    ),
+    (
         "examples/loops/loop_1/loop_1.sv",
         "examples/loops/loop_1/test_result",
         "examples/loops/loop_1/aplan",
@@ -134,7 +139,7 @@ examples_list = [
         "examples/call/interface_object/test_result",
         "examples/call/interface_object/aplan",
     ),
-        (
+    (
         "examples/call/interface_parametr/interface_parametr.sv",
         "examples/call/interface_parametr/test_result",
         "examples/call/interface_parametr/aplan",

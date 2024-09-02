@@ -72,6 +72,7 @@ class Declaration(Basic):
         self.dimension_expression = dimension_expression
         self.dimension_size = dimension_size
         self.action: Action | None = action
+        self.file_path: str = ""
 
     def copy(self):
         declaration = Declaration(
@@ -161,6 +162,7 @@ class DeclarationArray(BasicArray):
         exclude: ElementsTypes | None = None,
         include_identifier: str | None = None,
         exclude_identifier: str | None = None,
+        file_path: str | None = None,
     ):
         result: DeclarationArray = DeclarationArray()
         elements = self.elements
@@ -181,6 +183,12 @@ class DeclarationArray(BasicArray):
             if (
                 exclude_identifier is not None
                 and element.identifier is exclude_identifier
+            ):
+                continue
+
+            if (
+                file_path is not None
+                and element.file_path is file_path
             ):
                 continue
 
