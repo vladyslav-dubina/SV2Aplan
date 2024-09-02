@@ -93,6 +93,15 @@ class SV2aplan:
         ansiPortDeclaration2AplanImpl(self, ctx)
 
     # ---------------------------------------------------------------------------------
+    def enumDecaration2Aplan(
+        self,
+        ctx: SystemVerilogParser.Data_declarationContext,
+    ):
+        from translator.declarations.struct_declaration import enumDecaration2AplanImpl
+
+        return enumDecaration2AplanImpl(self, ctx)
+
+    # ---------------------------------------------------------------------------------
     def dataDecaration2Aplan(
         self,
         ctx: SystemVerilogParser.Data_declarationContext,

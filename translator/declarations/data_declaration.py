@@ -60,6 +60,9 @@ def dataDecaration2AplanImpl(
     if ctx.data_type_or_implicit() is not None:
         data_type = ctx.data_type_or_implicit().data_type()
         if data_type is not None:
+            #print(data_type.struct_union().getText())
+            #if data_type.struct_union():
+            #    return
             data_type = dataTypeToStr(data_type)
             if len(data_type) > 0:
                 types = self.module.declarations.getElementsForTypes()
@@ -195,30 +198,5 @@ def dataDecaration2AplanImpl(
                                 declaration.action = action_pointer
 
                 return identifier
-    type_declaration = ctx.type_declaration()
-    if type_declaration is not None:
-        data_type = type_declaration.data_type()
-        if data_type.ENUM():
-            for type_identifier in type_declaration.type_identifier():
-                enum_type_identifier = "{0}".format(type_identifier.getText())
-                elements = ""
-                for index, enum_name_decl in enumerate(
-                    data_type.enum_name_declaration()
-                ):
-                    if index != 0:
-                        elements += ","
-                    identifier = enum_name_decl.enum_identifier().getText()
-                    elements += identifier
-
-                new_decl = Declaration(
-                    DeclTypes.ENUM_TYPE,
-                    enum_type_identifier,
-                    elements,
-                    "",
-                    0,
-                    "",
-                    0,
-                    enum_name_decl.getSourceInterval(),
-                )
-
-                decl_unique, decl_index = self.module.declarations.addElement(new_decl)
+    else:
+        self.enumDecaration2Aplan(ctx)

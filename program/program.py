@@ -1,3 +1,4 @@
+from classes.declarations import DeclarationArray
 from classes.element_types import ElementsTypes
 from utils.string_formating import removeTrailingComma
 from utils.utils import printWithColor, Color
@@ -11,6 +12,7 @@ class Program:
         self.path_to_result = path_to_result
         self.modules: ModuleArray = ModuleArray()
         self.module_calls: ModuleCallArray = ModuleCallArray()
+        self.typedefs: DeclarationArray = DeclarationArray()
 
     def readFileData(self, path):
         self.file_path = path
@@ -45,7 +47,7 @@ class Program:
 
     def createEVT(self):
         evt = "events(\n"
-        for module in self.modules.getElementsIE().getElements():
+        for module in self.modules.getElements():
             for elem in module.declarations.getInputPorts():
                 evt += "\ts_{0}:obj(x1:{1});\n".format(
                     elem.identifier, elem.getAplanDecltype()
@@ -62,8 +64,9 @@ class Program:
         # ----------------------------------
         env += "\ttypes : obj (\n"
         sub_env = ""
-        for module in self.modules.getElementsIE().getElements():
-            decls = module.declarations.getElementsForTypes()
+        decls = self.typedefs.getElementsForTypes()
+        for module in self.modules.getElements():
+            decls += module.declarations.getElementsForTypes()
 
             for index, elem in enumerate(decls):
                 if index > 0:

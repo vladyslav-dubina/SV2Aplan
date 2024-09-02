@@ -28,7 +28,7 @@ class SVListener(SystemVerilogParserListener):
 
         self.module: Module = None
         self.program: Program = program
-        self.sv2aplan: SV2aplan = SV2aplan(None)
+        self.sv2aplan: SV2aplan = SV2aplan(None, program)
         self.module_call: ModuleCall | None = module_call
 
     def enterInterface_declaration(
