@@ -1,5 +1,5 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.action_parametr import ActionParametr
+from classes.parametrs import Parametr, ParametrArray
 from classes.element_types import ElementsTypes
 from classes.protocols import BodyElement
 from classes.structure import Structure
@@ -20,7 +20,7 @@ def returnToAssign2AplanImpl(
 
     return_var_name = f"return_{task.identifier}"
     task.parametrs.addElement(
-        ActionParametr(
+        Parametr(
             f"{return_var_name}",
             "var",
         )
@@ -30,12 +30,13 @@ def returnToAssign2AplanImpl(
     node.identifier = return_var_name
 
     action_pointer.parametrs.addElement(
-        ActionParametr(
+        Parametr(
             f"{return_var_name}",
             "var",
         )
     )
-    action_pointer.findParametrInBodyAndSetParametrs(task)
+
+    action_pointer.findParametrInBodyAndSetParametrs(task.parametrs)
     action_parametrs_count = action_pointer.parametrs.getLen()
     action_name = f"{action_pointer.identifier}{action_pointer.parametrs.getIdentifiersListString(action_parametrs_count)}"
 

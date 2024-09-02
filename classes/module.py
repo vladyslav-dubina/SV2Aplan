@@ -1,6 +1,7 @@
+from classes.parametrs import ParametrArray
 from classes.processed import ProcessedElementArray
 from classes.actions import ActionArray
-from classes.parametrs import ParametrArray
+from classes.value_parametrs import ValueParametrArray
 from classes.protocols import ProtocolArray
 from classes.declarations import DeclTypes, DeclarationArray
 from classes.structure import StructureArray
@@ -35,7 +36,9 @@ class Module(Basic):
 
         self.out_of_block_elements: ProtocolArray = ProtocolArray()
 
-        self.parametrs: ParametrArray = ParametrArray()
+        self.value_parametrs: ValueParametrArray = ValueParametrArray()
+
+        self.input_parametrs: ParametrArray = ParametrArray()
 
         self.name_change: NameChangeArray = NameChangeArray()
 
@@ -56,7 +59,7 @@ class Module(Basic):
         module.actions = self.actions
         module.structures = self.structures
         module.out_of_block_elements = self.out_of_block_elements
-        module.parametrs = self.parametrs
+        module.value_parametrs = self.value_parametrs
         module.name_change = self.name_change
         module.processed_elements = self.processed_elements
         module.tasks = self.tasks
@@ -78,7 +81,7 @@ class Module(Basic):
         module.structures.updateLinks(module)
         module.out_of_block_elements = self.out_of_block_elements.copy()
         self.out_of_block_elements.updateLinks(module)
-        module.parametrs = self.parametrs.copy()
+        module.value_parametrs = self.value_parametrs.copy()
         module.name_change = self.name_change.copy()
         module.processed_elements = self.processed_elements.copy()
         module.tasks = self.tasks.copy()
@@ -137,15 +140,21 @@ class Module(Basic):
                 for struct_element in element.structure.elements.getElements():
                     result.append(struct_element)
 
-        for element in self.parametrs.getElements():
+        for element in self.value_parametrs.getElements():
             if element.identifier == identifier:
                 result.append(element)
 
         return result
 
+    def getInputParametrs(self):
+        result = ""
+        if self.input_parametrs.getLen() > 0:
+            result = f"({str(self.input_parametrs)})"
+        return result
+
     def getBehInitProtocols(self):
         result = ""
-
+        parametrs = self.getInputParametrs()
         # MAIN PROTOCOL
         main_protocol = ""
         main_protocol_part = ""
@@ -185,9 +194,11 @@ class Module(Basic):
         if len(main_protocol) > 0:
             main_flag = True
             main_protocol = (
-                f"MAIN_{self.ident_uniq_name_upper} = (" + main_protocol + "),"
+                f"MAIN_{self.ident_uniq_name_upper}{parametrs} = ("
+                + main_protocol
+                + "),"
             )
-            main_protocol_part = f"MAIN_{self.ident_uniq_name_upper}"
+            main_protocol_part = f"MAIN_{self.ident_uniq_name_upper}{parametrs}"
             result += main_protocol
 
         # ALWAYS PART
@@ -233,9 +244,9 @@ class Module(Basic):
         if len(init_protocol) > 0:
             init_flag = True
             init_protocol = (
-                f"INIT_{self.ident_uniq_name_upper} = " + init_protocol + ","
+                f"INIT_{self.ident_uniq_name_upper}{parametrs} = " + init_protocol + ","
             )
-            init_protocol_part = f"INIT_{self.ident_uniq_name_upper}"
+            init_protocol_part = f"INIT_{self.ident_uniq_name_upper}{parametrs}"
             if main_flag or always_flag or struct_flag:
                 init_protocol_part += " || "
             if main_flag:
@@ -245,7 +256,7 @@ class Module(Basic):
         b0 = ""
 
         if len(b_body) > 0:
-            b0 = f"B_{self.ident_uniq_name_upper} = {{{b_body}}},"
+            b0 = f"B_{self.ident_uniq_name_upper}{parametrs} = {{{b_body}}},"
             if main_flag or init_flag:
                 b0 += "\n"
 

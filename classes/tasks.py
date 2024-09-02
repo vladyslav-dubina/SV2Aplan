@@ -1,6 +1,6 @@
 import re
 from typing import Tuple, List
-from classes.action_parametr import ActionParametrArray
+from classes.parametrs import ParametrArray
 from classes.basic import Basic, BasicArray
 from classes.actions import ActionParts
 from classes.element_types import ElementsTypes
@@ -15,10 +15,10 @@ class Task(Basic):
         element_type: ElementsTypes = ElementsTypes.TASK_ELEMENT,
     ):
         super().__init__(identifier, source_interval, element_type)
-        self.initial_parametrs: ActionParametrArray = ActionParametrArray()
+        self.initial_parametrs: ParametrArray = ParametrArray()
         self.structure: Structure | None = None
         self.postcondition: ActionParts = ActionParts()
-        self.parametrs: ActionParametrArray = ActionParametrArray()
+        self.parametrs: ParametrArray = ParametrArray()
 
     def findReturnParam(self):
         retunr_var = f"return_{self.identifier}"

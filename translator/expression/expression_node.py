@@ -1,19 +1,19 @@
 import re
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
-from classes.action_parametr import ActionParametr
+from classes.parametrs import Parametr
 from classes.element_types import ElementsTypes
 from classes.node import Node, NodeArray, RangeTypes
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import (
     parallelAssignment2Assignment,
-    replaceParametrsCalls,
+    replaceValueParametrsCalls,
     valuesToAplanStandart,
 )
 
 
 def paramsCallReplace(self: SV2aplan, expression):
-    parametrs_array = self.module.parametrs.copy()
+    parametrs_array = self.module.value_parametrs.copy()
 
     packages = self.module.packages_and_objects.getElementsIE(
         include=ElementsTypes.PACKAGE_ELEMENT,
@@ -21,9 +21,9 @@ def paramsCallReplace(self: SV2aplan, expression):
     )
 
     for element in packages.getElements():
-        parametrs_array += element.parametrs.copy()
+        parametrs_array += element.value_parametrs.copy()
 
-    return replaceParametrsCalls(parametrs_array, expression)
+    return replaceValueParametrsCalls(parametrs_array, expression)
 
 
 def identifier2AplanImpl(
@@ -146,11 +146,15 @@ def operator2AplanImpl(
         if isNotUsedOperator(operator):
             return
 
+        operator_type = ElementsTypes.OPERATOR_ELEMENT
+        if "." in operator:
+            operator_type = ElementsTypes.DOT_ELEMENT
+
         if destination_node_array.node_type == ElementsTypes.POSTCONDITION_ELEMENT:
             operator = parallelAssignment2Assignment(operator)
 
         index = destination_node_array.addElement(
-            Node(operator, ctx.getSourceInterval(), ElementsTypes.OPERATOR_ELEMENT)
+            Node(operator, ctx.getSourceInterval(), operator_type)
         )
         node = destination_node_array.getElementByIndex(index)
         decl = self.module.declarations.getElement(node.identifier)
@@ -164,7 +168,7 @@ def operator2AplanImpl(
                     return_var_name = f"return_{task.identifier}"
                     previus_node.identifier = return_var_name
                     task.parametrs.addElement(
-                        ActionParametr(
+                        Parametr(
                             f"{return_var_name}",
                             "var",
                         )

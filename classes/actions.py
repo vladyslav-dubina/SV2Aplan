@@ -1,6 +1,6 @@
 import re
 from typing import Tuple, List
-from classes.action_parametr import ActionParametr, ActionParametrArray
+from classes.parametrs import Parametr, ParametrArray
 from classes.basic import Basic, BasicArray
 from classes.element_types import ElementsTypes
 from classes.node import NodeArray
@@ -31,23 +31,22 @@ class Action(Basic):
         self,
         identifier: str,
         source_interval: Tuple[int, int],
-        exist_parametrs: ActionParametrArray | None = None,
+        exist_parametrs: ParametrArray | None = None,
     ):
         super().__init__(identifier, source_interval)
         self.precondition: NodeArray = NodeArray(ElementsTypes.PRECONDITION_ELEMENT)
         self.postcondition: NodeArray = NodeArray(ElementsTypes.POSTCONDITION_ELEMENT)
         self.description: str = ""
-        self.exist_parametrs: ActionParametrArray | None = exist_parametrs
-        self.parametrs: ActionParametrArray = ActionParametrArray()
+        self.exist_parametrs: ParametrArray | None = exist_parametrs
+        self.parametrs: ParametrArray = ParametrArray()
 
-    def findParametrInBodyAndSetParametrs(self, task ):
-        if task is not None:
-            for task_parametr in task.parametrs.getElements():
-                if isVariablePresent(str(self.precondition), task_parametr.identifier):
-                    self.parametrs.addElement(task_parametr)
+    def findParametrInBodyAndSetParametrs(self, parametrs):
+        for parametr in parametrs.getElements():
+            if isVariablePresent(str(self.precondition), parametr.identifier):
+                self.parametrs.addElement(parametr)
 
-                if isVariablePresent(str(self.postcondition), task_parametr.identifier):
-                    self.parametrs.addElement(task_parametr)
+            if isVariablePresent(str(self.postcondition), parametr.identifier):
+                self.parametrs.addElement(parametr)
 
     def getBody(self):
         if self.exist_parametrs is not None:
@@ -73,14 +72,14 @@ class Action(Basic):
         self,
         identifier: str,
         source_interval: Tuple[int, int],
-        exist_parametrs: ActionParametrArray | None = None,
+        exist_parametrs: ParametrArray | None = None,
     ):
         super().__init__(identifier, source_interval)
         self.precondition: ActionParts = ActionParts()
         self.postcondition: ActionParts = ActionParts()
         self.description: ActionParts = ActionParts()
-        self.exist_parametrs: ActionParametrArray | None = exist_parametrs
-        self.parametrs: ActionParametrArray = ActionParametrArray()
+        self.exist_parametrs: ParametrArray | None = exist_parametrs
+        self.parametrs: ParametrArray = ParametrArray()
 
     def copy(self):
         action = Action(
@@ -127,7 +126,7 @@ class Action(Basic):
             else:
                 self.postcondition.body[index] = element
             task.parametrs.addElement(
-                ActionParametr(
+                Parametr(
                     return_var_name,
                     "var",
                 )

@@ -1,13 +1,13 @@
 from typing import List, Tuple
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.action_parametr import ActionParametr, ActionParametrArray
+from classes.parametrs import Parametr, ParametrArray
 from classes.action_precondition import ActionPrecondition, ActionPreconditionArray
 from classes.actions import Action
 from classes.counters import CounterTypes
 from classes.declarations import Declaration
 from classes.element_types import ElementsTypes
 from classes.module_call import ModuleCall
-from classes.parametrs import Parametr
+from classes.value_parametrs import ValueParametr
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from classes.tasks import Task
@@ -60,8 +60,8 @@ def packageImport2ApanImpl(
                             self.module.tasks.addElement(module_element)
                         elif isinstance(module_element, Protocol):
                             self.module.out_of_block_elements.addElement(module_element)
-                        elif isinstance(module_element, Parametr):
-                            self.module.parametrs.addElement(module_element)
+                        elif isinstance(module_element, ValueParametr):
+                            self.module.value_parametrs.addElement(module_element)
 
                     self.program.modules.removeElement(
                         package

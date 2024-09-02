@@ -1,9 +1,10 @@
 
 module code_patch_core  
     (
+        input [12:0]                                test_1[2],
         input                                       si_read_i = 1'b0,
         input                                       cfg_pat_gen_i,
-        input [12:0]                                test_1[2],
+        
 
         output logic                                nopg_o
     );

@@ -1,6 +1,6 @@
 from typing import List, Tuple
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.action_parametr import ActionParametr, ActionParametrArray
+from classes.parametrs import Parametr, ParametrArray
 from classes.action_precondition import ActionPrecondition, ActionPreconditionArray
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
@@ -44,7 +44,7 @@ def moduleCallAssign2Aplan(
             assign_arr_str_list: List[
                 Tuple[
                     str,
-                    ActionParametrArray,
+                    ParametrArray,
                     ActionPreconditionArray,
                 ]
             ] = []
@@ -70,9 +70,9 @@ def moduleCallAssign2Aplan(
                     precond_array: NodeArray = NodeArray(
                         ElementsTypes.PRECONDITION_ELEMENT
                     )
-                    param_array: ActionParametrArray = ActionParametrArray()
+                    param_array: ParametrArray = ParametrArray()
                     uniq, param_index = param_array.addElement(
-                        ActionParametr(
+                        Parametr(
                             decl.identifier, decl.getAplanDecltypeForParametrs()
                         )
                     )
@@ -190,7 +190,7 @@ def moduleCall2AplanImpl(
         self.module.identifier,
         destination_identifier,
         parametrs,
-        self.module.parametrs,
+        self.module.value_parametrs,
     )
     call_module_name = object_name
 
@@ -207,19 +207,25 @@ def moduleCall2AplanImpl(
 
         self.program.module_calls.addElement(module_call)
 
-    self.program.file_path = previous_file_path
-    moduleCallAssign2Aplan(self, ctx, call_module_name, destination_identifier)
-    Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
-    call_b = "MODULE_CALL_B_{}".format(
-        Counters_Object.getCounter(CounterTypes.B_COUNTER)
-    )
-    struct_call = Protocol(
-        call_b, ctx.getSourceInterval(), ElementsTypes.MODULE_CALL_ELEMENT
-    )
-    struct_call.addBody(
-        BodyElement(
-            identifier=f"B_{call_module_name.upper()}",
-            element_type=ElementsTypes.PROTOCOL_ELEMENT,
+    call_module = self.program.modules.findModuleByUniqIdentifier(call_module_name)
+    if call_module is None:
+        call_module = self.program.module_calls.findModuleByUniqIdentifier(
+            call_module_name
         )
-    )
-    self.module.out_of_block_elements.addElement(struct_call)
+    if call_module.element_type != ElementsTypes.INTERFACE_ELEMENT:
+        self.program.file_path = previous_file_path
+        moduleCallAssign2Aplan(self, ctx, call_module_name, destination_identifier)
+        Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+        call_b = "MODULE_CALL_B_{}".format(
+            Counters_Object.getCounter(CounterTypes.B_COUNTER)
+        )
+        struct_call = Protocol(
+            call_b, ctx.getSourceInterval(), ElementsTypes.MODULE_CALL_ELEMENT
+        )
+        struct_call.addBody(
+            BodyElement(
+                identifier=f"B_{call_module_name.upper()}",
+                element_type=ElementsTypes.PROTOCOL_ELEMENT,
+            )
+        )
+        self.module.out_of_block_elements.addElement(struct_call)

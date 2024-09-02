@@ -1,7 +1,7 @@
 from classes.basic import Basic, BasicArray
 from classes.element_types import ElementsTypes
 from classes.name_change import NameChangeArray
-from classes.parametrs import ParametrArray
+from classes.value_parametrs import ValueParametrArray
 import re
 
 
@@ -21,7 +21,7 @@ class ModuleCall(Basic):
         source_identifier: str,
         destination_identifier: str,
         parameter_value_assignment: str | None = None,
-        source_parametrs: ParametrArray | None = None,
+        source_parametrs: ValueParametrArray | None = None,
     ):
         super().__init__(
             identifier,
@@ -30,7 +30,7 @@ class ModuleCall(Basic):
         self.object_name = object_name
         self.source_identifier = source_identifier
         self.destination_identifier = destination_identifier
-        self.paramets: ParametrArray = ParametrArray()
+        self.paramets: ValueParametrArray = ValueParametrArray()
         if parameter_value_assignment is not None and source_parametrs is not None:
             parametrs_for_assignment = self.extractParametrsAndValues(
                 parameter_value_assignment
@@ -52,6 +52,12 @@ class ModuleCall(Basic):
 class ModuleCallArray(BasicArray):
     def __init__(self):
         super().__init__(ModuleCall)
+
+    def findModuleByUniqIdentifier(self, object_name: str):
+        for element in self.elements:
+            if element.object_name == object_name:
+                return element
+        return None
 
     def getElementsIE(
         self,

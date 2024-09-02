@@ -55,14 +55,27 @@ class NodeArray(BasicArray):
     def __str__(self) -> str:
         result = ""
         negation_operators = "~!"
+        bracket_flag = False
         for index, element in enumerate(self.elements):
-            bracket_flag = False
+
             if index != 0:
-                if ";" in element.identifier:
+                if (
+                    bracket_flag
+                    and element.element_type is ElementsTypes.OPERATOR_ELEMENT
+                ):
+                    result += ")"
+                    bracket_flag = False
+
+                if (
+                    element.element_type is ElementsTypes.DOT_ELEMENT
+                    or ";" in element.identifier
+                ):
                     pass
                 else:
                     previus_element = self.elements[index - 1]
-                    if (
+                    if previus_element.element_type is ElementsTypes.DOT_ELEMENT:
+                        pass
+                    elif (
                         element.bit_selection
                         or element.range_selection == RangeTypes.START_END
                         or element.range_selection == RangeTypes.START
@@ -79,6 +92,7 @@ class NodeArray(BasicArray):
                                     "(" in previus_element.identifier
                                     or ")" in element.identifier
                                 ):
+                                    bracket_flag = False
                                     pass
                                 else:
                                     result += " "
@@ -113,9 +127,9 @@ class NodeArray(BasicArray):
             else:
                 result += identifier
 
-            if bracket_flag:
+            if bracket_flag and index == len(self.elements) - 1:
                 result += ")"
-
+                bracket_flag = False
         return result
 
     def getElementByIndex(self, index) -> Node:

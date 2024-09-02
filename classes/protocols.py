@@ -1,6 +1,6 @@
 import re
 from typing import Tuple, List
-from classes.action_parametr import ActionParametrArray
+from classes.parametrs import ParametrArray
 from classes.basic import Basic, BasicArray
 from utils.string_formating import removeTrailingComma
 from classes.element_types import ElementsTypes
@@ -13,7 +13,7 @@ class BodyElement(Basic):
         identifier: str,
         pointer_to_related: Basic | None = None,
         element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT,
-        parametrs: ActionParametrArray = ActionParametrArray(),
+        parametrs: ParametrArray = ParametrArray(),
     ):
 
         super().__init__(identifier, (0, 0), element_type)
@@ -36,11 +36,11 @@ class Protocol(Basic):
         identifier: str,
         source_interval: Tuple[int, int],
         element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT,
-        parametrs: ActionParametrArray | None = None,
+        parametrs: ParametrArray | None = None,
     ):
         super().__init__(identifier, source_interval, element_type)
         self.body: List[BodyElement] = []
-        self.parametrs: ActionParametrArray = ActionParametrArray()
+        self.parametrs: ParametrArray = ParametrArray()
         if parametrs is not None:
             self.parametrs = parametrs
 

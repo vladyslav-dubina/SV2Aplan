@@ -5,7 +5,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.utils import printWithColor, Color
 from ast import literal_eval
-from classes.parametrs import ParametrArray
+from classes.value_parametrs import ValueParametrArray
 
 
 def addSpacesAroundOperators(expression: str):
@@ -407,25 +407,25 @@ def replace_cpp_operators(expression: str) -> str:
     return expression
 
 
-def replaceParametrsCalls(param_array: ParametrArray, expression: str):
-    """The function `replaceParametrsCalls` replaces parameter calls in an expression with their
-    corresponding values from a `ParametrArray`.
+def replaceValueParametrsCalls(param_array: ValueParametrArray, expression: str):
+    """The function `replaceValueParametrsCalls` replaces parameter calls in an expression with their
+    corresponding values from a `ValueParametrArray`.
 
     Parameters
     ----------
-    param_array : ParametrArray
-        A `ParametrArray` is a data structure that contains elements representing parameters with
-    identifiers and values. The `replaceParametrsCalls` function takes a `param_array` and an
+    param_array : ValueParametrArray
+        A `ValueParametrArray` is a data structure that contains elements representing parameters with
+    identifiers and values. The `replaceValueParametrsCalls` function takes a `param_array` and an
     `expression` as input. It iterates over the elements in the `param_array` and replaces occurrences
     of the
     expression : str
-        The `replaceParametrsCalls` function takes in a `ParametrArray` object and a string `expression`.
+        The `replaceValueParametrsCalls` function takes in a `ValueParametrArray` object and a string `expression`.
     It iterates through the elements in the `param_array` and replaces occurrences of the element's
     identifier in the `expression` with the element's value.
 
     Returns
     -------
-        The function `replaceParametrsCalls` returns the modified `expression` string after replacing the
+        The function `replaceValueParametrsCalls` returns the modified `expression` string after replacing the
     identifiers with their corresponding values from the `param_array`.
 
     """

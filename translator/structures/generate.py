@@ -9,7 +9,7 @@ from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import (
     parallelAssignment2Assignment,
     replace_cpp_operators,
-    replaceParametrsCalls,
+    replaceValueParametrsCalls,
 )
 from utils.utils import Counters_Object
 
@@ -54,7 +54,7 @@ def generateBodyToAplan(
 def prepareGenerateExpression(module: Module, expression: str):
     expression = replace_cpp_operators(expression)
     expression = parallelAssignment2Assignment(expression)
-    expression = replaceParametrsCalls(module.parametrs, expression)
+    expression = replaceValueParametrsCalls(module.value_parametrs, expression)
 
     return expression
 
@@ -69,7 +69,13 @@ def generate2AplanImpl(
         generate_name,
         ctx.getSourceInterval(),
     )
-    struct.addProtocol(generate_name, ElementsTypes.GENERATE_ELEMENT)
+    if self.module.input_parametrs is not None:
+        struct.parametrs += self.module.input_parametrs
+    struct.addProtocol(
+        generate_name,
+        ElementsTypes.GENERATE_ELEMENT,
+        inside_the_task=(self.inside_the_task or self.inside_the_function),
+    )
     initialization = ctx.genvar_initialization().getText()
     initialization = prepareGenerateExpression(self.module, initialization)
 

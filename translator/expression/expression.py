@@ -1,6 +1,6 @@
 from typing import List, Tuple
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.action_parametr import ActionParametrArray
+from classes.parametrs import ParametrArray
 from classes.action_precondition import ActionPreconditionArray
 from classes.actions import Action
 from classes.counters import CounterTypes
@@ -11,7 +11,7 @@ from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import (
     addSpacesAroundOperators,
     notConcreteIndex2AplanStandart,
-    replaceParametrsCalls,
+    replaceValueParametrsCalls,
     valuesToAplanStandart,
     vectorSizes2AplanStandart,
 )
@@ -34,9 +34,9 @@ def prepareExpressionStringImpl(
         expression_with_replaced_names, self.module
     )
 
-    parametrs_array = self.module.parametrs
+    parametrs_array = self.module.value_parametrs
 
-    expression_with_replaced_names = replaceParametrsCalls(
+    expression_with_replaced_names = replaceValueParametrsCalls(
         parametrs_array, expression_with_replaced_names
     )
     return (expression, expression_with_replaced_names)
@@ -87,8 +87,7 @@ def actionFromNodeStr(
     element_type: ElementsTypes,
     sv_structure: Structure | None = None,
     input_parametrs: (
-        Tuple[str | None, ActionParametrArray | None, ActionPreconditionArray | None]
-        | None
+        Tuple[str | None, ParametrArray | None, ActionPreconditionArray | None] | None
     ) = None,
 ):
     (name_part, counter_type) = getNamePartAndCounter(element_type)
@@ -272,11 +271,14 @@ def expression2AplanImpl(
         source_interval,
     ) = self.module.actions.isUniqAction(action)
 
-    task = None
+    params_for_finding: ParametrArray = ParametrArray()
     if self.inside_the_task == True:
         task = self.module.tasks.getLastTask()
+        params_for_finding += task.parametrs
 
-    action.findParametrInBodyAndSetParametrs(task)
+    if self.module.input_parametrs is not None:
+        params_for_finding += self.module.input_parametrs
+    action.findParametrInBodyAndSetParametrs(params_for_finding)
 
     uniq = False
     if action_check_result is None:
@@ -291,7 +293,7 @@ def expression2AplanImpl(
         if sv_structure is not None:
             sv_structure.elements.addElement(action_pointer)
 
-    if self.inside_the_task == True and action_name is not None:
+    if action_name is not None:
         action_parametrs_count = action.parametrs.getLen()
         action_name = f"{action_name}{action.parametrs.getIdentifiersListString(action_parametrs_count)}"
 

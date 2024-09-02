@@ -1,53 +1,38 @@
-from typing import Tuple
+import re
+from typing import Tuple, List
 from classes.basic import Basic, BasicArray
-from classes.element_types import ElementsTypes
+from utils.string_formating import removeTrailingComma
 
 
 class Parametr(Basic):
     def __init__(
         self,
         identifier: str,
-        source_interval: Tuple[int, int],
-        value: int = 0,
-        expression: str | None = None,
+        type: str,
+        source_interval: Tuple[int, int] = (0, 0),
+        action_name: str = "",
     ):
+        if len(action_name) > 0:
+            action_name += "_"
+        self.type = type
+        self.uniq_identifier = action_name + ""
+        self.module_name: str | None = None
         super().__init__(identifier, source_interval)
-        self.value = value
-        self.expression = expression
 
     def copy(self):
-        parametr = Parametr(
-            self.identifier, self.source_interval, self.value, self.expression
-        )
-        parametr.number = self.number
-        return parametr
+        action_param = Parametr(self.identifier, self.type, self.source_interval)
+        action_param.uniq_identifier = self.uniq_identifier
+        action_param.number = self.number
+        return action_param
 
-    def prepareExpression(self):
-        from utils.string_formating import (
-            valuesToAplanStandart,
-            doubleOperators2Aplan,
-            addSpacesAroundOperators,
-            addBracketsAfterTilda,
-            addBracketsAfterNegation,
-            addLeftValueForUnaryOrOperator,
-            vectorSizes2AplanStandart,
-            generatePythonStyleTernary,
-            replace_cpp_operators,
-        )
-
-        expression = valuesToAplanStandart(self.expression)
-        expression = doubleOperators2Aplan(expression)
-        expression = addLeftValueForUnaryOrOperator(expression)
-        expression = addSpacesAroundOperators(expression)
-        expression = addBracketsAfterNegation(expression)
-        expression = addBracketsAfterTilda(expression)
-        expression = vectorSizes2AplanStandart(expression)
-        expression = replace_cpp_operators(expression)
-        expression = generatePythonStyleTernary(expression)
-        self.expression = expression
+    def __str__(self) -> str:
+        if "var" in self.type:
+            return f"{self.identifier}"
+        else:
+            return f"{self.uniq_identifier}:{self.type}"
 
     def __repr__(self):
-        return f"\tParametr({self.identifier!r}, {self.value!r}, {self.expression!r})\n"
+        return f"\Parametr({self.identifier!r}, {self.type!r})\n"
 
 
 class ParametrArray(BasicArray):
@@ -60,65 +45,69 @@ class ParametrArray(BasicArray):
             new_aray.addElement(element.copy())
         return new_aray
 
-    def getElementsIE(
-        self,
-        include: ElementsTypes | None = None,
-        exclude: ElementsTypes | None = None,
-        include_identifier: str | None = None,
-        exclude_identifier: str | None = None,
-    ):
-        result: ParametrArray = ParametrArray()
-        elements = self.elements
-
-        if include is None and exclude is None:
-            return self
-
-        for element in elements:
-            if include is not None and element.element_type is not include:
-                continue
-            if exclude is not None and element.element_type is exclude:
-                continue
-            if (
-                include_identifier is not None
-                and element.identifier is not include_identifier
-            ):
-                continue
-            if (
-                exclude_identifier is not None
-                and element.identifier is exclude_identifier
-            ):
-                continue
-
-            result.addElement(element)
-
-        return result
+    def insert(self, index: int, element: Parametr):
+        {self.elements.insert(index, element)}
 
     def addElement(self, new_element: Parametr):
         if isinstance(new_element, self.element_type):
-            new_element.prepareExpression()
+            is_uniq_element = self.findElement(new_element.identifier)
+            if is_uniq_element is not None:
+                return (False, self.getElementIndex(is_uniq_element.identifier))
+
             self.elements.append(new_element)
-            self.elements = sorted(
-                self.elements,
-                key=lambda element: len(element.identifier),
-                reverse=True,
-            )
-            return self.getElementIndex(new_element.identifier)
+            return (True, self.getElementIndex(new_element.identifier))
         else:
             raise TypeError(
                 f"Object should be of type {self.element_type} but you passed an object of type {type(new_element)}. \n Object: {new_element}"
             )
 
-    def evaluateParametrExpressionByIndex(self, index: int):
-        from utils.string_formating import replaceParametrsCalls
-        from utils.utils import evaluateExpression
+    def generateParametrNameByIndex(self, index):
+        alphabet = "abcdefghijklmnopqrstuvwxyz"
+        base = len(alphabet)
+        name = ""
 
-        parametr = self.getElementByIndex(index)
-        expression = parametr.expression
-        if len(expression) > 0:
-            expression = replaceParametrsCalls(self, expression)
-            expression = evaluateExpression(expression)
-            parametr.value = expression
-        return expression
+        while index >= 0:
+            name = alphabet[index % base] + name
+            index = index // base - 1
+
+            if len(name) > 1 and name[0] == name[1]:
+                current_index = alphabet.index(name[0])
+                next_index = (current_index + 1) % len(alphabet)
+                name = alphabet[next_index] + name[1:]
+
+        return name
+
+    def getIdentifiersListString(self, parametrs_count):
+        result = ""
+        if parametrs_count <= self.getLen():
+            for index in range(parametrs_count):
+                if index == 0:
+                    result += "("
+
+                if index != 0:
+                    result += ", "
+                result += self.elements[index].identifier
+                if index == self.getLen() - 1:
+                    result += ")"
+        else:
+            raise ValueError(
+                f"The number of arguments passed {self.getLen()} is different from the number expected {parametrs_count}"
+            )
+        return result
+
+    def generateUniqNamesForParamets(
+        self,
+    ):
+        for index, element in enumerate(self.getElements()):
+            element.uniq_identifier = self.generateParametrNameByIndex(index)
+
+    def __str__(self):
+        result = ""
+        for index, element in enumerate(self.getElements()):
+            if index != 0:
+                result += ", "
+            result += str(element)
+        return result
 
     def __repr__(self):
-        return f"ParametrsArray(\n{self.elements!r}\n)"
+        return f"ParametrArray(\n{self.elements!r}\t)"
