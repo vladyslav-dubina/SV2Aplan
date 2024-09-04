@@ -63,7 +63,9 @@ def netDeclaration2AplanImpl(
         size_expression = data_type
 
     if data_type is not None:
-        types = self.module.declarations.getElementsForTypes()
+        types = self.module.declarations.getElementsIE(
+            data_type_incude=DeclTypes.ENUM_TYPE
+        ).getElements()
 
         types += self.program.typedefs.getElementsIE(
             file_path=self.program.path_to_result
@@ -77,7 +79,9 @@ def netDeclaration2AplanImpl(
             include=ElementsTypes.PACKAGE_ELEMENT
         )
         for package in packages.getElements():
-            types += package.declarations.getElementsForTypes()
+            types += package.declarations.getElementsIE(
+                data_type_incude=DeclTypes.ENUM_TYPE
+            ).getElements()
 
         data_check_type = DeclTypes.checkType(data_type, types)
 

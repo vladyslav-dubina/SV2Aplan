@@ -163,11 +163,21 @@ class DeclarationArray(BasicArray):
         include_identifier: str | None = None,
         exclude_identifier: str | None = None,
         file_path: str | None = None,
+        data_type_incude: DeclTypes | None = None,
+        data_type_exclude: DeclTypes | None = None,
     ):
         result: DeclarationArray = DeclarationArray()
         elements = self.elements
 
-        if include is None and exclude is None:
+        if (
+            include is None
+            and exclude is None
+            and include_identifier is None
+            and exclude_identifier is None
+            and file_path is None
+            and data_type_incude is None
+            and data_type_exclude is None
+        ):
             return self
 
         for element in elements:
@@ -186,14 +196,19 @@ class DeclarationArray(BasicArray):
             ):
                 continue
 
+            if file_path is not None and element.file_path is not file_path:
+                continue
+
             if (
-                file_path is not None
-                and element.file_path is file_path
+                data_type_incude is not None
+                and element.data_type is not data_type_incude
             ):
                 continue
 
-            result.addElement(element)
+            if data_type_exclude is not None and element.data_type is data_type_exclude:
+                continue
 
+            result.addElement(element)
         return result
 
     def findElementWithSource(
@@ -252,20 +267,6 @@ class DeclarationArray(BasicArray):
             if element.dimension_size > 0:
                 return element
         return None
-
-    def getElementsForAgent(self):
-        result: List[Declaration] = []
-        for element in self.elements:
-            if element.data_type != DeclTypes.ENUM_TYPE:
-                result.append(element)
-        return result
-
-    def getElementsForTypes(self):
-        result: List[Declaration] = []
-        for element in self.elements:
-            if element.data_type == DeclTypes.ENUM_TYPE:
-                result.append(element)
-        return result
 
     def __repr__(self):
         return f"DeclarationsArray(\n{self.elements!r}\n)"

@@ -60,12 +60,14 @@ def dataDecaration2AplanImpl(
     if ctx.data_type_or_implicit() is not None:
         data_type = ctx.data_type_or_implicit().data_type()
         if data_type is not None:
-            #print(data_type.struct_union().getText())
-            #if data_type.struct_union():
+            # print(data_type.struct_union().getText())
+            # if data_type.struct_union():
             #    return
             data_type = dataTypeToStr(data_type)
             if len(data_type) > 0:
-                types = self.module.declarations.getElementsForTypes()
+                types = self.module.declarations.getElementsIE(
+                    data_type_incude=DeclTypes.ENUM_TYPE
+                )
                 packages = self.module.packages_and_objects.getElementsIE(
                     include=ElementsTypes.PACKAGE_ELEMENT
                 )
@@ -73,7 +75,9 @@ def dataDecaration2AplanImpl(
                     include=ElementsTypes.OBJECT_ELEMENT
                 )
                 for package in packages.getElements():
-                    types += package.declarations.getElementsForTypes()
+                    types += package.declarations.getElementsIE(
+                        data_type_incude=DeclTypes.ENUM_TYPE
+                    )
                 data_check_type = DeclTypes.checkType(data_type, types)
                 aplan_vector_size = [0]
 

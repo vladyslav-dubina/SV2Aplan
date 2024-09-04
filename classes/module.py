@@ -296,7 +296,12 @@ class ModuleArray(BasicArray):
         result: ModuleArray = ModuleArray()
         elements = self.elements
 
-        if include is None and exclude is None:
+        if (
+            include is None
+            and exclude is None
+            and include_ident_uniq_names is None
+            and exclude_ident_uniq_name is None
+        ):
             return self
 
         for element in elements:

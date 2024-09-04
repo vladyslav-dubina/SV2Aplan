@@ -1,4 +1,4 @@
-from classes.declarations import DeclarationArray
+from classes.declarations import DeclTypes, DeclarationArray
 from classes.element_types import ElementsTypes
 from utils.string_formating import removeTrailingComma
 from utils.utils import printWithColor, Color
@@ -64,16 +64,19 @@ class Program:
         # ----------------------------------
         env += "\ttypes : obj (\n"
         sub_env = ""
-        decls = self.typedefs.getElementsForTypes()
-        for module in self.modules.getElements():
-            decls += module.declarations.getElementsForTypes()
+        decls = self.typedefs.getElementsIE(data_type_incude=DeclTypes.ENUM_TYPE)
 
-            for index, elem in enumerate(decls):
-                if index > 0:
-                    sub_env += ",\n"
-                sub_env += "\t\t\t{0}:({1})".format(elem.identifier, elem.expression)
-                if index + 1 == len(decls):
-                    sub_env += "\n"
+        for module in self.modules.getElements():
+            decls += module.declarations.getElementsIE(
+                data_type_incude=DeclTypes.ENUM_TYPE
+            )
+
+        for index, elem in enumerate(decls.getElements()):
+            if index > 0:
+                sub_env += ",\n"
+            sub_env += "\t\t\t{0}:({1})".format(elem.identifier, elem.expression)
+            if index + 1 == decls.getLen():
+                sub_env += "\n"
         if len(sub_env) > 0:
             env += sub_env
         else:
@@ -97,14 +100,16 @@ class Program:
         ).getElements():
             env += "\t\t{0} : obj (\n".format(module.identifier)
             sub_env = ""
-            decls = module.declarations.getElementsForAgent()
-            for index, elem in enumerate(decls):
+            decls = module.declarations.getElementsIE(
+                data_type_exclude=DeclTypes.ENUM_TYPE
+            )
+            for index, elem in enumerate(decls.getElements()):
                 if index > 0:
                     sub_env += ",\n"
                 sub_env += "\t\t\t{0}:{1}".format(
                     elem.identifier, elem.getAplanDecltype()
                 )
-                if index + 1 == len(decls):
+                if index + 1 == decls.getLen():
                     sub_env += "\n"
             if len(sub_env) > 0:
                 env += sub_env

@@ -61,7 +61,12 @@ class BasicArray:
         result: BasicArray = BasicArray()
         elements = self.elements
 
-        if include is None and exclude is None:
+        if (
+            include is None
+            and exclude is None
+            and include_identifier is None
+            and exclude_identifier is None
+        ):
             return self
 
         for element in elements:
@@ -141,7 +146,7 @@ class BasicArray:
 
     def removeElement(self, element):
         self.elements.remove(element)
-        
+
     def removeElementByIndex(self, index):
         element = self.getElementByIndex(index)
         if element:

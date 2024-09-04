@@ -119,7 +119,12 @@ class StructureArray(BasicArray):
         result: StructureArray = StructureArray()
         elements = self.elements
 
-        if include is None and exclude is None:
+        if (
+            include is None
+            and exclude is None
+            and include_identifier is None
+            and exclude_identifier is None
+        ):
             return self
 
         for element in elements:

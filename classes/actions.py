@@ -67,111 +67,6 @@ class Action(Basic):
             return self.getBody() == other.getBody()
         return False
 
-    """
-    def __init__(
-        self,
-        identifier: str,
-        source_interval: Tuple[int, int],
-        exist_parametrs: ParametrArray | None = None,
-    ):
-        super().__init__(identifier, source_interval)
-        self.precondition: ActionParts = ActionParts()
-        self.postcondition: ActionParts = ActionParts()
-        self.description: ActionParts = ActionParts()
-        self.exist_parametrs: ParametrArray | None = exist_parametrs
-        self.parametrs: ParametrArray = ParametrArray()
-
-    def copy(self):
-        action = Action(
-            self.identifier,
-            self.source_interval,
-        )
-        action.precondition = self.precondition.copy()
-        action.postcondition = self.postcondition.copy()
-        action.description = self.description.copy()
-        if self.exist_parametrs is not None:
-            action.exist_parametrs = self.exist_parametrs.copy()
-        action.parametrs = self.parametrs.copy()
-        action.number = self.number
-        return action
-"""
-
-
-# def getBody(self):
-#    if self.exist_parametrs is not None:
-#         return f""" = ( Exist ({self.exist_parametrs}) (\n\t\t({self.precondition})->\n\t\t("{self.description};")\n\t\t({self.postcondition})))"""
-#     elif self.parametrs.getLen() > 0:
-#        return f"""({self.parametrs}) = (\n\t\t({self.precondition})->\n\t\t("{self.description};")\n\t\t({self.postcondition}))"""
-#    else:
-#        return f""" = (\n\t\t({self.precondition})->\n\t\t("{self.description};")\n\t\t({self.postcondition}))"""
-"""
-    def findReturnAndReplaceToParametrImpl(self, task, element, index, flag):
-        return_var_name = f"return_{task.identifier}"
-        if isVariablePresent(element, task.identifier) or isVariablePresent(
-            element, "return"
-        ):
-            element = re.sub(
-                r"\b{}\b".format(re.escape(task.identifier)),
-                "{}".format(return_var_name),
-                element,
-            )
-            element = re.sub(
-                r"\b{}\b".format(re.escape("return")),
-                "{} = ".format(return_var_name),
-                element,
-            )
-
-            if flag:
-                self.precondition.body[index] = element
-            else:
-                self.postcondition.body[index] = element
-            task.parametrs.addElement(
-                Parametr(
-                    return_var_name,
-                    "var",
-                )
-            )
-
-    def findReturnAndReplaceToParametr(self, task, packages):
-        if task is None and packages is None:
-            return
-
-        for index, element in enumerate(self.precondition.body):
-            if task is not None:
-                self.findReturnAndReplaceToParametrImpl(task, element, index, True)
-            if packages is not None:
-                for package in packages.getElementsIE().getElements():
-                    for package_task in package.tasks.getElements():
-                        self.findReturnAndReplaceToParametrImpl(
-                            package_task, element, index, True
-                        )
-        for index, element in enumerate(self.postcondition.body):
-            if task is not None:
-                self.findReturnAndReplaceToParametrImpl(task, element, index, False)
-            if packages is not None:
-                for package in packages.getElementsIE().getElements():
-                    for package_task in package.tasks.getElements():
-                        self.findReturnAndReplaceToParametrImpl(
-                            package_task, element, index, False
-                        )
-
-
-
-    def __str__(self):
-        if self.number is None:
-            return "{0}{1},".format(self.identifier, self.getBody())
-        else:
-            return "{0}_{2}{1},".format(self.identifier, self.getBody(), self.number)
-
-    def __repr__(self):
-        return f"\tAction({self.identifier!r}, {self.number!r}, {self.sequence!r})\n"
-
-    def __eq__(self, other):
-        if isinstance(other, Action):
-            return self.getBody() == other.getBody()
-        return False
-    """
-
 
 class ActionArray(BasicArray):
     def __init__(self):
@@ -193,7 +88,12 @@ class ActionArray(BasicArray):
         result: ActionArray = ActionArray()
         elements = self.elements
 
-        if include is None and exclude is None:
+        if (
+            include is None
+            and exclude is None
+            and include_identifier is None
+            and exclude_identifier is None
+        ):
             return self
 
         for element in elements:
