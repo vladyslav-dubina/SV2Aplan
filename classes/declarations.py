@@ -19,6 +19,7 @@ class DeclTypes(Enum):
     BIT = auto()
     ENUM = auto()
     ENUM_TYPE = auto()
+    STRUCT_TYPE = auto()
     CLASS = auto()
     NONE = auto()
 
@@ -178,7 +179,7 @@ class DeclarationArray(BasicArray):
             and data_type_incude is None
             and data_type_exclude is None
         ):
-            return self
+            return self.copy()
 
         for element in elements:
             if include is not None and element.element_type is not include:

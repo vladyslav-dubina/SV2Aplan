@@ -86,7 +86,7 @@ def moduleCallAssign2Aplan(
                     param = param_array.getElementByIndex(param_index)
                     precond_array.addElement(
                         Node(
-                            f"{param.uniq_identifier}",
+                            f"{param.unique_identifier}",
                             (0, 0),
                             ElementsTypes.IDENTIFIER_ELEMENT,
                         )
@@ -106,7 +106,7 @@ def moduleCallAssign2Aplan(
                         destination_var_name,
                         self.module.ident_uniq_name,
                         source_var_name,
-                        param.uniq_identifier,
+                        param.unique_identifier,
                     )
                     assign_arr_str_list.append(
                         (

@@ -70,7 +70,7 @@ class ModuleCallArray(BasicArray):
         elements = self.elements
 
         if include is None and exclude is None:
-            return self
+            return self.copy()
 
         for element in elements:
             if include is not None and element.element_type is not include:

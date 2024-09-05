@@ -7,6 +7,7 @@ from classes.counters import CounterTypes
 from classes.declarations import Declaration
 from classes.element_types import ElementsTypes
 from classes.module_call import ModuleCall
+from classes.typedef import Typedef
 from classes.value_parametrs import ValueParametr
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
@@ -48,6 +49,8 @@ def packageImport2ApanImpl(
 
                 if identifier is not None:
                     identifier = identifier.getText()
+
+                    # Search for imported items
                     result = package.findElementByIdentifier(identifier)
                     for module_element in result:
                         if isinstance(module_element, Declaration):
@@ -62,6 +65,9 @@ def packageImport2ApanImpl(
                             self.module.out_of_block_elements.addElement(module_element)
                         elif isinstance(module_element, ValueParametr):
                             self.module.value_parametrs.addElement(module_element)
+                        elif isinstance(module_element, Typedef):
+                            module_element.file_path = self.program.file_path
+                            self.module.typedefs.addElement(module_element)
 
                     self.program.modules.removeElement(
                         package

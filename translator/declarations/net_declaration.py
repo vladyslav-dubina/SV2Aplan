@@ -1,6 +1,7 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
+from classes.typedef import Typedef
 from translator.declarations.object_declaration import objectDeclaration2AplanImpl
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replaceValueParametrsCalls
@@ -63,12 +64,12 @@ def netDeclaration2AplanImpl(
         size_expression = data_type
 
     if data_type is not None:
-        types = self.module.declarations.getElementsIE(
-            data_type_incude=DeclTypes.ENUM_TYPE
+        types = self.module.typedefs.getElementsIE(
+            file_path=self.program.file_path
         ).getElements()
 
         types += self.program.typedefs.getElementsIE(
-            file_path=self.program.path_to_result
+            file_path=self.program.file_path
         ).getElements()
 
         types += self.program.modules.getElementsIE(
@@ -79,11 +80,16 @@ def netDeclaration2AplanImpl(
             include=ElementsTypes.PACKAGE_ELEMENT
         )
         for package in packages.getElements():
-            types += package.declarations.getElementsIE(
-                data_type_incude=DeclTypes.ENUM_TYPE
-            ).getElements()
+            types += package.typedefs.getElementsIE().getElements()
 
         data_check_type = DeclTypes.checkType(data_type, types)
+
+        # change type names for unique type names for structs
+        if data_check_type == DeclTypes.ENUM:
+            for element in types:
+                if isinstance(element, Typedef):
+                    if element.identifier == size_expression:
+                        size_expression = element.unique_identifier
 
         for elem in ctx.list_of_net_decl_assignments().net_decl_assignment():
             identifier = elem.net_identifier().identifier().getText()

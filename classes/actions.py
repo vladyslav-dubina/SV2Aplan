@@ -94,7 +94,7 @@ class ActionArray(BasicArray):
             and include_identifier is None
             and exclude_identifier is None
         ):
-            return self
+            return self.copy()
 
         for element in elements:
             if include is not None and element.element_type is not include:

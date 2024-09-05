@@ -1,5 +1,6 @@
 from classes.declarations import DeclTypes, DeclarationArray
 from classes.element_types import ElementsTypes
+from classes.typedef import TypedefArray
 from utils.string_formating import removeTrailingComma
 from utils.utils import printWithColor, Color
 from classes.module import ModuleArray
@@ -12,7 +13,7 @@ class Program:
         self.path_to_result = path_to_result
         self.modules: ModuleArray = ModuleArray()
         self.module_calls: ModuleCallArray = ModuleCallArray()
-        self.typedefs: DeclarationArray = DeclarationArray()
+        self.typedefs: TypedefArray = TypedefArray()
 
     def readFileData(self, path):
         self.file_path = path
@@ -64,21 +65,15 @@ class Program:
         # ----------------------------------
         env += "\ttypes : obj (\n"
         sub_env = ""
-        decls = self.typedefs.getElementsIE(data_type_incude=DeclTypes.ENUM_TYPE)
-
+        decls = self.typedefs.getElementsIE()
+        
         for module in self.modules.getElements():
-            decls += module.declarations.getElementsIE(
-                data_type_incude=DeclTypes.ENUM_TYPE
-            )
-
-        for index, elem in enumerate(decls.getElements()):
-            if index > 0:
-                sub_env += ",\n"
-            sub_env += "\t\t\t{0}:({1})".format(elem.identifier, elem.expression)
-            if index + 1 == decls.getLen():
-                sub_env += "\n"
+            decls += module.typedefs.getElementsIE()
+            
+            
+        sub_env += str(decls)
         if len(sub_env) > 0:
-            env += sub_env
+            env += sub_env + "\n"
         else:
             env += "\t\t\tNil\n"
         env += "\t);\n"

@@ -101,6 +101,16 @@ class SV2aplan:
 
         return enumDecaration2AplanImpl(self, ctx)
 
+        # ---------------------------------------------------------------------------------
+
+    def structDeclaration2Aplan(
+        self,
+        ctx: SystemVerilogParser.Data_declarationContext,
+    ):
+        from translator.declarations.struct_declaration import structDeclaration2AplanImpl
+
+        return structDeclaration2AplanImpl(self, ctx)
+
     # ---------------------------------------------------------------------------------
     def dataDecaration2Aplan(
         self,
