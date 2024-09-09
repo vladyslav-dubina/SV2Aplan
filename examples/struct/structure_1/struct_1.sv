@@ -1,4 +1,4 @@
-module example_struct;
+module struct_1;
     struct {    
         int id;
         logic [7:0] age;

@@ -19,6 +19,11 @@ examples_list = [
         "examples/struct/enum_2/test_result",
         "examples/struct/enum_2/aplan",
     ),
+        (
+        "examples/struct/structure_1/struct_1.sv",
+        "examples/struct/structure_1/test_result",
+        "examples/struct/structure_1/aplan",
+    ),
     (
         "examples/struct/interface/my_interface.sv",
         "examples/struct/interface/test_result",

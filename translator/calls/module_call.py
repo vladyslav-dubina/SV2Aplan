@@ -1,5 +1,6 @@
 from typing import List, Tuple
 from antlr4_verilog.systemverilog import SystemVerilogParser
+from classes.declarations import AplanDeclType
 from classes.parametrs import Parametr, ParametrArray
 from classes.action_precondition import ActionPrecondition, ActionPreconditionArray
 from classes.counters import CounterTypes
@@ -73,7 +74,8 @@ def moduleCallAssign2Aplan(
                     param_array: ParametrArray = ParametrArray()
                     uniq, param_index = param_array.addElement(
                         Parametr(
-                            decl.identifier, decl.getAplanDecltypeForParametrs()
+                            decl.identifier,
+                            decl.getAplanDecltype(AplanDeclType.PARAMETRS),
                         )
                     )
                     param_array.generateUniqNamesForParamets()

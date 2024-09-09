@@ -1,6 +1,6 @@
 from typing import Tuple
 from classes.basic import Basic, BasicArray
-from classes.declarations import DeclTypes, DeclarationArray
+from classes.declarations import AplanDeclType, DeclTypes, DeclarationArray
 from classes.element_types import ElementsTypes
 
 
@@ -31,7 +31,7 @@ class Typedef(Basic):
         )
         typedef.declarations = self.declarations.copy()
         return typedef
-    
+
     def __str__(self) -> str:
         result = f"{self.unique_identifier}:"
 
@@ -51,11 +51,11 @@ class Typedef(Basic):
                 if index != 0:
                     result += ",\n\t\t\t"
 
-                result += element.getAplanDecltype()
+                result += element.getAplanDecltype(AplanDeclType.STRUCT)
 
             result += "\n\t\t)"
         return result
-    
+
     def __repr__(self):
         return f"Typedef(\n\t\t{self.identifier!r},{self.unique_identifier!r},{self.file_path!r}\n)"
 
@@ -172,7 +172,7 @@ class TypedefArray(BasicArray):
                 result += ",\n\t\t"
             else:
                 result += "\t\t"
-            
+
             result += str(element)
         return result
 

@@ -20,6 +20,7 @@ class DeclTypes(Enum):
     ENUM = auto()
     ENUM_TYPE = auto()
     STRUCT_TYPE = auto()
+    STRUCT = auto()
     CLASS = auto()
     NONE = auto()
 
@@ -51,6 +52,12 @@ class DeclTypes(Enum):
         return DeclTypes.NONE
 
 
+class AplanDeclType(Enum):
+    STRUCT = auto()
+    PARAMETRS = auto()
+    NONE = auto()
+
+
 class Declaration(Basic):
     def __init__(
         self,
@@ -64,6 +71,7 @@ class Declaration(Basic):
         source_interval: Tuple[int, int],
         element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT,
         action: Action | None = None,
+        struct_name: str | None = None,
     ):
         super().__init__(identifier, source_interval, element_type)
         self.data_type = data_type
@@ -74,6 +82,7 @@ class Declaration(Basic):
         self.dimension_size = dimension_size
         self.action: Action | None = action
         self.file_path: str = ""
+        self.struct_name: str = struct_name
 
     def copy(self):
         declaration = Declaration(
@@ -91,33 +100,13 @@ class Declaration(Basic):
         declaration.number = self.number
         return declaration
 
-    def getAplanDecltypeForParametrs(self):
-        if self.data_type == DeclTypes.INT:
-            return "int"
-        elif (
-            self.data_type == DeclTypes.INPORT
-            or self.data_type == DeclTypes.OUTPORT
-            or self.data_type == DeclTypes.WIRE
-            or self.data_type == DeclTypes.REG
-            or self.data_type == DeclTypes.LOGIC
-            or self.data_type == DeclTypes.BIT
-        ):
-            if self.size > 0:
-                return f"Bits ({self.size})"
-            else:
-                return "bool"
-        elif self.data_type == DeclTypes.ENUM_TYPE:
-            return ""
-        elif self.data_type == DeclTypes.CLASS:
-            return f"{self.size_expression}"
-        elif self.data_type == DeclTypes.STRING:
-            return "string"
-        elif self.data_type == DeclTypes.ENUM:
-            return f"{self.size_expression}"
+    def getAplanDecltype(self, type: AplanDeclType = AplanDeclType.NONE):
+        result = ""
+        if type is AplanDeclType.STRUCT:
+            result += f"{self.identifier}:"
 
-    def getAplanDecltype(self):
         if self.data_type == DeclTypes.INT:
-            return "int"
+            result += "int"
         elif (
             self.data_type == DeclTypes.INPORT
             or self.data_type == DeclTypes.OUTPORT
@@ -126,19 +115,27 @@ class Declaration(Basic):
             or self.data_type == DeclTypes.LOGIC
         ):
             if self.dimension_size > 0:
-                return f"(Bits {self.size}) -> Bits {self.dimension_size}"
+                if type is AplanDeclType.PARAMETRS:
+                    result += "Bits " + str(self.size)
+                else:
+                    result += f"(Bits {self.size}) -> Bits {self.dimension_size}"
+
             elif self.size > 0:
-                return "Bits " + str(self.size)
+                result += "Bits " + str(self.size)
             else:
-                return "bool"
+                result += "bool"
         elif self.data_type == DeclTypes.ENUM_TYPE:
-            return ""
+            result += ""
         elif self.data_type == DeclTypes.CLASS:
-            return f"{self.size_expression}"
+            result += f"{self.size_expression}"
         elif self.data_type == DeclTypes.STRING:
-            return "string"
+            result += "string"
         elif self.data_type == DeclTypes.ENUM:
-            return f"{self.size_expression}"
+            result += f"{self.size_expression}"
+        elif self.data_type == DeclTypes.STRUCT:
+            result += f"{self.size_expression}"
+
+        return result
 
     def __repr__(self):
         return f"\tDeclaration({self.data_type!r}, {self.identifier!r}, {self.expression!r}, {self.size!r}, {self.sequence!r})\n"

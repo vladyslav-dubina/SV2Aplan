@@ -61,27 +61,33 @@ def dataDecaration2AplanImpl(
         data_type = ctx.data_type_or_implicit().data_type()
         if data_type is not None:
             if data_type.struct_union():
-                self.structDeclaration2Aplan(ctx)
-                return
+                struct = self.structDeclaration2Aplan(ctx)
+            else:
+                struct = None
+
             data_type = dataTypeToStr(data_type)
             if len(data_type) > 0:
-                types = self.module.typedefs.getElementsIE().getElements()
-                packages = self.module.packages_and_objects.getElementsIE(
-                    include=ElementsTypes.PACKAGE_ELEMENT
-                )
-                packages += self.module.packages_and_objects.getElementsIE(
-                    include=ElementsTypes.OBJECT_ELEMENT
-                )
-                for package in packages.getElements():
-                    types += package.typedefs.getElementsIE().getElements()
-
-                data_check_type = DeclTypes.checkType(data_type, types)
+                size_expression = ""
+                if struct:
+                    data_check_type = DeclTypes.STRUCT
+                    size_expression = struct.unique_identifier
+                else:
+                    types = self.module.typedefs.getElementsIE().getElements()
+                    packages = self.module.packages_and_objects.getElementsIE(
+                        include=ElementsTypes.PACKAGE_ELEMENT
+                    )
+                    packages += self.module.packages_and_objects.getElementsIE(
+                        include=ElementsTypes.OBJECT_ELEMENT
+                    )
+                    for package in packages.getElements():
+                        types += package.typedefs.getElementsIE().getElements()
+                    data_check_type = DeclTypes.checkType(data_type, types)
                 aplan_vector_size = [0]
 
                 packed_dimension = (
                     ctx.data_type_or_implicit().data_type().packed_dimension(0)
                 )
-                size_expression = ""
+
                 vector_size = None
                 if packed_dimension is not None:
                     vector_size = packed_dimension.getText()
