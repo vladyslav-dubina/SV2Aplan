@@ -85,7 +85,7 @@ def netDeclaration2AplanImpl(
         data_check_type = DeclTypes.checkType(data_type, types)
 
         # change type names for unique type names for structs
-        if data_check_type == DeclTypes.ENUM:
+        if data_check_type == DeclTypes.ENUM or data_check_type == DeclTypes.STRUCT:
             for element in types:
                 if isinstance(element, Typedef):
                     if element.identifier == size_expression:

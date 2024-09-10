@@ -48,6 +48,8 @@ class DeclTypes(Enum):
                     if type_str == type.identifier:
                         if type.data_type is DeclTypes.ENUM_TYPE:
                             return DeclTypes.ENUM
+                        elif type.data_type is DeclTypes.STRUCT_TYPE:
+                            return DeclTypes.STRUCT
 
         return DeclTypes.NONE
 

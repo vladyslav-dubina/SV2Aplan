@@ -36,7 +36,7 @@ class Typedef(Basic):
         result = f"{self.unique_identifier}:"
 
         if self.data_type is DeclTypes.ENUM_TYPE:
-            result += "("
+            result += "(\n\t\t\t"
             for index, element in enumerate(self.declarations.getElements()):
                 if index != 0:
                     result += ",\n\t\t\t"
@@ -46,7 +46,7 @@ class Typedef(Basic):
             result += "\n\t\t)"
 
         elif self.data_type is DeclTypes.STRUCT_TYPE:
-            result += "obj ("
+            result += "obj (\n\t\t\t"
             for index, element in enumerate(self.declarations.getElements()):
                 if index != 0:
                     result += ",\n\t\t\t"

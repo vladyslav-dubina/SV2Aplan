@@ -14,51 +14,6 @@ from utils.utils import (
 )
 
 
-def enumDecaration2AplanImpl(
-    self: SV2aplan,
-    ctx: SystemVerilogParser.Data_declarationContext,
-):
-
-    type_declaration = ctx.type_declaration()
-    if type_declaration is not None:
-        data_type = type_declaration.data_type()
-        if data_type.ENUM():
-            for type_identifier in type_declaration.type_identifier():
-                enum_type_identifier = "{0}".format(type_identifier.getText())
-                unique_identifier = "{0}_{1}".format(
-                    enum_type_identifier,
-                    Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
-                )
-
-                typedef = Typedef(
-                    enum_type_identifier,
-                    unique_identifier,
-                    type_identifier.getSourceInterval(),
-                    self.program.file_path,
-                    DeclTypes.ENUM_TYPE,
-                )
-                for index, enum_name_decl in enumerate(
-                    data_type.enum_name_declaration()
-                ):
-                    identifier = enum_name_decl.enum_identifier().getText()
-                    new_decl = Declaration(
-                        DeclTypes.ENUM,
-                        identifier,
-                        "",
-                        "",
-                        0,
-                        "",
-                        0,
-                        enum_name_decl.getSourceInterval(),
-                    )
-                    typedef.declarations.addElement(new_decl)
-
-                if self.module:
-                    decl_unique, decl_index = self.module.typedefs.addElement(typedef)
-                else:
-                    decl_unique, decl_index = self.program.typedefs.addElement(typedef)
-
-
 def structDeclaration2AplanImpl(
     self: SV2aplan, ctx: SystemVerilogParser.Data_declarationContext
 ):
@@ -74,8 +29,21 @@ def structDeclaration2AplanImpl(
         self.program.file_path,
         DeclTypes.STRUCT_TYPE,
     )
-    for element in struct_decl.struct_union_member():
 
+    structMembersToDeclarations(self, struct_decl, typedef)
+
+    if self.module:
+        decl_unique, decl_index = self.module.typedefs.addElement(typedef)
+    else:
+        decl_unique, decl_index = self.program.typedefs.addElement(typedef)
+
+    return typedef
+
+
+def structMembersToDeclarations(
+    self: SV2aplan, ctx: SystemVerilogParser.Data_typeContext, typedef: Typedef
+):
+    for element in ctx.struct_union_member():
         var_name = element.list_of_variable_decl_assignments().getText()
         data_type = element.data_type_or_void().data_type()
         packed_dimension = data_type.packed_dimension(0)
@@ -91,6 +59,8 @@ def structDeclaration2AplanImpl(
                 )
                 for package in packages.getElements():
                     types += package.typedefs.getElementsIE().getElements()
+            else:
+                types = []
 
             data_check_type = DeclTypes.checkType(data_type_str, types)
             size_expression = ""
@@ -122,9 +92,59 @@ def structDeclaration2AplanImpl(
             )
             typedef.declarations.addElement(new_decl)
 
-    if self.module:
-        decl_unique, decl_index = self.module.typedefs.addElement(typedef)
-    else:
-        decl_unique, decl_index = self.program.typedefs.addElement(typedef)
 
-    return typedef
+def typedefDecaration2AplanImpl(
+    self: SV2aplan,
+    ctx: SystemVerilogParser.Data_declarationContext,
+):
+    type_declaration: SystemVerilogParser.Type_declarationContext | None = (
+        ctx.type_declaration()
+    )
+    if type_declaration is not None:
+        data_type: SystemVerilogParser.Data_typeContext | None = (
+            type_declaration.data_type()
+        )
+        if data_type.ENUM() or data_type.struct_union():
+            for type_identifier in type_declaration.type_identifier():
+                enum_type_identifier = "{0}".format(type_identifier.getText())
+                unique_identifier = "{0}_{1}".format(
+                    enum_type_identifier,
+                    Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+                )
+
+                decl_type = DeclTypes.ENUM_TYPE
+
+                if data_type.struct_union():
+                    decl_type = DeclTypes.STRUCT_TYPE
+
+                typedef = Typedef(
+                    enum_type_identifier,
+                    unique_identifier,
+                    type_identifier.getSourceInterval(),
+                    self.program.file_path,
+                    decl_type,
+                )
+
+                if data_type.ENUM():
+                    for index, enum_name_decl in enumerate(
+                        data_type.enum_name_declaration()
+                    ):
+                        identifier = enum_name_decl.enum_identifier().getText()
+                        new_decl = Declaration(
+                            DeclTypes.ENUM,
+                            identifier,
+                            "",
+                            "",
+                            0,
+                            "",
+                            0,
+                            enum_name_decl.getSourceInterval(),
+                        )
+                        typedef.declarations.addElement(new_decl)
+                elif data_type.struct_union():
+                    structMembersToDeclarations(self, data_type, typedef)
+
+                if self.module:
+                    decl_unique, decl_index = self.module.typedefs.addElement(typedef)
+                else:
+                    decl_unique, decl_index = self.program.typedefs.addElement(typedef)

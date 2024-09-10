@@ -97,9 +97,11 @@ class SV2aplan:
         self,
         ctx: SystemVerilogParser.Data_declarationContext,
     ):
-        from translator.declarations.struct_declaration import enumDecaration2AplanImpl
+        from translator.declarations.struct_declaration import (
+            typedefDecaration2AplanImpl,
+        )
 
-        return enumDecaration2AplanImpl(self, ctx)
+        return typedefDecaration2AplanImpl(self, ctx)
 
         # ---------------------------------------------------------------------------------
 
@@ -107,7 +109,9 @@ class SV2aplan:
         self,
         ctx: SystemVerilogParser.Data_declarationContext,
     ):
-        from translator.declarations.struct_declaration import structDeclaration2AplanImpl
+        from translator.declarations.struct_declaration import (
+            structDeclaration2AplanImpl,
+        )
 
         return structDeclaration2AplanImpl(self, ctx)
 
