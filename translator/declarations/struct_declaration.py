@@ -75,6 +75,12 @@ def structMembersToDeclarations(
                     )
                 vector_size = extractVectorSize(vector_size)
 
+            if data_check_type == DeclTypes.ENUM or data_check_type == DeclTypes.STRUCT:
+                for type in types:
+                    if isinstance(type, Typedef):
+                        if type.identifier in data_type_str:
+                            size_expression = type.unique_identifier
+
             if vector_size is not None:
                 aplan_vector_size = vectorSize2AplanVectorSize(
                     vector_size[0], vector_size[1]
