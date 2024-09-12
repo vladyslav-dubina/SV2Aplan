@@ -35,6 +35,11 @@ examples_list = [
         "examples/struct/structure_3/aplan",
     ),
     (
+        "examples/struct/structure_4/struct_4.sv",
+        "examples/struct/structure_4/test_result",
+        "examples/struct/structure_4/aplan",
+    ),
+    (
         "examples/struct/interface/my_interface.sv",
         "examples/struct/interface/test_result",
         "examples/struct/interface/aplan",

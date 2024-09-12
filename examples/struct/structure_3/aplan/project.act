@@ -1,4 +1,3 @@
-
 assign_1 = (
 		(1)->
 		("STRUCT_3#struct_3:action 'assign (person.id=1)';")
