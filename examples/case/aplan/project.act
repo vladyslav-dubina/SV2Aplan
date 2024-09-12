@@ -1,4 +1,3 @@
-
 case_1 = (
 		((case_example.mode) == (0))->
 		("CASE_EXAMPLE#case_example:action 'case ((mode) == (0))';")

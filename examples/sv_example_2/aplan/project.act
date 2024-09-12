@@ -1,4 +1,3 @@
-
 if_1 = (
 		(~(Locked_register_example.resetn))->
 		("LOCKED_REGISTER_EXAMPLE#Locked_register_example:action 'if (~resetn)';")

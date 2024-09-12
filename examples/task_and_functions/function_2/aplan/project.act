@@ -1,4 +1,3 @@
-
 if_1 = (
 		(n <= 1)->
 		("FUNCTION_EXAMPLE#function_example:action 'if (n<=1)';")

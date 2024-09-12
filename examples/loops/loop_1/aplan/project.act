@@ -1,4 +1,3 @@
-
 assign_1 = (
 		(1)->
 		("CODE_PATCH_CORE#code_patch_core:action 'assign (patch_match[j]=(si_addr_i==ctl_pat_addr_i[j])&ctl_pat_pen_i[j])';")

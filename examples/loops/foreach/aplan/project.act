@@ -1,4 +1,3 @@
-
 assign_1 = (
 		(1)->
 		("FOREACH_EXAMPLE#foreach_example:action 'assign (sum=0)';")

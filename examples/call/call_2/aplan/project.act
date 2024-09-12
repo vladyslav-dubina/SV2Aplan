@@ -1,5 +1,4 @@
-,
-assign_1 = (
+,assign_1 = (
 		(1)->
 		("PC_4#UUT1:action 'assign (PC_OUT=EP?PC_OUT_r:0)';")
 		(UUT1.PC_OUT = UUT1.EP ? UUT1.PC_OUT_r : 0)),
@@ -18,8 +17,7 @@ if_2 = (
 assign_3 = (
 		(1)->
 		("PC_4#UUT1:action 'assign (PC_OUT_r<=PC_OUT_r+1)';")
-		(UUT1.PC_OUT_r = UUT1.PC_OUT_r + 1)),
-assign_4 = (
+		(UUT1.PC_OUT_r = UUT1.PC_OUT_r + 1)),assign_4 = (
 		(1)->
 		("MAR#UUT2:action 'assign (MAR_OUT=MAR_r)';")
 		(UUT2.MAR_OUT = UUT2.MAR_r)),

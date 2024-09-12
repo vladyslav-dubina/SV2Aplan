@@ -124,8 +124,9 @@ class ActionArray(BasicArray):
 
     def getActionsInStrFormat(self):
         result = ""
-        for element in self.elements:
-            result += "\n"
+        for index, element in enumerate(self.elements):
+            if index != 0:
+                result += "\n"
             result += str(element)
 
         result = removeTrailingComma(result)

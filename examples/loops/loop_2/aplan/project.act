@@ -1,4 +1,3 @@
-
 cond_1 = (
 		(code_patch_core.h_1 < 8)->
 		("CODE_PATCH_CORE#code_patch_core:action 'cond (h<8)';")
