@@ -255,6 +255,16 @@ class SV2aplan:
 
         taskCall2AplanImpl(self, ctx, sv_structure, destination_node_array)
 
+    def systemTFCall2Aplan(
+        self,
+        ctx: SystemVerilogParser.System_tf_identifierContext,
+        destination_node_array: NodeArray | None = None,
+        sv_structure: Structure| None = None,
+    ):
+        from translator.task_and_function.system_tf import systemTF2AplanImpl
+
+        systemTF2AplanImpl(self, ctx, destination_node_array,sv_structure)
+
     def methodCall2Aplan(
         self,
         ctx: SystemVerilogParser.Method_call_bodyContext,
@@ -444,6 +454,9 @@ class SV2aplan:
                 is SystemVerilogParser.Simple_immediate_assert_statementContext
             ):
                 self.assertInBlock2Aplan(child, sv_structure)
+            # ---------------------------------------------------------------------------
+            elif type(child) is SystemVerilogParser.System_tf_identifierContext:
+                self.systemTFCall2Aplan(child, destination_node_array,sv_structure)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.IdentifierContext:
                 self.identifier2Aplan(child, destination_node_array)

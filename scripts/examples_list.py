@@ -189,4 +189,14 @@ examples_list = [
         "examples/sv_example_2/test_result",
         "examples/sv_example_2/aplan",
     ),
+    (
+        "examples/build_in_functions/finish/finish.sv",
+        "examples/build_in_functions/finish/test_result",
+        "examples/build_in_functions/finish/aplan",
+    ),
+    (
+        "examples/build_in_functions/stop/stop.sv",
+        "examples/build_in_functions/stop/test_result",
+        "examples/build_in_functions/stop/aplan",
+    ),
 ]

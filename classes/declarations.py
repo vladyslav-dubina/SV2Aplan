@@ -22,6 +22,7 @@ class DeclTypes(Enum):
     STRUCT_TYPE = auto()
     STRUCT = auto()
     CLASS = auto()
+    TIME = auto()
     NONE = auto()
 
     def checkType(type_str: str, types):
@@ -29,6 +30,8 @@ class DeclTypes(Enum):
 
         if "int" == type_str:
             return DeclTypes.INT
+        elif "time" == type_str:
+            return DeclTypes.TIME
         elif "reg" == type_str:
             return DeclTypes.REG
         elif "logic" == type_str:
@@ -136,7 +139,8 @@ class Declaration(Basic):
             result += f"{self.size_expression}"
         elif self.data_type == DeclTypes.STRUCT:
             result += f"{self.size_expression}"
-
+        elif self.data_type == DeclTypes.TIME:
+            result += "Bits " + str(64)
         return result
 
     def __repr__(self):

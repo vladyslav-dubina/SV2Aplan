@@ -122,6 +122,12 @@ class ActionArray(BasicArray):
                 return (element, element.identifier, element.source_interval)
         return None, None, (None, None)
 
+    def isUniqActionBySourceInterval(self, source_interval):
+        for element in self.elements:
+            if element.source_interval == source_interval:
+                return element
+        return None
+
     def getActionsInStrFormat(self):
         result = ""
         for index, element in enumerate(self.elements):
