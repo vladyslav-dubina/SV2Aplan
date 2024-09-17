@@ -344,3 +344,4 @@ def createSizeExpression(
         )
     )
     self.module.out_of_block_elements.addElement(protocol)
+    Counters_Object.incrieseCounter(counter_type)
