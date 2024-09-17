@@ -6,6 +6,7 @@ from classes.actions import Action
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.node import Node, NodeArray
+from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import (
@@ -301,3 +302,45 @@ def expression2AplanImpl(
         Counters_Object.incrieseCounter(counter_type)
 
     return (action_pointer, action_name, source_interval, uniq)
+
+
+def createSizeExpression(
+    self: SV2aplan, identifier, size, source_interval: Tuple[int, int]
+):
+    (name_part, counter_type) = getNamePartAndCounter(ElementsTypes.ASSIGN_ELEMENT)
+    action_name = "{0}_{1}".format(name_part, Counters_Object.getCounter(counter_type))
+    action = Action(
+        action_name,
+        source_interval,
+    )
+
+    expressiont = "{0}.{1}.size = {2}".format(
+        self.module.ident_uniq_name, identifier, size
+    )
+    action.precondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
+    action.description = "{0}#{1}:action '{2} ({3})'".format(
+        self.module.identifier, self.module.ident_uniq_name, name_part, expressiont
+    )
+    node = Node(identifier, (0, 0), ElementsTypes.ARRAY_SIZE_ELEMENT)
+    node.module_name = self.module.ident_uniq_name
+    action.postcondition.addElement(node)
+
+    action.postcondition.addElement(Node("=", (0, 0), ElementsTypes.OPERATOR_ELEMENT))
+
+    action.postcondition.addElement(
+        Node(str(size), (0, 0), ElementsTypes.NUMBER_ELEMENT)
+    )
+    self.module.actions.addElement(action)
+    protocol = Protocol(
+        "B_{0}".format(action.getName()),
+        source_interval,
+    )
+
+    protocol.addBody(
+        BodyElement(
+            action.identifier,
+            action,
+            ElementsTypes.ACTION_ELEMENT,
+        )
+    )
+    self.module.out_of_block_elements.addElement(protocol)

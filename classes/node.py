@@ -102,6 +102,8 @@ class NodeArray(BasicArray):
             identifier = str(element.getName())
             if element.element_type is ElementsTypes.ARRAY_ELEMENT:
                 identifier = identifier + ".value"
+            if element.element_type is ElementsTypes.ARRAY_SIZE_ELEMENT:
+                identifier = identifier + ".size"
 
             if index + 1 < len(self.elements):
                 next_element = self.getElementByIndex(index + 1)

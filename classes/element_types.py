@@ -24,6 +24,7 @@ class ElementsTypes(Enum):
     TASK_ELEMENT = auto()
     FUNCTION_ELEMENT = auto()
     ARRAY_ELEMENT = auto()
+    ARRAY_SIZE_ELEMENT = auto()
     
     #Agents types
     MODULE_ELEMENT = auto()

@@ -190,11 +190,33 @@ def dinamycArrayNew2AplanImpl(
             if isinstance(decl, Declaration):
                 decl.dimension_size = size
                 decl.dimension_expression = size_expression
-            while True:
-                node_array_len -= 1
-                if node_array_len < 0:
-                    break
-                destination_node_array.removeElementByIndex(node_array_len)
+                while True:
+                    node_array_len -= 1
+                    if node_array_len < 0:
+                        break
+                    destination_node_array.removeElementByIndex(node_array_len)
+
+                node = Node(
+                    decl.identifier,
+                    ctx.getSourceInterval(),
+                    ElementsTypes.ARRAY_SIZE_ELEMENT,
+                )
+                node.module_name = self.module.ident_uniq_name
+                destination_node_array.addElement(node)
+                destination_node_array.addElement(
+                    Node(
+                        "=",
+                        ctx.getSourceInterval(),
+                        ElementsTypes.OPERATOR_ELEMENT,
+                    )
+                )
+                destination_node_array.addElement(
+                    Node(
+                        str(size),
+                        ctx.getSourceInterval(),
+                        ElementsTypes.NUMBER_ELEMENT,
+                    )
+                )
 
 
 def classNew2AplanImpl(
