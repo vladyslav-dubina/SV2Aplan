@@ -27,7 +27,6 @@ def systemTF2AplanImpl(
     parametrs: ParametrArray = ParametrArray()
     body = ""
     system_tf_identifier = ctx.getText()
-
     if system_tf_identifier == "$display":
         return
     elif system_tf_identifier == "$time":

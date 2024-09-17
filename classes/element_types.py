@@ -23,6 +23,7 @@ class ElementsTypes(Enum):
     REPEAT_ELEMENT = auto()
     TASK_ELEMENT = auto()
     FUNCTION_ELEMENT = auto()
+    ARRAY_ELEMENT = auto()
     
     #Agents types
     MODULE_ELEMENT = auto()

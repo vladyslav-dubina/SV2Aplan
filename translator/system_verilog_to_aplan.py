@@ -259,11 +259,11 @@ class SV2aplan:
         self,
         ctx: SystemVerilogParser.System_tf_identifierContext,
         destination_node_array: NodeArray | None = None,
-        sv_structure: Structure| None = None,
+        sv_structure: Structure | None = None,
     ):
         from translator.task_and_function.system_tf import systemTF2AplanImpl
 
-        systemTF2AplanImpl(self, ctx, destination_node_array,sv_structure)
+        systemTF2AplanImpl(self, ctx, destination_node_array, sv_structure)
 
     def methodCall2Aplan(
         self,
@@ -284,6 +284,16 @@ class SV2aplan:
         from translator.task_and_function.task_function import classNew2AplanImpl
 
         classNew2AplanImpl(self, ctx, sv_structure, destination_node_array)
+
+    def dinamycArrayNew2Aplan(
+        self,
+        ctx: SystemVerilogParser.Dynamic_array_newContext,
+        sv_structure: Structure,
+        destination_node_array: NodeArray | None = None,
+    ):
+        from translator.task_and_function.task_function import dinamycArrayNew2AplanImpl
+
+        dinamycArrayNew2AplanImpl(self, ctx, sv_structure, destination_node_array)
 
     # ===================================ASSERTS=======================================
     def assertPropertyStatement2Aplan(
@@ -365,6 +375,15 @@ class SV2aplan:
         from translator.expression.expression_node import bitSelection2AplanImpl
 
         bitSelection2AplanImpl(self, ctx, destination_node_array)
+
+    def unpackedDimention2Aplan(
+        self,
+        ctx: SystemVerilogParser.Unpacked_dimensionContext,
+        destination_node_array: NodeArray,
+    ):
+        from translator.expression.expression_node import unpackedDimention2AplanImpl
+
+        unpackedDimention2AplanImpl(self, ctx, destination_node_array)
 
     # =================================RANGE SELECTION============================
     def rangeSelection2Aplan(
@@ -448,6 +467,7 @@ class SV2aplan:
         if ctx.getChildCount() == 0:
             return names_for_change
         for child in ctx.getChildren():
+            #print(type(child), child.getText())
             # Assert handler
             if (
                 type(child)
@@ -456,7 +476,7 @@ class SV2aplan:
                 self.assertInBlock2Aplan(child, sv_structure)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.System_tf_identifierContext:
-                self.systemTFCall2Aplan(child, destination_node_array,sv_structure)
+                self.systemTFCall2Aplan(child, destination_node_array, sv_structure)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.IdentifierContext:
                 self.identifier2Aplan(child, destination_node_array)
@@ -466,6 +486,8 @@ class SV2aplan:
                 or type(child) is SystemVerilogParser.Constant_bit_selectContext
             ):
                 self.bitSelection2Aplan(child, destination_node_array)
+            elif type(child) is SystemVerilogParser.Unpacked_dimensionContext:
+                self.unpackedDimention2Aplan(child, destination_node_array)
             elif type(child) is SystemVerilogParser.Part_select_rangeContext:
                 self.rangeSelection2Aplan(child, destination_node_array)
             # ---------------------------------------------------------------------------
@@ -483,12 +505,17 @@ class SV2aplan:
                 or type(child) is SystemVerilogParser.Net_assignmentContext
                 or type(child) is SystemVerilogParser.Variable_assignmentContext
                 or type(child) is SystemVerilogParser.Operator_assignmentContext
+                or type(child) is SystemVerilogParser.Blocking_assignmentContext
             ):
                 self.blockAssignment2Aplan(child, sv_structure)
             # ---------------------------------------------------------------------------
             # Task and function handler
             elif type(child) is SystemVerilogParser.Tf_callContext:
                 self.taskCall2Aplan(child, sv_structure, destination_node_array)
+            # ---------------------------------------------------------------------------
+            # Dynamic_array new[] handler
+            elif type(child) is SystemVerilogParser.Dynamic_array_newContext:
+                self.dinamycArrayNew2Aplan(child, sv_structure, destination_node_array)
             # ---------------------------------------------------------------------------
             # Class new() handler
             elif type(child) is SystemVerilogParser.Class_newContext:

@@ -4,6 +4,7 @@ from classes.element_types import ElementsTypes
 from classes.name_change import NameChange
 from classes.protocols import BodyElement
 from classes.structure import Structure
+from translator.declarations.struct_declaration import createArrayStruct
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
@@ -120,6 +121,8 @@ def dataDecaration2AplanImpl(
                     if isinstance(ctx, SystemVerilogParser.Data_declarationContext):
                         unpacked_dimention = elem.variable_dimension(0)
 
+                    element_type = ElementsTypes.NONE_ELEMENT
+
                     dimension_size = 0
                     dimension_size_expression = ""
                     if unpacked_dimention is not None:
@@ -129,6 +132,17 @@ def dataDecaration2AplanImpl(
                             self.module.value_parametrs, dimension
                         )
                         dimension_size = extractDimentionSize(dimension)
+                        if dimension_size == None:
+                            dimension_size = 0
+                        if data_check_type == DeclTypes.INT:
+                            data_check_type = DeclTypes.ARRAY
+                            size_expression = createArrayStruct(
+                                self,
+                                identifier,
+                                DeclTypes.INT,
+                                elem.getSourceInterval(),
+                            )
+                        
 
                     assign_name = ""
                     new_decl = Declaration(

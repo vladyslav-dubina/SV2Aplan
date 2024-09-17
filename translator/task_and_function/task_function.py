@@ -1,5 +1,6 @@
 from typing import Tuple
 from antlr4_verilog.systemverilog import SystemVerilogParser
+from classes.actions import Action
 from classes.parametrs import Parametr
 from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
@@ -8,8 +9,10 @@ from classes.node import Node, NodeArray
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from classes.tasks import Task
+from translator.expression.expression import getNamePartAndCounter
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.utils import Counters_Object
+from utils.string_formating import replaceValueParametrsCalls
+from utils.utils import Counters_Object, extractDimentionSize
 
 
 def taskOrFunctionDeclaration2AplanImpl(
@@ -161,6 +164,39 @@ def methodCall2AplanImpl(
     )
 
 
+def dinamycArrayNew2AplanImpl(
+    self: SV2aplan,
+    ctx: SystemVerilogParser.Dynamic_array_newContext,
+    sv_structure: Structure,
+    destination_node_array: NodeArray | None = None,
+):
+
+    size: str = ctx.getText()
+    size = size.replace("new[", "[")
+    size_expression = size
+    size = replaceValueParametrsCalls(self.module.value_parametrs, size)
+    size = extractDimentionSize(size)
+    if size == None:
+        size = 0
+
+    if destination_node_array:
+        elements = destination_node_array.getElements()
+        node_array_len = destination_node_array.getLen()
+        if node_array_len >= 2:
+            decl = self.module.declarations.findElement(
+                elements[node_array_len - 2].identifier
+            )
+
+            if isinstance(decl, Declaration):
+                decl.dimension_size = size
+                decl.dimension_expression = size_expression
+            while True:
+                node_array_len -= 1
+                if node_array_len < 0:
+                    break
+                destination_node_array.removeElementByIndex(node_array_len)
+
+
 def classNew2AplanImpl(
     self: SV2aplan,
     ctx: SystemVerilogParser.Class_newContext,
@@ -205,13 +241,14 @@ def classNew2AplanImpl(
 
 def taskCall2AplanImpl(
     self: SV2aplan,
-    ctx: SystemVerilogParser.Class_newContext,
+    ctx: SystemVerilogParser.Tf_callContext,
     sv_structure: Structure,
     destination_node_array: NodeArray | None = None,
 ):
     ps_or_hierarchical_tf = ctx.ps_or_hierarchical_tf_identifier()
     hierarchical_tf_identifier = ps_or_hierarchical_tf.hierarchical_tf_identifier()
     object_identifier = None
+    argument_list = ctx.list_of_arguments().getText()
     if hierarchical_tf_identifier:
         call_identifiers = (
             hierarchical_tf_identifier.hierarchical_identifier().identifier()
@@ -219,10 +256,85 @@ def taskCall2AplanImpl(
         call_identifiers_len = len(call_identifiers)
         task_identifier = call_identifiers[call_identifiers_len - 3].getText()
         object_identifier = call_identifiers[call_identifiers_len - 2].getText()
+        if task_identifier == "push_back":
+            decl = self.module.declarations.findElement(object_identifier)
+            if isinstance(decl, Declaration):
+                (name_part, counter_type) = getNamePartAndCounter(
+                    ElementsTypes.ASSIGN_ELEMENT
+                )
+                action_name = "{0}_{1}".format(
+                    name_part, Counters_Object.getCounter(counter_type)
+                )
+                action = Action(
+                    action_name,
+                    ctx.getSourceInterval(),
+                )
+
+                action.precondition.addElement(
+                    Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)
+                )
+                argument_list
+                action.description = "{0}#{1}:action '{2} ({3}.{4}[{5}] = {6})'".format(
+                    self.module.identifier,
+                    self.module.ident_uniq_name,
+                    name_part,
+                    object_identifier,
+                    task_identifier,
+                    decl.dimension_size,
+                    argument_list,
+                )
+                node = Node(object_identifier, (0, 0), ElementsTypes.ARRAY_ELEMENT)
+                node.module_name = self.module.ident_uniq_name
+                action.postcondition.addElement(node)
+
+                node = Node(
+                    str(decl.dimension_size), (0, 0), ElementsTypes.NUMBER_ELEMENT
+                )
+                node.bit_selection = True
+                action.postcondition.addElement(node)
+
+                action.postcondition.addElement(
+                    Node("=", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
+                )
+
+                decl.dimension_size += 1
+                self.body2Aplan(
+                    ctx.list_of_arguments(),
+                    sv_structure=sv_structure,
+                    name_space=ElementsTypes.NONE_ELEMENT,
+                    destination_node_array=action.postcondition,
+                )
+
+                self.module.actions.addElement(action)
+                if sv_structure is not None:
+                    sv_structure.elements.addElement(action)
+                    beh_index = sv_structure.getLastBehaviorIndex()
+                    if beh_index is not None:
+                        sv_structure.behavior[beh_index].addBody(
+                            BodyElement(
+                                action.identifier, action, ElementsTypes.ACTION_ELEMENT
+                            )
+                        )
+                    else:
+                        struct = Protocol(
+                            "B_{0}".format(action.getName()),
+                            ctx.getSourceInterval(),
+                        )
+                        struct.addBody(
+                            BodyElement(
+                                action.identifier,
+                                action,
+                                ElementsTypes.ACTION_ELEMENT,
+                            )
+                        )
+                        self.module.out_of_block_elements.addElement(struct)
+
+                Counters_Object.incrieseCounter(counter_type)
+
+            return
     else:
         task_identifier = ps_or_hierarchical_tf.getText()
 
-    argument_list = ctx.list_of_arguments().getText()
     (
         argument_list,
         argument_list_with_replaced_names,

@@ -23,6 +23,7 @@ class DeclTypes(Enum):
     STRUCT = auto()
     CLASS = auto()
     TIME = auto()
+    ARRAY = auto()
     NONE = auto()
 
     def checkType(type_str: str, types):
@@ -111,7 +112,13 @@ class Declaration(Basic):
             result += f"{self.identifier}:"
 
         if self.data_type == DeclTypes.INT:
-            result += "int"
+            if self.dimension_size > 0:
+                result += "(int) -> int"
+            else:
+                result += "int"
+
+        elif self.data_type == DeclTypes.ARRAY:
+            result += f"{self.size_expression}"
         elif (
             self.data_type == DeclTypes.INPORT
             or self.data_type == DeclTypes.OUTPORT
@@ -144,7 +151,7 @@ class Declaration(Basic):
         return result
 
     def __repr__(self):
-        return f"\tDeclaration({self.data_type!r}, {self.identifier!r}, {self.expression!r}, {self.size!r}, {self.sequence!r})\n"
+        return f"\tDeclaration({self.data_type!r}, {self.identifier!r}, {self.expression!r}, {self.size!r}, {self.dimension_size!r}, {self.sequence!r})\n"
 
 
 class DeclarationArray(BasicArray):

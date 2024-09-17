@@ -100,6 +100,9 @@ class NodeArray(BasicArray):
                             result += " "
 
             identifier = str(element.getName())
+            if element.element_type is ElementsTypes.ARRAY_ELEMENT:
+                identifier = identifier + ".value"
+
             if index + 1 < len(self.elements):
                 next_element = self.getElementByIndex(index + 1)
                 if next_element.bit_selection:
@@ -130,6 +133,7 @@ class NodeArray(BasicArray):
             if bracket_flag and index == len(self.elements) - 1:
                 result += ")"
                 bracket_flag = False
+
         return result
 
     def getElementByIndex(self, index) -> Node:

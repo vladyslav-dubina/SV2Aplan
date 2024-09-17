@@ -1,3 +1,4 @@
+from typing import Tuple
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
@@ -22,6 +23,7 @@ def structDeclaration2AplanImpl(
         "struct",
         Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
     )
+    Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
     typedef = Typedef(
         unique_identifier,
         unique_identifier,
@@ -117,7 +119,7 @@ def typedefDecaration2AplanImpl(
                     enum_type_identifier,
                     Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
                 )
-
+                Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
                 decl_type = DeclTypes.ENUM_TYPE
 
                 if data_type.struct_union():
@@ -154,3 +156,55 @@ def typedefDecaration2AplanImpl(
                     decl_unique, decl_index = self.module.typedefs.addElement(typedef)
                 else:
                     decl_unique, decl_index = self.program.typedefs.addElement(typedef)
+
+
+def createArrayStruct(
+    self: SV2aplan,
+    identifier: str,
+    decl_type: DeclTypes,
+    source_interval: Tuple[int, int],
+):
+    enum_type_identifier = "{0}".format(identifier)
+    unique_identifier = "{0}_{1}".format(
+        enum_type_identifier,
+        Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+    )
+    Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+    typedef = Typedef(
+        enum_type_identifier,
+        unique_identifier,
+        source_interval,
+        self.program.file_path,
+        DeclTypes.STRUCT_TYPE,
+    )
+
+    new_decl = Declaration(
+        DeclTypes.INT,
+        "size",
+        "",
+        "",
+        0,
+        "",
+        0,
+        (0, 0),
+    )
+    typedef.declarations.addElement(new_decl)
+
+    new_decl = Declaration(
+        decl_type,
+        "value",
+        "",
+        "",
+        0,
+        "",
+        0,
+        (0, 0),
+    )
+    typedef.declarations.addElement(new_decl)
+
+    if self.module:
+        decl_unique, decl_index = self.module.typedefs.addElement(typedef)
+    else:
+        decl_unique, decl_index = self.program.typedefs.addElement(typedef)
+
+    return unique_identifier
