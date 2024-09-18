@@ -257,7 +257,7 @@ class SV2aplan:
 
     def systemTFCall2Aplan(
         self,
-        ctx: SystemVerilogParser.System_tf_identifierContext,
+        ctx: SystemVerilogParser.System_tf_callContext,
         destination_node_array: NodeArray | None = None,
         sv_structure: Structure | None = None,
     ):
@@ -475,7 +475,7 @@ class SV2aplan:
             ):
                 self.assertInBlock2Aplan(child, sv_structure)
             # ---------------------------------------------------------------------------
-            elif type(child) is SystemVerilogParser.System_tf_identifierContext:
+            elif type(child) is SystemVerilogParser.System_tf_callContext:
                 self.systemTFCall2Aplan(child, destination_node_array, sv_structure)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.IdentifierContext:

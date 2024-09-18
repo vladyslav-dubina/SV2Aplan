@@ -129,21 +129,25 @@ def dataDecaration2AplanImpl(
                     if unpacked_dimention is not None:
                         dimension = unpacked_dimention.getText()
                         dimension_size_expression = dimension
-                        dimension = replaceValueParametrsCalls(
-                            self.module.value_parametrs, dimension
+
+                        dimension = extractDimentionSize(dimension)
+                        if dimension == None:
+                            dimension = 0
+
+                        dimension_size = replaceValueParametrsCalls(
+                            self.module.value_parametrs, str(dimension)
                         )
-                        dimension_size = extractDimentionSize(dimension)
-                        if dimension_size == None:
-                            dimension_size = 0
-                        else:
+                        dimension_size = int(dimension_size)
+                        if data_check_type == DeclTypes.INT:
+                            data_check_type = DeclTypes.ARRAY
+
                             createSizeExpression(
                                 self,
                                 identifier,
-                                dimension_size_expression,
+                                dimension_size,
                                 elem.getSourceInterval(),
                             )
-                        if data_check_type == DeclTypes.INT:
-                            data_check_type = DeclTypes.ARRAY
+
                             size_expression = createArrayStruct(
                                 self,
                                 identifier,

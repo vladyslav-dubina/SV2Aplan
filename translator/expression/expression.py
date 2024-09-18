@@ -313,7 +313,6 @@ def createSizeExpression(
         action_name,
         source_interval,
     )
-
     expressiont = "{0}.{1}.size = {2}".format(
         self.module.ident_uniq_name, identifier, size
     )
@@ -331,17 +330,30 @@ def createSizeExpression(
         Node(str(size), (0, 0), ElementsTypes.NUMBER_ELEMENT)
     )
     self.module.actions.addElement(action)
-    protocol = Protocol(
-        "B_{0}".format(action.getName()),
-        source_interval,
-    )
-
-    protocol.addBody(
-        BodyElement(
-            action.identifier,
-            action,
-            ElementsTypes.ACTION_ELEMENT,
+    protocol_name = "ARRAY_INIT_{0}".format(self.module.ident_uniq_name_upper)
+    protocol = self.module.out_of_block_elements.findElement(protocol_name)
+    if isinstance(protocol, Protocol):
+        protocol.addBody(
+            BodyElement(
+                action.identifier,
+                action,
+                ElementsTypes.ACTION_ELEMENT,
+            )
         )
-    )
-    self.module.out_of_block_elements.addElement(protocol)
+
+    else:
+        protocol = Protocol(
+            "ARRAY_INIT_{0}".format(self.module.ident_uniq_name_upper),
+            source_interval,
+        )
+
+        protocol.addBody(
+            BodyElement(
+                action.identifier,
+                action,
+                ElementsTypes.ACTION_ELEMENT,
+            )
+        )
+        self.module.out_of_block_elements.addElement(protocol)
+
     Counters_Object.incrieseCounter(counter_type)

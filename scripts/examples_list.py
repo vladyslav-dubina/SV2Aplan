@@ -199,4 +199,14 @@ examples_list = [
         "examples/build_in_functions/stop/test_result",
         "examples/build_in_functions/stop/aplan",
     ),
+    (
+        "examples/build_in_functions/size_1/size_1.sv",
+        "examples/build_in_functions/size_1/test_result",
+        "examples/build_in_functions/size_1/aplan",
+    ),
+    (
+        "examples/build_in_functions/size_2/size_2.sv",
+        "examples/build_in_functions/size_2/test_result",
+        "examples/build_in_functions/size_2/aplan",
+    ),
 ]

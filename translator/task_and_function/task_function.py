@@ -319,7 +319,6 @@ def taskCall2AplanImpl(
                     Node("=", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
                 )
 
-                decl.dimension_size += 1
                 self.body2Aplan(
                     ctx.list_of_arguments(),
                     sv_structure=sv_structure,

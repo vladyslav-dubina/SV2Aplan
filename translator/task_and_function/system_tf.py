@@ -1,6 +1,7 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.actions import Action
 from classes.counters import CounterTypes
+from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from classes.node import Node, NodeArray
 from classes.parametrs import Parametr, ParametrArray
@@ -15,7 +16,7 @@ embeaded_tf_list = ["$display", "$time"]
 
 def systemTF2AplanImpl(
     self: SV2aplan,
-    ctx: SystemVerilogParser.System_tf_identifierContext,
+    ctx: SystemVerilogParser.System_tf_callContext,
     destination_node_array: NodeArray | None = None,
     sv_structure: Structure | None = None,
 ):
@@ -26,7 +27,7 @@ def systemTF2AplanImpl(
     description: str = ""
     parametrs: ParametrArray = ParametrArray()
     body = ""
-    system_tf_identifier = ctx.getText()
+    system_tf_identifier = ctx.system_tf_identifier().getText()
     if system_tf_identifier == "$display":
         return
     elif system_tf_identifier == "$time":
@@ -37,13 +38,52 @@ def systemTF2AplanImpl(
         precondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
         body = f"goal {action_name}"
     elif system_tf_identifier == "$size":
-        action_name = "size"
+
+        self.module.declarations.addElement(
+            Declaration(
+                DeclTypes.INT,
+                "return_size",
+                "",
+                "",
+                0,
+                "",
+                0,
+                ctx.getSourceInterval(),
+            )
+        )
+
         parametrs.addElement(
             Parametr(
-                "x",
+                "result",
                 "var",
             )
         )
+
+        array = ctx.list_of_arguments().getText()
+        decl = self.module.declarations.findElement(array)
+        if decl is None:
+            return
+
+        node = Node(
+            array,
+            ctx.list_of_arguments().getSourceInterval(),
+            ElementsTypes.ARRAY_SIZE_ELEMENT,
+        )
+
+        action_name = f"size_{array}"
+        node.module_name = self.module.ident_uniq_name
+        description = f"{self.module.identifier}#{self.module.ident_uniq_name}:action 'result = {array}.size'"
+        precondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
+        postcondition.addElement(Node("result", (0, 0), ElementsTypes.IDENTIFIER_ELEMENT))
+        postcondition.addElement(Node("=", (0, 0), ElementsTypes.OPERATOR_ELEMENT))
+        postcondition.addElement(node)
+        body = f"{action_name}(return_size)"
+
+        if destination_node_array:
+            destination_node_array.addElement(
+                Node("return_size", (0, 0), ElementsTypes.IDENTIFIER_ELEMENT)
+            )
+
     elif system_tf_identifier == "&pow":
         action_name = "pow"
         parametrs.addElement(

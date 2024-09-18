@@ -1,0 +1,68 @@
+assign_1 = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'assign (example_size.static_array.size = 5)';")
+		(example_size.static_array.size = 5)),
+assign_2 = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'assign (example_size.dynamic_array.size = 0)';")
+		(example_size.dynamic_array.size = 0)),
+assign_3 = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'assign (example_size.queue.size = 0)';")
+		(example_size.queue.size = 0)),
+size_queue(result) = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'result = queue.size';")
+		(result = example_size.queue.size)),
+size_dynamic_array(result) = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'result = dynamic_array.size';")
+		(result = example_size.dynamic_array.size)),
+assign_4 = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'assign (static_array[0]=10)';")
+		(example_size.static_array.value(0) = 10)),
+assign_5 = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'assign (static_array[1]=20)';")
+		(example_size.static_array.value(1) = 20)),
+assign_6 = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'assign (static_array[2]=30)';")
+		(example_size.static_array.value(2) = 30)),
+assign_7 = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'assign (dynamic_array=new[3])';")
+		(example_size.dynamic_array.size = 3)),
+assign_8 = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'assign (dynamic_array[0]=100)';")
+		(example_size.dynamic_array.value(0) = 100)),
+assign_9 = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'assign (dynamic_array[1]=200)';")
+		(example_size.dynamic_array.value(1) = 200)),
+assign_10 = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'assign (dynamic_array[2]=300)';")
+		(example_size.dynamic_array.value(2) = 300)),
+assign_11 = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'assign (queue.push_back[0] = 5)';")
+		(example_size.queue.value(0) = 5)),
+assign_12 = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'assign (queue.push_back[0] = 15)';")
+		(example_size.queue.value(0) = 15)),
+assign_13 = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'assign (queue.push_back[0] = 25)';")
+		(example_size.queue.value(0) = 25)),
+assign_14 = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'assign (static_array[3]=$size(queue))';")
+		(example_size.static_array.value(3) = return_size)),
+assign_15 = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'assign (static_array[4]=$size(dynamic_array))';")
+		(example_size.static_array.value(4) = return_size))
