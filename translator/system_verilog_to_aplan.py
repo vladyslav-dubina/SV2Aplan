@@ -426,11 +426,13 @@ class SV2aplan:
         element_type: ElementsTypes,
         sv_structure: Structure | None = None,
         name_space_element: ElementsTypes = ElementsTypes.NONE_ELEMENT,
+        sensetive:bool = False,
+        remove_concat:bool = False
     ) -> Tuple[Action, str, Tuple[int, int], bool]:
         from translator.expression.expression import expression2AplanImpl
 
         return expression2AplanImpl(
-            self, ctx, element_type, sv_structure, name_space_element
+            self, ctx, element_type, sv_structure, name_space_element, sensetive, remove_concat
         )
 
     # ==================================================================================
@@ -505,7 +507,6 @@ class SV2aplan:
                 or type(child) is SystemVerilogParser.Net_assignmentContext
                 or type(child) is SystemVerilogParser.Variable_assignmentContext
                 or type(child) is SystemVerilogParser.Operator_assignmentContext
-                or type(child) is SystemVerilogParser.Blocking_assignmentContext
             ):
                 self.blockAssignment2Aplan(child, sv_structure)
             # ---------------------------------------------------------------------------

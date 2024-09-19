@@ -10,6 +10,7 @@ from scripts.examples_list import examples_list
 
 
 def run_generation(test_number, source_file, result_path):
+    result = False
     printWithColor(
         f"\n--------------------------------- GENERATION {test_number} ---------------------------------\n",
         Color.PURPLE,
@@ -18,7 +19,7 @@ def run_generation(test_number, source_file, result_path):
     try:
         printWithColor(f"Source file : {source_file} \n", Color.BLUE)
         switchRemovePrints(True)
-        start(source_file, result_path)
+        result = start(source_file, result_path)
         switchRemovePrints(False)
     except Exception as e:
         printWithColor(f"Generation {test_number} finished with error: \n", Color.RED)
@@ -36,7 +37,7 @@ def run_generation(test_number, source_file, result_path):
             "\n--------------------------------------------------------------------------------\n",
             Color.CYAN,
         )
-    return False
+    return result
 
 
 def regeneration_start():

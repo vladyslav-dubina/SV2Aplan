@@ -36,7 +36,9 @@ class Action(Basic):
         super().__init__(identifier, source_interval)
         self.precondition: NodeArray = NodeArray(ElementsTypes.PRECONDITION_ELEMENT)
         self.postcondition: NodeArray = NodeArray(ElementsTypes.POSTCONDITION_ELEMENT)
-        self.description: str = ""
+        self.description_start: List[str] = []
+        self.description_action_name: str = ""
+        self.description_end: List[str] = []
         self.exist_parametrs: ParametrArray | None = exist_parametrs
         self.parametrs: ParametrArray = ParametrArray()
 
@@ -49,12 +51,30 @@ class Action(Basic):
                 self.parametrs.addElement(parametr)
 
     def getBody(self):
+
+        description = ""
+
+        for index, element in enumerate(self.description_start):
+            if index != 0:
+                if element == self.description_start[index - 1]:
+                    continue
+                description += "; "
+            description += element
+
+        description += ":action '"
+        description += f"{self.description_action_name} ("
+        for index, element in enumerate(self.description_end):
+            if index != 0:
+                description += "; "
+            description += element
+        description += ")'"
+
         if self.exist_parametrs is not None:
-            return f""" = ( Exist ({self.exist_parametrs}) (\n\t\t({self.precondition})->\n\t\t("{self.description};")\n\t\t({self.postcondition})))"""
+            return f""" = ( Exist ({self.exist_parametrs}) (\n\t\t({self.precondition})->\n\t\t("{description};")\n\t\t({self.postcondition})))"""
         elif self.parametrs.getLen() > 0:
-            return f"""({self.parametrs}) = (\n\t\t({self.precondition})->\n\t\t("{self.description};")\n\t\t({self.postcondition}))"""
+            return f"""({self.parametrs}) = (\n\t\t({self.precondition})->\n\t\t("{description};")\n\t\t({self.postcondition}))"""
         else:
-            return f""" = (\n\t\t({self.precondition})->\n\t\t("{self.description};")\n\t\t({self.postcondition}))"""
+            return f""" = (\n\t\t({self.precondition})->\n\t\t("{description};")\n\t\t({self.postcondition}))"""
 
     def __str__(self):
         return "{0}{1},".format(self.identifier, self.getBody())

@@ -9,7 +9,7 @@ from classes.node import Node, NodeArray
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from classes.tasks import Task
-from translator.expression.expression import getNamePartAndCounter
+from translator.expression.expression import actionFromNodeStr, getNamePartAndCounter
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import Counters_Object, extractDimentionSize
@@ -296,15 +296,18 @@ def taskCall2AplanImpl(
                     Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)
                 )
                 argument_list
-                action.description = "{0}#{1}:action '{2} ({3}.{4}[{5}] = {6})'".format(
-                    self.module.identifier,
-                    self.module.ident_uniq_name,
-                    name_part,
+                description = "{0}.{1}[{2}] = {3}".format(
                     object_identifier,
                     task_identifier,
                     decl.dimension_size,
                     argument_list,
                 )
+                action.description_start.append(
+                    f"{self.module.identifier}#{self.module.ident_uniq_name}"
+                )
+                action.description_action_name = name_part
+                action.description_end.append(description)
+
                 node = Node(object_identifier, (0, 0), ElementsTypes.ARRAY_ELEMENT)
                 node.module_name = self.module.ident_uniq_name
                 action.postcondition.addElement(node)
@@ -326,16 +329,44 @@ def taskCall2AplanImpl(
                     destination_node_array=action.postcondition,
                 )
 
-                self.module.actions.addElement(action)
+                previus_action = False
+                last_element = None
                 if sv_structure is not None:
-                    sv_structure.elements.addElement(action)
                     beh_index = sv_structure.getLastBehaviorIndex()
                     if beh_index is not None:
-                        sv_structure.behavior[beh_index].addBody(
-                            BodyElement(
-                                action.identifier, action, ElementsTypes.ACTION_ELEMENT
+                        protocol = sv_structure.behavior[beh_index]
+                        action_pointer: Action = action
+                        if len(protocol.body) > 0:
+                            last_element = protocol.body[len(protocol.body) - 1]
+                            if (
+                                last_element.element_type
+                                == ElementsTypes.ACTION_ELEMENT
+                                and last_element.pointer_to_related.description_action_name
+                                == name_part
+                            ):
+                                previus_action = True
+                                action_pointer = last_element.pointer_to_related
+                                action_pointer.postcondition.addElement(
+                                    Node(";", (0, 0), ElementsTypes.SEMICOLON_ELEMENT)
+                                )
+
+                                action_pointer.description_start += (
+                                    action.description_start
+                                )
+
+                                action_pointer.description_end += action.description_end
+
+                                action_pointer.postcondition += action.postcondition
+                        
+                        if not previus_action:
+                            sv_structure.elements.addElement(action_pointer)
+                            protocol.addBody(
+                                BodyElement(
+                                    action_pointer.identifier,
+                                    action_pointer,
+                                    ElementsTypes.ACTION_ELEMENT,
+                                )
                             )
-                        )
                     else:
                         struct = Protocol(
                             "B_{0}".format(action.getName()),
@@ -350,7 +381,9 @@ def taskCall2AplanImpl(
                         )
                         self.module.out_of_block_elements.addElement(struct)
 
-                Counters_Object.incrieseCounter(counter_type)
+                if not previus_action:
+                    self.module.actions.addElement(action)
+                    Counters_Object.incrieseCounter(counter_type)
 
             return
     else:

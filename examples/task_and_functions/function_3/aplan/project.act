@@ -8,13 +8,7 @@ assign_2(x, y, return_subtract) = (
 		(return_subtract = x - y)),
 assign_3 = (
 		(1)->
-		("TASK_EXAMPLE#task_example:action 'assign (a=10)';")
-		(task_example.a_1 = 10)),
-assign_4 = (
-		(1)->
-		("TASK_EXAMPLE#task_example:action 'assign (b=5)';")
-		(task_example.b_2 = 5)),
-assign_5 = (
-		(1)->
-		("TASK_EXAMPLE#task_example:action 'assign (result=add(a,b)+subtract(a,b))';")
-		(task_example.result_3 = task_example.add_call_result_1 + task_example.subtract_call_result_2))
+		("TASK_EXAMPLE#task_example:action 'assign (a=10; b=5; result=add(a,b)+subtract(a,b))';")
+		(task_example.a_1 = 10;
+		 task_example.b_2 = 5;
+		 task_example.result_3 = task_example.add_call_result_1 + task_example.subtract_call_result_2))

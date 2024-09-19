@@ -4,29 +4,11 @@ assign_1(intf) = (
 		(intf.clk = ~(intf.clk))),
 assign_2(intf) = (
 		(1)->
-		("INTERFACE_PARAMETR#interface_parametr:action 'assign (intf.clk=0)';")
-		(intf.clk = 0)),
-assign_3(intf) = (
-		(1)->
-		("INTERFACE_PARAMETR#interface_parametr:action 'assign (intf.reset_n=0)';")
-		(intf.reset_n = 0)),
-assign_4(intf) = (
-		(1)->
-		("INTERFACE_PARAMETR#interface_parametr:action 'assign (intf.data_in=0)';")
-		(intf.data_in = 0)),
-assign_5(intf) = (
-		(1)->
-		("INTERFACE_PARAMETR#interface_parametr:action 'assign (intf.data_out=0)';")
-		(intf.data_out = 0)),
-assign_6(intf) = (
-		(1)->
-		("INTERFACE_PARAMETR#interface_parametr:action 'assign (intf.valid=0)';")
-		(intf.valid = 0)),
-assign_7(intf) = (
-		(1)->
-		("INTERFACE_PARAMETR#interface_parametr:action 'assign (intf.ready=0)';")
-		(intf.ready = 0)),
-assign_8(intf) = (
-		(1)->
-		("INTERFACE_PARAMETR#interface_parametr:action 'assign (intf.reset_n=1)';")
-		(intf.reset_n = 1)),
+		("INTERFACE_PARAMETR#interface_parametr:action 'assign (intf.clk=0; intf.reset_n=0; intf.data_in=0; intf.data_out=0; intf.valid=0; intf.ready=0; intf.reset_n=1)';")
+		(intf.clk = 0;
+		 intf.reset_n = 0;
+		 intf.data_in = 0;
+		 intf.data_out = 0;
+		 intf.valid = 0;
+		 intf.ready = 0;
+		 intf.reset_n = 1)),

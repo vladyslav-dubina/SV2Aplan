@@ -38,6 +38,7 @@ class ElementsTypes(Enum):
     IDENTIFIER_ELEMENT = auto()
     OPERATOR_ELEMENT = auto()
     DOT_ELEMENT = auto()
+    SEMICOLON_ELEMENT = auto()
     NONE_ELEMENT = auto()
 
     PRECONDITION_ELEMENT = auto()

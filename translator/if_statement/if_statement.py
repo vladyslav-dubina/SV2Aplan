@@ -53,7 +53,12 @@ def ifStatement2AplanImpl(
             self.body2Aplan(
                 predicate_ctx, destination_node_array=if_action.precondition
             )
-            if_action.description = f"{self.module.identifier}#{self.module.ident_uniq_name}:action 'if ({condition_txt})'"
+
+            if_action.description_start.append(
+                f"{self.module.identifier}#{self.module.ident_uniq_name}"
+            )
+            if_action.description_action_name = "if"
+            if_action.description_end.append(f"{condition_txt}")
 
             if_action.postcondition.addElement(
                 Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)

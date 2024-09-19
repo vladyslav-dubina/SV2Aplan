@@ -8,17 +8,11 @@ assign_2(x, y, return_multiply) = (
 		(return_multiply = x * y)),
 assign_3 = (
 		(1)->
-		("FUNCTION_EXAMPLE#function_example:action 'assign (a=10)';")
-		(function_example.a_1 = 10)),
+		("FUNCTION_EXAMPLE#function_example:action 'assign (a=10; b=5; result_add=add(a,b))';")
+		(function_example.a_1 = 10;
+		 function_example.b_2 = 5;
+		 function_example.result_add_3 = function_example.add_call_result_1)),
 assign_4 = (
-		(1)->
-		("FUNCTION_EXAMPLE#function_example:action 'assign (b=5)';")
-		(function_example.b_2 = 5)),
-assign_5 = (
-		(1)->
-		("FUNCTION_EXAMPLE#function_example:action 'assign (result_add=add(a,b))';")
-		(function_example.result_add_3 = function_example.add_call_result_1)),
-assign_6 = (
 		(1)->
 		("FUNCTION_EXAMPLE#function_example:action 'assign (result_mul=multiply(a,b))';")
 		(function_example.result_mul_4 = function_example.multiply_call_result_2))

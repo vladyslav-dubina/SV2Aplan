@@ -39,13 +39,17 @@ def generateBodyToAplan(
                 child,
                 ElementsTypes.ASSIGN_ELEMENT,
                 sv_structure=sv_structure,
+                sensetive=True,
             )
+            
             self.current_genvar_value = None
-
-            action_name = f"Sensetive({action_name})"
-            sv_structure.behavior[0].addBody(
-                BodyElement(action_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
-            )
+            if action_name:
+    
+                sv_structure.behavior[0].addBody(
+                    BodyElement(
+                        action_name, action_pointer, ElementsTypes.ACTION_ELEMENT
+                    )
+                )
 
         else:
             generateBodyToAplan(self, child, sv_structure, init_var_name, current_value)

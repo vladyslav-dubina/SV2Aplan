@@ -56,10 +56,10 @@ class SVListener(SystemVerilogParserListener):
         self.module = classDeclaration2Aplan(ctx, self.program, self.module_call)
         self.sv2aplan = SV2aplan(self.module, self.program)
 
-    def enterSystem_tf_call(
-        self, ctx: SystemVerilogParser.System_tf_callContext
-    ):
-        self.sv2aplan.systemTFCall2Aplan(ctx)
+   # def enterSystem_tf_call(
+   #     self, ctx: SystemVerilogParser.System_tf_callContext
+   # ):
+   #     self.sv2aplan.systemTFCall2Aplan(ctx)
 
     def exitGenvar_declaration(self, ctx):
         self.sv2aplan.genvarDeclaration2Aplan(ctx)

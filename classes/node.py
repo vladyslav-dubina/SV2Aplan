@@ -68,7 +68,7 @@ class NodeArray(BasicArray):
 
                 if (
                     element.element_type is ElementsTypes.DOT_ELEMENT
-                    or ";" in element.identifier
+                    or element.element_type is ElementsTypes.SEMICOLON_ELEMENT
                 ):
                     pass
                 else:
@@ -130,7 +130,11 @@ class NodeArray(BasicArray):
                 result += "= {0} - 1".format(previus_element.getName())
 
             else:
-                result += identifier
+                if element.element_type is ElementsTypes.SEMICOLON_ELEMENT:
+                    if index != self.getLen() - 1:
+                        result += f"{identifier}\n\t\t"
+                else:
+                    result += identifier
 
             if bracket_flag and index == len(self.elements) - 1:
                 result += ")"

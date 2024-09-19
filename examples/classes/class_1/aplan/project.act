@@ -1,19 +1,16 @@
-assign_1(object_pointer, init_index) = (
+assign_1(object_pointer, init_index, init_age) = (
 		(1)->
-		("PERSON#Person:action 'assign (index=init_index)';")
-		(object_pointer.index = init_index)),
-assign_2(object_pointer, init_age) = (
-		(1)->
-		("PERSON#Person:action 'assign (age=init_age)';")
-		(object_pointer.age = init_age)),
-assign_3(object_pointer, new_age) = (
+		("PERSON#Person:action 'assign (index=init_index; age=init_age)';")
+		(object_pointer.index = init_index;
+		 object_pointer.age = init_age)),
+assign_2(object_pointer, new_age) = (
 		(1)->
 		("PERSON#Person:action 'assign (age=new_age)';")
 		(object_pointer.age = new_age)),
-assign_4(object_pointer, return_get_age) = (
+assign_3(object_pointer, return_get_age) = (
 		(1)->
 		("PERSON#Person:action 'assign (age)';")
-		(return_get_age = object_pointer.age)),assign_5 = (
+		(return_get_age = object_pointer.age)),assign_4 = (
 		(1)->
 		("MAIN#main:action 'assign (age=p.get_age())';")
 		(main.age = main.get_age_call_result_3))
