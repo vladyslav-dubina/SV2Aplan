@@ -197,7 +197,7 @@ def createArrayStruct(
         "",
         0,
         "",
-        0,
+        1,
         (0, 1),
     )
     typedef.declarations.addElement(new_decl)
