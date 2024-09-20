@@ -290,6 +290,7 @@ def taskCall2AplanImpl(
                 action = Action(
                     action_name,
                     ctx.getSourceInterval(),
+                    element_type=ElementsTypes.ASSIGN_ELEMENT,
                 )
 
                 action.precondition.addElement(
@@ -341,6 +342,8 @@ def taskCall2AplanImpl(
                             if (
                                 last_element.element_type
                                 == ElementsTypes.ACTION_ELEMENT
+                                and last_element.pointer_to_related.element_type
+                                == ElementsTypes.ASSIGN_ELEMENT
                                 and last_element.pointer_to_related.description_action_name
                                 == name_part
                             ):
@@ -357,7 +360,7 @@ def taskCall2AplanImpl(
                                 action_pointer.description_end += action.description_end
 
                                 action_pointer.postcondition += action.postcondition
-                        
+
                         if not previus_action:
                             sv_structure.elements.addElement(action_pointer)
                             protocol.addBody(

@@ -118,6 +118,7 @@ def actionFromNodeStr(
     if (
         element_type == ElementsTypes.ASSIGN_ELEMENT
         or element_type == ElementsTypes.REPEAT_ELEMENT
+        or element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
     ):
         action.precondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
         for element in node_str:
@@ -267,6 +268,8 @@ def expression2AplanImpl(
                     last_element.element_type == ElementsTypes.ACTION_ELEMENT
                     and last_element.pointer_to_related
                     and last_element.pointer_to_related.element_type == element_type
+                    and last_element.pointer_to_related.description_action_name
+                    == name_part
                 ):
                     previus_action = True
                     action = last_element.pointer_to_related
