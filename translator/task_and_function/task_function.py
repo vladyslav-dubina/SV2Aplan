@@ -11,6 +11,7 @@ from classes.structure import Structure
 from classes.tasks import Task
 from translator.expression.expression import actionFromNodeStr, getNamePartAndCounter
 from translator.system_verilog_to_aplan import SV2aplan
+from translator.task_and_function.system_tf import createPushBack
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import Counters_Object, extractDimentionSize
 
@@ -267,127 +268,30 @@ def taskCall2AplanImpl(
     sv_structure: Structure,
     destination_node_array: NodeArray | None = None,
 ):
-    ps_or_hierarchical_tf = ctx.ps_or_hierarchical_tf_identifier()
-    hierarchical_tf_identifier = ps_or_hierarchical_tf.hierarchical_tf_identifier()
+    ps_or_hierarchical_tf: (
+        SystemVerilogParser.Ps_or_hierarchical_tf_identifierContext
+    ) = ctx.ps_or_hierarchical_tf_identifier()
+    hierarchical_tf_identifier: (
+        SystemVerilogParser.Hierarchical_tf_identifierContext
+    ) = ps_or_hierarchical_tf.hierarchical_tf_identifier()
     object_identifier = None
     argument_list = ctx.list_of_arguments().getText()
     if hierarchical_tf_identifier:
-        call_identifiers = (
+        call_identifiers: SystemVerilogParser.Hierarchical_identifierContext = (
             hierarchical_tf_identifier.hierarchical_identifier().identifier()
         )
         call_identifiers_len = len(call_identifiers)
         task_identifier = call_identifiers[call_identifiers_len - 3].getText()
         object_identifier = call_identifiers[call_identifiers_len - 2].getText()
         if task_identifier == "push_back":
-            decl = self.module.declarations.findElement(object_identifier)
-            if isinstance(decl, Declaration):
-                (name_part, counter_type) = getNamePartAndCounter(
-                    ElementsTypes.ASSIGN_ELEMENT
-                )
-                action_name = "{0}_{1}".format(
-                    name_part, Counters_Object.getCounter(counter_type)
-                )
-                action = Action(
-                    action_name,
-                    ctx.getSourceInterval(),
-                    element_type=ElementsTypes.ASSIGN_ELEMENT,
-                )
-
-                action.precondition.addElement(
-                    Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)
-                )
-                argument_list
-                description = "{0}.{1}[{2}] = {3}".format(
-                    object_identifier,
-                    task_identifier,
-                    decl.dimension_size,
-                    argument_list,
-                )
-                action.description_start.append(
-                    f"{self.module.identifier}#{self.module.ident_uniq_name}"
-                )
-                action.description_action_name = name_part
-                action.description_end.append(description)
-
-                node = Node(object_identifier, (0, 0), ElementsTypes.ARRAY_ELEMENT)
-                node.module_name = self.module.ident_uniq_name
-                action.postcondition.addElement(node)
-
-                node = Node(
-                    str(decl.dimension_size), (0, 0), ElementsTypes.NUMBER_ELEMENT
-                )
-                node.bit_selection = True
-                action.postcondition.addElement(node)
-
-                action.postcondition.addElement(
-                    Node("=", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
-                )
-
-                self.body2Aplan(
-                    ctx.list_of_arguments(),
-                    sv_structure=sv_structure,
-                    name_space=ElementsTypes.NONE_ELEMENT,
-                    destination_node_array=action.postcondition,
-                )
-
-                previus_action = False
-                last_element = None
-                if sv_structure is not None:
-                    beh_index = sv_structure.getLastBehaviorIndex()
-                    if beh_index is not None:
-                        protocol = sv_structure.behavior[beh_index]
-                        action_pointer: Action = action
-                        if len(protocol.body) > 0:
-                            last_element = protocol.body[len(protocol.body) - 1]
-                            if (
-                                last_element.element_type
-                                == ElementsTypes.ACTION_ELEMENT
-                                and last_element.pointer_to_related.element_type
-                                == ElementsTypes.ASSIGN_ELEMENT
-                                and last_element.pointer_to_related.description_action_name
-                                == name_part
-                            ):
-                                previus_action = True
-                                action_pointer = last_element.pointer_to_related
-                                action_pointer.postcondition.addElement(
-                                    Node(";", (0, 0), ElementsTypes.SEMICOLON_ELEMENT)
-                                )
-
-                                action_pointer.description_start += (
-                                    action.description_start
-                                )
-
-                                action_pointer.description_end += action.description_end
-
-                                action_pointer.postcondition += action.postcondition
-
-                        if not previus_action:
-                            sv_structure.elements.addElement(action_pointer)
-                            protocol.addBody(
-                                BodyElement(
-                                    action_pointer.identifier,
-                                    action_pointer,
-                                    ElementsTypes.ACTION_ELEMENT,
-                                )
-                            )
-                    else:
-                        struct = Protocol(
-                            "B_{0}".format(action.getName()),
-                            ctx.getSourceInterval(),
-                        )
-                        struct.addBody(
-                            BodyElement(
-                                action.identifier,
-                                action,
-                                ElementsTypes.ACTION_ELEMENT,
-                            )
-                        )
-                        self.module.out_of_block_elements.addElement(struct)
-
-                if not previus_action:
-                    self.module.actions.addElement(action)
-                    Counters_Object.incrieseCounter(counter_type)
-
+            createPushBack(
+                self,
+                sv_structure,
+                task_identifier,
+                object_identifier,
+                ctx.list_of_arguments(),
+                ctx.getSourceInterval(),
+            )
             return
     else:
         task_identifier = ps_or_hierarchical_tf.getText()

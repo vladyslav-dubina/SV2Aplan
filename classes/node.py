@@ -26,6 +26,15 @@ class Node(Basic):
         self.bit_selection: bool = False
         self.range_selection: RangeTypes = RangeTypes.UNDEFINED
 
+    def copy(self):
+        node = Node(self.identifier, self.source_interval, self.element_type)
+        node.expression = self.expression
+        node.module_name = self.module_name
+        node.bit_selection = self.bit_selection
+        node.range_selection = self.range_selection
+
+        return node
+
     def getName(self) -> str:
         result = self.identifier
         if self.module_name:

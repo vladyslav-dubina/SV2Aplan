@@ -4,4 +4,4 @@ B_1(n, return_factorial) = if_1.IF_BODY_1(n, return_factorial) + !if_1.ELSE_BODY
 IF_BODY_1(n, return_factorial) = assign_1(return_factorial),
 ELSE_BODY_1(n, return_factorial) = IF_BODY_2(n, return_factorial),
 IF_BODY_2(n, return_factorial) = FACTORIAL(n - 1, function_example.factorial_call_result_1);(assign_2(n, return_factorial)),
-FUNCTION_EXAMPLE_INITITAL = assign_4.FACTORIAL(function_example.number_1, function_example.factorial_call_result_2)
+FUNCTION_EXAMPLE_INITITAL = assign_4.FACTORIAL(function_example.number_1, function_example.factorial_call_result_2);(assign_5)

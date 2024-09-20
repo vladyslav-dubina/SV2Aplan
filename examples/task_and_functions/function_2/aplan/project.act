@@ -16,6 +16,9 @@ assign_3 = (
 		(function_example.number = 5)),
 assign_4 = (
 		(1)->
-		("FUNCTION_EXAMPLE#function_example:action 'assign (number=5; result=factorial(number))';")
-		(function_example.number_1 = 5;
-		 function_example.result_2 = function_example.factorial_call_result_2))
+		("FUNCTION_EXAMPLE#function_example:action 'assign (number=5)';")
+		(function_example.number_1 = 5)),
+assign_5 = (
+		(1)->
+		("FUNCTION_EXAMPLE#function_example:action 'assign (result=factorial(number))';")
+		(function_example.result_2 = function_example.factorial_call_result_2))

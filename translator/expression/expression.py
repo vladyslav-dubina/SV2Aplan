@@ -258,6 +258,60 @@ def expression2AplanImpl(
     action = None
     last_element = None
 
+    action_name = "{0}_{1}".format(name_part, Counters_Object.getCounter(counter_type))
+
+    action = Action(action_name, ctx.getSourceInterval(), element_type=element_type)
+
+    expression = ctx.getText()
+    expression = valuesToAplanStandart(expression)
+    if (
+        element_type == ElementsTypes.ASSIGN_ELEMENT
+        or element_type == ElementsTypes.REPEAT_ELEMENT
+        or element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
+    ):
+
+        action.precondition.addElement(Node("1", (0, 0), ElementsTypes.NUMBER_ELEMENT))
+        taskAssignIfPosible(self, ctx, action.postcondition)
+        postcondition: NodeArray = NodeArray(ElementsTypes.POSTCONDITION_ELEMENT)
+        self.body2Aplan(
+            ctx,
+            sv_structure=sv_structure,
+            name_space=name_space_element,
+            destination_node_array=postcondition,
+        )
+
+        if postcondition.getLen() == 0:
+            return (None, None, None, None)
+
+        action.postcondition += postcondition
+
+    else:
+        if not previus_action:
+            action.postcondition.addElement(
+                Node("1", (0, 0), ElementsTypes.NUMBER_ELEMENT)
+            )
+        precondition: NodeArray = NodeArray(ElementsTypes.PRECONDITION_ELEMENT)
+        self.body2Aplan(
+            ctx,
+            sv_structure=sv_structure,
+            name_space=name_space_element,
+            destination_node_array=precondition,
+        )
+        if precondition.getLen() == 0:
+            return (None, None, None, None)
+
+        action.precondition = precondition
+
+    action.description_start.append(
+        f"{self.module.identifier}#{self.module.ident_uniq_name}"
+    )
+
+    action.description_action_name = f"{name_part}"
+
+    action.description_end.append(f"{expression}")
+
+    action_pointer: Action = None
+
     if sv_structure is not None and not remove_association:
         beh_index = sv_structure.getLastBehaviorIndex()
         if beh_index is not None:
@@ -272,79 +326,30 @@ def expression2AplanImpl(
                     == name_part
                 ):
                     previus_action = True
-                    action = last_element.pointer_to_related
+                    last_element.pointer_to_related
                     action_name = action.identifier
                 else:
                     last_element = None
 
-    if not previus_action:
-        action_name = "{0}_{1}".format(
-            name_part, Counters_Object.getCounter(counter_type)
-        )
+    if last_element:
+        previous_action: Action = last_element.pointer_to_related
+        previous_action.description_end += action.description_end
+        previous_action.description_start += action.description_start
 
-        action = Action(action_name, ctx.getSourceInterval(), element_type=element_type)
-
-    expression = ctx.getText()
-    expression = valuesToAplanStandart(expression)
-    if (
-        element_type == ElementsTypes.ASSIGN_ELEMENT
-        or element_type == ElementsTypes.REPEAT_ELEMENT
-        or element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
-    ):
-        if not previus_action:
-            action.precondition.addElement(
-                Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)
-            )
-        taskAssignIfPosible(self, ctx, action.postcondition)
-        postcondition: NodeArray = NodeArray(ElementsTypes.POSTCONDITION_ELEMENT)
-        self.body2Aplan(
-            ctx,
-            sv_structure=sv_structure,
-            name_space=name_space_element,
-            destination_node_array=postcondition,
-        )
-
-        if postcondition.getLen() == 0:
-            return (None, None, None, None)
-
-        if previus_action:
-            action.postcondition.addElement(
+        if previous_action.precondition.elements[0].identifier != "1":
+            previous_action.precondition.addElement(
                 Node(";", (0, 0), ElementsTypes.SEMICOLON_ELEMENT)
             )
+            previous_action.precondition += action.precondition
 
-        action.postcondition += postcondition
-
-    else:
-        if not previus_action:
-            action.postcondition.addElement(
-                Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)
-            )
-        precondition: NodeArray = NodeArray(ElementsTypes.PRECONDITION_ELEMENT)
-        self.body2Aplan(
-            ctx,
-            sv_structure=sv_structure,
-            name_space=name_space_element,
-            destination_node_array=precondition,
-        )
-        if precondition.getLen() == 0:
-            return (None, None, None, None)
-
-        if previus_action:
-            action.precondition.addElement(
+        if previous_action.postcondition.elements[0].identifier != "1":
+            previous_action.postcondition.addElement(
                 Node(";", (0, 0), ElementsTypes.SEMICOLON_ELEMENT)
             )
-        action.precondition = precondition
+            previous_action.postcondition += action.postcondition
 
-    action.description_start.append(
-        f"{self.module.identifier}#{self.module.ident_uniq_name}"
-    )
+        action = previous_action
 
-    if not previus_action:
-        action.description_action_name = f"{name_part}"
-
-    action.description_end.append(f"{expression}")
-
-    action_pointer: Action = None
     if not previus_action:
         (
             action_pointer,
