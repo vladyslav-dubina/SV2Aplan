@@ -66,11 +66,10 @@ class Program:
         env += "\ttypes : obj (\n"
         sub_env = ""
         decls = self.typedefs.getElementsIE()
-        
+
         for module in self.modules.getElements():
             decls += module.typedefs.getElementsIE()
-            
-            
+
         sub_env += str(decls)
         if len(sub_env) > 0:
             env += sub_env + "\n"
@@ -151,9 +150,13 @@ class Program:
                 exclude=ElementsTypes.OBJECT_ELEMENT
             ).getElements()
         ):
+
+            result = module.actions.getActionsInStrFormat()
             if index != 0:
-                actions += ","
-            actions += module.actions.getActionsInStrFormat()
+                if len(result) > 0:
+                    actions += ",\n"
+            actions += result
+
         self.writeToFile(self.path_to_result + "project.act", actions)
         printWithColor(".act file created \n", Color.PURPLE)
 

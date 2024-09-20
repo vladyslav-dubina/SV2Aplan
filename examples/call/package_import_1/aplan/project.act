@@ -3,7 +3,8 @@ assign_2 = (
 		("MAIN#main:action 'assign (sum=add(5,7); current_state=RUNNING; sum_2=MAX_COUNT+1)';")
 		(main.sum = main.add_call_result_1;
 		 main.current_state = RUNNING;
-		 main.sum_2 = 10 + 1)),assign_1(a, b, return_add) = (
+		 main.sum_2 = 10 + 1)),
+assign_1(a, b, return_add) = (
 		(1)->
 		("MY_PACKAGE#my_package:action 'assign (a+b)';")
 		(return_add = a + b))

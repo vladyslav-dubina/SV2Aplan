@@ -11,4 +11,4 @@ assign_2 = (
 		 intf.data_out = 0;
 		 intf.valid = 0;
 		 intf.ready = 0;
-		 intf.reset_n = 1)),
+		 intf.reset_n = 1))
