@@ -28,7 +28,7 @@ class SVListener(SystemVerilogParserListener):
 
         self.module: Module = None
         self.program: Program = program
-        self.sv2aplan: SV2aplan = SV2aplan(None)
+        self.sv2aplan: SV2aplan = SV2aplan(None, program)
         self.module_call: ModuleCall | None = module_call
 
     def enterInterface_declaration(
@@ -55,6 +55,11 @@ class SVListener(SystemVerilogParserListener):
     def enterClass_declaration(self, ctx: SystemVerilogParser.Class_declarationContext):
         self.module = classDeclaration2Aplan(ctx, self.program, self.module_call)
         self.sv2aplan = SV2aplan(self.module, self.program)
+
+   # def enterSystem_tf_call(
+   #     self, ctx: SystemVerilogParser.System_tf_callContext
+   # ):
+   #     self.sv2aplan.systemTFCall2Aplan(ctx)
 
     def exitGenvar_declaration(self, ctx):
         self.sv2aplan.genvarDeclaration2Aplan(ctx)

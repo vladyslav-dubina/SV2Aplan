@@ -1,0 +1,4 @@
+B_EXAMPLE_SIZE = {EXAMPLE_SIZE_INITITAL || MAIN_EXAMPLE_SIZE},
+MAIN_EXAMPLE_SIZE = (ARRAY_INIT_EXAMPLE_SIZE),
+EXAMPLE_SIZE_INITITAL = assign_2.size_queue(return_size).assign_3.size_dynamic_array(return_size).assign_4,
+ARRAY_INIT_EXAMPLE_SIZE = assign_1

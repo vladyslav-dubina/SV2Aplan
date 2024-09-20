@@ -1,0 +1,16 @@
+assign_1 = (
+		(1)->
+		("EXAMPLE_STOP#example_stop:action 'assign (count=0)';")
+		(example_stop.count = 0)),
+cond_1 = (
+		(example_stop.count < 5)->
+		("EXAMPLE_STOP#example_stop:action 'cond (count<5)';")
+		(1)),
+if_1 = (
+		(example_stop.count == 3)->
+		("EXAMPLE_STOP#example_stop:action 'if (count==3)';")
+		(1)),
+stop = (
+		(1)->
+		("EXAMPLE_STOP#example_stop:action 'stop ()';")
+		())

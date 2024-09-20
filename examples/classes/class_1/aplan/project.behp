@@ -1,6 +1,6 @@
 
-NEW(object_pointer, init_index, init_age) = assign_1(object_pointer, init_index).assign_2(object_pointer, init_age),
-SET_AGE(object_pointer, new_age) = assign_3(object_pointer, new_age),
-GET_AGE(object_pointer, return_get_age) = assign_4(object_pointer, return_get_age),
+NEW(object_pointer, init_index, init_age) = assign_1(object_pointer, init_index, init_age),
+SET_AGE(object_pointer, new_age) = assign_2(object_pointer, new_age),
+GET_AGE(object_pointer, return_get_age) = assign_3(object_pointer, return_get_age),
 B_MAIN = {MAIN_INITITAL},
-MAIN_INITITAL = NEW(p, 1, 30);(SET_AGE(p, 31));(GET_AGE(p, main.get_age_call_result_3));(assign_5)
+MAIN_INITITAL = NEW(p, 1, 30);(SET_AGE(p, 31));(GET_AGE(p, main.get_age_call_result_3));(assign_4)

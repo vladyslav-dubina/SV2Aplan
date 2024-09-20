@@ -15,13 +15,13 @@ class Parametr(Basic):
         if len(action_name) > 0:
             action_name += "_"
         self.type = type
-        self.uniq_identifier = action_name + ""
+        self.unique_identifier = action_name + ""
         self.module_name: str | None = None
         super().__init__(identifier, source_interval)
 
     def copy(self):
         action_param = Parametr(self.identifier, self.type, self.source_interval)
-        action_param.uniq_identifier = self.uniq_identifier
+        action_param.unique_identifier = self.unique_identifier
         action_param.number = self.number
         return action_param
 
@@ -29,7 +29,7 @@ class Parametr(Basic):
         if "var" in self.type:
             return f"{self.identifier}"
         else:
-            return f"{self.uniq_identifier}:{self.type}"
+            return f"{self.unique_identifier}:{self.type}"
 
     def __repr__(self):
         return f"\Parametr({self.identifier!r}, {self.type!r})\n"
@@ -99,7 +99,7 @@ class ParametrArray(BasicArray):
         self,
     ):
         for index, element in enumerate(self.getElements()):
-            element.uniq_identifier = self.generateParametrNameByIndex(index)
+            element.unique_identifier = self.generateParametrNameByIndex(index)
 
     def __str__(self):
         result = ""

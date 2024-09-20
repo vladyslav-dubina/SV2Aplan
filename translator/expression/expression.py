@@ -6,6 +6,7 @@ from classes.actions import Action
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.node import Node, NodeArray
+from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import (
@@ -67,6 +68,7 @@ def getNamePartAndCounter(element_type: ElementsTypes) -> Tuple[str, CounterType
     elif (
         element_type == ElementsTypes.ASSIGN_ELEMENT
         or element_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT
+        or element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
     ):
         name_part = "assign"
         counter_type = CounterTypes.ASSIGNMENT_COUNTER
@@ -90,17 +92,33 @@ def actionFromNodeStr(
         Tuple[str | None, ParametrArray | None, ActionPreconditionArray | None] | None
     ) = None,
 ):
+    previus_action = False
     (name_part, counter_type) = getNamePartAndCounter(element_type)
     action_name = "{0}_{1}".format(name_part, Counters_Object.getCounter(counter_type))
 
+    if sv_structure:
+        beh_index = sv_structure.getLastBehaviorIndex()
+        if sv_structure and beh_index is not None:
+            protocol = sv_structure.behavior[beh_index]
+            if len(protocol.body) > 0:
+                last_element = protocol.body[len(protocol.body) - 1]
+                if last_element.element_type == ElementsTypes.ACTION_ELEMENT:
+                    previus_action = True
+                    action = last_element.pointer_to_related
+
     action = Action(action_name, source_interval)
 
-    action.description = f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({node_str})'"
+    action.description_start.append(
+        f"{self.module.identifier}#{self.module.ident_uniq_name}"
+    )
+    action.description_end.append(f"{node_str}")
+    action.description_action_name = name_part
     if isinstance(node_str, str):
         node_str = node_str.split(" ")
     if (
         element_type == ElementsTypes.ASSIGN_ELEMENT
         or element_type == ElementsTypes.REPEAT_ELEMENT
+        or element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
     ):
         action.precondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
         for element in node_str:
@@ -148,12 +166,17 @@ def actionFromNodeStr(
                     )
                 description += expression
             obj_def, parametrs, precondition = input_parametrs
-            body = ""
+            body_start = ""
             if obj_def is not None:
-                body = f"{obj_def}:action '{name_part} ({description})'"
+                body_start = f"{obj_def}"
+
             else:
-                body = f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({description})'"
-            action.description = body
+                body_start = f"{self.module.identifier}#{self.module.ident_uniq_name}"
+
+            action.description_start.append(body_start)
+            action.description_action_name = name_part
+            action.description_end.append(description)
+
     elif element_type == ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT:
         if input_parametrs is not None:
             for element in node_str:
@@ -174,7 +197,9 @@ def actionFromNodeStr(
 
                 action.exist_parametrs = parametrs
 
-                action.description = f"{obj_def}:action '{name_part} ({expression})'"
+                action.description_start.append(obj_def)
+                action.description_action_name = name_part
+                action.description_end.append(expression)
 
     else:
         for element in node_str:
@@ -225,52 +250,112 @@ def expression2AplanImpl(
     element_type: ElementsTypes,
     sv_structure: Structure | None = None,
     name_space_element: ElementsTypes = ElementsTypes.NONE_ELEMENT,
+    remove_association: bool = False,
 ) -> Tuple[Action, str, Tuple[int, int], bool]:
+    previus_action = False
     (name_part, counter_type) = getNamePartAndCounter(element_type)
+
+    action = None
+    last_element = None
 
     action_name = "{0}_{1}".format(name_part, Counters_Object.getCounter(counter_type))
 
-    action = Action(
-        action_name,
-        ctx.getSourceInterval(),
-    )
+    action = Action(action_name, ctx.getSourceInterval(), element_type=element_type)
 
     expression = ctx.getText()
     expression = valuesToAplanStandart(expression)
     if (
         element_type == ElementsTypes.ASSIGN_ELEMENT
         or element_type == ElementsTypes.REPEAT_ELEMENT
+        or element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
     ):
-        action.precondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
+
+        action.precondition.addElement(Node("1", (0, 0), ElementsTypes.NUMBER_ELEMENT))
         taskAssignIfPosible(self, ctx, action.postcondition)
+        postcondition: NodeArray = NodeArray(ElementsTypes.POSTCONDITION_ELEMENT)
         self.body2Aplan(
             ctx,
             sv_structure=sv_structure,
             name_space=name_space_element,
-            destination_node_array=action.postcondition,
+            destination_node_array=postcondition,
         )
-        if action.postcondition.getLen() == 0:
+
+        if postcondition.getLen() == 0:
             return (None, None, None, None)
-        action.description = f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
+
+        action.postcondition += postcondition
+
     else:
-        # taskAssignIfPosible(self, ctx, action.precondition)
+        if not previus_action:
+            action.postcondition.addElement(
+                Node("1", (0, 0), ElementsTypes.NUMBER_ELEMENT)
+            )
+        precondition: NodeArray = NodeArray(ElementsTypes.PRECONDITION_ELEMENT)
         self.body2Aplan(
             ctx,
             sv_structure=sv_structure,
             name_space=name_space_element,
-            destination_node_array=action.precondition,
+            destination_node_array=precondition,
         )
-        if action.precondition.getLen() == 0:
+        if precondition.getLen() == 0:
             return (None, None, None, None)
-        action.postcondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
-        action.description = f"{self.module.identifier}#{self.module.ident_uniq_name}:action '{name_part} ({expression})'"
 
-    (
-        action_pointer,
-        action_check_result,
-        source_interval,
-    ) = self.module.actions.isUniqAction(action)
+        action.precondition = precondition
 
+    action.description_start.append(
+        f"{self.module.identifier}#{self.module.ident_uniq_name}"
+    )
+
+    action.description_action_name = f"{name_part}"
+
+    action.description_end.append(f"{expression}")
+
+    action_pointer: Action = None
+
+    if sv_structure is not None and not remove_association:
+        beh_index = sv_structure.getLastBehaviorIndex()
+        if beh_index is not None:
+            protocol = sv_structure.behavior[beh_index]
+            if len(protocol.body) > 0:
+                last_element = protocol.body[len(protocol.body) - 1]
+                if (
+                    last_element.element_type == ElementsTypes.ACTION_ELEMENT
+                    and last_element.pointer_to_related
+                    and last_element.pointer_to_related.element_type == element_type
+                    and last_element.pointer_to_related.description_action_name
+                    == name_part
+                ):
+                    previus_action = True
+                    last_element.pointer_to_related
+                    action_name = action.identifier
+                else:
+                    last_element = None
+
+    if last_element:
+        previous_action: Action = last_element.pointer_to_related
+        previous_action.description_end += action.description_end
+        previous_action.description_start += action.description_start
+
+        if previous_action.precondition.elements[0].identifier != "1":
+            previous_action.precondition.addElement(
+                Node(";", (0, 0), ElementsTypes.SEMICOLON_ELEMENT)
+            )
+            previous_action.precondition += action.precondition
+
+        if previous_action.postcondition.elements[0].identifier != "1":
+            previous_action.postcondition.addElement(
+                Node(";", (0, 0), ElementsTypes.SEMICOLON_ELEMENT)
+            )
+            previous_action.postcondition += action.postcondition
+
+        action = previous_action
+
+    if not previus_action:
+        (
+            action_pointer,
+            action_check_result,
+            source_interval,
+        ) = self.module.actions.isUniqAction(action)
     params_for_finding: ParametrArray = ParametrArray()
     if self.inside_the_task == True:
         task = self.module.tasks.getLastTask()
@@ -281,23 +366,119 @@ def expression2AplanImpl(
     action.findParametrInBodyAndSetParametrs(params_for_finding)
 
     uniq = False
-    if action_check_result is None:
-        uniq = True
-        index = self.module.actions.addElement(action)
-        action_pointer = self.module.actions.getElementByIndex(index)
-        if sv_structure is not None:
-            sv_structure.elements.addElement(action)
-    else:
-        Counters_Object.decrieseCounter(counter_type)
-        action_name = action_check_result
-        if sv_structure is not None:
-            sv_structure.elements.addElement(action_pointer)
+    if not previus_action:
+        if action_check_result is None:
+            uniq = True
+            index = self.module.actions.addElement(action)
+            action_pointer = self.module.actions.getElementByIndex(index)
+            if sv_structure is not None:
+                sv_structure.elements.addElement(action)
+        else:
+            Counters_Object.decrieseCounter(counter_type)
+            action_name = action_check_result
+            if sv_structure is not None:
+                sv_structure.elements.addElement(action_pointer)
+
+        if element_type != ElementsTypes.REPEAT_ELEMENT:
+            Counters_Object.incrieseCounter(counter_type)
 
     if action_name is not None:
         action_parametrs_count = action.parametrs.getLen()
-        action_name = f"{action_name}{action.parametrs.getIdentifiersListString(action_parametrs_count)}"
+        action_identifier = action.identifier
+        if action_pointer:
+            action_identifier = action_pointer.identifier
+        action_name = f"{action_identifier}{action.parametrs.getIdentifiersListString(action_parametrs_count)}"
 
-    if element_type != ElementsTypes.REPEAT_ELEMENT:
-        Counters_Object.incrieseCounter(counter_type)
+        if element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT:
+            action_name = f"Sensetive({action_name})"
+        if last_element:
+            last_element.identifier = action_name
+
+    if previus_action:
+        return (None, None, None, None)
 
     return (action_pointer, action_name, source_interval, uniq)
+
+
+def createSizeExpression(
+    self: SV2aplan, identifier, size, source_interval: Tuple[int, int]
+):
+    (name_part, counter_type) = getNamePartAndCounter(ElementsTypes.ASSIGN_ELEMENT)
+    action_name = "{0}_{1}".format(name_part, Counters_Object.getCounter(counter_type))
+    action = Action(
+        action_name, source_interval, element_type=ElementsTypes.ASSIGN_ELEMENT
+    )
+    expressiont = "{0}.{1}.size = {2}".format(
+        self.module.ident_uniq_name, identifier, size
+    )
+    action.precondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
+    action.description_start.append(
+        f"{self.module.identifier}#{self.module.ident_uniq_name}"
+    )
+    action.description_end.append(expressiont)
+    action.description_action_name = name_part
+    node = Node(identifier, (0, 0), ElementsTypes.ARRAY_SIZE_ELEMENT)
+    node.module_name = self.module.ident_uniq_name
+    action.postcondition.addElement(node)
+
+    action.postcondition.addElement(Node("=", (0, 0), ElementsTypes.OPERATOR_ELEMENT))
+
+    action.postcondition.addElement(
+        Node(str(size), (0, 0), ElementsTypes.NUMBER_ELEMENT)
+    )
+
+    protocol_name = "ARRAY_INIT_{0}".format(self.module.ident_uniq_name_upper)
+    protocol = self.module.out_of_block_elements.findElement(protocol_name)
+
+    previus_action = False
+
+    if isinstance(protocol, Protocol):
+        action_pointer: Action = action
+
+        if len(protocol.body) > 0:
+            last_body_element = protocol.body[len(protocol.body) - 1]
+
+            if (
+                last_body_element.element_type == ElementsTypes.ACTION_ELEMENT
+                and last_body_element.pointer_to_related.element_type
+                == ElementsTypes.ASSIGN_ELEMENT
+            ):
+                previus_action = True
+                action_pointer: Action = last_body_element.pointer_to_related
+                action_pointer.postcondition.addElement(
+                    Node(";", (0, 0), ElementsTypes.SEMICOLON_ELEMENT)
+                )
+
+                action_pointer.description_start += action.description_start
+
+                action_pointer.description_end += action.description_end
+
+                action_pointer.postcondition += action.postcondition
+
+        if not previus_action:
+            protocol.addBody(
+                BodyElement(
+                    action.identifier,
+                    action,
+                    ElementsTypes.ACTION_ELEMENT,
+                )
+            )
+
+    else:
+        protocol = Protocol(
+            "ARRAY_INIT_{0}".format(self.module.ident_uniq_name_upper),
+            source_interval,
+        )
+
+        protocol.addBody(
+            BodyElement(
+                action.identifier,
+                action,
+                ElementsTypes.ACTION_ELEMENT,
+            )
+        )
+        self.module.out_of_block_elements.addElement(protocol)
+
+    if not previus_action:
+        self.module.actions.addElement(action)
+        Counters_Object.incrieseCounter(counter_type)

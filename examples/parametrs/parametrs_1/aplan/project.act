@@ -1,4 +1,3 @@
-
 assign_1 = (
 		(1)->
 		("CODE_PATCH_CORE#code_patch_core:action 'assign (nopg_o=no_pg)';")

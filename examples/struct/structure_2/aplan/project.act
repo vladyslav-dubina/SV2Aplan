@@ -1,0 +1,5 @@
+assign_1 = (
+		(1)->
+		("STRUCT_2#struct_2:action 'assign (person.id=1; person.age=30)';")
+		(struct_2.person.id = 1;
+		 struct_2.person.age = 30))

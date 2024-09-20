@@ -1,4 +1,3 @@
-
 assign_1 = (
 		(1)->
 		("WHILE_1#while_1:action 'assign (h=0)';")

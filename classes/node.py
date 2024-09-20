@@ -26,6 +26,15 @@ class Node(Basic):
         self.bit_selection: bool = False
         self.range_selection: RangeTypes = RangeTypes.UNDEFINED
 
+    def copy(self):
+        node = Node(self.identifier, self.source_interval, self.element_type)
+        node.expression = self.expression
+        node.module_name = self.module_name
+        node.bit_selection = self.bit_selection
+        node.range_selection = self.range_selection
+
+        return node
+
     def getName(self) -> str:
         result = self.identifier
         if self.module_name:
@@ -68,7 +77,7 @@ class NodeArray(BasicArray):
 
                 if (
                     element.element_type is ElementsTypes.DOT_ELEMENT
-                    or ";" in element.identifier
+                    or element.element_type is ElementsTypes.SEMICOLON_ELEMENT
                 ):
                     pass
                 else:
@@ -100,6 +109,11 @@ class NodeArray(BasicArray):
                             result += " "
 
             identifier = str(element.getName())
+            if element.element_type is ElementsTypes.ARRAY_ELEMENT:
+                identifier = identifier + ".value"
+            if element.element_type is ElementsTypes.ARRAY_SIZE_ELEMENT:
+                identifier = identifier + ".size"
+
             if index + 1 < len(self.elements):
                 next_element = self.getElementByIndex(index + 1)
                 if next_element.bit_selection:
@@ -125,11 +139,16 @@ class NodeArray(BasicArray):
                 result += "= {0} - 1".format(previus_element.getName())
 
             else:
-                result += identifier
+                if element.element_type is ElementsTypes.SEMICOLON_ELEMENT:
+                    if index != self.getLen() - 1:
+                        result += f"{identifier}\n\t\t"
+                else:
+                    result += identifier
 
             if bracket_flag and index == len(self.elements) - 1:
                 result += ")"
                 bracket_flag = False
+
         return result
 
     def getElementByIndex(self, index) -> Node:

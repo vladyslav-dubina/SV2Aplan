@@ -1,6 +1,7 @@
 import re
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
+from classes.declarations import DeclTypes, Declaration
 from classes.parametrs import Parametr
 from classes.element_types import ElementsTypes
 from classes.node import Node, NodeArray, RangeTypes
@@ -38,11 +39,14 @@ def identifier2AplanImpl(
         )
         node = destination_node_array.getElementByIndex(index)
         decl = self.module.declarations.getElement(node.identifier)
-        if decl:
+        if isinstance(decl, Declaration):
             if self.module.element_type == ElementsTypes.CLASS_ELEMENT:
                 node.module_name = "object_pointer"
             else:
                 node.module_name = self.module.ident_uniq_name
+
+            if decl.data_type == DeclTypes.ARRAY:
+                node.element_type = ElementsTypes.ARRAY_ELEMENT
 
         node.identifier = paramsCallReplace(self, node.identifier)
 
@@ -65,6 +69,38 @@ def number2AplanImpl(
         node.identifier = paramsCallReplace(self, node.identifier)
 
 
+def unpackedDimention2AplanImpl(
+    self: SV2aplan,
+    ctx: SystemVerilogParser.Unpacked_dimensionContext,
+    destination_node_array: NodeArray,
+):
+    expression = ctx.constant_expression()
+    if expression:
+        expression = expression.getText()
+
+        bit = self.module.name_change.changeNamesInStr(expression)
+
+        if self.current_genvar_value is not None:
+            (genvar, value) = self.current_genvar_value
+            bit = re.sub(
+                r"\b{}\b".format(re.escape(genvar)),
+                f"{value}",
+                bit,
+            )
+
+        index = destination_node_array.addElement(
+            Node(bit, ctx.getSourceInterval(), ElementsTypes.NUMBER_ELEMENT)
+        )
+        node = destination_node_array.getElementByIndex(index)
+        node.bit_selection = True
+        decl = self.module.declarations.getElement(bit)
+
+        if decl:
+            node.module_name = self.module.ident_uniq_name
+
+        node.identifier = paramsCallReplace(self, node.identifier)
+
+
 def bitSelection2AplanImpl(
     self: SV2aplan,
     ctx: (
@@ -76,7 +112,7 @@ def bitSelection2AplanImpl(
     if destination_node_array is not None:
         if isinstance(ctx, SystemVerilogParser.Bit_selectContext):
             expression = ctx.expression()
-        if isinstance(ctx, SystemVerilogParser.Constant_bit_selectContext):
+        elif isinstance(ctx, SystemVerilogParser.Constant_bit_selectContext):
             expression = ctx.constant_expression()
 
         for element in expression:

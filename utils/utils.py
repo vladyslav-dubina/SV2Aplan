@@ -192,6 +192,8 @@ def evaluateExpression(expr: str, variables=None):
 
 
 def extractDimentionSize(expression: str):
+    if expression == "[$]":
+        return
     matches = re.findall(r"\[\s*(.+)\s*\]", expression)
     if matches:
         value = matches[0][0]

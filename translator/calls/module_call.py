@@ -1,5 +1,6 @@
 from typing import List, Tuple
 from antlr4_verilog.systemverilog import SystemVerilogParser
+from classes.declarations import AplanDeclType
 from classes.parametrs import Parametr, ParametrArray
 from classes.action_precondition import ActionPrecondition, ActionPreconditionArray
 from classes.counters import CounterTypes
@@ -73,7 +74,8 @@ def moduleCallAssign2Aplan(
                     param_array: ParametrArray = ParametrArray()
                     uniq, param_index = param_array.addElement(
                         Parametr(
-                            decl.identifier, decl.getAplanDecltypeForParametrs()
+                            decl.identifier,
+                            decl.getAplanDecltype(AplanDeclType.PARAMETRS),
                         )
                     )
                     param_array.generateUniqNamesForParamets()
@@ -86,7 +88,7 @@ def moduleCallAssign2Aplan(
                     param = param_array.getElementByIndex(param_index)
                     precond_array.addElement(
                         Node(
-                            f"{param.uniq_identifier}",
+                            f"{param.unique_identifier}",
                             (0, 0),
                             ElementsTypes.IDENTIFIER_ELEMENT,
                         )
@@ -106,7 +108,7 @@ def moduleCallAssign2Aplan(
                         destination_var_name,
                         self.module.ident_uniq_name,
                         source_var_name,
-                        param.uniq_identifier,
+                        param.unique_identifier,
                     )
                     assign_arr_str_list.append(
                         (

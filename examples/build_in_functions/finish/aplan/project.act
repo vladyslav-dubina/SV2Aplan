@@ -1,0 +1,16 @@
+assign_1 = (
+		(1)->
+		("EXAMPLE_FINISH#example_finish:action 'assign (count=0)';")
+		(example_finish.count = 0)),
+cond_1 = (
+		(example_finish.count < 5)->
+		("EXAMPLE_FINISH#example_finish:action 'cond (count<5)';")
+		(1)),
+if_1 = (
+		(example_finish.count == 3)->
+		("EXAMPLE_FINISH#example_finish:action 'if (count==3)';")
+		(1)),
+finish = (
+		(1)->
+		("EXAMPLE_FINISH#example_finish:action 'finish ()';")
+		())

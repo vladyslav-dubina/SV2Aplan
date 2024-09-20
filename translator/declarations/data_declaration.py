@@ -4,6 +4,8 @@ from classes.element_types import ElementsTypes
 from classes.name_change import NameChange
 from classes.protocols import BodyElement
 from classes.structure import Structure
+from translator.declarations.struct_declaration import createArrayStruct
+from translator.expression.expression import createSizeExpression
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
@@ -60,24 +62,34 @@ def dataDecaration2AplanImpl(
     if ctx.data_type_or_implicit() is not None:
         data_type = ctx.data_type_or_implicit().data_type()
         if data_type is not None:
+            if data_type.struct_union():
+                struct = self.structDeclaration2Aplan(ctx)
+            else:
+                struct = None
+
             data_type = dataTypeToStr(data_type)
             if len(data_type) > 0:
-                types = self.module.declarations.getElementsForTypes()
-                packages = self.module.packages_and_objects.getElementsIE(
-                    include=ElementsTypes.PACKAGE_ELEMENT
-                )
-                packages += self.module.packages_and_objects.getElementsIE(
-                    include=ElementsTypes.OBJECT_ELEMENT
-                )
-                for package in packages.getElements():
-                    types += package.declarations.getElementsForTypes()
-                data_check_type = DeclTypes.checkType(data_type, types)
+                size_expression = ""
+                if struct:
+                    data_check_type = DeclTypes.STRUCT
+                    size_expression = struct.unique_identifier
+                else:
+                    types = self.module.typedefs.getElementsIE().getElements()
+                    packages = self.module.packages_and_objects.getElementsIE(
+                        include=ElementsTypes.PACKAGE_ELEMENT
+                    )
+                    packages += self.module.packages_and_objects.getElementsIE(
+                        include=ElementsTypes.OBJECT_ELEMENT
+                    )
+                    for package in packages.getElements():
+                        types += package.typedefs.getElementsIE().getElements()
+                    data_check_type = DeclTypes.checkType(data_type, types)
                 aplan_vector_size = [0]
 
                 packed_dimension = (
                     ctx.data_type_or_implicit().data_type().packed_dimension(0)
                 )
-                size_expression = ""
+
                 vector_size = None
                 if packed_dimension is not None:
                     vector_size = packed_dimension.getText()
@@ -110,15 +122,38 @@ def dataDecaration2AplanImpl(
                     if isinstance(ctx, SystemVerilogParser.Data_declarationContext):
                         unpacked_dimention = elem.variable_dimension(0)
 
+                    element_type = ElementsTypes.NONE_ELEMENT
+
                     dimension_size = 0
                     dimension_size_expression = ""
                     if unpacked_dimention is not None:
                         dimension = unpacked_dimention.getText()
                         dimension_size_expression = dimension
-                        dimension = replaceValueParametrsCalls(
-                            self.module.value_parametrs, dimension
+
+                        dimension = extractDimentionSize(dimension)
+                        if dimension == None:
+                            dimension = 0
+
+                        dimension_size = replaceValueParametrsCalls(
+                            self.module.value_parametrs, str(dimension)
                         )
-                        dimension_size = extractDimentionSize(dimension)
+                        dimension_size = int(dimension_size)
+                        if data_check_type == DeclTypes.INT:
+                            data_check_type = DeclTypes.ARRAY
+
+                            createSizeExpression(
+                                self,
+                                identifier,
+                                dimension_size,
+                                elem.getSourceInterval(),
+                            )
+
+                            size_expression = createArrayStruct(
+                                self,
+                                identifier,
+                                DeclTypes.INT,
+                                elem.getSourceInterval(),
+                            )
 
                     assign_name = ""
                     new_decl = Declaration(
@@ -131,6 +166,7 @@ def dataDecaration2AplanImpl(
                         dimension_size,
                         elem.getSourceInterval(),
                     )
+
                     decl_unique, decl_index = self.module.declarations.addElement(
                         new_decl
                     )
@@ -195,30 +231,5 @@ def dataDecaration2AplanImpl(
                                 declaration.action = action_pointer
 
                 return identifier
-    type_declaration = ctx.type_declaration()
-    if type_declaration is not None:
-        data_type = type_declaration.data_type()
-        if data_type.ENUM():
-            for type_identifier in type_declaration.type_identifier():
-                enum_type_identifier = "{0}".format(type_identifier.getText())
-                elements = ""
-                for index, enum_name_decl in enumerate(
-                    data_type.enum_name_declaration()
-                ):
-                    if index != 0:
-                        elements += ","
-                    identifier = enum_name_decl.enum_identifier().getText()
-                    elements += identifier
-
-                new_decl = Declaration(
-                    DeclTypes.ENUM_TYPE,
-                    enum_type_identifier,
-                    elements,
-                    "",
-                    0,
-                    "",
-                    0,
-                    enum_name_decl.getSourceInterval(),
-                )
-
-                decl_unique, decl_index = self.module.declarations.addElement(new_decl)
+    else:
+        self.enumDecaration2Aplan(ctx)

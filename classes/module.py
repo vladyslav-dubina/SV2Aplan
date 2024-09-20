@@ -1,6 +1,7 @@
 from classes.parametrs import ParametrArray
 from classes.processed import ProcessedElementArray
 from classes.actions import ActionArray
+from classes.typedef import TypedefArray
 from classes.value_parametrs import ValueParametrArray
 from classes.protocols import ProtocolArray
 from classes.declarations import DeclTypes, DeclarationArray
@@ -29,6 +30,8 @@ class Module(Basic):
         self.ident_uniq_name_upper = self.ident_uniq_name.upper()
         # arrays
         self.declarations: DeclarationArray = DeclarationArray()
+
+        self.typedefs: TypedefArray = TypedefArray()
 
         self.actions: ActionArray = ActionArray()
 
@@ -124,6 +127,11 @@ class Module(Basic):
 
     def findElementByIdentifier(self, identifier: str):
         result = []
+
+        for element in self.typedefs.getElements():
+            if element.identifier == identifier:
+                result.append(element)
+
         for element in self.declarations.getElements():
             if element.identifier == identifier:
                 result.append(element)
@@ -296,7 +304,12 @@ class ModuleArray(BasicArray):
         result: ModuleArray = ModuleArray()
         elements = self.elements
 
-        if include is None and exclude is None:
+        if (
+            include is None
+            and exclude is None
+            and include_ident_uniq_names is None
+            and exclude_ident_uniq_name is None
+        ):
             return self
 
         for element in elements:

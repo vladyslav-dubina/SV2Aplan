@@ -1,5 +1,6 @@
 from typing import Tuple
 from antlr4_verilog.systemverilog import SystemVerilogParser
+from classes.actions import Action
 from classes.parametrs import Parametr
 from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
@@ -8,8 +9,11 @@ from classes.node import Node, NodeArray
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from classes.tasks import Task
+from translator.expression.expression import actionFromNodeStr, getNamePartAndCounter
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.utils import Counters_Object
+from translator.task_and_function.system_tf import createPushBack
+from utils.string_formating import replaceValueParametrsCalls
+from utils.utils import Counters_Object, extractDimentionSize
 
 
 def taskOrFunctionDeclaration2AplanImpl(
@@ -161,6 +165,61 @@ def methodCall2AplanImpl(
     )
 
 
+def dinamycArrayNew2AplanImpl(
+    self: SV2aplan,
+    ctx: SystemVerilogParser.Dynamic_array_newContext,
+    sv_structure: Structure,
+    destination_node_array: NodeArray | None = None,
+):
+
+    size: str = ctx.getText()
+    size = size.replace("new[", "[")
+    size_expression = size
+    size = replaceValueParametrsCalls(self.module.value_parametrs, size)
+    size = extractDimentionSize(size)
+    if size == None:
+        size = 0
+
+    if destination_node_array:
+        elements = destination_node_array.getElements()
+        node_array_len = destination_node_array.getLen()
+        if node_array_len >= 2:
+            decl = self.module.declarations.findElement(
+                elements[node_array_len - 2].identifier
+            )
+
+            if isinstance(decl, Declaration):
+                decl.dimension_size = size
+                decl.dimension_expression = size_expression
+                while True:
+                    node_array_len -= 1
+                    if node_array_len < 0:
+                        break
+                    destination_node_array.removeElementByIndex(node_array_len)
+
+                node = Node(
+                    decl.identifier,
+                    ctx.getSourceInterval(),
+                    ElementsTypes.ARRAY_SIZE_ELEMENT,
+                )
+                node.module_name = self.module.ident_uniq_name
+                destination_node_array.addElement(node)
+                destination_node_array.addElement(
+                    Node(
+                        "=",
+                        ctx.getSourceInterval(),
+                        ElementsTypes.OPERATOR_ELEMENT,
+                    )
+                )
+                destination_node_array.addElement(
+                    Node(
+                        str(size),
+                        ctx.getSourceInterval(),
+                        ElementsTypes.NUMBER_ELEMENT,
+                    )
+                )
+
+
 def classNew2AplanImpl(
     self: SV2aplan,
     ctx: SystemVerilogParser.Class_newContext,
@@ -205,24 +264,38 @@ def classNew2AplanImpl(
 
 def taskCall2AplanImpl(
     self: SV2aplan,
-    ctx: SystemVerilogParser.Class_newContext,
+    ctx: SystemVerilogParser.Tf_callContext,
     sv_structure: Structure,
     destination_node_array: NodeArray | None = None,
 ):
-    ps_or_hierarchical_tf = ctx.ps_or_hierarchical_tf_identifier()
-    hierarchical_tf_identifier = ps_or_hierarchical_tf.hierarchical_tf_identifier()
+    ps_or_hierarchical_tf: (
+        SystemVerilogParser.Ps_or_hierarchical_tf_identifierContext
+    ) = ctx.ps_or_hierarchical_tf_identifier()
+    hierarchical_tf_identifier: (
+        SystemVerilogParser.Hierarchical_tf_identifierContext
+    ) = ps_or_hierarchical_tf.hierarchical_tf_identifier()
     object_identifier = None
+    argument_list = ctx.list_of_arguments().getText()
     if hierarchical_tf_identifier:
-        call_identifiers = (
+        call_identifiers: SystemVerilogParser.Hierarchical_identifierContext = (
             hierarchical_tf_identifier.hierarchical_identifier().identifier()
         )
         call_identifiers_len = len(call_identifiers)
         task_identifier = call_identifiers[call_identifiers_len - 3].getText()
         object_identifier = call_identifiers[call_identifiers_len - 2].getText()
+        if task_identifier == "push_back":
+            createPushBack(
+                self,
+                sv_structure,
+                task_identifier,
+                object_identifier,
+                ctx.list_of_arguments(),
+                ctx.getSourceInterval(),
+            )
+            return
     else:
         task_identifier = ps_or_hierarchical_tf.getText()
 
-    argument_list = ctx.list_of_arguments().getText()
     (
         argument_list,
         argument_list_with_replaced_names,

@@ -19,7 +19,11 @@ class DeclTypes(Enum):
     BIT = auto()
     ENUM = auto()
     ENUM_TYPE = auto()
+    STRUCT_TYPE = auto()
+    STRUCT = auto()
     CLASS = auto()
+    TIME = auto()
+    ARRAY = auto()
     NONE = auto()
 
     def checkType(type_str: str, types):
@@ -27,6 +31,8 @@ class DeclTypes(Enum):
 
         if "int" == type_str:
             return DeclTypes.INT
+        elif "time" == type_str:
+            return DeclTypes.TIME
         elif "reg" == type_str:
             return DeclTypes.REG
         elif "logic" == type_str:
@@ -46,8 +52,16 @@ class DeclTypes(Enum):
                     if type_str == type.identifier:
                         if type.data_type is DeclTypes.ENUM_TYPE:
                             return DeclTypes.ENUM
+                        elif type.data_type is DeclTypes.STRUCT_TYPE:
+                            return DeclTypes.STRUCT
 
         return DeclTypes.NONE
+
+
+class AplanDeclType(Enum):
+    STRUCT = auto()
+    PARAMETRS = auto()
+    NONE = auto()
 
 
 class Declaration(Basic):
@@ -63,6 +77,7 @@ class Declaration(Basic):
         source_interval: Tuple[int, int],
         element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT,
         action: Action | None = None,
+        struct_name: str | None = None,
     ):
         super().__init__(identifier, source_interval, element_type)
         self.data_type = data_type
@@ -72,6 +87,8 @@ class Declaration(Basic):
         self.dimension_expression = dimension_expression
         self.dimension_size = dimension_size
         self.action: Action | None = action
+        self.file_path: str = ""
+        self.struct_name: str = struct_name
 
     def copy(self):
         declaration = Declaration(
@@ -89,33 +106,19 @@ class Declaration(Basic):
         declaration.number = self.number
         return declaration
 
-    def getAplanDecltypeForParametrs(self):
-        if self.data_type == DeclTypes.INT:
-            return "int"
-        elif (
-            self.data_type == DeclTypes.INPORT
-            or self.data_type == DeclTypes.OUTPORT
-            or self.data_type == DeclTypes.WIRE
-            or self.data_type == DeclTypes.REG
-            or self.data_type == DeclTypes.LOGIC
-            or self.data_type == DeclTypes.BIT
-        ):
-            if self.size > 0:
-                return f"Bits ({self.size})"
-            else:
-                return "bool"
-        elif self.data_type == DeclTypes.ENUM_TYPE:
-            return ""
-        elif self.data_type == DeclTypes.CLASS:
-            return f"{self.size_expression}"
-        elif self.data_type == DeclTypes.STRING:
-            return "string"
-        elif self.data_type == DeclTypes.ENUM:
-            return f"{self.size_expression}"
+    def getAplanDecltype(self, type: AplanDeclType = AplanDeclType.NONE):
+        result = ""
+        if type is AplanDeclType.STRUCT:
+            result += f"{self.identifier}:"
 
-    def getAplanDecltype(self):
         if self.data_type == DeclTypes.INT:
-            return "int"
+            if self.dimension_size > 0:
+                result += "(int) -> int"
+            else:
+                result += "int"
+
+        elif self.data_type == DeclTypes.ARRAY:
+            result += f"{self.size_expression}"
         elif (
             self.data_type == DeclTypes.INPORT
             or self.data_type == DeclTypes.OUTPORT
@@ -124,22 +127,31 @@ class Declaration(Basic):
             or self.data_type == DeclTypes.LOGIC
         ):
             if self.dimension_size > 0:
-                return f"(Bits {self.size}) -> Bits {self.dimension_size}"
+                if type is AplanDeclType.PARAMETRS:
+                    result += "Bits " + str(self.size)
+                else:
+                    result += f"(Bits {self.size}) -> Bits {self.dimension_size}"
+
             elif self.size > 0:
-                return "Bits " + str(self.size)
+                result += "Bits " + str(self.size)
             else:
-                return "bool"
+                result += "bool"
         elif self.data_type == DeclTypes.ENUM_TYPE:
-            return ""
+            result += ""
         elif self.data_type == DeclTypes.CLASS:
-            return f"{self.size_expression}"
+            result += f"{self.size_expression}"
         elif self.data_type == DeclTypes.STRING:
-            return "string"
+            result += "string"
         elif self.data_type == DeclTypes.ENUM:
-            return f"{self.size_expression}"
+            result += f"{self.size_expression}"
+        elif self.data_type == DeclTypes.STRUCT:
+            result += f"{self.size_expression}"
+        elif self.data_type == DeclTypes.TIME:
+            result += "Bits " + str(64)
+        return result
 
     def __repr__(self):
-        return f"\tDeclaration({self.data_type!r}, {self.identifier!r}, {self.expression!r}, {self.size!r}, {self.sequence!r})\n"
+        return f"\tDeclaration({self.data_type!r}, {self.identifier!r}, {self.expression!r}, {self.size!r}, {self.dimension_size!r}, {self.sequence!r})\n"
 
 
 class DeclarationArray(BasicArray):
@@ -161,12 +173,23 @@ class DeclarationArray(BasicArray):
         exclude: ElementsTypes | None = None,
         include_identifier: str | None = None,
         exclude_identifier: str | None = None,
+        file_path: str | None = None,
+        data_type_incude: DeclTypes | None = None,
+        data_type_exclude: DeclTypes | None = None,
     ):
         result: DeclarationArray = DeclarationArray()
         elements = self.elements
 
-        if include is None and exclude is None:
-            return self
+        if (
+            include is None
+            and exclude is None
+            and include_identifier is None
+            and exclude_identifier is None
+            and file_path is None
+            and data_type_incude is None
+            and data_type_exclude is None
+        ):
+            return self.copy()
 
         for element in elements:
             if include is not None and element.element_type is not include:
@@ -184,8 +207,19 @@ class DeclarationArray(BasicArray):
             ):
                 continue
 
-            result.addElement(element)
+            if file_path is not None and element.file_path is not file_path:
+                continue
 
+            if (
+                data_type_incude is not None
+                and element.data_type is not data_type_incude
+            ):
+                continue
+
+            if data_type_exclude is not None and element.data_type is data_type_exclude:
+                continue
+
+            result.addElement(element)
         return result
 
     def findElementWithSource(
@@ -244,20 +278,6 @@ class DeclarationArray(BasicArray):
             if element.dimension_size > 0:
                 return element
         return None
-
-    def getElementsForAgent(self):
-        result: List[Declaration] = []
-        for element in self.elements:
-            if element.data_type != DeclTypes.ENUM_TYPE:
-                result.append(element)
-        return result
-
-    def getElementsForTypes(self):
-        result: List[Declaration] = []
-        for element in self.elements:
-            if element.data_type == DeclTypes.ENUM_TYPE:
-                result.append(element)
-        return result
 
     def __repr__(self):
         return f"DeclarationsArray(\n{self.elements!r}\n)"

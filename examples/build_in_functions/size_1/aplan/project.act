@@ -1,0 +1,37 @@
+assign_1 = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'assign (example_size.static_array.size = 5; example_size.dynamic_array.size = 0; example_size.queue.size = 0)';")
+		(example_size.static_array.size = 5;
+		 example_size.dynamic_array.size = 0;
+		 example_size.queue.size = 0)),
+assign_2 = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'assign (static_array[0]=10; static_array[1]=20; static_array[2]=30; dynamic_array[0]=100; dynamic_array[1]=200; dynamic_array[2]=300; queue.push_back[queue.push_back.size] = 5; queue.push_back.size += 1; queue.push_back[queue.push_back.size] = 15; queue.push_back.size += 1; queue.push_back[queue.push_back.size] = 25; queue.push_back.size += 1)';")
+		(example_size.static_array.value(0) = 10;
+		 example_size.static_array.value(1) = 20;
+		 example_size.static_array.value(2) = 30;
+		 example_size.dynamic_array.value(0) = 100;
+		 example_size.dynamic_array.value(1) = 200;
+		 example_size.dynamic_array.value(2) = 300;
+		 BGET(example_size.queue.value, example_size.queue).size = 5;
+		 example_size.queue.size = example_size.queue.size + 1;
+		 BGET(example_size.queue.value, example_size.queue).size = 15;
+		 example_size.queue.size = example_size.queue.size + 1;
+		 BGET(example_size.queue.value, example_size.queue).size = 25;
+		 example_size.queue.size = example_size.queue.size + 1)),
+size_queue(result) = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'size (result = queue.size)';")
+		(result = example_size.queue.size)),
+assign_3 = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'assign (static_array[3]=$size(queue))';")
+		(example_size.static_array.value(3) = return_size)),
+size_dynamic_array(result) = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'size (result = dynamic_array.size)';")
+		(result = example_size.dynamic_array.size)),
+assign_4 = (
+		(1)->
+		("EXAMPLE_SIZE#example_size:action 'assign (static_array[4]=$size(dynamic_array))';")
+		(example_size.static_array.value(4) = return_size))

@@ -1,3 +1,3 @@
 B_INTERFACE_PARAMETR(intf) = {INTERFACE_PARAMETR_INITITAL(intf) || ALWAYS_1(intf)},
 ALWAYS_1(intf) = assign_1(intf),
-INTERFACE_PARAMETR_INITITAL(intf) = assign_2(intf).assign_3(intf).assign_4(intf).assign_5(intf).assign_6(intf).assign_7(intf).assign_8(intf),
+INTERFACE_PARAMETR_INITITAL(intf) = assign_2(intf),

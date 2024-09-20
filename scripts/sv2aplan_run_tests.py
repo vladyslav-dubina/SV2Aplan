@@ -74,7 +74,7 @@ def start_tests():
     for test_number, data in enumerate(examples_list):
         source_file, result_path, aplan_code_path = data
         if run_test(test_number + 1, source_file, result_path, aplan_code_path):
-            failed_tests.append(test_number + 1)
+            failed_tests.append((test_number + 1, source_file))
 
     end_time = time.time()
     execution_time = end_time - start_time

@@ -1,4 +1,4 @@
 B_MAIN = {MAIN_INITITAL},
-MAIN_INITITAL = ADD(5, 7, main.add_call_result_1);(assign_2).assign_3.assign_4,
+MAIN_INITITAL = ADD(5, 7, main.add_call_result_1);(assign_2),
 
 ADD(a, b, return_add) = assign_1(a, b, return_add)

@@ -1,37 +1,27 @@
-
 if_1 = (
 		(~(register_write_once_example.ip_resetn))->
 		("REGISTER_WRITE_ONCE_EXAMPLE#register_write_once_example:action 'if (~ip_resetn)';")
 		(1)),
 assign_1 = (
 		(1)->
-		("REGISTER_WRITE_ONCE_EXAMPLE#register_write_once_example:action 'assign (Data_out<=0)';")
-		(register_write_once_example.Data_out = 0)),
-assign_2 = (
-		(1)->
-		("REGISTER_WRITE_ONCE_EXAMPLE#register_write_once_example:action 'assign (Write_once_status<=0)';")
-		(register_write_once_example.Write_once_status = 0)),
+		("REGISTER_WRITE_ONCE_EXAMPLE#register_write_once_example:action 'assign (Data_out<=0; Write_once_status<=0)';")
+		(register_write_once_example.Data_out = 0;
+		 register_write_once_example.Write_once_status = 0)),
 if_2 = (
 		(register_write_once_example.write & ~(register_write_once_example.Write_once_status))->
 		("REGISTER_WRITE_ONCE_EXAMPLE#register_write_once_example:action 'if (write&~Write_once_status)';")
 		(1)),
-assign_3 = (
+assign_2 = (
 		(1)->
-		("REGISTER_WRITE_ONCE_EXAMPLE#register_write_once_example:action 'assign (Data_out<=Data_in&65534)';")
-		(register_write_once_example.Data_out = register_write_once_example.Data_in & 65534)),
-assign_4 = (
-		(1)->
-		("REGISTER_WRITE_ONCE_EXAMPLE#register_write_once_example:action 'assign (Write_once_status<=Data_in[0])';")
-		(register_write_once_example.Write_once_status = register_write_once_example.Data_in(0))),
+		("REGISTER_WRITE_ONCE_EXAMPLE#register_write_once_example:action 'assign (Data_out<=Data_in&65534; Write_once_status<=Data_in[0])';")
+		(register_write_once_example.Data_out = register_write_once_example.Data_in & 65534;
+		 register_write_once_example.Write_once_status = register_write_once_example.Data_in(0))),
 if_3 = (
 		(~(register_write_once_example.write))->
 		("REGISTER_WRITE_ONCE_EXAMPLE#register_write_once_example:action 'if (~write)';")
 		(1)),
-assign_5 = (
+assign_3 = (
 		(1)->
-		("REGISTER_WRITE_ONCE_EXAMPLE#register_write_once_example:action 'assign (Data_out[15:1]<=Data_out[15:1])';")
-		(register_write_once_example.Data_out(15 ,1) = register_write_once_example.Data_out(15 ,1))),
-assign_6 = (
-		(1)->
-		("REGISTER_WRITE_ONCE_EXAMPLE#register_write_once_example:action 'assign (Data_out[0]<=Write_once_status)';")
-		(register_write_once_example.Data_out(0) = register_write_once_example.Write_once_status))
+		("REGISTER_WRITE_ONCE_EXAMPLE#register_write_once_example:action 'assign (Data_out[15:1]<=Data_out[15:1]; Data_out[0]<=Write_once_status)';")
+		(register_write_once_example.Data_out(15 ,1) = register_write_once_example.Data_out(15 ,1);
+		 register_write_once_example.Data_out(0) = register_write_once_example.Write_once_status))

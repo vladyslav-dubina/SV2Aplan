@@ -41,6 +41,7 @@ def caseStatement2AplanImpl(
                         Counters_Object.getCounter(CounterTypes.CASE_COUNTER),
                     ),
                     case_item_expression.getSourceInterval(),
+                    element_type=ElementsTypes.CASE_ELEMENT,
                 )
 
                 case_action.precondition.addElement(
@@ -68,7 +69,11 @@ def caseStatement2AplanImpl(
 
                 condition_txt = valuesToAplanStandart(condition_txt)
 
-                case_action.description = f"{self.module.identifier}#{self.module.ident_uniq_name}:action 'case ({condition_txt})'"
+                case_action.description_start.append(
+                    f"{self.module.identifier}#{self.module.ident_uniq_name}"
+                )
+                case_action.description_action_name = "case"
+                case_action.description_end.append(f"{condition_txt}")
 
                 case_action.postcondition.addElement(
                     Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)

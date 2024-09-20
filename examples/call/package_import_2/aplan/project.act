@@ -1,17 +1,10 @@
-
 assign_2(a, b, return_add) = (
 		(1)->
 		("MY_PACKAGE#my_package:action 'assign (a+b)';")
 		(return_add = a + b)),
 assign_4 = (
 		(1)->
-		("MAIN#main:action 'assign (sum=add(5,7))';")
-		(main.sum = main.add_call_result_1)),
-assign_5 = (
-		(1)->
-		("MAIN#main:action 'assign (current_state=RUNNING)';")
-		(main.current_state = RUNNING)),
-assign_6 = (
-		(1)->
-		("MAIN#main:action 'assign (sum=sum+MAX_COUNT)';")
-		(main.sum = main.sum + 10))
+		("MAIN#main:action 'assign (sum=add(5,7); current_state=RUNNING; sum=sum+MAX_COUNT)';")
+		(main.sum = main.add_call_result_1;
+		 main.current_state = RUNNING;
+		 main.sum = main.sum + 10))

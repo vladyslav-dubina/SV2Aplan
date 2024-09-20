@@ -11,17 +11,17 @@ from utils.utils import Counters_Object
 def blockAssignment2AplanImpl(
     self: SV2aplan, ctx, module: Module, sv_structure: Structure
 ):
-
+    element_type = ElementsTypes.ASSIGN_ELEMENT
+    if type(ctx) is SystemVerilogParser.Nonblocking_assignmentContext:
+        element_type = ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
     action_pointer, action_name, source_interval, uniq_action = self.expression2Aplan(
         ctx,
-        ElementsTypes.ASSIGN_ELEMENT,
+        element_type,
         sv_structure=sv_structure,
     )
     if action_name is not None:
         beh_index = sv_structure.getLastBehaviorIndex()
 
-        if type(ctx) is SystemVerilogParser.Nonblocking_assignmentContext:
-            action_name = "Sensetive(" + action_name + ")"
         if beh_index is not None:
             sv_structure.behavior[beh_index].addBody(
                 BodyElement(action_name, action_pointer, ElementsTypes.ACTION_ELEMENT)

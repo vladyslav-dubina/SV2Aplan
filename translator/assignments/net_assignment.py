@@ -17,7 +17,7 @@ def netAssignment2AplanImpl(
             assign_name,
             source_interval,
             uniq_action,
-        ) = self.expression2Aplan(ctx, ElementsTypes.ASSIGN_ELEMENT)
+        ) = self.expression2Aplan(ctx, ElementsTypes.ASSIGN_SENSETIVE_ELEMENT)
         if assign_name is not None:
             if source_interval != ctx.getSourceInterval():
                 Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
@@ -29,7 +29,6 @@ def netAssignment2AplanImpl(
                     ctx.getSourceInterval(),
                     ElementsTypes.ASSIGN_OUT_OF_BLOCK_ELEMENT,
                 )
-                assign_name = f"Sensetive({assign_name})"
                 struct_assign.addBody(
                     BodyElement(
                         assign_name, action_pointer, ElementsTypes.ACTION_ELEMENT

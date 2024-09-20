@@ -1,4 +1,6 @@
+from classes.declarations import DeclTypes, DeclarationArray
 from classes.element_types import ElementsTypes
+from classes.typedef import TypedefArray
 from utils.string_formating import removeTrailingComma
 from utils.utils import printWithColor, Color
 from classes.module import ModuleArray
@@ -11,6 +13,7 @@ class Program:
         self.path_to_result = path_to_result
         self.modules: ModuleArray = ModuleArray()
         self.module_calls: ModuleCallArray = ModuleCallArray()
+        self.typedefs: TypedefArray = TypedefArray()
 
     def readFileData(self, path):
         self.file_path = path
@@ -45,7 +48,7 @@ class Program:
 
     def createEVT(self):
         evt = "events(\n"
-        for module in self.modules.getElementsIE().getElements():
+        for module in self.modules.getElements():
             for elem in module.declarations.getInputPorts():
                 evt += "\ts_{0}:obj(x1:{1});\n".format(
                     elem.identifier, elem.getAplanDecltype()
@@ -62,17 +65,14 @@ class Program:
         # ----------------------------------
         env += "\ttypes : obj (\n"
         sub_env = ""
-        for module in self.modules.getElementsIE().getElements():
-            decls = module.declarations.getElementsForTypes()
+        decls = self.typedefs.getElementsIE()
 
-            for index, elem in enumerate(decls):
-                if index > 0:
-                    sub_env += ",\n"
-                sub_env += "\t\t\t{0}:({1})".format(elem.identifier, elem.expression)
-                if index + 1 == len(decls):
-                    sub_env += "\n"
+        for module in self.modules.getElements():
+            decls += module.typedefs.getElementsIE()
+
+        sub_env += str(decls)
         if len(sub_env) > 0:
-            env += sub_env
+            env += sub_env + "\n"
         else:
             env += "\t\t\tNil\n"
         env += "\t);\n"
@@ -94,14 +94,16 @@ class Program:
         ).getElements():
             env += "\t\t{0} : obj (\n".format(module.identifier)
             sub_env = ""
-            decls = module.declarations.getElementsForAgent()
-            for index, elem in enumerate(decls):
+            decls = module.declarations.getElementsIE(
+                data_type_exclude=DeclTypes.ENUM_TYPE
+            )
+            for index, elem in enumerate(decls.getElements()):
                 if index > 0:
                     sub_env += ",\n"
                 sub_env += "\t\t\t{0}:{1}".format(
                     elem.identifier, elem.getAplanDecltype()
                 )
-                if index + 1 == len(decls):
+                if index + 1 == decls.getLen():
                     sub_env += "\n"
             if len(sub_env) > 0:
                 env += sub_env
@@ -148,9 +150,13 @@ class Program:
                 exclude=ElementsTypes.OBJECT_ELEMENT
             ).getElements()
         ):
+
+            result = module.actions.getActionsInStrFormat()
             if index != 0:
-                actions += ","
-            actions += module.actions.getActionsInStrFormat()
+                if len(result) > 0:
+                    actions += ",\n"
+            actions += result
+
         self.writeToFile(self.path_to_result + "project.act", actions)
         printWithColor(".act file created \n", Color.PURPLE)
 

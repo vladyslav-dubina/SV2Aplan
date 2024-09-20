@@ -20,6 +20,26 @@ examples_list = [
         "examples/struct/enum_2/aplan",
     ),
     (
+        "examples/struct/structure_1/struct_1.sv",
+        "examples/struct/structure_1/test_result",
+        "examples/struct/structure_1/aplan",
+    ),
+    (
+        "examples/struct/structure_2/struct_2.sv",
+        "examples/struct/structure_2/test_result",
+        "examples/struct/structure_2/aplan",
+    ),
+    (
+        "examples/struct/structure_3/struct_3.sv",
+        "examples/struct/structure_3/test_result",
+        "examples/struct/structure_3/aplan",
+    ),
+    (
+        "examples/struct/structure_4/struct_4.sv",
+        "examples/struct/structure_4/test_result",
+        "examples/struct/structure_4/aplan",
+    ),
+    (
         "examples/struct/interface/my_interface.sv",
         "examples/struct/interface/test_result",
         "examples/struct/interface/aplan",
@@ -58,6 +78,11 @@ examples_list = [
         "examples/if_statemens/if_statement_2/if_statement_2.sv",
         "examples/if_statemens/if_statement_2/test_result",
         "examples/if_statemens/if_statement_2/aplan",
+    ),
+    (
+        "examples/struct/enum_3/enum_3.sv",
+        "examples/struct/enum_3/test_result",
+        "examples/struct/enum_3/aplan",
     ),
     (
         "examples/loops/loop_1/loop_1.sv",
@@ -134,7 +159,7 @@ examples_list = [
         "examples/call/interface_object/test_result",
         "examples/call/interface_object/aplan",
     ),
-        (
+    (
         "examples/call/interface_parametr/interface_parametr.sv",
         "examples/call/interface_parametr/test_result",
         "examples/call/interface_parametr/aplan",
@@ -163,5 +188,25 @@ examples_list = [
         "examples/sv_example_2/sv_example_2.sv",
         "examples/sv_example_2/test_result",
         "examples/sv_example_2/aplan",
+    ),
+    (
+        "examples/build_in_functions/finish/finish.sv",
+        "examples/build_in_functions/finish/test_result",
+        "examples/build_in_functions/finish/aplan",
+    ),
+    (
+        "examples/build_in_functions/stop/stop.sv",
+        "examples/build_in_functions/stop/test_result",
+        "examples/build_in_functions/stop/aplan",
+    ),
+    (
+        "examples/build_in_functions/size_1/size_1.sv",
+        "examples/build_in_functions/size_1/test_result",
+        "examples/build_in_functions/size_1/aplan",
+    ),
+    (
+        "examples/build_in_functions/size_2/size_2.sv",
+        "examples/build_in_functions/size_2/test_result",
+        "examples/build_in_functions/size_2/aplan",
     ),
 ]

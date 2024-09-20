@@ -1,3 +1,3 @@
 B_INTERFACE_OBJECT = {INTERFACE_OBJECT_INITITAL || ALWAYS_1},
 ALWAYS_1 = assign_1,
-INTERFACE_OBJECT_INITITAL = assign_2.assign_3.assign_4.assign_5.assign_6.assign_7.assign_8,
+INTERFACE_OBJECT_INITITAL = assign_2,

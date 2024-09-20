@@ -119,8 +119,13 @@ class StructureArray(BasicArray):
         result: StructureArray = StructureArray()
         elements = self.elements
 
-        if include is None and exclude is None:
-            return self
+        if (
+            include is None
+            and exclude is None
+            and include_identifier is None
+            and exclude_identifier is None
+        ):
+            return self.copy()
 
         for element in elements:
             if include is not None and element.element_type is not include:
