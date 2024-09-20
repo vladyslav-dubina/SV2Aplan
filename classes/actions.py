@@ -32,8 +32,9 @@ class Action(Basic):
         identifier: str,
         source_interval: Tuple[int, int],
         exist_parametrs: ParametrArray | None = None,
+        element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT,
     ):
-        super().__init__(identifier, source_interval)
+        super().__init__(identifier, source_interval, element_type)
         self.precondition: NodeArray = NodeArray(ElementsTypes.PRECONDITION_ELEMENT)
         self.postcondition: NodeArray = NodeArray(ElementsTypes.POSTCONDITION_ELEMENT)
         self.description_start: List[str] = []
@@ -65,6 +66,8 @@ class Action(Basic):
         description += f"{self.description_action_name} ("
         for index, element in enumerate(self.description_end):
             if index != 0:
+                if element == self.description_end[index - 1]:
+                    continue
                 description += "; "
             description += element
         description += ")'"

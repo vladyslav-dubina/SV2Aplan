@@ -37,9 +37,8 @@ def generateBodyToAplan(
                 uniq_action,
             ) = self.expression2Aplan(
                 child,
-                ElementsTypes.ASSIGN_ELEMENT,
+                ElementsTypes.ASSIGN_SENSETIVE_ELEMENT,
                 sv_structure=sv_structure,
-                sensetive=True,
             )
             
             self.current_genvar_value = None

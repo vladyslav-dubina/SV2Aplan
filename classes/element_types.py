@@ -7,6 +7,7 @@ class ElementsTypes(Enum):
     CASE_ELEMENT = auto()
     ELSE_BODY_ELEMENT = auto()
     ASSIGN_ELEMENT = auto()
+    ASSIGN_SENSETIVE_ELEMENT = auto()
     ASSIGN_FOR_CALL_ELEMENT = auto()
     ASSIGN_ARRAY_FOR_CALL_ELEMENT = auto()
     ASSIGN_OUT_OF_BLOCK_ELEMENT = auto()

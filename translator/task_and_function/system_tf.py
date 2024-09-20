@@ -32,6 +32,7 @@ def systemTF2AplanImpl(
     body = ""
     name_part = ""
     system_tf_identifier = ctx.system_tf_identifier().getText()
+    element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT
     if system_tf_identifier == "$display":
         return
     elif system_tf_identifier == "$time":
@@ -47,7 +48,7 @@ def systemTF2AplanImpl(
         body = f"goal {action_name}"
     elif system_tf_identifier == "$size":
         name_part = "size"
-
+        element_type = ElementsTypes.ASSIGN_ELEMENT
         self.module.declarations.addElement(
             Declaration(
                 DeclTypes.INT,
@@ -115,10 +116,7 @@ def systemTF2AplanImpl(
             )
         )
 
-    action = Action(
-        action_name,
-        ctx.getSourceInterval(),
-    )
+    action = Action(action_name, ctx.getSourceInterval(), element_type=element_type)
     action.parametrs = parametrs
     action.precondition = precondition
     action.postcondition = postcondition

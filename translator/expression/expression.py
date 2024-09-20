@@ -68,6 +68,7 @@ def getNamePartAndCounter(element_type: ElementsTypes) -> Tuple[str, CounterType
     elif (
         element_type == ElementsTypes.ASSIGN_ELEMENT
         or element_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT
+        or element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
     ):
         name_part = "assign"
         counter_type = CounterTypes.ASSIGNMENT_COUNTER
@@ -248,8 +249,7 @@ def expression2AplanImpl(
     element_type: ElementsTypes,
     sv_structure: Structure | None = None,
     name_space_element: ElementsTypes = ElementsTypes.NONE_ELEMENT,
-    sensetive: bool = False,
-    remove_concat: bool = False,
+    remove_association: bool = False,
 ) -> Tuple[Action, str, Tuple[int, int], bool]:
     previus_action = False
     (name_part, counter_type) = getNamePartAndCounter(element_type)
@@ -257,17 +257,16 @@ def expression2AplanImpl(
     action = None
     last_element = None
 
-    if sv_structure is not None and not sensetive and not remove_concat:
+    if sv_structure is not None and not remove_association:
         beh_index = sv_structure.getLastBehaviorIndex()
-        if sv_structure and beh_index is not None:
+        if beh_index is not None:
             protocol = sv_structure.behavior[beh_index]
             if len(protocol.body) > 0:
                 last_element = protocol.body[len(protocol.body) - 1]
                 if (
                     last_element.element_type == ElementsTypes.ACTION_ELEMENT
                     and last_element.pointer_to_related
-                    and last_element.pointer_to_related.description_action_name
-                    == name_part
+                    and last_element.pointer_to_related.element_type == element_type
                 ):
                     previus_action = True
                     action = last_element.pointer_to_related
@@ -280,16 +279,14 @@ def expression2AplanImpl(
             name_part, Counters_Object.getCounter(counter_type)
         )
 
-        action = Action(
-            action_name,
-            ctx.getSourceInterval(),
-        )
+        action = Action(action_name, ctx.getSourceInterval(), element_type=element_type)
 
     expression = ctx.getText()
     expression = valuesToAplanStandart(expression)
     if (
         element_type == ElementsTypes.ASSIGN_ELEMENT
         or element_type == ElementsTypes.REPEAT_ELEMENT
+        or element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
     ):
         if not previus_action:
             action.precondition.addElement(
@@ -315,7 +312,6 @@ def expression2AplanImpl(
         action.postcondition += postcondition
 
     else:
-        # taskAssignIfPosible(self, ctx, action.precondition)
         if not previus_action:
             action.postcondition.addElement(
                 Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)
@@ -385,7 +381,7 @@ def expression2AplanImpl(
             action_identifier = action_pointer.identifier
         action_name = f"{action_identifier}{action.parametrs.getIdentifiersListString(action_parametrs_count)}"
 
-        if sensetive:
+        if element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT:
             action_name = f"Sensetive({action_name})"
         if last_element:
             last_element.identifier = action_name
@@ -402,8 +398,7 @@ def createSizeExpression(
     (name_part, counter_type) = getNamePartAndCounter(ElementsTypes.ASSIGN_ELEMENT)
     action_name = "{0}_{1}".format(name_part, Counters_Object.getCounter(counter_type))
     action = Action(
-        action_name,
-        source_interval,
+        action_name, source_interval, element_type=ElementsTypes.ASSIGN_ELEMENT
     )
     expressiont = "{0}.{1}.size = {2}".format(
         self.module.ident_uniq_name, identifier, size
@@ -437,8 +432,8 @@ def createSizeExpression(
 
             if (
                 last_body_element.element_type == ElementsTypes.ACTION_ELEMENT
-                and last_body_element.pointer_to_related.description_action_name
-                == name_part
+                and last_body_element.pointer_to_related.element_type
+                == ElementsTypes.ASSIGN_ELEMENT
             ):
                 previus_action = True
                 action_pointer: Action = last_body_element.pointer_to_related

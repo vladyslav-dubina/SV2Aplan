@@ -426,13 +426,12 @@ class SV2aplan:
         element_type: ElementsTypes,
         sv_structure: Structure | None = None,
         name_space_element: ElementsTypes = ElementsTypes.NONE_ELEMENT,
-        sensetive:bool = False,
-        remove_concat:bool = False
+        remove_association: bool = False,
     ) -> Tuple[Action, str, Tuple[int, int], bool]:
         from translator.expression.expression import expression2AplanImpl
 
         return expression2AplanImpl(
-            self, ctx, element_type, sv_structure, name_space_element, sensetive, remove_concat
+            self, ctx, element_type, sv_structure, name_space_element, remove_association
         )
 
     # ==================================================================================
@@ -469,7 +468,7 @@ class SV2aplan:
         if ctx.getChildCount() == 0:
             return names_for_change
         for child in ctx.getChildren():
-            #print(type(child), child.getText())
+            # print(type(child), child.getText())
             # Assert handler
             if (
                 type(child)

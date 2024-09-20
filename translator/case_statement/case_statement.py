@@ -41,6 +41,7 @@ def caseStatement2AplanImpl(
                         Counters_Object.getCounter(CounterTypes.CASE_COUNTER),
                     ),
                     case_item_expression.getSourceInterval(),
+                    element_type=ElementsTypes.CASE_ELEMENT,
                 )
 
                 case_action.precondition.addElement(

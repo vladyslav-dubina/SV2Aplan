@@ -45,6 +45,7 @@ def ifStatement2AplanImpl(
                     Counters_Object.getCounter(CounterTypes.IF_COUNTER),
                 ),
                 ctx.getSourceInterval(),
+                element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
             )
             predicate_ctx = element["predicate"]
 

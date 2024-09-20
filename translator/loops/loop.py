@@ -156,7 +156,7 @@ def loop2AplanImpl(
             ElementsTypes.ASSIGN_ELEMENT,
             sv_structure,
             name_space_element=ElementsTypes.LOOP_ELEMENT,
-            remove_concat=True,
+            remove_association=True,
         )
         loop_init_flag = True
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
@@ -178,7 +178,7 @@ def loop2AplanImpl(
                     ElementsTypes.ASSIGN_ELEMENT,
                     sv_structure,
                     name_space_element=ElementsTypes.LOOP_ELEMENT,
-                    remove_concat=True,
+                    remove_association=True,
                 )
 
     if loop_init_flag == True:
@@ -215,7 +215,7 @@ def loop2AplanImpl(
             ElementsTypes.ASSIGN_ELEMENT,
             sv_structure,
             name_space_element=ElementsTypes.LOOP_ELEMENT,
-            remove_concat=True,
+            remove_association=True,
         )
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
         if ctx.FOREACH():
@@ -237,7 +237,7 @@ def loop2AplanImpl(
                     ElementsTypes.ASSIGN_ELEMENT,
                     sv_structure,
                     name_space_element=ElementsTypes.LOOP_ELEMENT,
-                    remove_concat=True,
+                    remove_association=True,
                 )
 
     if loop_inс_flag == True:
