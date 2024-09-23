@@ -23,6 +23,7 @@ class DeclTypes(Enum):
     STRUCT = auto()
     CLASS = auto()
     TIME = auto()
+    REAL = auto()
     ARRAY = auto()
     NONE = auto()
 
@@ -31,6 +32,8 @@ class DeclTypes(Enum):
 
         if "int" == type_str:
             return DeclTypes.INT
+        if "real" == type_str:
+            return DeclTypes.REAL
         elif "time" == type_str:
             return DeclTypes.TIME
         elif "reg" == type_str:
@@ -116,7 +119,11 @@ class Declaration(Basic):
                 result += "(int) -> int"
             else:
                 result += "int"
-
+        elif self.data_type == DeclTypes.REAL:
+            if self.dimension_size > 0:
+                result += "(float) -> float"
+            else:
+                result += "float"
         elif self.data_type == DeclTypes.ARRAY:
             result += f"{self.size_expression}"
         elif (

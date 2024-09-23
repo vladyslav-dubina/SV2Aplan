@@ -311,11 +311,33 @@ def expression2AplanImpl(
     action.description_end.append(f"{expression}")
 
     action_pointer: Action = None
+    last_element = None
+    out_block_len = self.module.out_of_block_elements.getLen()
 
-    if sv_structure is not None and not remove_association:
-        beh_index = sv_structure.getLastBehaviorIndex()
-        if beh_index is not None:
-            protocol = sv_structure.behavior[beh_index]
+    if not remove_association:
+        if sv_structure is not None:
+            beh_index = sv_structure.getLastBehaviorIndex()
+            if beh_index is not None:
+                protocol = sv_structure.behavior[beh_index]
+                if len(protocol.body) > 0:
+                    last_element = protocol.body[len(protocol.body) - 1]
+                    if (
+                        last_element.element_type == ElementsTypes.ACTION_ELEMENT
+                        and last_element.pointer_to_related
+                        and last_element.pointer_to_related.element_type == element_type
+                        and last_element.pointer_to_related.description_action_name
+                        == name_part
+                    ):
+                        previus_action = True
+                        last_element.pointer_to_related
+                        action_name = action.identifier
+                    else:
+                        last_element = None
+
+        elif out_block_len > 0:
+            protocol: Protocol = self.module.out_of_block_elements.getElementByIndex(
+                out_block_len - 1
+            )
             if len(protocol.body) > 0:
                 last_element = protocol.body[len(protocol.body) - 1]
                 if (
