@@ -49,7 +49,7 @@ class BasicArray:
         return new_aray
 
     def insert(self, index: int, element: Basic):
-        {self.elements.insert(index, element)}
+        self.elements.insert(index, element)
 
     def getElementsIE(
         self,

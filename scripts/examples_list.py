@@ -209,4 +209,9 @@ examples_list = [
         "examples/build_in_functions/size_2/test_result",
         "examples/build_in_functions/size_2/aplan",
     ),
+    (
+        "examples/build_in_functions/ceil/ceil.sv",
+        "examples/build_in_functions/ceil/test_result",
+        "examples/build_in_functions/ceil/aplan",
+    ),
 ]

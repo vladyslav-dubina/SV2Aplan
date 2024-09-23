@@ -26,7 +26,7 @@ size_queue(result) = (
 assign_3 = (
 		(1)->
 		("EXAMPLE_SIZE#example_size:action 'assign (static_array[3]=$size(queue))';")
-		(example_size.static_array.value(3) = return_size)),
+		(example_size.static_array.value(3) = example_size.return_size)),
 size_dynamic_array(result) = (
 		(1)->
 		("EXAMPLE_SIZE#example_size:action 'size (result = dynamic_array.size)';")
@@ -34,4 +34,4 @@ size_dynamic_array(result) = (
 assign_4 = (
 		(1)->
 		("EXAMPLE_SIZE#example_size:action 'assign (static_array[4]=$size(dynamic_array))';")
-		(example_size.static_array.value(4) = return_size))
+		(example_size.static_array.value(4) = example_size.return_size))

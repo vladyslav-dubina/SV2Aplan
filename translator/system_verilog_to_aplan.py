@@ -261,7 +261,7 @@ class SV2aplan:
         destination_node_array: NodeArray | None = None,
         sv_structure: Structure | None = None,
     ):
-        from translator.task_and_function.system_tf import systemTF2AplanImpl
+        from translator.task_and_function.build_in_functions.system_tf import systemTF2AplanImpl
 
         systemTF2AplanImpl(self, ctx, destination_node_array, sv_structure)
 
