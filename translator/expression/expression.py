@@ -319,58 +319,29 @@ def expression2AplanImpl(
             beh_index = sv_structure.getLastBehaviorIndex()
             if beh_index is not None:
                 protocol = sv_structure.behavior[beh_index]
-                if len(protocol.body) > 0:
-                    last_element = protocol.body[len(protocol.body) - 1]
-                    if (
-                        last_element.element_type == ElementsTypes.ACTION_ELEMENT
-                        and last_element.pointer_to_related
-                        and last_element.pointer_to_related.element_type == element_type
-                        and last_element.pointer_to_related.description_action_name
-                        == name_part
-                    ):
-                        previus_action = True
-                        last_element.pointer_to_related
-                        action_name = action.identifier
-                    else:
-                        last_element = None
+                last_element, previus_action, action_name = findAssociatedAction(
+                    protocol,
+                    element_type,
+                    name_part,
+                    action,
+                    previus_action,
+                    action_name,
+                )
 
         elif out_block_len > 0:
             protocol: Protocol = self.module.out_of_block_elements.getElementByIndex(
                 out_block_len - 1
             )
-            if len(protocol.body) > 0:
-                last_element = protocol.body[len(protocol.body) - 1]
-                if (
-                    last_element.element_type == ElementsTypes.ACTION_ELEMENT
-                    and last_element.pointer_to_related
-                    and last_element.pointer_to_related.element_type == element_type
-                    and last_element.pointer_to_related.description_action_name
-                    == name_part
-                ):
-                    previus_action = True
-                    last_element.pointer_to_related
-                    action_name = action.identifier
-                else:
-                    last_element = None
-
-    if last_element:
-        previous_action: Action = last_element.pointer_to_related
-        previous_action.description_end += action.description_end
-        previous_action.description_start += action.description_start
-
-        if previous_action.precondition.elements[0].identifier != "1":
-            previous_action.precondition.addElement(
-                Node(";", (0, 0), ElementsTypes.SEMICOLON_ELEMENT)
+            last_element, previus_action, action_name = findAssociatedAction(
+                protocol,
+                element_type,
+                name_part,
+                action,
+                previus_action,
+                action_name,
             )
-            previous_action.precondition += action.precondition
 
-        if previous_action.postcondition.elements[0].identifier != "1":
-            previous_action.postcondition.addElement(
-                Node(";", (0, 0), ElementsTypes.SEMICOLON_ELEMENT)
-            )
-            previous_action.postcondition += action.postcondition
-
-        action = previous_action
+    action = copyToAssociatedAction(last_element, action)
 
     if not previus_action:
         (
@@ -422,6 +393,54 @@ def expression2AplanImpl(
     return (action_pointer, action_name, source_interval, uniq)
 
 
+def findAssociatedAction(
+    protocol: Protocol | None,
+    element_type: ElementsTypes,
+    name_part: str,
+    action: Action,
+    previus_action: bool,
+    action_name: str,
+):
+    last_element = None
+    if protocol and len(protocol.body) > 0:
+        last_element = protocol.body[len(protocol.body) - 1]
+        if (
+            last_element.element_type == ElementsTypes.ACTION_ELEMENT
+            and last_element.pointer_to_related
+            and last_element.pointer_to_related.element_type == element_type
+            and last_element.pointer_to_related.description_action_name == name_part
+        ):
+            previus_action = True
+            action_name = action.identifier
+        else:
+            last_element = None
+
+    return (last_element, previus_action, action_name)
+
+
+def copyToAssociatedAction(last_element: Action, action: Action):
+    if last_element:
+        previous_action: Action = last_element.pointer_to_related
+        previous_action.description_end += action.description_end
+        previous_action.description_start += action.description_start
+
+        if previous_action.precondition.elements[0].identifier != "1":
+            previous_action.precondition.addElement(
+                Node(";", (0, 0), ElementsTypes.SEMICOLON_ELEMENT)
+            )
+            previous_action.precondition += action.precondition
+
+        if previous_action.postcondition.elements[0].identifier != "1":
+            previous_action.postcondition.addElement(
+                Node(";", (0, 0), ElementsTypes.SEMICOLON_ELEMENT)
+            )
+            previous_action.postcondition += action.postcondition
+
+        action = previous_action
+
+    return action
+
+
 def createSizeExpression(
     self: SV2aplan, identifier, size, source_interval: Tuple[int, int]
 ):
@@ -433,12 +452,18 @@ def createSizeExpression(
     expressiont = "{0}.{1}.size = {2}".format(
         self.module.ident_uniq_name, identifier, size
     )
+
+    # PRECONDITION
     action.precondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
+
+    # DESCRIPTION
     action.description_start.append(
         f"{self.module.identifier}#{self.module.ident_uniq_name}"
     )
     action.description_end.append(expressiont)
     action.description_action_name = name_part
+
+    # POSTCONDITION
     node = Node(identifier, (0, 0), ElementsTypes.ARRAY_SIZE_ELEMENT)
     node.module_name = self.module.ident_uniq_name
     action.postcondition.addElement(node)
@@ -449,6 +474,7 @@ def createSizeExpression(
         Node(str(size), (0, 0), ElementsTypes.NUMBER_ELEMENT)
     )
 
+    # PROTOCOL
     protocol_name = "ARRAY_INIT_{0}".format(self.module.ident_uniq_name_upper)
     protocol = self.module.out_of_block_elements.findElement(protocol_name)
 
@@ -457,25 +483,25 @@ def createSizeExpression(
     if isinstance(protocol, Protocol):
         action_pointer: Action = action
 
-        if len(protocol.body) > 0:
-            last_body_element = protocol.body[len(protocol.body) - 1]
+        last_element, previus_action, action_name = findAssociatedAction(
+            protocol,
+            ElementsTypes.ASSIGN_ELEMENT,
+            name_part,
+            action_pointer,
+            previus_action,
+            action_name,
+        )
+        if last_element:
+            action_pointer: Action = last_element.pointer_to_related
+            # POSTCONDITION
+            action_pointer.postcondition.addElement(
+                Node(";", (0, 0), ElementsTypes.SEMICOLON_ELEMENT)
+            )
+            action_pointer.postcondition += action.postcondition
 
-            if (
-                last_body_element.element_type == ElementsTypes.ACTION_ELEMENT
-                and last_body_element.pointer_to_related.element_type
-                == ElementsTypes.ASSIGN_ELEMENT
-            ):
-                previus_action = True
-                action_pointer: Action = last_body_element.pointer_to_related
-                action_pointer.postcondition.addElement(
-                    Node(";", (0, 0), ElementsTypes.SEMICOLON_ELEMENT)
-                )
-
-                action_pointer.description_start += action.description_start
-
-                action_pointer.description_end += action.description_end
-
-                action_pointer.postcondition += action.postcondition
+            # DESCRIPTION
+            action_pointer.description_start += action.description_start
+            action_pointer.description_end += action.description_end
 
         if not previus_action:
             protocol.addBody(

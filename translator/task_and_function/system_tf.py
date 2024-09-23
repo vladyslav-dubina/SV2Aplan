@@ -8,7 +8,7 @@ from classes.node import Node, NodeArray
 from classes.parametrs import Parametr, ParametrArray
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
-from translator.expression.expression import getNamePartAndCounter
+from translator.expression.expression import findAssociatedAction, getNamePartAndCounter
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.utils import Counters_Object
 
@@ -263,26 +263,26 @@ def createPushBack(
             if beh_index is not None:
                 protocol = sv_structure.behavior[beh_index]
                 action_pointer: Action = action
-                if len(protocol.body) > 0:
-                    last_element = protocol.body[len(protocol.body) - 1]
-                    if (
-                        last_element.element_type == ElementsTypes.ACTION_ELEMENT
-                        and last_element.pointer_to_related.element_type
-                        == ElementsTypes.ASSIGN_ELEMENT
-                        and last_element.pointer_to_related.description_action_name
-                        == name_part
-                    ):
-                        previus_action = True
-                        action_pointer = last_element.pointer_to_related
-                        action_pointer.postcondition.addElement(
-                            Node(";", (0, 0), ElementsTypes.SEMICOLON_ELEMENT)
-                        )
+                last_element, previus_action, action_name = findAssociatedAction(
+                    protocol,
+                    ElementsTypes.ASSIGN_ELEMENT,
+                    name_part,
+                    action_pointer,
+                    previus_action,
+                    action_name,
+                )
 
-                        action_pointer.description_start += action.description_start
+                if last_element:
+                    action_pointer = last_element.pointer_to_related
+                    action_pointer.postcondition.addElement(
+                        Node(";", (0, 0), ElementsTypes.SEMICOLON_ELEMENT)
+                    )
 
-                        action_pointer.description_end += action.description_end
+                    action_pointer.description_start += action.description_start
 
-                        action_pointer.postcondition += action.postcondition
+                    action_pointer.description_end += action.description_end
+
+                    action_pointer.postcondition += action.postcondition
 
                 if not previus_action:
                     sv_structure.elements.addElement(action_pointer)
