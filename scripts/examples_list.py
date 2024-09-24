@@ -214,4 +214,9 @@ examples_list = [
         "examples/build_in_functions/ceil/test_result",
         "examples/build_in_functions/ceil/aplan",
     ),
+    (
+        "examples/build_in_functions/floor/floor.sv",
+        "examples/build_in_functions/floor/test_result",
+        "examples/build_in_functions/floor/aplan",
+    ),
 ]

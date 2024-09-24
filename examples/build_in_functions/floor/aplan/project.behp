@@ -1,0 +1,4 @@
+B_FLOOR_EXAMPLE = {FLOOR_EXAMPLE_INITITAL},
+FLOOR_1(x) = floor_gtz + floor_ltz,
+FLOOR_2(x) = floor_gtz + floor_ltz,
+FLOOR_EXAMPLE_INITITAL = assign_1.FLOOR_1(1);(assign_2).FLOOR_2(floor_example.input_val);(assign_3)

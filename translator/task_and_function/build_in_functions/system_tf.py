@@ -10,6 +10,9 @@ from translator.system_verilog_to_aplan import SV2aplan
 from translator.task_and_function.build_in_functions.mathematic.ceil import (
     ceil2AplanImpl,
 )
+from translator.task_and_function.build_in_functions.mathematic.floor import (
+    floor2AplanImpl,
+)
 from translator.utils import createProtocol
 
 
@@ -46,6 +49,14 @@ def systemTF2AplanImpl(
         body = f"goal {action_name}"
     elif system_tf_identifier == "$ceil":
         ceil2AplanImpl(
+            self,
+            ctx,
+            sv_structure=sv_structure,
+            destination_node_array=destination_node_array,
+        )
+        return
+    elif system_tf_identifier == "$floor":
+        floor2AplanImpl(
             self,
             ctx,
             sv_structure=sv_structure,

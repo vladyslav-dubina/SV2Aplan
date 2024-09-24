@@ -1,0 +1,22 @@
+assign_1 = (
+		(1)->
+		("FLOOR_EXAMPLE#floor_example:action 'assign (input_val=1.2)';")
+		(floor_example.input_val = 1.2)),
+floor_gtz = (
+		(x > 0)->
+		("FLOOR_EXAMPLE#floor_example:action 'floor_gtz (return integral_part + 1)';")
+		(floor_example.integral_part = x - (x - (x / 1));
+		 floor_example.result_floor = floor_example.integral_part)),
+floor_ltz = (
+		(x < 0)->
+		("FLOOR_EXAMPLE#floor_example:action 'floor_ltz (return integral_part)';")
+		(floor_example.integral_part = x - (x - (x / 1)) - 1;
+		 floor_example.result_floor = floor_example.integral_part)),
+assign_2 = (
+		(1)->
+		("FLOOR_EXAMPLE#floor_example:action 'assign (result=$floor(1))';")
+		(floor_example.result = floor_example.result_floor)),
+assign_3 = (
+		(1)->
+		("FLOOR_EXAMPLE#floor_example:action 'assign (result=$floor(input_val))';")
+		(floor_example.result = floor_example.result_floor))
