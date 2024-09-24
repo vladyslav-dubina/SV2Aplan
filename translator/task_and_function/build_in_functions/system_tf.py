@@ -1,19 +1,16 @@
 from typing import List
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.actions import Action
-from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from classes.node import Node, NodeArray
 from classes.parametrs import Parametr, ParametrArray
-from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
-from translator.task_and_function.build_in_functions.mathematic.calculation_of_whole_parts import (
+from translator.task_and_function.build_in_functions.mathematic.ceil import (
     ceil2AplanImpl,
 )
 from translator.utils import createProtocol
-from utils.utils import Counters_Object
 
 
 def systemTF2AplanImpl(

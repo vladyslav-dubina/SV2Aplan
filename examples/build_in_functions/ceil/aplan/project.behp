@@ -1,6 +1,6 @@
 B_CEIL_EXAMPLE = {CEIL_EXAMPLE_INITITAL},
-B_1(x) = modf(x).CEIL_1,
-CEIL_1 = ceil_rtwp + ceil_rtfp,
-B_2(x) = modf(x).CEIL_2,
-CEIL_2 = ceil_rtwp + ceil_rtfp,
-CEIL_EXAMPLE_INITITAL = assign_1.B_1(1);(assign_2).B_2(ceil_example.input_val);(assign_3)
+MODF_2(x) = modf_gtz(x) + modf_ltz(x),
+CEIL_1(x) = MODF_2(x);(ceil_rtwp + ceil_rtfpceil_rtfp),
+MODF_4(x) = modf_gtz(x) + modf_ltz(x),
+CEIL_3(x) = MODF_4(x);(ceil_rtwp + ceil_rtfpceil_rtfp),
+CEIL_EXAMPLE_INITITAL = assign_1.CEIL_1(1);(assign_2).CEIL_3(ceil_example.input_val);(assign_3)
