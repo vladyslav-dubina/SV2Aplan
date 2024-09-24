@@ -112,6 +112,19 @@ class StructureArray(BasicArray):
             new_aray.addElement(element.copy())
         return new_aray
 
+    def addElement(self, new_element: Structure):
+        if isinstance(new_element, self.element_type):
+            is_uniq_element = self.findElement(new_element.identifier)
+            if is_uniq_element is not None:
+                return (False, self.getElementIndex(is_uniq_element.identifier))
+
+            self.elements.append(new_element)
+            return (True, self.getElementIndex(new_element.identifier))
+        else:
+            raise TypeError(
+                f"Object should be of type {self.element_type} but you passed an object of type {type(new_element)}. \n Object: {new_element}"
+            )
+
     def getElementsIE(
         self,
         include: ElementsTypes | None = None,

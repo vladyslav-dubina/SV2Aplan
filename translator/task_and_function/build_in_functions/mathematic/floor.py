@@ -167,11 +167,39 @@ def floor2AplanImpl(
         )
     )
 
-    beh_protocol_name = "FLOOR_{0}".format(
-        Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
-    )
-    Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+    beh_protocol_name = "FLOOR"
 
+    floor_structure = Structure(
+        beh_protocol_name, ctx.getSourceInterval(), ElementsTypes.TASK_ELEMENT
+    )
+    floor_protocol = Protocol(
+        beh_protocol_name,
+        ctx.getSourceInterval(),
+        ElementsTypes.TASK_ELEMENT,
+        parametrs=protocol_params,
+    )
+    floor_structure.behavior.append(floor_protocol)
+
+    beh_index = floor_structure.getLastBehaviorIndex()
+    if beh_index is not None:
+        body = f"{action_floor_gtz.identifier}"
+        floor_structure.behavior[beh_index].addBody(
+            BodyElement(
+                body,
+                action_floor_gtz,
+                ElementsTypes.IF_CONDITION_LEFT,
+            )
+        )
+        body = f"{action_floor_ltz.identifier}"
+        floor_structure.behavior[beh_index].addBody(
+            BodyElement(
+                body,
+                action_floor_ltz,
+                ElementsTypes.IF_CONDITION_RIGTH,
+            )
+        )
+
+    self.module.structures.addElement(floor_structure)
     if sv_structure:
         beh_index = sv_structure.getLastBehaviorIndex()
         if beh_index is not None:
@@ -182,33 +210,3 @@ def floor2AplanImpl(
                     parametrs=protocol_params_input,
                 )
             )
-
-        last_prototcol = sv_structure.behavior[len(sv_structure.behavior) - 1]
-
-        new_protocol = Protocol(
-            beh_protocol_name,
-            (0, 0),
-            parametrs=protocol_params,
-        )
-
-        sv_structure.behavior[len(sv_structure.behavior) - 1] = new_protocol
-
-        beh_index = sv_structure.getLastBehaviorIndex()
-        if beh_index is not None:
-            body = f"{action_floor_gtz.identifier}"
-            sv_structure.behavior[beh_index].addBody(
-                BodyElement(
-                    body,
-                    action_floor_gtz,
-                    ElementsTypes.IF_CONDITION_LEFT,
-                )
-            )
-            body = f"{action_floor_ltz.identifier}"
-            sv_structure.behavior[beh_index].addBody(
-                BodyElement(
-                    body,
-                    action_floor_ltz,
-                    ElementsTypes.IF_CONDITION_RIGTH,
-                )
-            )
-        sv_structure.behavior.append(last_prototcol)
