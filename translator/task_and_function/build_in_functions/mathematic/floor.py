@@ -200,6 +200,7 @@ def floor2AplanImpl(
         )
 
     self.module.structures.addElement(floor_structure)
+
     if sv_structure:
         beh_index = sv_structure.getLastBehaviorIndex()
         if beh_index is not None:

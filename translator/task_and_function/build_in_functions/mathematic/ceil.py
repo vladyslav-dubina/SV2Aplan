@@ -151,56 +151,52 @@ def ceil2AplanImpl(
         )
     )
 
-    beh_protocol_name = "CEIL_{0}".format(
-        Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
-    )
-    Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+    beh_protocol_name = "CEIL"
 
+    ceil_structure = Structure(
+        beh_protocol_name, ctx.getSourceInterval(), ElementsTypes.TASK_ELEMENT
+    )
+    ceil_protocol = Protocol(
+        beh_protocol_name,
+        ctx.getSourceInterval(),
+        ElementsTypes.TASK_ELEMENT,
+    )
+    ceil_structure.behavior.append(ceil_protocol)
+
+    beh_index = ceil_structure.getLastBehaviorIndex()
+    if beh_index is not None:
+        body = f"{action_ceil_rtwp.identifier}"
+        ceil_structure.behavior[beh_index].addBody(
+            BodyElement(
+                body,
+                action_ceil_rtwp,
+                ElementsTypes.IF_CONDITION_LEFT,
+            )
+        )
+        body = f"{action_ceil_rtfp.identifier}"
+        ceil_structure.behavior[beh_index].addBody(
+            BodyElement(
+                body,
+                action_ceil_rtfp,
+                ElementsTypes.IF_CONDITION_RIGTH,
+            )
+        )
+
+    self.module.structures.addElement(ceil_structure)
+    
     if sv_structure:
+        modf2AplanImpl(
+            self,
+            ctx.getSourceInterval(),
+            sv_structure,
+            destination_node_array,
+            protocol_params_input,
+        )
         beh_index = sv_structure.getLastBehaviorIndex()
         if beh_index is not None:
             sv_structure.behavior[beh_index].addBody(
                 BodyElement(
                     identifier=beh_protocol_name,
                     element_type=ElementsTypes.PROTOCOL_ELEMENT,
-                    parametrs=protocol_params_input,
                 )
             )
-
-        last_prototcol = sv_structure.behavior[len(sv_structure.behavior) - 1]
-
-        new_protocol = Protocol(
-            beh_protocol_name,
-            (0, 0),
-            parametrs=protocol_params,
-        )
-
-        sv_structure.behavior[len(sv_structure.behavior) - 1] = new_protocol
-
-        modf2AplanImpl(
-            self,
-            ctx.getSourceInterval(),
-            sv_structure,
-            destination_node_array,
-            protocol_params,
-        )
-
-        beh_index = sv_structure.getLastBehaviorIndex()
-        if beh_index is not None:
-            body = f"{action_ceil_rtwp.identifier}"
-            sv_structure.behavior[beh_index].addBody(
-                BodyElement(
-                    body,
-                    action_ceil_rtwp,
-                    ElementsTypes.IF_CONDITION_LEFT,
-                )
-            )
-            body = f"{action_ceil_rtfp.identifier}"
-            sv_structure.behavior[beh_index].addBody(
-                BodyElement(
-                    body,
-                    action_ceil_rtfp,
-                    ElementsTypes.IF_CONDITION_RIGTH,
-                )
-            )
-        sv_structure.behavior.append(last_prototcol)

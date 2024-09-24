@@ -155,11 +155,6 @@ def modf2AplanImpl(
         node.module_name = self.module.ident_uniq_name
         destination_node_array.addElement(node.copy())
 
-    beh_protocol_name = "MODF_{0}".format(
-        Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
-    )
-    Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
-
     protocol_params: ParametrArray = ParametrArray()
     protocol_params.addElement(
         Parametr(
@@ -167,6 +162,40 @@ def modf2AplanImpl(
             "var",
         )
     )
+
+    beh_protocol_name = "MODF".format()
+
+    modf_structure = Structure(beh_protocol_name, (0, 0), ElementsTypes.TASK_ELEMENT)
+    modf_protocol = Protocol(
+        beh_protocol_name,
+        (0, 0),
+        ElementsTypes.TASK_ELEMENT,
+        parametrs=protocol_params,
+    )
+    modf_structure.behavior.append(modf_protocol)
+
+    beh_index = modf_structure.getLastBehaviorIndex()
+    if beh_index is not None:
+        body = f"{action_gtz.identifier}"
+        modf_structure.behavior[beh_index].addBody(
+            BodyElement(
+                body,
+                action_gtz,
+                ElementsTypes.IF_CONDITION_LEFT,
+                parametrs=protocol_params,
+            )
+        )
+        body = f"{action_ltz.identifier}"
+        modf_structure.behavior[beh_index].addBody(
+            BodyElement(
+                body,
+                action_ltz,
+                ElementsTypes.IF_CONDITION_RIGTH,
+                parametrs=protocol_params,
+            )
+        )
+
+    self.module.structures.addElement(modf_structure)
 
     if sv_structure:
         beh_index = sv_structure.getLastBehaviorIndex()
@@ -178,35 +207,3 @@ def modf2AplanImpl(
                     parametrs=input_params,
                 )
             )
-
-        last_prototcol = sv_structure.behavior[len(sv_structure.behavior) - 1]
-
-        new_protocol = Protocol(
-            beh_protocol_name,
-            (0, 0),
-            parametrs=protocol_params,
-        )
-
-        sv_structure.behavior[len(sv_structure.behavior) - 1] = new_protocol
-
-        beh_index = sv_structure.getLastBehaviorIndex()
-        if beh_index is not None:
-            body = f"{action_gtz.identifier}"
-            sv_structure.behavior[beh_index].addBody(
-                BodyElement(
-                    body,
-                    action_gtz,
-                    ElementsTypes.IF_CONDITION_LEFT,
-                    parametrs=protocol_params,
-                )
-            )
-            body = f"{action_ltz.identifier}"
-            sv_structure.behavior[beh_index].addBody(
-                BodyElement(
-                    body,
-                    action_ltz,
-                    ElementsTypes.IF_CONDITION_RIGTH,
-                    parametrs=protocol_params,
-                )
-            )
-        sv_structure.behavior.append(last_prototcol)
