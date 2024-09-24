@@ -13,6 +13,7 @@ from translator.task_and_function.build_in_functions.mathematic.ceil import (
 from translator.task_and_function.build_in_functions.mathematic.floor import (
     floor2AplanImpl,
 )
+from translator.task_and_function.build_in_functions.mathematic.pow import pow2AplanImpl
 from translator.utils import createProtocol
 
 
@@ -57,6 +58,14 @@ def systemTF2AplanImpl(
         return
     elif system_tf_identifier == "$floor":
         floor2AplanImpl(
+            self,
+            ctx,
+            sv_structure=sv_structure,
+            destination_node_array=destination_node_array,
+        )
+        return
+    elif system_tf_identifier == "$pow":
+        pow2AplanImpl(
             self,
             ctx,
             sv_structure=sv_structure,

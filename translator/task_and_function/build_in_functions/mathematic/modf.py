@@ -1,6 +1,5 @@
 from typing import Tuple
 from classes.actions import Action
-from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from classes.node import Node, NodeArray
@@ -8,8 +7,6 @@ from classes.parametrs import Parametr, ParametrArray
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
-from translator.utils import createProtocol
-from utils.utils import Counters_Object
 
 
 def createModfAction(self: SV2aplan, grater_than_zero: bool):

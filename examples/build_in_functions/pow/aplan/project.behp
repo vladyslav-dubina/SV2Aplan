@@ -1,0 +1,5 @@
+B_POW_EXAMPLE = {POW_EXAMPLE_INITITAL},
+POW(x, y, counter, result) = pow_init(x, y, counter, result).POW_MAIN(x, y, counter, result),
+POW_INIT(counter) = pow_init(counter),
+POW_MAIN(x, y, counter, result) = pow_cond(y, counter).pow_body(x, result).pow_inc(counter).POW_MAIN(x, y, counter, result) + !pow_cond(y, counter),
+POW_EXAMPLE_INITITAL = assign_1.POW(pow_example.input_val, 2, pow_counter_2, result_pow_1);(assign_2)

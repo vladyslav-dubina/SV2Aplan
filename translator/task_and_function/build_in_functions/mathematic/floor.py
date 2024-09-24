@@ -1,6 +1,5 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.actions import Action
-from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from classes.node import Node, NodeArray
@@ -8,7 +7,7 @@ from classes.parametrs import Parametr, ParametrArray
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
-from utils.utils import Counters_Object, isNumericString
+from utils.utils import isNumericString
 
 
 def createFloorAction(self: SV2aplan, grater_than_zero: bool, node_type: ElementsTypes):

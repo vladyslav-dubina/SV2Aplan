@@ -17,7 +17,7 @@ class Node(Basic):
     def __init__(
         self,
         identifier: str,
-        source_interval: Tuple[int, int],
+        source_interval: Tuple[int, int] = (0, 0),
         element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT,
     ):
         super().__init__(identifier, source_interval, element_type)

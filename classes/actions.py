@@ -43,6 +43,15 @@ class Action(Basic):
         self.exist_parametrs: ParametrArray | None = exist_parametrs
         self.parametrs: ParametrArray = ParametrArray()
 
+    def getNameWithParams(self):
+        if self.parametrs:
+            if self.parametrs.getLen() == 0:
+                return self.identifier
+            else:
+                return "{0}({1})".format(self.identifier, str(self.parametrs))
+        else:
+            return self.identifier
+
     def findParametrInBodyAndSetParametrs(self, parametrs):
         for parametr in parametrs.getElements():
             if isVariablePresent(str(self.precondition), parametr.identifier):

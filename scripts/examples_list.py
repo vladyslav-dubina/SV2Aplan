@@ -219,4 +219,9 @@ examples_list = [
         "examples/build_in_functions/floor/test_result",
         "examples/build_in_functions/floor/aplan",
     ),
+        (
+        "examples/build_in_functions/pow/pow.sv",
+        "examples/build_in_functions/pow/test_result",
+        "examples/build_in_functions/pow/aplan",
+    ),
 ]
