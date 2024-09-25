@@ -261,7 +261,9 @@ class SV2aplan:
         destination_node_array: NodeArray | None = None,
         sv_structure: Structure | None = None,
     ):
-        from translator.task_and_function.build_in_functions.system_tf import systemTF2AplanImpl
+        from translator.task_and_function.build_in_functions.system_tf import (
+            systemTF2AplanImpl,
+        )
 
         systemTF2AplanImpl(self, ctx, destination_node_array, sv_structure)
 
@@ -431,7 +433,12 @@ class SV2aplan:
         from translator.expression.expression import expression2AplanImpl
 
         return expression2AplanImpl(
-            self, ctx, element_type, sv_structure, name_space_element, remove_association
+            self,
+            ctx,
+            element_type,
+            sv_structure,
+            name_space_element,
+            remove_association,
         )
 
     # ==================================================================================

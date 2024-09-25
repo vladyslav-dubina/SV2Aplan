@@ -160,7 +160,7 @@ def modf2AplanImpl(
         )
     )
 
-    beh_protocol_name = "MODF".format()
+    beh_protocol_name = "MODF"
 
     modf_structure = Structure(beh_protocol_name, (0, 0), ElementsTypes.TASK_ELEMENT)
     modf_protocol = Protocol(

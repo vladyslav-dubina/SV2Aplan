@@ -8,6 +8,7 @@ from classes.parametrs import Parametr, ParametrArray
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
+from translator.utils import createDeclaration, createParametrArray
 from utils.utils import Counters_Object, isNumericString
 
 
@@ -159,6 +160,7 @@ def pow2AplanImpl(
     sv_structure: Structure | None = None,
     destination_node_array: NodeArray | None = None,
 ):
+    # PREPARE INPUT VAR
     inputs: str = ctx.list_of_arguments().getText()
     inputs = inputs.split(",")
 
@@ -173,96 +175,43 @@ def pow2AplanImpl(
             input_value_element_type = ElementsTypes.IDENTIFIER_ELEMENT
             input_value_type = decl.data_type
 
-    result_pow = Declaration(
-        input_value_type,
-        "result_pow_{}".format(
-            Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)
-        ),
-        "",
-        "",
-        0,
-        "",
-        0,
-        (0, 0),
-    )
-    self.module.declarations.addElement(result_pow)
-    Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+    # DECLARE VARS
+    source_interval = ctx.list_of_arguments().getSourceInterval()
 
-    counter = Declaration(
+    result_pow = createDeclaration(
+        self,
+        "result_pow",
         input_value_type,
-        "pow_counter_{}".format(
-            Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)
-        ),
-        "",
-        "",
-        0,
-        "",
-        0,
-        (0, 0),
+        CounterTypes.UNIQ_NAMES_COUNTER,
+        source_interval,
     )
-    self.module.declarations.addElement(counter)
-    Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
 
+    source_interval = (source_interval[0], source_interval[1] + 1)
+    counter = createDeclaration(
+        self,
+        "pow_counter",
+        DeclTypes.INT,
+        CounterTypes.UNIQ_NAMES_COUNTER,
+        source_interval,
+    )
+
+    # SET RESULT VAR TO ACTION NODE ARRAY
     if destination_node_array:
         node = Node(result_pow.identifier, (0, 0), ElementsTypes.IDENTIFIER_ELEMENT)
         node.module_name = self.module.ident_uniq_name
         destination_node_array.addElement(node.copy())
 
-    protocol_params_input: ParametrArray = ParametrArray()
-    protocol_params_input.addElement(
-        Parametr(
-            f"{input_var}",
-            "var",
-        )
-    )
-    protocol_params_input.addElement(
-        Parametr(
-            f"{inputs[1]}",
-            "var",
-        )
+    # PARAMETRS
+    protocol_params_input: ParametrArray = createParametrArray(
+        self, [input_var, inputs[1], counter.identifier, result_pow.identifier]
     )
 
-    protocol_params_input.addElement(
-        Parametr(
-            f"{counter.identifier}",
-            "var",
-        )
+    protocol_params: ParametrArray = createParametrArray(
+        self, ["x", "y", "counter", "result"]
     )
 
-    protocol_params_input.addElement(
-        Parametr(
-            f"{result_pow.identifier}",
-            "var",
-        )
-    )
-
-    protocol_params: ParametrArray = ParametrArray()
-    protocol_params.addElement(
-        Parametr(
-            "x",
-            "var",
-        )
-    )
-    protocol_params.addElement(
-        Parametr(
-            "y",
-            "var",
-        )
-    )
-    protocol_params.addElement(
-        Parametr(
-            "counter",
-            "var",
-        )
-    )
-    protocol_params.addElement(
-        Parametr(
-            "result",
-            "var",
-        )
-    )
-
-    beh_protocol_name = "POW".format()
+    # PROTOCOLS
+    beh_protocol_name = "POW"
 
     pow_structure = Structure(beh_protocol_name, (0, 0), ElementsTypes.TASK_ELEMENT)
     pow_protocol = Protocol(

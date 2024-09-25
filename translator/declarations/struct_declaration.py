@@ -201,7 +201,7 @@ def createArrayStruct(
         (0, 1),
     )
     typedef.declarations.addElement(new_decl)
-    
+
     if self.module:
         decl_unique, decl_index = self.module.typedefs.addElement(typedef)
     else:
