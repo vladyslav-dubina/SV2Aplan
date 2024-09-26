@@ -421,7 +421,6 @@ def sqrt2AplanImpl(
             input_value_type = decl.data_type
 
     # DECLARE VARS
-    source_interval = ctx.list_of_arguments().getSourceInterval()
 
     createTypedef(
         self,
@@ -439,7 +438,7 @@ def sqrt2AplanImpl(
         "sqrt_obj",
         DeclTypes.STRUCT,
         CounterTypes.UNIQ_NAMES_COUNTER,
-        source_interval,
+        ctx.getSourceInterval(),
         "sqrt_struct",
     )
 

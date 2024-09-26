@@ -213,8 +213,6 @@ def pow2AplanImpl(
             input_value_type = decl.data_type
 
     # DECLARE VARS
-    source_interval = ctx.list_of_arguments().getSourceInterval()
-
     createTypedef(
         self,
         "pow_struct",
@@ -230,7 +228,7 @@ def pow2AplanImpl(
         "pow_obj",
         DeclTypes.STRUCT,
         CounterTypes.UNIQ_NAMES_COUNTER,
-        source_interval,
+        ctx.getSourceInterval(),
         "pow_struct",
     )
 
