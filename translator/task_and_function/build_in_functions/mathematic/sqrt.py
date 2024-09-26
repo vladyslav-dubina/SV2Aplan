@@ -437,7 +437,7 @@ def sqrt2AplanImpl(
     result_sqrt = createDeclaration(
         self,
         "sqrt_obj",
-        input_value_type,
+        DeclTypes.STRUCT,
         CounterTypes.UNIQ_NAMES_COUNTER,
         source_interval,
         "sqrt_struct",
@@ -454,10 +454,7 @@ def sqrt2AplanImpl(
     # PARAMETRS
     protocol_params_input: ParametrArray = createParametrArray(
         self,
-        [
-            input_var,
-            result_sqrt.identifier,
-        ],
+        [input_var, self.module.ident_uniq_name + "." + result_sqrt.identifier],
     )
 
     protocol_params: ParametrArray = createParametrArray(

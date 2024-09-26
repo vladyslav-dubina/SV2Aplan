@@ -3,6 +3,7 @@ module pow_example;
     real result;
     initial begin
         input_val = 1.2;
-        result = $pow(input_val, 2);    
+        result = $pow(input_val, 2);
+        result = $pow(input_val, 3);
     end
 endmodule
