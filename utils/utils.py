@@ -191,16 +191,6 @@ def evaluateExpression(expr: str, variables=None):
     return result
 
 
-def extractDimentionSize(expression: str):
-    if expression == "[$]":
-        return
-    matches = re.findall(r"\[\s*(.+)\s*\]", expression)
-    if matches:
-        value = matches[0][0]
-        value = evaluateExpression(value)
-        return value
-
-
 def extractVectorSize(s: str):
     matches = re.findall(r"\[(.+)\s*:\s*(.+)\]", s)
     if matches:
@@ -210,6 +200,22 @@ def extractVectorSize(s: str):
         right = evaluateExpression(right)
         result = [str(left), str(right)]
         return result
+
+
+def extractDimentionSize(expression: str):
+    if expression == "[$]":
+        return
+
+    vector_size = extractVectorSize(expression)
+    if vector_size is not None:
+        aplan_vector_size = vectorSize2AplanVectorSize(vector_size[0], vector_size[1])
+        return aplan_vector_size[0]
+    else:
+        matches = re.findall(r"\[\s*(.+)\s*\]", expression)
+        if matches:
+            value = matches[0][0]
+            value = evaluateExpression(value)
+            return value
 
 
 def isNumericString(s):

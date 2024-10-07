@@ -40,6 +40,11 @@ examples_list = [
         "examples/struct/structure_4/aplan",
     ),
     (
+        "examples/struct/union_1/union_1.sv",
+        "examples/struct/union_1/test_result",
+        "examples/struct/union_1/aplan",
+    ),
+    (
         "examples/struct/interface/my_interface.sv",
         "examples/struct/interface/test_result",
         "examples/struct/interface/aplan",

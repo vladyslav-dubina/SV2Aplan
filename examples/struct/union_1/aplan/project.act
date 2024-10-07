@@ -1,0 +1,4 @@
+assign_1 = (
+		(1)->
+		("UNION_EXAMPLE#union_example:action 'assign (my_data.full_word=3735928559)';")
+		(union_example.my_data.full_word = 3735928559))

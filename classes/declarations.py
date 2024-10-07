@@ -20,7 +20,9 @@ class DeclTypes(Enum):
     ENUM = auto()
     ENUM_TYPE = auto()
     STRUCT_TYPE = auto()
+    UNION_TYPE = auto()
     STRUCT = auto()
+    UNION = auto()
     CLASS = auto()
     TIME = auto()
     REAL = auto()
@@ -57,6 +59,8 @@ class DeclTypes(Enum):
                             return DeclTypes.ENUM
                         elif type.data_type is DeclTypes.STRUCT_TYPE:
                             return DeclTypes.STRUCT
+                        elif type.data_type is DeclTypes.UNION_TYPE:
+                            return DeclTypes.UNION
 
         return DeclTypes.NONE
 
@@ -149,9 +153,11 @@ class Declaration(Basic):
             result += f"{self.size_expression}"
         elif self.data_type == DeclTypes.STRING:
             result += "string"
-        elif self.data_type == DeclTypes.ENUM:
-            result += f"{self.size_expression}"
-        elif self.data_type == DeclTypes.STRUCT:
+        elif (
+            self.data_type == DeclTypes.ENUM
+            or self.data_type == DeclTypes.STRUCT
+            or self.data_type == DeclTypes.UNION
+        ):
             result += f"{self.size_expression}"
         elif self.data_type == DeclTypes.TIME:
             result += "Bits " + str(64)

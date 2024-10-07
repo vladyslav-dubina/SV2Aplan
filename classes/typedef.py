@@ -45,7 +45,7 @@ class Typedef(Basic):
 
             result += "\n\t\t)"
 
-        elif self.data_type is DeclTypes.STRUCT_TYPE:
+        elif self.data_type is DeclTypes.STRUCT_TYPE or self.data_type is DeclTypes.ENUM_TYPE:
             result += "obj (\n\t\t\t"
             for index, element in enumerate(self.declarations.getElements()):
                 if index != 0:
