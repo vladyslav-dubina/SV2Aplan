@@ -1,6 +1,6 @@
 # Translator from the System verilog language to the AVM algebraic model
 
-## Version 1.4
+## Version 1.5
 
 ## Instalation
 <details><summary>Click to expand</summary>
