@@ -40,6 +40,11 @@ examples_list = [
         "examples/struct/structure_4/aplan",
     ),
     (
+        "examples/struct/union_1/union_1.sv",
+        "examples/struct/union_1/test_result",
+        "examples/struct/union_1/aplan",
+    ),
+    (
         "examples/struct/interface/my_interface.sv",
         "examples/struct/interface/test_result",
         "examples/struct/interface/aplan",
@@ -208,5 +213,25 @@ examples_list = [
         "examples/build_in_functions/size_2/size_2.sv",
         "examples/build_in_functions/size_2/test_result",
         "examples/build_in_functions/size_2/aplan",
+    ),
+    (
+        "examples/build_in_functions/ceil/ceil.sv",
+        "examples/build_in_functions/ceil/test_result",
+        "examples/build_in_functions/ceil/aplan",
+    ),
+    (
+        "examples/build_in_functions/floor/floor.sv",
+        "examples/build_in_functions/floor/test_result",
+        "examples/build_in_functions/floor/aplan",
+    ),
+    (
+        "examples/build_in_functions/pow/pow.sv",
+        "examples/build_in_functions/pow/test_result",
+        "examples/build_in_functions/pow/aplan",
+    ),
+    (
+        "examples/build_in_functions/sqrt/sqrt.sv",
+        "examples/build_in_functions/sqrt/test_result",
+        "examples/build_in_functions/sqrt/aplan",
     ),
 ]

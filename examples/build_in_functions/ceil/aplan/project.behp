@@ -1,0 +1,4 @@
+B_CEIL_EXAMPLE = {CEIL_EXAMPLE_INITITAL},
+CEIL = ceil_rtwp + ceil_rtfp,
+MODF(x) = modf_gtz(x) + modf_ltz(x),
+CEIL_EXAMPLE_INITITAL = assign_1.MODF(1);(CEIL);(assign_2).MODF(ceil_example.input_val);(CEIL);(assign_3)

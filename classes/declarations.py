@@ -20,9 +20,12 @@ class DeclTypes(Enum):
     ENUM = auto()
     ENUM_TYPE = auto()
     STRUCT_TYPE = auto()
+    UNION_TYPE = auto()
     STRUCT = auto()
+    UNION = auto()
     CLASS = auto()
     TIME = auto()
+    REAL = auto()
     ARRAY = auto()
     NONE = auto()
 
@@ -31,6 +34,8 @@ class DeclTypes(Enum):
 
         if "int" == type_str:
             return DeclTypes.INT
+        if "real" == type_str:
+            return DeclTypes.REAL
         elif "time" == type_str:
             return DeclTypes.TIME
         elif "reg" == type_str:
@@ -54,6 +59,8 @@ class DeclTypes(Enum):
                             return DeclTypes.ENUM
                         elif type.data_type is DeclTypes.STRUCT_TYPE:
                             return DeclTypes.STRUCT
+                        elif type.data_type is DeclTypes.UNION_TYPE:
+                            return DeclTypes.UNION
 
         return DeclTypes.NONE
 
@@ -116,7 +123,11 @@ class Declaration(Basic):
                 result += "(int) -> int"
             else:
                 result += "int"
-
+        elif self.data_type == DeclTypes.REAL:
+            if self.dimension_size > 0:
+                result += "(float) -> float"
+            else:
+                result += "float"
         elif self.data_type == DeclTypes.ARRAY:
             result += f"{self.size_expression}"
         elif (
@@ -142,9 +153,11 @@ class Declaration(Basic):
             result += f"{self.size_expression}"
         elif self.data_type == DeclTypes.STRING:
             result += "string"
-        elif self.data_type == DeclTypes.ENUM:
-            result += f"{self.size_expression}"
-        elif self.data_type == DeclTypes.STRUCT:
+        elif (
+            self.data_type == DeclTypes.ENUM
+            or self.data_type == DeclTypes.STRUCT
+            or self.data_type == DeclTypes.UNION
+        ):
             result += f"{self.size_expression}"
         elif self.data_type == DeclTypes.TIME:
             result += "Bits " + str(64)

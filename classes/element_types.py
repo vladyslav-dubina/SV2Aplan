@@ -26,15 +26,15 @@ class ElementsTypes(Enum):
     FUNCTION_ELEMENT = auto()
     ARRAY_ELEMENT = auto()
     ARRAY_SIZE_ELEMENT = auto()
-    
-    #Agents types
+
+    # Agents types
     MODULE_ELEMENT = auto()
     PACKAGE_ELEMENT = auto()
     CLASS_ELEMENT = auto()
     OBJECT_ELEMENT = auto()
     INTERFACE_ELEMENT = auto()
-    
-    #Node
+
+    # Node
     NUMBER_ELEMENT = auto()
     IDENTIFIER_ELEMENT = auto()
     OPERATOR_ELEMENT = auto()
@@ -44,6 +44,6 @@ class ElementsTypes(Enum):
 
     PRECONDITION_ELEMENT = auto()
     POSTCONDITION_ELEMENT = auto()
-    
+
     IF_CONDITION_LEFT = auto()
     IF_CONDITION_RIGTH = auto()

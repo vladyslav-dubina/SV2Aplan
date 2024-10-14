@@ -11,7 +11,7 @@ from classes.structure import Structure
 from classes.tasks import Task
 from translator.expression.expression import actionFromNodeStr, getNamePartAndCounter
 from translator.system_verilog_to_aplan import SV2aplan
-from translator.task_and_function.system_tf import createPushBack
+from translator.task_and_function.build_in_functions.array_methods import createPushBack
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import Counters_Object, extractDimentionSize
 

@@ -1,0 +1,4 @@
+B_SQRT_EXAMPLE = {SQRT_EXAMPLE_INITITAL},
+SQRT(x, obj) = sqrt_ltz(x, obj).sqrt_nan(obj) + !sqrt_ltz(x, obj).sqrt_init(x, obj).SQRT_MAIN(x, obj),
+SQRT_MAIN(x, obj) = sqrt_cond(x, obj).sqrt_loop_body(x, obj).SQRT_MAIN(x, obj) + !sqrt_cond(x, obj).sqrt_return(obj),
+SQRT_EXAMPLE_INITITAL = assign_1.SQRT(25, sqrt_example.sqrt_obj_1);(assign_2).SQRT(sqrt_example.input_val, sqrt_example.sqrt_obj_2);(assign_3)

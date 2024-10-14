@@ -1,0 +1,4 @@
+B_POW_EXAMPLE = {POW_EXAMPLE_INITITAL},
+POW(x, y, obj) = pow_init(x, y, obj).POW_MAIN(x, y, obj),
+POW_MAIN(x, y, obj) = pow_cond(y, obj).pow_body(x, obj).pow_inc(obj).POW_MAIN(x, y, obj) + !pow_cond(y, obj),
+POW_EXAMPLE_INITITAL = assign_1.POW(pow_example.input_val, 2, pow_example.pow_obj_1);(assign_2).POW(pow_example.input_val, 3, pow_example.pow_obj_2);(assign_3)

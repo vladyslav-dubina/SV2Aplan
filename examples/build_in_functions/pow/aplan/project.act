@@ -1,0 +1,28 @@
+assign_1 = (
+		(1)->
+		("POW_EXAMPLE#pow_example:action 'assign (input_val=1.2)';")
+		(pow_example.input_val = 1.2)),
+pow_init(obj) = (
+		(1)->
+		("POW_EXAMPLE#pow_example:action 'pow_init (counter = 0)';")
+		(obj.counter = 0)),
+pow_cond(y, obj) = (
+		(obj.counter < y)->
+		("POW_EXAMPLE#pow_example:action 'pow_cond (counter < x)';")
+		(1)),
+pow_body(x, obj) = (
+		(1)->
+		("POW_EXAMPLE#pow_example:action 'pow_body (counter = counter * counter)';")
+		(obj.result = obj.result * x)),
+pow_inc(obj) = (
+		(1)->
+		("POW_EXAMPLE#pow_example:action 'pow_inc (counter += 1)';")
+		(obj.counter = obj.counter + 1)),
+assign_2 = (
+		(1)->
+		("POW_EXAMPLE#pow_example:action 'assign (result=$pow(input_val,2))';")
+		(pow_example.result = pow_example.pow_obj_1.result)),
+assign_3 = (
+		(1)->
+		("POW_EXAMPLE#pow_example:action 'assign (result=$pow(input_val,3))';")
+		(pow_example.result = pow_example.pow_obj_2.result))

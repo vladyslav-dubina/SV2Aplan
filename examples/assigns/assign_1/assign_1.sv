@@ -11,11 +11,16 @@ module code_patch_core
 
     wire                    patch_enable;
     reg [21:0]              no_pg[3];
+    real real_val;
+    int int_val;
 
 
     patch_enable = si_read_i & cfg_pat_gen_i;
 
     assign nopg_o = no_pg;
+
+    assign real_val = 0.3;
+    assign int_val = 1;
 
 
 endmodule

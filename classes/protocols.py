@@ -78,6 +78,7 @@ class Protocol(Basic):
 
     def __str__(self):
         body_to_str = ""
+        brackets = False
         for index, body_element in enumerate(self.body):
             element_str = body_element.getName()
             protocol_element = False
@@ -121,7 +122,18 @@ class Protocol(Basic):
             elif protocol_element == False:
                 body_to_str += element_str
             else:
-                body_to_str += "(" + element_str + ")"
+                if body_element.element_type == ElementsTypes.IF_CONDITION_LEFT:
+
+                    brackets = True
+                    body_to_str += "(" + element_str
+                else:
+                    body_to_str += "(" + element_str + ")"
+
+            if brackets:
+                if body_element.element_type == ElementsTypes.IF_CONDITION_RIGTH:
+                    body_to_str += element_str + ")"
+                    brackets = False
+
             if index == len(self.body) - 1:
                 body_to_str += ","
 

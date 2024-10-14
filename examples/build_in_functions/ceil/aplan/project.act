@@ -1,0 +1,30 @@
+assign_1 = (
+		(1)->
+		("CEIL_EXAMPLE#ceil_example:action 'assign (input_val=1.2)';")
+		(ceil_example.input_val = 1.2)),
+ceil_rtwp = (
+		(CEIL_EXAMPLE.fractional_part > 0.0)->
+		("CEIL_EXAMPLE#ceil_example:action 'ceil_rtwp (return integral_part + 1)';")
+		(ceil_example.result_ceil = ceil_example.integral_part + 1)),
+ceil_rtfp = (
+		(CEIL_EXAMPLE.fractional_part < 0.0)->
+		("CEIL_EXAMPLE#ceil_example:action 'ceil_rtfp (return integral_part)';")
+		(ceil_example.result_ceil = ceil_example.integral_part)),
+modf_gtz(x) = (
+		(x >= 0)->
+		("CEIL_EXAMPLE#ceil_example:action 'modf the case when greater than zero (integral_part = x - (x - (x / 1)); fractional_part = x - integral_part)';")
+		(ceil_example.integral_part = x - (x - (x / 1));
+		 ceil_example.fractional_part = x - ceil_example.integral_part)),
+modf_ltz(x) = (
+		(x < 0)->
+		("CEIL_EXAMPLE#ceil_example:action 'modf the case when less than zero (integral_part = x - (x - (x / 1)) - 1; fractional_part = x - integral_part)';")
+		(ceil_example.integral_part = x - (x - (x / 1)) - 1;
+		 ceil_example.fractional_part = x - ceil_example.integral_part)),
+assign_2 = (
+		(1)->
+		("CEIL_EXAMPLE#ceil_example:action 'assign (result=$ceil(1))';")
+		(ceil_example.result = ceil_example.result_ceil)),
+assign_3 = (
+		(1)->
+		("CEIL_EXAMPLE#ceil_example:action 'assign (result=$ceil(input_val))';")
+		(ceil_example.result = ceil_example.result_ceil))

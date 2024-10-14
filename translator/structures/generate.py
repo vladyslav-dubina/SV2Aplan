@@ -40,10 +40,10 @@ def generateBodyToAplan(
                 ElementsTypes.ASSIGN_SENSETIVE_ELEMENT,
                 sv_structure=sv_structure,
             )
-            
+
             self.current_genvar_value = None
             if action_name:
-    
+
                 sv_structure.behavior[0].addBody(
                     BodyElement(
                         action_name, action_pointer, ElementsTypes.ACTION_ELEMENT

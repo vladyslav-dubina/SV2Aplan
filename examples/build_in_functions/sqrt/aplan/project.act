@@ -1,0 +1,37 @@
+assign_1 = (
+		(1)->
+		("SQRT_EXAMPLE#sqrt_example:action 'assign (input_val=-1)';")
+		(sqrt_example.input_val = - 1)),
+sqrt_ltz(x, obj) = (
+		(x < 0)->
+		("SQRT_EXAMPLE#sqrt_example:action 'sqrt input value less than zero (x < 0)';")
+		(1)),
+sqrt_nan(obj) = (
+		(1)->
+		("SQRT_EXAMPLE#sqrt_example:action 'sqrt result (result = -1)';")
+		(obj.result = -1)),
+sqrt_init(x, obj) = (
+		(1)->
+		("SQRT_EXAMPLE#sqrt_example:action 'sqrt_init (gues = x / 2.0; epsilon  = 0.000001)';")
+		(obj.guess = x / 2.0;
+		 obj.epsilon = 0.000001)),
+sqrt_loop_body(x, obj) = (
+		(1)->
+		("SQRT_EXAMPLE#sqrt_example:action 'sqrt_loop_body (gues = (gues + x / gues) / 2.0)';")
+		(obj.guess = (obj.guess + x / obj.guess) / 2.0)),
+sqrt_cond(x, obj) = (
+		((obj.gues * obj.gues - x) > obj.epsilon || (x - obj.guess * obj.guess) > obj.epsilon)->
+		("SQRT_EXAMPLE#sqrt_example:action 'sqrt_cond ((gues * gues - x ) > epsilon  || (x - gues * gues) > epsilon )';")
+		(1)),
+sqrt_return(obj) = (
+		(1)->
+		("SQRT_EXAMPLE#sqrt_example:action 'sqrt_return (return = gues)';")
+		(obj.return = obj.guess)),
+assign_2 = (
+		(1)->
+		("SQRT_EXAMPLE#sqrt_example:action 'assign (result=$sqrt(25))';")
+		(sqrt_example.result = sqrt_example.sqrt_obj_1.result)),
+assign_3 = (
+		(1)->
+		("SQRT_EXAMPLE#sqrt_example:action 'assign (result=$sqrt(input_val))';")
+		(sqrt_example.result = sqrt_example.sqrt_obj_2.result))

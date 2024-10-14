@@ -1,0 +1,36 @@
+assign_1 = (
+		(1)->
+		("FLOOR_EXAMPLE#floor_example:action 'assign (input_val=1.2)';")
+		(floor_example.input_val = 1.2)),
+floor_check(x) = (
+		(x >= 0)->
+		("FLOOR_EXAMPLE#floor_example:action 'floor check input (x >= 0)';")
+		(1)),
+floor_body_gtz(x, obj) = (
+		(1)->
+		("FLOOR_EXAMPLE#floor_example:action 'floor int_part if x >= 0 (int_part = x - (x - (x / 1)))';")
+		(obj.int_part = x - (x - (x / 1)))),
+floor_body_ltz(x, obj) = (
+		(1)->
+		("FLOOR_EXAMPLE#floor_example:action 'floor int_part if x < 0 (int_part = x - (x - (x / 1)) - 1)';")
+		(obj.int_part = x - (x - (x / 1)) - 1)),
+floor_check_int_part(x, obj) = (
+		(x != obj.int_part)->
+		("FLOOR_EXAMPLE#floor_example:action 'floor check fractional part (x != int_part)';")
+		(1)),
+floor_body_fp(x, obj) = (
+		(1)->
+		("FLOOR_EXAMPLE#floor_example:action 'floor fractional part (int_part -= 1)';")
+		(obj.int_part = obj.int_part - 1)),
+floor_result(obj) = (
+		(1)->
+		("FLOOR_EXAMPLE#floor_example:action 'floor result (result = int_part)';")
+		(obj.result = obj.int_part)),
+assign_2 = (
+		(1)->
+		("FLOOR_EXAMPLE#floor_example:action 'assign (result=$floor(1))';")
+		(floor_example.result = floor_example.floor_obj_1.result)),
+assign_3 = (
+		(1)->
+		("FLOOR_EXAMPLE#floor_example:action 'assign (result=$floor(input_val))';")
+		(floor_example.result = floor_example.floor_obj_2.result))

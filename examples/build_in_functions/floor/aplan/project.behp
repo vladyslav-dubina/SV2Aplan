@@ -1,0 +1,5 @@
+B_FLOOR_EXAMPLE = {FLOOR_EXAMPLE_INITITAL},
+FLOOR(x, obj) = FLOOR_BODY(x, obj);(floor_result(obj)),
+FLOOR_BODY(x, obj) = floor_check(x).floor_body_gtz(x, obj) + !floor_check(x).floor_body_ltz(x, obj).FLOOR_F_BODY(x, obj),
+FLOOR_F_BODY(x, obj) = floor_check_int_part(x, obj).floor_body_fp(x, obj),
+FLOOR_EXAMPLE_INITITAL = assign_1.FLOOR(1, floor_example.floor_obj_1);(assign_2).FLOOR(floor_example.input_val, floor_example.floor_obj_2);(assign_3)

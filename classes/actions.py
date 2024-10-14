@@ -31,7 +31,7 @@ class Action(Basic):
         self,
         identifier: str,
         source_interval: Tuple[int, int],
-        exist_parametrs: ParametrArray | None = None,
+        exist_parametrs: ParametrArray = ParametrArray(),
         element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT,
     ):
         super().__init__(identifier, source_interval, element_type)
@@ -40,8 +40,33 @@ class Action(Basic):
         self.description_start: List[str] = []
         self.description_action_name: str = ""
         self.description_end: List[str] = []
-        self.exist_parametrs: ParametrArray | None = exist_parametrs
+        self.exist_parametrs: ParametrArray = exist_parametrs
         self.parametrs: ParametrArray = ParametrArray()
+
+    def copy(self):
+        action = Action(
+            self.identifier,
+            self.source_interval,
+            self.exist_parametrs.copy(),
+            self.element_type,
+        )
+        action.precondition = self.precondition.copy()
+        action.postcondition = self.postcondition.copy()
+        action.description_start = self.description_start
+        action.description_action_name = self.description_action_name
+        action.description_end = self.description_end
+        action.parametrs = self.parametrs.copy()
+
+        return action
+
+    def getNameWithParams(self):
+        if self.parametrs:
+            if self.parametrs.getLen() == 0:
+                return self.identifier
+            else:
+                return "{0}({1})".format(self.identifier, str(self.parametrs))
+        else:
+            return self.identifier
 
     def findParametrInBodyAndSetParametrs(self, parametrs):
         for parametr in parametrs.getElements():
@@ -72,7 +97,7 @@ class Action(Basic):
             description += element
         description += ")'"
 
-        if self.exist_parametrs is not None:
+        if self.exist_parametrs.getLen() > 0:
             return f""" = ( Exist ({self.exist_parametrs}) (\n\t\t({self.precondition})->\n\t\t("{description};")\n\t\t({self.postcondition})))"""
         elif self.parametrs.getLen() > 0:
             return f"""({self.parametrs}) = (\n\t\t({self.precondition})->\n\t\t("{description};")\n\t\t({self.postcondition}))"""

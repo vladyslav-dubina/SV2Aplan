@@ -27,4 +27,4 @@ size_dynamic_array(result) = (
 assign_3 = (
 		(1)->
 		("EXAMPLE_SIZE#example_size:action 'assign (static_array[4]=$size(dynamic_array))';")
-		(example_size.static_array.value(4) = return_size))
+		(example_size.static_array.value(4) = example_size.return_size))
