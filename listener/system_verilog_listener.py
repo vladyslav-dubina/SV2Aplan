@@ -2,6 +2,7 @@ from antlr4_verilog.systemverilog import (
     SystemVerilogParserListener,
     SystemVerilogParser,
 )
+from classes.structure import StructureArray
 from translator.declarations.class_declaration import classDeclaration2Aplan
 from translator.declarations.interface_declaration import interfaceDeclaration2Aplan
 from translator.declarations.module_declaration import moduleDeclaration2Aplan
@@ -31,6 +32,32 @@ class SVListener(SystemVerilogParserListener):
         self.sv2aplan: SV2aplan = SV2aplan(None, program)
         self.module_call: ModuleCall | None = module_call
 
+    def removeLastNameChange(self):
+        list_len = len(self.sv2aplan.names_for_change)
+        if list_len > 0:
+            for element in self.sv2aplan.names_for_change[list_len - 1]:
+                self.module.name_change.deleteElement(element)
+            element = self.sv2aplan.names_for_change[list_len - 1]
+            self.sv2aplan.names_for_change.remove(element)
+
+    def removeLastNameSpace(self):
+        list_len = len(self.sv2aplan.name_space_list)
+        if list_len > 0:
+            element = self.sv2aplan.name_space_list[list_len - 1]
+            self.sv2aplan.name_space_list.remove(element)
+
+    def removeLastStructPointer(self):
+        if self.sv2aplan.structure_pointer_list.getLen() > 0:
+            self.sv2aplan.structure_pointer_list.removeElementByIndex(
+                self.sv2aplan.structure_pointer_list.getLen() - 1
+            )
+
+    def removeLastRelatedArrays(self):
+        self.removeLastNameChange()
+        self.removeLastNameSpace()
+        self.removeLastStructPointer()
+
+    # DECLARATIONS
     def enterInterface_declaration(
         self, ctx: SystemVerilogParser.Interface_declarationContext
     ):
@@ -73,9 +100,40 @@ class SVListener(SystemVerilogParserListener):
     def exitAnsi_port_declaration(self, ctx):
         self.sv2aplan.ansiPortDeclaration2Aplan(ctx)
 
+    # ASSIGNMENTS
     def exitNet_assignment(self, ctx):
         self.sv2aplan.netAssignment2Aplan(ctx)
 
+    def exitVariable_decl_assignment(
+        self, ctx: SystemVerilogParser.Variable_decl_assignmentContext
+    ):
+        if ctx.expression():
+
+            self.sv2aplan.blockAssignment2Aplan(ctx)
+
+    def exitNonblocking_assignment(
+        self, ctx: SystemVerilogParser.Nonblocking_assignmentContext
+    ):
+        self.sv2aplan.blockAssignment2Aplan(ctx)
+
+    def exitNet_assignment(self, ctx: SystemVerilogParser.Net_assignmentContext):
+        self.sv2aplan.blockAssignment2Aplan(ctx)
+
+    def exitVariable_assignment(
+        self, ctx: SystemVerilogParser.Variable_assignmentContext
+    ):
+        self.sv2aplan.blockAssignment2Aplan(ctx)
+
+    def exitOperator_assignment(
+        self, ctx: SystemVerilogParser.Operator_assignmentContext
+    ):
+        self.sv2aplan.blockAssignment2Aplan(ctx)
+
+    # def exitExpression(self, ctx: SystemVerilogParser.ExpressionContext):
+    #    print(ctx.getText())
+    #    self.sv2aplan.blockAssignment2Aplan(ctx)
+
+    # PARAMETRS
     def exitLocal_parameter_declaration(
         self, ctx: SystemVerilogParser.Local_parameter_declarationContext
     ):
@@ -87,18 +145,35 @@ class SVListener(SystemVerilogParserListener):
     def enterLoop_generate_construct(self, ctx):
         self.sv2aplan.generate2Aplan(ctx)
 
-    def enterAlways_construct(self, ctx):
-        self.sv2aplan.always2Aplan(ctx)
-
-    def exitAssert_property_statement(self, ctx):
-        self.sv2aplan.assertPropertyStatement2Aplan(ctx)
-
     def exitModule_instantiation(self, ctx):
         self.sv2aplan.moduleCall2Apan(ctx)
 
-    def exitInitial_construct(self, ctx):
+    # ALWAYS
+
+    def enterAlways_construct(self, ctx: SystemVerilogParser.Always_constructContext):
+        self.sv2aplan.always2Aplan(ctx)
+
+    def exitAlways_construct(self, ctx: SystemVerilogParser.Always_constructContext):
+        self.removeLastRelatedArrays()
+
+
+    # ASSERT
+    def exitAssert_property_statement(self, ctx):
+        self.sv2aplan.assertPropertyStatement2Aplan(ctx)
+
+    def exitSimple_immediate_assert_statement(
+        self, ctx: SystemVerilogParser.Simple_immediate_assert_statementContext
+    ):
+        self.sv2aplan.assertInBlock2Aplan(ctx)
+
+    # INITIAL
+    def enterInitial_construct(self, ctx: SystemVerilogParser.Initial_constructContext):
         self.sv2aplan.initial2Aplan(ctx)
 
+    def exitInitial_construct(self, ctx: SystemVerilogParser.Initial_constructContext):
+        self.removeLastRelatedArrays()
+
+    #
     def exitTask_declaration(self, ctx: SystemVerilogParser.Task_declarationContext):
         self.sv2aplan.taskOrFunctionDeclaration2Aplan(ctx)
 

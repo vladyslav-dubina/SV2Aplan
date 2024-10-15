@@ -279,7 +279,6 @@ def expression2AplanImpl(
             name_space=name_space_element,
             destination_node_array=postcondition,
         )
-
         if postcondition.getLen() == 0:
             return (None, None, None, None)
 

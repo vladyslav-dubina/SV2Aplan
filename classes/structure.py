@@ -100,11 +100,8 @@ class Structure(Basic):
 
 
 class StructureArray(BasicArray):
-    def __init__(self, element_type: Basic | None = None):
-        if element_type is None:
-            super().__init__(Structure)
-        else:
-            super().__init__(element_type)
+    def __init__(self):
+        super().__init__(Structure)
 
     def copy(self):
         new_aray: StructureArray = StructureArray()
@@ -188,6 +185,12 @@ class StructureArray(BasicArray):
             ):
                 result.append(element)
         return result
+
+    def getLastElement(self) -> Structure | None:
+        if self.getLen() > 0:
+            return self.elements[self.getLen() - 1]
+        else:
+            return None
 
     def getStructuresInStrFormat(self):
         result = ""

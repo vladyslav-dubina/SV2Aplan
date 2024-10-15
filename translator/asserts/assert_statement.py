@@ -43,8 +43,8 @@ def assertPropertyStatement2AplanImpl(
 def assertInBlock2AplanImpl(
     self: SV2aplan,
     ctx: SystemVerilogParser.Simple_immediate_assert_statementContext,
-    sv_structure: Structure,
 ):
+    sv_structure: Structure | None = self.structure_pointer_list.getLastElement()
     action_pointer, assert_name, source_interval, uniq_action = self.expression2Aplan(
         ctx.expression(),
         ElementsTypes.ASSERT_ELEMENT,

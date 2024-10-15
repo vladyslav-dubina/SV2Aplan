@@ -44,9 +44,6 @@ def always2AplanImpl(self: SV2aplan, ctx: SystemVerilogParser.Always_constructCo
         always_name,
         inside_the_task=(self.inside_the_task or self.inside_the_function),
     )
-    names_for_change = self.body2Aplan(
-        always_body, always, ElementsTypes.ALWAYS_ELEMENT
-    )
-    for element in names_for_change:
-        self.module.name_change.deleteElement(element)
+
     self.module.structures.addElement(always)
+    self.structure_pointer_list.addElement(always)

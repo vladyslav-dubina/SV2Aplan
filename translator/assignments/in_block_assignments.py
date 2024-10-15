@@ -1,16 +1,14 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
-from classes.module import Module
 from classes.protocols import BodyElement
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.utils import Counters_Object
 
 
-def blockAssignment2AplanImpl(
-    self: SV2aplan, ctx, module: Module, sv_structure: Structure
-):
+def blockAssignment2AplanImpl(self: SV2aplan, ctx):
+    sv_structure: Structure | None = self.structure_pointer_list.getLastElement()
     element_type = ElementsTypes.ASSIGN_ELEMENT
     if type(ctx) is SystemVerilogParser.Nonblocking_assignmentContext:
         element_type = ElementsTypes.ASSIGN_SENSETIVE_ELEMENT

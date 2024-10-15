@@ -3,7 +3,7 @@ from antlr4.tree import Tree
 from classes.actions import Action
 from classes.module_call import ModuleCall
 from classes.node import NodeArray
-from classes.structure import Structure
+from classes.structure import Structure, StructureArray
 from classes.module import Module
 from classes.element_types import ElementsTypes
 from program.program import Program
@@ -17,6 +17,9 @@ class SV2aplan:
         self.inside_the_task = False
         self.inside_the_function = False
         self.current_genvar_value: Tuple[str, int] | None = None
+        self.structure_pointer_list: StructureArray = StructureArray()
+        self.name_space_list: List[ElementsTypes] = []
+        self.names_for_change = []
 
     def extractSensetive(self, ctx):
         from translator.sensetive.sensetive import extractSensetiveImpl
@@ -61,13 +64,12 @@ class SV2aplan:
             | SystemVerilogParser.Operator_assignmentContext
             | SystemVerilogParser.ExpressionContext
         ),
-        sv_structure: Structure,
     ):
         from translator.assignments.in_block_assignments import (
             blockAssignment2AplanImpl,
         )
 
-        blockAssignment2AplanImpl(self, ctx, self.module, sv_structure)
+        blockAssignment2AplanImpl(self, ctx)
 
     # ---------------------------------------------------------------------------------
 
@@ -310,26 +312,23 @@ class SV2aplan:
     def assertInBlock2Aplan(
         self,
         ctx: SystemVerilogParser.Simple_immediate_assert_statementContext,
-        sv_structure: Structure,
     ):
         from translator.asserts.assert_statement import (
             assertInBlock2AplanImpl,
         )
 
-        assertInBlock2AplanImpl(self, ctx, sv_structure)
+        assertInBlock2AplanImpl(self, ctx)
 
     # =================================IF STATEMENT=====================================
     def ifStatement2Aplan(
         self,
         ctx: SystemVerilogParser.Conditional_statementContext,
-        sv_structure: Structure,
-        names_for_change: List[str],
     ):
         from translator.if_statement.if_statement import (
             ifStatement2AplanImpl,
         )
 
-        ifStatement2AplanImpl(self, ctx, sv_structure, names_for_change)
+        ifStatement2AplanImpl(self, ctx)
 
     # =================================CASE STATEMENT===================================
 
@@ -477,13 +476,13 @@ class SV2aplan:
         for child in ctx.getChildren():
             # print(type(child), child.getText())
             # Assert handler
-            if (
-                type(child)
-                is SystemVerilogParser.Simple_immediate_assert_statementContext
-            ):
-                self.assertInBlock2Aplan(child, sv_structure)
+            # if (
+            #    type(child)
+            #    is SystemVerilogParser.Simple_immediate_assert_statementContext
+            # ):
+            #    self.assertInBlock2Aplan(child, sv_structure)
             # ---------------------------------------------------------------------------
-            elif type(child) is SystemVerilogParser.System_tf_callContext:
+            if type(child) is SystemVerilogParser.System_tf_callContext:
                 self.systemTFCall2Aplan(child, destination_node_array, sv_structure)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.IdentifierContext:
@@ -505,16 +504,17 @@ class SV2aplan:
             elif type(child) is SystemVerilogParser.Jump_statementContext:
                 if child.RETURN and child.expression():
                     self.returnToAssign2Aplan(child.expression(), sv_structure)
-            # ---------------------------------------------------------------------------
-            # Assign handler
-            elif (
-                type(child) is SystemVerilogParser.Variable_decl_assignmentContext
-                or type(child) is SystemVerilogParser.Nonblocking_assignmentContext
-                or type(child) is SystemVerilogParser.Net_assignmentContext
-                or type(child) is SystemVerilogParser.Variable_assignmentContext
-                or type(child) is SystemVerilogParser.Operator_assignmentContext
-            ):
-                self.blockAssignment2Aplan(child, sv_structure)
+                # ---------------------------------------------------------------------------
+                # Assign handler
+                """ elif (
+                    type(child) is SystemVerilogParser.Variable_decl_assignmentContext
+                    or type(child) is SystemVerilogParser.Nonblocking_assignmentContext
+                    or type(child) is SystemVerilogParser.Net_assignmentContext
+                    or type(child) is SystemVerilogParser.Variable_assignmentContext
+                    or type(child) is SystemVerilogParser.Operator_assignmentContext
+                    ):
+                        self.blockAssignment2Aplan(child, sv_structure)
+                """
             # ---------------------------------------------------------------------------
             # Task and function handler
             elif type(child) is SystemVerilogParser.Tf_callContext:

@@ -19,8 +19,6 @@ def initital2AplanImpl(
         initial_name,
         inside_the_task=(self.inside_the_task or self.inside_the_function),
     )
-    names_for_change = self.body2Aplan(ctx, structure, ElementsTypes.INITIAL_ELEMENT)
-    for element in names_for_change:
-        self.module.name_change.deleteElement(element)
 
     self.module.structures.addElement(structure)
+    self.structure_pointer_list.addElement(structure)
