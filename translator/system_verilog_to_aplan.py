@@ -20,6 +20,40 @@ class SV2aplan:
         self.structure_pointer_list: StructureArray = StructureArray()
         self.name_space_list: List[ElementsTypes] = []
         self.names_for_change = []
+        self.condPredicate_List: List[
+            Tuple[List[SystemVerilogParser.Cond_predicateContext], int]
+        ] = []
+
+    def removeLastNameChange(self):
+        list_len = len(self.names_for_change)
+        if list_len > 0:
+            for element in self.names_for_change[list_len - 1]:
+                self.module.name_change.deleteElement(element)
+            element = self.names_for_change[list_len - 1]
+            self.names_for_change.remove(element)
+
+    def removeLastNameSpace(self):
+        list_len = len(self.name_space_list)
+        if list_len > 0:
+            element = self.name_space_list[list_len - 1]
+            self.name_space_list.remove(element)
+
+    def removeLastStructPointer(self):
+        if self.structure_pointer_list.getLen() > 0:
+            self.structure_pointer_list.removeElementByIndex(
+                self.structure_pointer_list.getLen() - 1
+            )
+
+    def removeLastCondPredicateList(self):
+        list_len = len(self.condPredicate_List)
+        if list_len > 0:
+            element = self.condPredicate_List[list_len - 1]
+            self.condPredicate_List.remove(element)
+
+    def removeLastRelatedArrays(self):
+        self.removeLastNameChange()
+        self.removeLastNameSpace()
+        self.removeLastStructPointer()
 
     def extractSensetive(self, ctx):
         from translator.sensetive.sensetive import extractSensetiveImpl
@@ -68,7 +102,6 @@ class SV2aplan:
         from translator.assignments.in_block_assignments import (
             blockAssignment2AplanImpl,
         )
-
         blockAssignment2AplanImpl(self, ctx)
 
     # ---------------------------------------------------------------------------------
@@ -330,6 +363,16 @@ class SV2aplan:
 
         ifStatement2AplanImpl(self, ctx)
 
+    def conditionalPredecate2Aplan(
+        self,
+        ctx: SystemVerilogParser.Conditional_statementContext,
+    ):
+        from translator.if_statement.if_statement import (
+            conditionalPredecate2AplanImpl,
+        )
+
+        conditionalPredecate2AplanImpl(self, ctx)
+
     # =================================CASE STATEMENT===================================
 
     def case2Aplan(
@@ -550,8 +593,8 @@ class SV2aplan:
             elif type(child) is SystemVerilogParser.Case_statementContext:
                 self.case2Aplan(child, sv_structure, names_for_change)
             # ---------------------------------------------------------------------------
-            elif type(child) is SystemVerilogParser.Conditional_statementContext:
-                self.ifStatement2Aplan(child, sv_structure, names_for_change)
+            # elif type(child) is SystemVerilogParser.Conditional_statementContext:
+            #    self.ifStatement2Aplan(child, sv_structure, names_for_change)
             # ---------------------------------------------------------------------------
             elif type(child) is Tree.TerminalNodeImpl:
                 self.operator2Aplan(child, destination_node_array)
