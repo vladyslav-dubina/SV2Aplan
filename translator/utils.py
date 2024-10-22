@@ -11,6 +11,15 @@ from translator.system_verilog_to_aplan import SV2aplan
 from utils.utils import Counters_Object
 
 
+def getProtocolParams(self: SV2aplan):
+    protocol_params = None
+    if self.inside_the_task == True:
+        task = self.module.tasks.getLastTask()
+        if task is not None:
+            protocol_params = task.parametrs
+    return protocol_params
+
+
 def createProtocol(
     self: SV2aplan,
     action_pointer: Action,

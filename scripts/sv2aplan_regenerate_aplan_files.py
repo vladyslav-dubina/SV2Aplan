@@ -1,3 +1,4 @@
+import argparse
 import time
 import traceback
 import sys
@@ -40,7 +41,7 @@ def run_generation(test_number, source_file, result_path):
     return result
 
 
-def regeneration_start():
+def regeneration_start(path_to_sv):
     failed_generations = []
     printWithColor(
         "\n------------------------------ GENERATON START --------------------------------\n",
@@ -52,11 +53,17 @@ def regeneration_start():
         + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time)),
         Color.GREEN,
     )
-
-    for test_number, data in enumerate(examples_list):
-        source_file, unused_path, result_path = data
-        if run_generation(test_number + 1, source_file, result_path):
-            failed_generations.append(test_number + 1)
+    if path_to_sv is None:
+        for test_number, data in enumerate(examples_list):
+            source_file, unused_path, result_path = data
+            if run_generation(test_number + 1, source_file, result_path):
+                failed_generations.append(test_number + 1)
+    else:
+        directory = os.path.dirname(path_to_sv)
+        source_file = path_to_sv
+        result_path = os.path.join(directory, "aplan")
+        if run_generation(1, source_file, result_path):
+            failed_generations.append(1)
 
     end_time = time.time()
     execution_time = end_time - start_time
@@ -85,8 +92,18 @@ def regeneration_start():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="This program is a translator from the system verilog language to the AVM algebraic model.\nAuthors:  \n1. Vlad Dubina (https://github.com/vladyslav-dubina)"
+    )
+    parser.add_argument(
+        "path",
+        metavar="",
+        help="Path to system verilog(.sv) file",
+        nargs="?",
+    )
+    args = parser.parse_args()
     try:
-        sys.exit(regeneration_start())
+        sys.exit(regeneration_start(args.path))
     except Exception as e:
         printWithColor("Generation errors: \n", Color.RED)
         traceback.print_exception(type(e), e, e.__traceback__, file=sys.stderr)

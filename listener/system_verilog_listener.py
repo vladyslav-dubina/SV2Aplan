@@ -3,7 +3,9 @@ from antlr4_verilog.systemverilog import (
     SystemVerilogParser,
 )
 from classes.counters import CounterTypes
+from classes.element_types import ElementsTypes
 from classes.structure import Structure, StructureArray
+from translator.utils import getProtocolParams
 from utils.utils import Counters_Object
 from translator.declarations.class_declaration import classDeclaration2Aplan
 from translator.declarations.interface_declaration import interfaceDeclaration2Aplan
@@ -11,7 +13,6 @@ from translator.declarations.module_declaration import moduleDeclaration2Aplan
 from translator.declarations.package_declaration import packageDeclaration2Aplan
 from translator.if_statement.if_statement import (
     getLastCondPredicateList,
-    getProtocolParams,
     removeFirstCondPredicate,
 )
 from translator.system_verilog_to_aplan import (
@@ -142,20 +143,22 @@ class SVListener(SystemVerilogParserListener):
         )
         if sv_structure:
             predicate_list, initial_len = getLastCondPredicateList(self.sv2aplan)
-            if len(predicate_list) == 1 and predicate_list[0] == None:
-                protocol_params = getProtocolParams(self.sv2aplan)
-                sv_structure.addProtocol(
-                    "ELSE_BODY_{0}".format(
-                        Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER)
-                    ),
-                    parametrs=protocol_params,
-                    inside_the_task=(
-                        self.sv2aplan.inside_the_task
-                        or self.sv2aplan.inside_the_function
-                    ),
-                )
-                removeFirstCondPredicate(self.sv2aplan)
-                Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
+            if predicate_list is not None:
+                if len(predicate_list) == 1 and predicate_list[0] == None:
+                    protocol_params = getProtocolParams(self.sv2aplan)
+                    sv_structure.addProtocol(
+                        "ELSE_BODY_{0}".format(
+                            Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER)
+                        ),
+                        element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
+                        parametrs=protocol_params,
+                        inside_the_task=(
+                            self.sv2aplan.inside_the_task
+                            or self.sv2aplan.inside_the_function
+                        ),
+                    )
+                    removeFirstCondPredicate(self.sv2aplan)
+                    Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
 
     # IFStatement
     def enterConditional_statement(

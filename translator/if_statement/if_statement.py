@@ -3,20 +3,12 @@ from classes.actions import Action
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.node import Node
-from classes.protocols import BodyElement
+from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
+from translator.utils import getProtocolParams
 from utils.string_formating import valuesToAplanStandart
 from utils.utils import Counters_Object
-
-
-def getProtocolParams(self):
-    protocol_params = None
-    if self.inside_the_task == True:
-        task = self.module.tasks.getLastTask()
-        if task is not None:
-            protocol_params = task.parametrs
-    return protocol_params
 
 
 def getLastCondPredicateList(self: SV2aplan):
@@ -64,6 +56,16 @@ def conditionalPredecate2AplanImpl(
     ctx: SystemVerilogParser.Cond_predicateContext,
 ):
     sv_structure: Structure | None = self.structure_pointer_list.getLastElement()
+    beh_index = sv_structure.getLastBehaviorIndex()
+    if beh_index is not None:
+        if (
+            sv_structure.behavior[beh_index].element_type
+            != ElementsTypes.IF_STATEMENT_ELEMENT
+        ):
+            return
+    else:
+        return
+
     predicate_list, initial_len = getLastCondPredicateList(self)
     if predicate_list != None:
         predicate_list_len = len(predicate_list)
@@ -74,9 +76,7 @@ def conditionalPredecate2AplanImpl(
                 Counters_Object.getCounter(CounterTypes.IF_COUNTER)
             )
             if_action = Action(
-                "if_{0}".format(
-                    Counters_Object.getCounter(CounterTypes.IF_COUNTER),
-                ),
+                action_name,
                 ctx.getSourceInterval(),
                 element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
             )
@@ -109,52 +109,60 @@ def conditionalPredecate2AplanImpl(
                 action_name,
                 Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
             )
-            beh_index = sv_structure.getLastBehaviorIndex()
-            if beh_index is not None:
-                if predicate_list_len != initial_len:
-                    beh_index = sv_structure.addProtocol(
-                        "ELSE_BODY_{0}".format(
-                            Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER)
-                        ),
-                        parametrs=protocol_params,
-                        inside_the_task=(
-                            self.inside_the_task or self.inside_the_function
-                        ),
-                    )
-                    Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
 
+            if predicate_list_len != initial_len:
+                beh_index = sv_structure.addProtocol(
+                    "ELSE_BODY_{0}".format(
+                        Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER)
+                    ),
+                    element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
+                    parametrs=protocol_params,
+                    inside_the_task=(self.inside_the_task or self.inside_the_function),
+                )
+                Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
+
+            sv_structure.behavior[beh_index].addBody(
+                BodyElement(
+                    body,
+                    action_pointer,
+                    ElementsTypes.IF_CONDITION_LEFT,
+                    parametrs=protocol_params,
+                )
+            )
+
+            if predicate_index < predicate_list_len - 1:
+
+                body = "!{0}.ELSE_BODY_{1}".format(
+                    action_name,
+                    Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER),
+                )
                 sv_structure.behavior[beh_index].addBody(
                     BodyElement(
                         body,
                         action_pointer,
-                        ElementsTypes.IF_CONDITION_LEFT,
+                        ElementsTypes.IF_CONDITION_RIGTH,
+                        parametrs=protocol_params,
+                    )
+                )
+            else:
+                sv_structure.behavior[beh_index].addBody(
+                    BodyElement(
+                        f"!{action_name}",
+                        action_pointer,
+                        ElementsTypes.IF_CONDITION_RIGTH,
                         parametrs=protocol_params,
                     )
                 )
 
-                if predicate_index < predicate_list_len - 1:
-
-                    body = "!{0}.ELSE_BODY_{1}".format(
-                        action_name,
-                        Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER),
-                    )
-                    sv_structure.behavior[beh_index].addBody(
-                        BodyElement(
-                            body,
-                            action_pointer,
-                            ElementsTypes.IF_CONDITION_RIGTH,
-                            parametrs=protocol_params,
-                        )
-                    )
-
-                sv_structure.addProtocol(
-                    "IF_BODY_{0}".format(
-                        Counters_Object.getCounter(CounterTypes.BODY_COUNTER)
-                    ),
-                    parametrs=protocol_params,
-                    inside_the_task=(self.inside_the_task or self.inside_the_function),
-                )
-                Counters_Object.incrieseCounter(CounterTypes.BODY_COUNTER)
+            sv_structure.addProtocol(
+                "IF_BODY_{0}".format(
+                    Counters_Object.getCounter(CounterTypes.BODY_COUNTER)
+                ),
+                element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
+                parametrs=protocol_params,
+                inside_the_task=(self.inside_the_task or self.inside_the_function),
+            )
+            Counters_Object.incrieseCounter(CounterTypes.BODY_COUNTER)
 
 
 def ifStatement2AplanImpl(
@@ -193,6 +201,7 @@ def ifStatement2AplanImpl(
             "IF_STATEMENT_{0}".format(
                 Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)
             ),
+            element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
             parametrs=protocol_params,
             inside_the_task=(self.inside_the_task or self.inside_the_function),
         )
