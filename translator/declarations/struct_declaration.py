@@ -23,9 +23,8 @@ def structDeclaration2AplanImpl(
     struct_decl = ctx.data_type_or_implicit().data_type()
     unique_identifier = "{0}_{1}".format(
         "struct",
-        Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+        self.getLastNameSpaceNumber(),
     )
-    Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
     typedef = Typedef(
         unique_identifier,
         unique_identifier,
@@ -161,9 +160,8 @@ def typedefDecaration2AplanImpl(
                 enum_type_identifier = "{0}".format(type_identifier.getText())
                 unique_identifier = "{0}_{1}".format(
                     enum_type_identifier,
-                    Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+                    self.getLastNameSpaceNumber(),
                 )
-                Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
                 decl_type = DeclTypes.ENUM_TYPE
 
                 if data_type.struct_union():
@@ -211,9 +209,8 @@ def createArrayStruct(
     enum_type_identifier = "{0}".format(identifier)
     unique_identifier = "{0}_{1}".format(
         enum_type_identifier,
-        Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+        self.getLastNameSpaceNumber(),
     )
-    Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
     typedef = Typedef(
         enum_type_identifier,
         unique_identifier,

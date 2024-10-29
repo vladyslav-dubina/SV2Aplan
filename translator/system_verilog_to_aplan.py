@@ -1,6 +1,9 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
 from classes.actions import Action
+from classes.basic import BasicArray
+from classes.cond_predicate import CondPredicateArray
+from classes.counters import CounterTypes
 from classes.module_call import ModuleCall
 from classes.node import NodeArray
 from classes.structure import Structure, StructureArray
@@ -8,6 +11,7 @@ from classes.module import Module
 from classes.element_types import ElementsTypes
 from program.program import Program
 from typing import Tuple, List
+from utils.utils import Counters_Object
 
 
 class SV2aplan:
@@ -17,12 +21,18 @@ class SV2aplan:
         self.inside_the_task = False
         self.inside_the_function = False
         self.current_genvar_value: Tuple[str, int] | None = None
+        self.condPredicate_pointer_list: CondPredicateArray = CondPredicateArray()
         self.structure_pointer_list: StructureArray = StructureArray()
-        self.name_space_list: List[ElementsTypes] = []
+        self.name_space_numbers: List[int] = []
         self.names_for_change = []
-        self.condPredicate_List: List[
-            Tuple[List[SystemVerilogParser.Cond_predicateContext], int]
-        ] = []
+
+    def getProtocolParams(self):
+        protocol_params = None
+        if self.inside_the_task == True:
+            task = self.module.tasks.getLastTask()
+            if task is not None:
+                protocol_params = task.parametrs
+        return protocol_params
 
     def removeLastNameChange(self):
         list_len = len(self.names_for_change)
@@ -32,11 +42,28 @@ class SV2aplan:
             element = self.names_for_change[list_len - 1]
             self.names_for_change.remove(element)
 
-    def removeLastNameSpace(self):
-        list_len = len(self.name_space_list)
+    def removeLastNameSpaceNumber(self):
+        list_len = len(self.name_space_numbers)
         if list_len > 0:
-            element = self.name_space_list[list_len - 1]
-            self.name_space_list.remove(element)
+            element = self.name_space_numbers[list_len - 1]
+            self.name_space_numbers.remove(element)
+
+    def getLastNameSpaceNumber(self):
+        element = 0
+        list_len = len(self.name_space_numbers)
+        if list_len > 0:
+            element = self.name_space_numbers[list_len - 1]
+        else:
+            element = Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+            self.name_space_numbers.append(element)
+            Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+        return element
+
+    def removeLastCondPointer(self):
+        if self.condPredicate_pointer_list.getLen() > 0:
+            self.condPredicate_pointer_list.removeElementByIndex(
+                self.condPredicate_pointer_list.getLen() - 1
+            )
 
     def removeLastStructPointer(self):
         if self.structure_pointer_list.getLen() > 0:
@@ -44,16 +71,9 @@ class SV2aplan:
                 self.structure_pointer_list.getLen() - 1
             )
 
-    def removeLastCondPredicateList(self):
-        list_len = len(self.condPredicate_List)
-        if list_len > 0:
-            element = self.condPredicate_List[list_len - 1]
-            self.condPredicate_List.remove(element)
-
     def removeLastRelatedArrays(self):
         self.removeLastNameChange()
-        self.removeLastNameSpace()
-        self.removeLastStructPointer()
+        self.removeLastCondPointer()
 
     def extractSensetive(self, ctx):
         from translator.sensetive.sensetive import extractSensetiveImpl
@@ -102,6 +122,7 @@ class SV2aplan:
         from translator.assignments.in_block_assignments import (
             blockAssignment2AplanImpl,
         )
+
         blockAssignment2AplanImpl(self, ctx)
 
     # ---------------------------------------------------------------------------------

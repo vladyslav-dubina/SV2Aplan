@@ -42,9 +42,8 @@ def loopVars2AplanImpl(
         original_identifier = index_variable_identifier.identifier().getText()
         identifier = (
             original_identifier
-            + f"_{Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)}"
+            + f"_{self.getLastNameSpaceNumber()}"
         )
-        Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
         data_type = "int"
         size_expression = data_type
         packages = self.module.packages_and_objects.getElementsIE(
@@ -263,7 +262,7 @@ def forInitialization2ApanImpl(
         original_identifier = expression.variable_identifier(0).getText()
         identifier = (
             original_identifier
-            + f"_{Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)}"
+            + f"_{self.getLastNameSpaceNumber()}"
         )
         Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
         data_type = expression.data_type().getText()

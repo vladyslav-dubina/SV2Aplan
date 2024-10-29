@@ -1,5 +1,6 @@
 from typing import List, Tuple
 from classes.element_types import ElementsTypes
+from utils.utils import Color, printWithColor
 
 
 class Basic:
@@ -48,6 +49,15 @@ class BasicArray:
             new_aray.addElement(element.copy())
         return new_aray
 
+    def reverse(self):
+        self.elements = list(reversed(self.elements))
+        return self
+
+    def reverse_copy(self):
+        new_array = self.copy()
+        new_array.elements = list(reversed(self.elements))
+        return new_array
+
     def insert(self, index: int, element: Basic):
         self.elements.insert(index, element)
 
@@ -91,13 +101,13 @@ class BasicArray:
 
     def __iadd__(self, other):
         if isinstance(other, BasicArray):
-            if self.element_type == other.element_type:
-                self.elements.extend(other.elements)
-            else:
-                raise TypeError(
-                    f"Cannot add BasicArray of type {other.element_type} to BasicArray of type {self.element_type}."
+            if self.element_type != other.element_type:
+                printWithColor(
+                    f"WARNING: Adding BasicArray of type {other.element_type} to BasicArray of type {self.element_type}.",
+                    Color.YELLOW,
                 )
-        elif isinstance(other, self.element_type):
+            self.elements.extend(other.elements)
+        elif isinstance(other, Basic):
             self.addElement(other)
         else:
             raise TypeError(
@@ -106,13 +116,13 @@ class BasicArray:
         return self
 
     def addElement(self, new_element: Basic):
-        if isinstance(new_element, self.element_type):
-            self.elements.append(new_element)
-            return self.getLen() - 1
-        else:
-            raise TypeError(
-                f"Object should be of type {self.element_type} but you passed an object of type {type(new_element)}. \n Object: {new_element}"
+        self.elements.append(new_element)
+        if not isinstance(new_element, self.element_type):
+            printWithColor(
+                f"WARNING: Object should be of type {self.element_type} but you passed an object of type {type(new_element)}. \n Object: {new_element}",
+                Color.YELLOW,
             )
+        return self.getLen() - 1
 
     def findElement(
         self,
@@ -143,6 +153,12 @@ class BasicArray:
 
     def getElementByIndex(self, index):
         return self.elements[index]
+
+    def getLastElement(self) -> Basic | None:
+        if self.getLen() > 0:
+            return self.elements[self.getLen() - 1]
+        else:
+            return None
 
     def removeElement(self, element):
         self.elements.remove(element)

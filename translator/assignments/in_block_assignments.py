@@ -4,7 +4,6 @@ from classes.element_types import ElementsTypes
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
-from translator.utils import getProtocolParams
 from utils.utils import Counters_Object
 
 
@@ -19,7 +18,7 @@ def blockAssignment2AplanImpl(self: SV2aplan, ctx):
         sv_structure=sv_structure,
     )
     if action_name is not None:
-        protocol_params = getProtocolParams(self)
+        protocol_params = self.getProtocolParams()
         if sv_structure:
             beh_index = sv_structure.getLastBehaviorIndex()
 

@@ -114,10 +114,9 @@ def dataDecaration2AplanImpl(
                             elem.variable_identifier().identifier().getText()
                         )
 
-                    identifier = original_identifier
-                    if name_space != ElementsTypes.NONE_ELEMENT:
-                        identifier += f"_{Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)}"
-                        Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+                    identifier = (
+                        original_identifier + f"_{self.getLastNameSpaceNumber()}"
+                    )
 
                     if isinstance(ctx, SystemVerilogParser.Data_declarationContext):
                         unpacked_dimention = elem.variable_dimension(0)

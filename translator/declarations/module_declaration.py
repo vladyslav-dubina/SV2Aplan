@@ -30,5 +30,5 @@ def moduleDeclaration2Aplan(
         Module(identifier, ctx.getSourceInterval(), uniq_name)
     )
     module = program.modules.getElementByIndex(index)
-
+    
     return module

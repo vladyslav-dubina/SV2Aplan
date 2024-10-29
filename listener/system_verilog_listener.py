@@ -2,19 +2,16 @@ from antlr4_verilog.systemverilog import (
     SystemVerilogParserListener,
     SystemVerilogParser,
 )
+from classes.cond_predicate import CondPredicate
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.structure import Structure, StructureArray
-from translator.utils import getProtocolParams
+
 from utils.utils import Counters_Object
 from translator.declarations.class_declaration import classDeclaration2Aplan
 from translator.declarations.interface_declaration import interfaceDeclaration2Aplan
 from translator.declarations.module_declaration import moduleDeclaration2Aplan
 from translator.declarations.package_declaration import packageDeclaration2Aplan
-from translator.if_statement.if_statement import (
-    getLastCondPredicateList,
-    removeFirstCondPredicate,
-)
 from translator.system_verilog_to_aplan import (
     SV2aplan,
 )
@@ -55,6 +52,15 @@ class SVListener(SystemVerilogParserListener):
             self.module,
             self.program,
         )
+        self.sv2aplan.name_space_numbers.append(
+            Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+        )
+        Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+
+    def exitModule_declaration(
+        self, ctx: SystemVerilogParser.Module_declarationContext
+    ):
+        self.sv2aplan.removeLastNameSpaceNumber()
 
     def enterPackage_declaration(
         self, ctx: SystemVerilogParser.Package_declarationContext
@@ -66,10 +72,8 @@ class SVListener(SystemVerilogParserListener):
         self.module = classDeclaration2Aplan(ctx, self.program, self.module_call)
         self.sv2aplan = SV2aplan(self.module, self.program)
 
-    # def enterSystem_tf_call(
-    #     self, ctx: SystemVerilogParser.System_tf_callContext
-    # ):
-    #     self.sv2aplan.systemTFCall2Aplan(ctx)
+    def enterSystem_tf_call(self, ctx: SystemVerilogParser.System_tf_callContext):
+        self.sv2aplan.systemTFCall2Aplan(ctx)
 
     def exitGenvar_declaration(self, ctx):
         self.sv2aplan.genvarDeclaration2Aplan(ctx)
@@ -133,7 +137,8 @@ class SVListener(SystemVerilogParserListener):
         self.sv2aplan.always2Aplan(ctx)
 
     def exitAlways_construct(self, ctx: SystemVerilogParser.Always_constructContext):
-        self.sv2aplan.removeLastRelatedArrays()
+        self.sv2aplan.removeLastNameChange()
+        self.sv2aplan.removeLastStructPointer()
 
     # SEQUENCE BLOCK CONTEXT
 
@@ -142,10 +147,10 @@ class SVListener(SystemVerilogParserListener):
             self.sv2aplan.structure_pointer_list.getLastElement()
         )
         if sv_structure:
-            predicate_list, initial_len = getLastCondPredicateList(self.sv2aplan)
-            if predicate_list is not None:
-                if len(predicate_list) == 1 and predicate_list[0] == None:
-                    protocol_params = getProtocolParams(self.sv2aplan)
+            element = self.sv2aplan.condPredicate_pointer_list.getLastElement()
+            if isinstance(element, CondPredicate):
+                if element.element_type == ElementsTypes.ELSE_PREDICATE:
+                    protocol_params = self.sv2aplan.getProtocolParams()
                     sv_structure.addProtocol(
                         "ELSE_BODY_{0}".format(
                             Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER)
@@ -157,7 +162,7 @@ class SVListener(SystemVerilogParserListener):
                             or self.sv2aplan.inside_the_function
                         ),
                     )
-                    removeFirstCondPredicate(self.sv2aplan)
+                    self.sv2aplan.removeLastCondPointer()
                     Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
 
     # IFStatement
@@ -169,16 +174,14 @@ class SVListener(SystemVerilogParserListener):
     def exitConditional_statement(
         self, ctx: SystemVerilogParser.Conditional_statementContext
     ):
-        self.sv2aplan.removeLastNameSpace()
         self.sv2aplan.removeLastNameChange()
-        self.sv2aplan.removeLastCondPredicateList()
 
     # Enter a parse tree produced by SystemVerilogParser#cond_predicate.
     def enterCond_predicate(self, ctx: SystemVerilogParser.Cond_predicateContext):
         self.sv2aplan.conditionalPredecate2Aplan(ctx)
 
     def exitCond_predicate(self, ctx: SystemVerilogParser.Cond_predicateContext):
-        removeFirstCondPredicate(self.sv2aplan)
+        self.sv2aplan.removeLastCondPointer()
 
     # ASSERT
     def exitAssert_property_statement(self, ctx):
