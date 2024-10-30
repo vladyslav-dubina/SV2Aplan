@@ -197,7 +197,8 @@ class SVListener(SystemVerilogParserListener):
         self.sv2aplan.initial2Aplan(ctx)
 
     def exitInitial_construct(self, ctx: SystemVerilogParser.Initial_constructContext):
-        self.sv2aplan.removeLastRelatedArrays()
+        self.sv2aplan.removeLastNameChange()
+        self.sv2aplan.removeLastStructPointer()
 
     #
     def exitTask_declaration(self, ctx: SystemVerilogParser.Task_declarationContext):

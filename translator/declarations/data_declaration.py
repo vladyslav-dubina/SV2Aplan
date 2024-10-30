@@ -169,15 +169,14 @@ def dataDecaration2AplanImpl(
                     decl_unique, decl_index = self.module.declarations.addElement(
                         new_decl
                     )
-                    if listener == False and (
-                        name_space != ElementsTypes.NONE_ELEMENT
-                        or name_space != ElementsTypes.LOOP_ELEMENT
-                        or name_space != ElementsTypes.GENERATE_ELEMENT
-                    ):
-                        self.module.declarations.elements[decl_index] = new_decl
+                    #if (
+                   #     name_space != ElementsTypes.NONE_ELEMENT
+                   #     or name_space != ElementsTypes.LOOP_ELEMENT
+                   #     or name_space != ElementsTypes.GENERATE_ELEMENT
+                  #  ):
+                   #     self.module.declarations.elements[decl_index] = new_decl
 
-                    if listener == False:
-                        self.module.name_change.addElement(
+                    self.module.name_change.addElement(
                             NameChange(
                                 identifier, ctx.getSourceInterval(), original_identifier
                             )
@@ -188,13 +187,10 @@ def dataDecaration2AplanImpl(
 
                     declaration = self.module.declarations.getElementByIndex(decl_index)
 
-                    if sv_structure is not None:
-                        sv_structure.elements.addElement(declaration)
-
                     if expression is not None:
                         expression = expression.getText()
-                        if listener == False:
-                            if sv_structure is not None:
+                        if sv_structure is not None:
+                                sv_structure.elements.addElement(declaration)
                                 beh_index = sv_structure.getLastBehaviorIndex()
                                 (
                                     action_pointer,
@@ -215,19 +211,19 @@ def dataDecaration2AplanImpl(
                                         )
                                     )
                         else:
-                            if decl_unique:
-                                (
-                                    action_pointer,
-                                    assign_name,
-                                    source_interval,
-                                    uniq_action,
-                                ) = self.expression2Aplan(
-                                    elem,
-                                    ElementsTypes.ASSIGN_ELEMENT,
-                                    sv_structure=sv_structure,
-                                )
-                                declaration.expression = assign_name
-                                declaration.action = action_pointer
+                                if decl_unique:
+                                    (
+                                        action_pointer,
+                                        assign_name,
+                                        source_interval,
+                                        uniq_action,
+                                    ) = self.expression2Aplan(
+                                        elem,
+                                        ElementsTypes.ASSIGN_ELEMENT,
+                                        sv_structure=sv_structure,
+                                    )
+                                    declaration.expression = assign_name
+                                    declaration.action = action_pointer
 
                 return identifier
     else:

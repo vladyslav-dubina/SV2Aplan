@@ -96,7 +96,6 @@ def conditionalPredecate2AplanImpl(
 
         pointer_list_len = self.condPredicate_pointer_list.getLen()
         continuation_flag = False
-        print(self.condPredicate_pointer_list, pointer_list_len, pointer_list_len - 2)
         if pointer_list_len - 2 >= 0:
             next_element = self.condPredicate_pointer_list.getElementByIndex(
                 pointer_list_len - 2

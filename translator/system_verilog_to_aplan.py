@@ -71,9 +71,6 @@ class SV2aplan:
                 self.structure_pointer_list.getLen() - 1
             )
 
-    def removeLastRelatedArrays(self):
-        self.removeLastNameChange()
-        self.removeLastCondPointer()
 
     def extractSensetive(self, ctx):
         from translator.sensetive.sensetive import extractSensetiveImpl
