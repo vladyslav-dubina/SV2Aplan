@@ -94,6 +94,7 @@ def ansiPortDeclaration2AplanImpl(
         dimension_size_expression,
         dimension_size,
         ctx.getSourceInterval(),
+        name_space_level=self.getLastNameSpaceNumber(),
     )
     decl_unique, decl_index = self.module.declarations.addElement(port)
 

@@ -11,6 +11,7 @@ reg Write_once_status;
 always @(posedge Clk or negedge ip_resetn)
     if (~ip_resetn) 
         begin
+            int ip_resetn;
             Data_out[0] <= Write_once_status;
         end
     else if (write & ~Write_once_status)

@@ -85,8 +85,10 @@ class Declaration(Basic):
         element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT,
         action: Action | None = None,
         struct_name: str | None = None,
+        name_space_level: int | None = None,
     ):
         super().__init__(identifier, source_interval, element_type)
+        self.number = name_space_level
         self.data_type = data_type
         self.expression = expression
         self.size = size
@@ -109,8 +111,9 @@ class Declaration(Basic):
             self.source_interval,
             self.element_type,
             self.action,
+            self.struct_name,
+            self.number,
         )
-        declaration.number = self.number
         return declaration
 
     def getAplanDecltype(self, type: AplanDeclType = AplanDeclType.NONE):
@@ -164,7 +167,7 @@ class Declaration(Basic):
         return result
 
     def __repr__(self):
-        return f"\tDeclaration({self.data_type!r}, {self.identifier!r}, {self.expression!r}, {self.size!r}, {self.dimension_size!r}, {self.sequence!r})\n"
+        return f"\tDeclaration({self.data_type!r}, {self.identifier!r}, {self.number!r}, {self.expression!r}, {self.size!r}, {self.dimension_size!r}, {self.sequence!r})\n"
 
 
 class DeclarationArray(BasicArray):
@@ -250,9 +253,15 @@ class DeclarationArray(BasicArray):
 
     def addElement(self, new_element: Declaration):
         if isinstance(new_element, self.element_type):
-            is_uniq_element = self.findElementWithSource(
-                new_element.identifier, new_element.source_interval
-            )
+            is_uniq_element = None
+            for element in self.elements:
+                if (
+                    element.identifier == new_element.identifier
+                    or element.source_interval == new_element.source_interval
+                ) and element.number == new_element.number:
+                    is_uniq_element = element
+                    break
+
             if is_uniq_element is not None:
                 return (False, self.getElementIndex(is_uniq_element.identifier))
 
@@ -281,6 +290,26 @@ class DeclarationArray(BasicArray):
             if element.data_type == DeclTypes.INPORT:
                 result.append(element)
         return result
+
+    def findDeclByNameAndNameSpaceLevel(
+        self,
+        identifier: str,
+        name_space_level: int,
+    ):
+        for element in self.elements:
+            if element.identifier == identifier and element.number == name_space_level:
+                return element
+        return None
+
+    def findDeclinStrByNameSpaceLevel(
+        self,
+        string: str,
+        name_space_level: int,
+    ):
+        for element in self.elements:
+            if element.identifier in string and element.number == name_space_level:
+                return element
+        return None
 
     def findDeclWithDimentionByName(
         self,

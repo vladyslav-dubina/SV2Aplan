@@ -9,6 +9,7 @@ from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import (
     parallelAssignment2Assignment,
     replaceValueParametrsCalls,
+    replaseExpression,
     valuesToAplanStandart,
 )
 
@@ -33,13 +34,21 @@ def identifier2AplanImpl(
     destination_node_array: NodeArray,
 ):
     if destination_node_array is not None:
-        identifier = self.module.name_change.changeNamesInStr(ctx.getText())
+
+        identifier = ctx.getText()
         index = destination_node_array.addElement(
             Node(identifier, ctx.getSourceInterval(), ElementsTypes.IDENTIFIER_ELEMENT)
         )
         node = destination_node_array.getElementByIndex(index)
-        decl = self.module.declarations.getElement(node.identifier)
+
+        decl = self.module.declarations.findDeclByNameAndNameSpaceLevel(
+            identifier, self.getLastNameSpaceNumber() - 1
+        )
+
         if isinstance(decl, Declaration):
+            node.identifier = replaseExpression(
+                node.identifier, decl.identifier, decl.getName()
+            )
             if self.module.element_type == ElementsTypes.CLASS_ELEMENT:
                 node.module_name = "object_pointer"
             else:
@@ -78,25 +87,28 @@ def unpackedDimention2AplanImpl(
     if expression:
         expression = expression.getText()
 
-        bit = self.module.name_change.changeNamesInStr(expression)
-
-        if self.current_genvar_value is not None:
-            (genvar, value) = self.current_genvar_value
-            bit = re.sub(
-                r"\b{}\b".format(re.escape(genvar)),
-                f"{value}",
-                bit,
-            )
-
         index = destination_node_array.addElement(
-            Node(bit, ctx.getSourceInterval(), ElementsTypes.NUMBER_ELEMENT)
+            Node(expression, ctx.getSourceInterval(), ElementsTypes.NUMBER_ELEMENT)
         )
         node = destination_node_array.getElementByIndex(index)
         node.bit_selection = True
-        decl = self.module.declarations.getElement(bit)
 
-        if decl:
+        decl = self.module.declarations.findDeclinStrByNameSpaceLevel(
+            expression, self.getLastNameSpaceNumber() - 1
+        )
+        if isinstance(decl, Declaration):
+            node.identifier = replaseExpression(
+                node.identifier, decl.identifier, decl.getName()
+            )
             node.module_name = self.module.ident_uniq_name
+
+        if self.current_genvar_value is not None:
+            (genvar, value) = self.current_genvar_value
+            node.identifier = re.sub(
+                r"\b{}\b".format(re.escape(genvar)),
+                f"{value}",
+                node.identifier,
+            )
 
         node.identifier = paramsCallReplace(self, node.identifier)
 
@@ -119,25 +131,28 @@ def bitSelection2AplanImpl(
 
             bit = element.getText()
 
-            bit = self.module.name_change.changeNamesInStr(bit)
-
-            if self.current_genvar_value is not None:
-                (genvar, value) = self.current_genvar_value
-                bit = re.sub(
-                    r"\b{}\b".format(re.escape(genvar)),
-                    f"{value}",
-                    bit,
-                )
-
             index = destination_node_array.addElement(
                 Node(bit, ctx.getSourceInterval(), ElementsTypes.NUMBER_ELEMENT)
             )
             node = destination_node_array.getElementByIndex(index)
             node.bit_selection = True
-            decl = self.module.declarations.getElement(bit)
 
-            if decl:
+            decl = self.module.declarations.findDeclinStrByNameSpaceLevel(
+                bit, self.getLastNameSpaceNumber() - 1
+            )
+            if isinstance(decl, Declaration):
+                node.identifier = replaseExpression(
+                    node.identifier, decl.identifier, decl.getName()
+                )
                 node.module_name = self.module.ident_uniq_name
+
+            if self.current_genvar_value is not None:
+                (genvar, value) = self.current_genvar_value
+                node.identifier = re.sub(
+                    r"\b{}\b".format(re.escape(genvar)),
+                    f"{value}",
+                    node.identifier,
+                )
 
             node.identifier = paramsCallReplace(self, node.identifier)
 

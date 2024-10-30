@@ -74,7 +74,7 @@ def moduleCallAssign2Aplan(
                     param_array: ParametrArray = ParametrArray()
                     uniq, param_index = param_array.addElement(
                         Parametr(
-                            decl.identifier,
+                            decl.getName(),
                             decl.getAplanDecltype(AplanDeclType.PARAMETRS),
                         )
                     )

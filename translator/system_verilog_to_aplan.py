@@ -592,18 +592,7 @@ class SV2aplan:
             elif type(child) is SystemVerilogParser.Method_call_bodyContext:
                 self.methodCall2Aplan(child, sv_structure, destination_node_array)
             # ---------------------------------------------------------------------------
-            elif type(child) is SystemVerilogParser.Data_declarationContext:
-                data_type = child.data_type_or_implicit().getText()
-                if len(data_type) > 0:
-                    identifier = self.dataDecaration2Aplan(
-                        child, False, sv_structure, name_space
-                    )
-                    if identifier is not None:
-                        names_for_change.append(identifier)
-                else:
-                    names_for_change += self.body2Aplan(
-                        child, sv_structure, name_space, destination_node_array
-                    )
+
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Loop_statementContext:
                 self.loop2Aplan(child, sv_structure)

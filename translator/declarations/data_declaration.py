@@ -114,10 +114,6 @@ def dataDecaration2AplanImpl(
                             elem.variable_identifier().identifier().getText()
                         )
 
-                    identifier = (
-                        original_identifier + f"_{self.getLastNameSpaceNumber()}"
-                    )
-
                     if isinstance(ctx, SystemVerilogParser.Data_declarationContext):
                         unpacked_dimention = elem.variable_dimension(0)
 
@@ -142,14 +138,14 @@ def dataDecaration2AplanImpl(
 
                             createSizeExpression(
                                 self,
-                                identifier,
+                                original_identifier,
                                 dimension_size,
                                 elem.getSourceInterval(),
                             )
 
                             size_expression = createArrayStruct(
                                 self,
-                                identifier,
+                                original_identifier,
                                 DeclTypes.INT,
                                 elem.getSourceInterval(),
                             )
@@ -157,30 +153,25 @@ def dataDecaration2AplanImpl(
                     assign_name = ""
                     new_decl = Declaration(
                         data_check_type,
-                        identifier,
+                        original_identifier,
                         assign_name,
                         size_expression,
                         aplan_vector_size[0],
                         dimension_size_expression,
                         dimension_size,
                         elem.getSourceInterval(),
+                        name_space_level=self.getLastNameSpaceNumber(),
                     )
 
                     decl_unique, decl_index = self.module.declarations.addElement(
                         new_decl
                     )
-                    #if (
-                   #     name_space != ElementsTypes.NONE_ELEMENT
-                   #     or name_space != ElementsTypes.LOOP_ELEMENT
-                   #     or name_space != ElementsTypes.GENERATE_ELEMENT
-                  #  ):
-                   #     self.module.declarations.elements[decl_index] = new_decl
-
-                    self.module.name_change.addElement(
-                            NameChange(
-                                identifier, ctx.getSourceInterval(), original_identifier
-                            )
-                        )
+                    # if (
+                    #     name_space != ElementsTypes.NONE_ELEMENT
+                    #     or name_space != ElementsTypes.LOOP_ELEMENT
+                    #     or name_space != ElementsTypes.GENERATE_ELEMENT
+                    #  ):
+                    #     self.module.declarations.elements[decl_index] = new_decl
 
                     if isinstance(ctx, SystemVerilogParser.Data_declarationContext):
                         expression = elem.expression()
@@ -190,8 +181,28 @@ def dataDecaration2AplanImpl(
                     if expression is not None:
                         expression = expression.getText()
                         if sv_structure is not None:
-                                sv_structure.elements.addElement(declaration)
-                                beh_index = sv_structure.getLastBehaviorIndex()
+                            sv_structure.elements.addElement(declaration)
+                            beh_index = sv_structure.getLastBehaviorIndex()
+                            (
+                                action_pointer,
+                                assign_name,
+                                source_interval,
+                                uniq_action,
+                            ) = self.expression2Aplan(
+                                elem,
+                                ElementsTypes.ASSIGN_ELEMENT,
+                                sv_structure=sv_structure,
+                            )
+                            if beh_index is not None and assign_name is not None:
+                                sv_structure.behavior[beh_index].addBody(
+                                    BodyElement(
+                                        assign_name,
+                                        action_pointer,
+                                        ElementsTypes.ACTION_ELEMENT,
+                                    )
+                                )
+                        else:
+                            if decl_unique:
                                 (
                                     action_pointer,
                                     assign_name,
@@ -202,29 +213,8 @@ def dataDecaration2AplanImpl(
                                     ElementsTypes.ASSIGN_ELEMENT,
                                     sv_structure=sv_structure,
                                 )
-                                if beh_index is not None and assign_name is not None:
-                                    sv_structure.behavior[beh_index].addBody(
-                                        BodyElement(
-                                            assign_name,
-                                            action_pointer,
-                                            ElementsTypes.ACTION_ELEMENT,
-                                        )
-                                    )
-                        else:
-                                if decl_unique:
-                                    (
-                                        action_pointer,
-                                        assign_name,
-                                        source_interval,
-                                        uniq_action,
-                                    ) = self.expression2Aplan(
-                                        elem,
-                                        ElementsTypes.ASSIGN_ELEMENT,
-                                        sv_structure=sv_structure,
-                                    )
-                                    declaration.expression = assign_name
-                                    declaration.action = action_pointer
+                                declaration.expression = assign_name
+                                declaration.action = action_pointer
 
-                return identifier
     else:
         self.enumDecaration2Aplan(ctx)
