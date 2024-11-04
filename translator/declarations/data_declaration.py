@@ -1,7 +1,6 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
-from classes.name_change import NameChange
 from classes.protocols import BodyElement
 from classes.structure import Structure
 from translator.declarations.struct_declaration import createArrayStruct
@@ -9,8 +8,6 @@ from translator.expression.expression import createSizeExpression
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
-    Counters_Object,
-    CounterTypes,
     dataTypeToStr,
     extractDimentionSize,
     extractVectorSize,
@@ -160,7 +157,7 @@ def dataDecaration2AplanImpl(
                         dimension_size_expression,
                         dimension_size,
                         elem.getSourceInterval(),
-                        name_space_level=self.getLastNameSpaceNumber(),
+                        name_space_level=self.getLastNameSpaceLevel(),
                     )
 
                     decl_unique, decl_index = self.module.declarations.addElement(

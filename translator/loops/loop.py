@@ -285,5 +285,4 @@ def loop2AplanImpl(
         )
 
     Counters_Object.incrieseCounter(CounterTypes.LOOP_COUNTER)
-    for element in names_for_change:
-        self.module.name_change.deleteElement(element)
+

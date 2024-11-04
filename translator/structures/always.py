@@ -47,7 +47,7 @@ def always2AplanImpl(self: SV2aplan, ctx: SystemVerilogParser.Always_constructCo
 
     self.module.structures.addElement(always)
     self.structure_pointer_list.addElement(always)
-    self.name_space_numbers.append(
+    self.name_space_levels.append(
         Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)
     )
     Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)

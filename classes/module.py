@@ -8,7 +8,6 @@ from classes.declarations import DeclTypes, DeclarationArray
 from classes.structure import StructureArray
 from classes.basic import Basic, BasicArray
 from classes.module_call import ModuleCallArray
-from classes.name_change import NameChangeArray
 from classes.element_types import ElementsTypes
 from typing import List, Tuple
 import re
@@ -43,8 +42,6 @@ class Module(Basic):
 
         self.input_parametrs: ParametrArray = ParametrArray()
 
-        self.name_change: NameChangeArray = NameChangeArray()
-
         self.processed_elements: ProcessedElementArray = ProcessedElementArray()
 
         self.tasks: TaskArray = TaskArray()
@@ -63,7 +60,7 @@ class Module(Basic):
         module.structures = self.structures
         module.out_of_block_elements = self.out_of_block_elements
         module.value_parametrs = self.value_parametrs
-        module.name_change = self.name_change
+
         module.processed_elements = self.processed_elements
         module.tasks = self.tasks
         module.packages_and_objects = self.packages_and_objects
@@ -85,7 +82,6 @@ class Module(Basic):
         module.out_of_block_elements = self.out_of_block_elements.copy()
         self.out_of_block_elements.updateLinks(module)
         module.value_parametrs = self.value_parametrs.copy()
-        module.name_change = self.name_change.copy()
         module.processed_elements = self.processed_elements.copy()
         module.tasks = self.tasks.copy()
         module.packages_and_objects = self.packages_and_objects.copy()

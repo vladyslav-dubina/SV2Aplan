@@ -52,7 +52,7 @@ class SVListener(SystemVerilogParserListener):
             self.module,
             self.program,
         )
-        self.sv2aplan.name_space_numbers.append(
+        self.sv2aplan.name_space_levels.append(
             Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)
         )
         Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
@@ -60,7 +60,7 @@ class SVListener(SystemVerilogParserListener):
     def exitModule_declaration(
         self, ctx: SystemVerilogParser.Module_declarationContext
     ):
-        self.sv2aplan.removeLastNameSpaceNumber()
+        self.sv2aplan.removeLastNameSpaceLevel()
 
     def enterPackage_declaration(
         self, ctx: SystemVerilogParser.Package_declarationContext

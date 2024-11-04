@@ -9,7 +9,6 @@ from translator.system_verilog_to_aplan import SV2aplan
 from utils.string_formating import (
     parallelAssignment2Assignment,
     replaceValueParametrsCalls,
-    replaseExpression,
     valuesToAplanStandart,
 )
 
@@ -41,14 +40,10 @@ def identifier2AplanImpl(
         )
         node = destination_node_array.getElementByIndex(index)
 
-        decl = self.module.declarations.findDeclByNameAndNameSpaceLevel(
-            identifier, self.getLastNameSpaceNumber() - 1
-        )
+        identifier, decl = self.module.declarations.findAndReplaceDeclName(identifier)
 
         if isinstance(decl, Declaration):
-            node.identifier = replaseExpression(
-                node.identifier, decl.identifier, decl.getName()
-            )
+            node.identifier = identifier
             if self.module.element_type == ElementsTypes.CLASS_ELEMENT:
                 node.module_name = "object_pointer"
             else:
@@ -93,13 +88,9 @@ def unpackedDimention2AplanImpl(
         node = destination_node_array.getElementByIndex(index)
         node.bit_selection = True
 
-        decl = self.module.declarations.findDeclinStrByNameSpaceLevel(
-            expression, self.getLastNameSpaceNumber() - 1
-        )
+        expression, decl = self.module.declarations.findAndReplaceDeclName(expression)
         if isinstance(decl, Declaration):
-            node.identifier = replaseExpression(
-                node.identifier, decl.identifier, decl.getName()
-            )
+            node.identifier = expression
             node.module_name = self.module.ident_uniq_name
 
         if self.current_genvar_value is not None:
@@ -137,13 +128,10 @@ def bitSelection2AplanImpl(
             node = destination_node_array.getElementByIndex(index)
             node.bit_selection = True
 
-            decl = self.module.declarations.findDeclinStrByNameSpaceLevel(
-                bit, self.getLastNameSpaceNumber() - 1
-            )
+            bit, decl = self.module.declarations.findAndReplaceDeclName(bit)
+
             if isinstance(decl, Declaration):
-                node.identifier = replaseExpression(
-                    node.identifier, decl.identifier, decl.getName()
-                )
+                node.identifier = bit
                 node.module_name = self.module.ident_uniq_name
 
             if self.current_genvar_value is not None:

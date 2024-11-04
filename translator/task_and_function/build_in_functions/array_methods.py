@@ -63,7 +63,6 @@ def createPushBack(
         self.body2Aplan(
             arguments_list,
             sv_structure=sv_structure,
-            name_space=ElementsTypes.NONE_ELEMENT,
             destination_node_array=action.postcondition,
         )
         action.postcondition.addElement(

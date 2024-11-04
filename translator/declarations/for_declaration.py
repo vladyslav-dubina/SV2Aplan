@@ -3,7 +3,6 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
-from classes.name_change import NameChange
 from classes.structure import Structure
 from translator.expression.expression import actionFromNodeStr
 from translator.system_verilog_to_aplan import SV2aplan
@@ -42,7 +41,7 @@ def loopVars2AplanImpl(
         original_identifier = index_variable_identifier.identifier().getText()
         identifier = (
             original_identifier
-            + f"_{self.getLastNameSpaceNumber()}"
+            + f"_{self.getLastNameSpaceLevel()}"
         )
         data_type = "int"
         size_expression = data_type
@@ -70,13 +69,6 @@ def loopVars2AplanImpl(
         declaration = self.module.declarations.getElementByIndex(decl_index)
         sv_structure.elements.addElement(declaration)
 
-        self.module.name_change.addElement(
-            NameChange(
-                identifier,
-                index_variable_identifier.getSourceInterval(),
-                original_identifier,
-            )
-        )
         idenifier_list.append(identifier)
         source_interval_list.append(index_variable_identifier.getSourceInterval())
 
@@ -262,7 +254,7 @@ def forInitialization2ApanImpl(
         original_identifier = expression.variable_identifier(0).getText()
         identifier = (
             original_identifier
-            + f"_{self.getLastNameSpaceNumber()}"
+            + f"_{self.getLastNameSpaceLevel()}"
         )
         Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
         data_type = expression.data_type().getText()
@@ -290,9 +282,6 @@ def forInitialization2ApanImpl(
         declaration = self.module.declarations.getElementByIndex(decl_index)
         sv_structure.elements.addElement(declaration)
 
-        self.module.name_change.addElement(
-            NameChange(identifier, expression.getSourceInterval(), original_identifier)
-        )
 
         return identifier
     return None

@@ -23,8 +23,7 @@ class SV2aplan:
         self.current_genvar_value: Tuple[str, int] | None = None
         self.condPredicate_pointer_list: CondPredicateArray = CondPredicateArray()
         self.structure_pointer_list: StructureArray = StructureArray()
-        self.name_space_numbers: List[int] = []
-        self.names_for_change = []
+        self.name_space_levels: List[int] = []
 
     def getProtocolParams(self):
         protocol_params = None
@@ -34,28 +33,21 @@ class SV2aplan:
                 protocol_params = task.parametrs
         return protocol_params
 
-    def removeLastNameChange(self):
-        list_len = len(self.names_for_change)
-        if list_len > 0:
-            for element in self.names_for_change[list_len - 1]:
-                self.module.name_change.deleteElement(element)
-            element = self.names_for_change[list_len - 1]
-            self.names_for_change.remove(element)
 
-    def removeLastNameSpaceNumber(self):
-        list_len = len(self.name_space_numbers)
+    def removeLastNameSpaceLevel(self):
+        list_len = len(self.name_space_levels)
         if list_len > 0:
-            element = self.name_space_numbers[list_len - 1]
-            self.name_space_numbers.remove(element)
+            element = self.name_space_levels[list_len - 1]
+            self.name_space_levels.remove(element)
 
-    def getLastNameSpaceNumber(self):
+    def getLastNameSpaceLevel(self):
         element = 0
-        list_len = len(self.name_space_numbers)
+        list_len = len(self.name_space_levels)
         if list_len > 0:
-            element = self.name_space_numbers[list_len - 1]
+            element = self.name_space_levels[list_len - 1]
         else:
             element = Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)
-            self.name_space_numbers.append(element)
+            self.name_space_levels.append(element)
             Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
         return element
 
@@ -174,11 +166,10 @@ class SV2aplan:
         ctx: SystemVerilogParser.Data_declarationContext,
         listener: bool,
         sv_structure: Structure | None = None,
-        name_space: ElementsTypes = ElementsTypes.NONE_ELEMENT,
     ):
         from translator.declarations.data_declaration import dataDecaration2AplanImpl
 
-        return dataDecaration2AplanImpl(self, ctx, listener, sv_structure, name_space)
+        return dataDecaration2AplanImpl(self, ctx, listener, sv_structure)
 
     # ---------------------------------------------------------------------------------
     def netDeclaration2Aplan(
@@ -487,7 +478,6 @@ class SV2aplan:
         ),
         element_type: ElementsTypes,
         sv_structure: Structure | None = None,
-        name_space_element: ElementsTypes = ElementsTypes.NONE_ELEMENT,
         remove_association: bool = False,
     ) -> Tuple[Action, str, Tuple[int, int], bool]:
         from translator.expression.expression import expression2AplanImpl
@@ -497,7 +487,6 @@ class SV2aplan:
             ctx,
             element_type,
             sv_structure,
-            name_space_element,
             remove_association,
         )
 
@@ -526,7 +515,6 @@ class SV2aplan:
         self,
         ctx,
         sv_structure: Structure | None = None,
-        name_space: ElementsTypes | None = None,
         destination_node_array: NodeArray | None = None,
     ):
         names_for_change = []
@@ -607,7 +595,7 @@ class SV2aplan:
                 self.operator2Aplan(child, destination_node_array)
             else:
                 names_for_change += self.body2Aplan(
-                    child, sv_structure, name_space, destination_node_array
+                    child, sv_structure, destination_node_array
                 )
 
         return names_for_change

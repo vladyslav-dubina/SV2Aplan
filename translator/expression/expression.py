@@ -127,7 +127,8 @@ def actionFromNodeStr(
                 node_element_type = ElementsTypes.NUMBER_ELEMENT
             elif containsOperator(element):
                 node_element_type = ElementsTypes.OPERATOR_ELEMENT
-            element = self.module.name_change.changeNamesInStr(element)
+
+            element = self.module.declarations.replaseDeclNames(element)
             index = action.postcondition.addElement(
                 Node(element, (0, 0), node_element_type)
             )
@@ -208,7 +209,7 @@ def actionFromNodeStr(
                 node_element_type = ElementsTypes.NUMBER_ELEMENT
             elif containsOperator(element):
                 node_element_type = ElementsTypes.OPERATOR_ELEMENT
-            element = self.module.name_change.changeNamesInStr(element)
+            element = self.module.declarations.replaseDeclNames(element)
             index = action.precondition.addElement(
                 Node(element, (0, 0), node_element_type)
             )
@@ -249,7 +250,6 @@ def expression2AplanImpl(
     ctx,
     element_type: ElementsTypes,
     sv_structure: Structure | None = None,
-    name_space_element: ElementsTypes = ElementsTypes.NONE_ELEMENT,
     remove_association: bool = False,
 ) -> Tuple[Action, str, Tuple[int, int], bool]:
     previus_action = False
@@ -276,7 +276,6 @@ def expression2AplanImpl(
         self.body2Aplan(
             ctx,
             sv_structure=sv_structure,
-            name_space=name_space_element,
             destination_node_array=postcondition,
         )
         if postcondition.getLen() == 0:
@@ -293,7 +292,6 @@ def expression2AplanImpl(
         self.body2Aplan(
             ctx,
             sv_structure=sv_structure,
-            name_space=name_space_element,
             destination_node_array=precondition,
         )
         if precondition.getLen() == 0:

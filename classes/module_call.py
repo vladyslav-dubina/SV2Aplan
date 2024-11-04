@@ -1,6 +1,5 @@
 from classes.basic import Basic, BasicArray
 from classes.element_types import ElementsTypes
-from classes.name_change import NameChangeArray
 from classes.value_parametrs import ValueParametrArray
 import re
 
@@ -66,7 +65,7 @@ class ModuleCallArray(BasicArray):
         include_identifier: str | None = None,
         exclude_identifier: str | None = None,
     ):
-        result: NameChangeArray = NameChangeArray()
+        result: ModuleCallArray = ModuleCallArray()
         elements = self.elements
 
         if include is None and exclude is None:

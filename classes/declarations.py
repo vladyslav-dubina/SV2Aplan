@@ -1,3 +1,4 @@
+import re
 from typing import Tuple, List
 from enum import Enum, auto
 from classes.actions import Action
@@ -291,25 +292,25 @@ class DeclarationArray(BasicArray):
                 result.append(element)
         return result
 
-    def findDeclByNameAndNameSpaceLevel(
-        self,
-        identifier: str,
-        name_space_level: int,
-    ):
+    def replaceDeclName(self, expression):
+        decl = None
         for element in self.elements:
-            if element.identifier == identifier and element.number == name_space_level:
-                return element
-        return None
+            pattern = r"\b" + re.escape(element.identifier) + r"\b"
+            new_expression, count = re.subn(pattern, element.getName(), expression)
 
-    def findDeclinStrByNameSpaceLevel(
-        self,
-        string: str,
-        name_space_level: int,
-    ):
+            if count > 0:
+                expression = new_expression
+                decl = element
+                break
+
+        return expression, decl
+    
+    def replaseDeclNames(self, expression):
         for element in self.elements:
-            if element.identifier in string and element.number == name_space_level:
-                return element
-        return None
+            pattern = r"\b" + re.escape(element.identifier) + r"\b"
+            expression = re.subn(pattern, element.getName(), expression)
+
+        return expression
 
     def findDeclWithDimentionByName(
         self,

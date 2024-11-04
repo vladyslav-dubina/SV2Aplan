@@ -116,9 +116,6 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
     if isinstance(ctx, SystemVerilogParser.Function_body_declarationContext):
         self.inside_the_function = False
 
-    for element in names_for_change:
-        self.module.name_change.deleteElement(element)
-
     self.module.structures.addElement(task_structure)
 
 
@@ -141,7 +138,7 @@ def methodCall2AplanImpl(
         argument_list_with_replaced_names,
     ) = self.prepareExpressionString(argument_list, ElementsTypes.TASK_ELEMENT)
 
-    argument_list_with_replaced_names = self.module.name_change.changeNamesInStr(
+    argument_list_with_replaced_names = self.module.declarations.replaseDeclNames(
         argument_list_with_replaced_names
     )
 
@@ -238,7 +235,7 @@ def classNew2AplanImpl(
         argument_list_with_replaced_names,
     ) = self.prepareExpressionString(argument_list, ElementsTypes.TASK_ELEMENT)
 
-    argument_list_with_replaced_names = self.module.name_change.changeNamesInStr(
+    argument_list_with_replaced_names = self.module.declarations.replaseDeclNames(
         argument_list_with_replaced_names
     )
 
@@ -301,7 +298,7 @@ def taskCall2AplanImpl(
         argument_list_with_replaced_names,
     ) = self.prepareExpressionString(argument_list, ElementsTypes.TASK_ELEMENT)
 
-    argument_list_with_replaced_names = self.module.name_change.changeNamesInStr(
+    argument_list_with_replaced_names = self.module.declarations.replaseDeclNames(
         argument_list_with_replaced_names
     )
 

@@ -54,8 +54,6 @@ def forever2AplanImpl(
     names_for_change = self.body2Aplan(
         ctx.statement_or_null(), sv_structure, ElementsTypes.FOREVER_ELEMENT
     )
-    for element in names_for_change:
-        self.module.name_change.deleteElement(element)
 
     forever_iteration = "FOREVER_ITERATION_{0}{1}".format(
         Counters_Object.getCounter(CounterTypes.FOREVER_COUNTER), protocol_params

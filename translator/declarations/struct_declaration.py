@@ -23,7 +23,7 @@ def structDeclaration2AplanImpl(
     struct_decl = ctx.data_type_or_implicit().data_type()
     unique_identifier = "{0}_{1}".format(
         "struct",
-        self.getLastNameSpaceNumber(),
+        self.getLastNameSpaceLevel(),
     )
     typedef = Typedef(
         unique_identifier,
@@ -160,7 +160,7 @@ def typedefDecaration2AplanImpl(
                 enum_type_identifier = "{0}".format(type_identifier.getText())
                 unique_identifier = "{0}_{1}".format(
                     enum_type_identifier,
-                    self.getLastNameSpaceNumber(),
+                    self.getLastNameSpaceLevel(),
                 )
                 decl_type = DeclTypes.ENUM_TYPE
 
@@ -209,7 +209,7 @@ def createArrayStruct(
     enum_type_identifier = "{0}".format(identifier)
     unique_identifier = "{0}_{1}".format(
         enum_type_identifier,
-        self.getLastNameSpaceNumber(),
+        self.getLastNameSpaceLevel(),
     )
     typedef = Typedef(
         enum_type_identifier,

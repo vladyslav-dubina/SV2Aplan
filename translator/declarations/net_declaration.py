@@ -113,7 +113,7 @@ def netDeclaration2AplanImpl(
                         dimension_size_expression,
                         dimension_size,
                         elem.getSourceInterval(),
-                        name_space_level=self.getLastNameSpaceNumber(),
+                        name_space_level=self.getLastNameSpaceLevel(),
                     )
                 )
 

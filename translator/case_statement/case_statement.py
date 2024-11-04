@@ -219,6 +219,5 @@ def caseStatement2AplanImpl(
                     sv_structure,
                     ElementsTypes.ELSE_BODY_ELEMENT,
                 )
-            for element in names_for_change:
-                self.module.name_change.deleteElement(element)
+           
             Counters_Object.incrieseCounter(CounterTypes.CASE_COUNTER)

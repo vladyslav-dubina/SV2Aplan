@@ -406,16 +406,6 @@ def replace_cpp_operators(expression: str) -> str:
 
     return expression
 
-
-def replaseExpression(expression: str, original: str, new_expr: str):
-    expression = re.sub(
-        r"\b{}\b".format(re.escape(original)),
-        "{}".format(new_expr),
-        expression,
-    )
-    return expression
-
-
 def replaceValueParametrsCalls(param_array: ValueParametrArray, expression: str):
     """The function `replaceValueParametrsCalls` replaces parameter calls in an expression with their
     corresponding values from a `ValueParametrArray`.
