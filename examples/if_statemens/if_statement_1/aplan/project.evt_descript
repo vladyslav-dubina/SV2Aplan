@@ -1,5 +1,5 @@
 events(
-	s_ip_resetn_1:obj(x1:bool);
-	s_write_1:obj(x1:bool);
-	s_Clk_1:obj(x1:bool);
+	s_ip_resetn_0:obj(x1:bool);
+	s_write_0:obj(x1:bool);
+	s_Clk_0:obj(x1:bool);
 );

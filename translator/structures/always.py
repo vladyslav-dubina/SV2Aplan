@@ -27,16 +27,17 @@ def always2AplanImpl(self: SV2aplan, ctx: SystemVerilogParser.Always_constructCo
         )
     else:
         always_body = statement_item
-    Counters_Object.incrieseCounter(CounterTypes.ALWAYS_COUNTER)
+
     always_name = (
         always_keyword.upper()
         + "_"
-        + str(Counters_Object.getCounter(CounterTypes.ALWAYS_COUNTER))
+        + str(Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER))
     )
     always = Always(
-        always_name,
+        always_keyword.upper(),
         sensetive,
         ctx.getSourceInterval(),
+        Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
     )
     if self.module.input_parametrs is not None:
         always.parametrs += self.module.input_parametrs
@@ -47,7 +48,4 @@ def always2AplanImpl(self: SV2aplan, ctx: SystemVerilogParser.Always_constructCo
 
     self.module.structures.addElement(always)
     self.structure_pointer_list.addElement(always)
-    self.name_space_levels.append(
-        Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)
-    )
     Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)

@@ -2,10 +2,14 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
 from classes.actions import Action
 from classes.basic import BasicArray
+from classes.case_stmt import CaseStmt
 from classes.cond_predicate import CondPredicateArray
 from classes.counters import CounterTypes
+from classes.if_stmt import IfStmt
 from classes.module_call import ModuleCall
 from classes.node import NodeArray
+from classes.parametrs import ParametrArray
+from classes.protocols import BodyElement
 from classes.structure import Structure, StructureArray
 from classes.module import Module
 from classes.element_types import ElementsTypes
@@ -21,7 +25,6 @@ class SV2aplan:
         self.inside_the_task = False
         self.inside_the_function = False
         self.current_genvar_value: Tuple[str, int] | None = None
-        self.condPredicate_pointer_list: CondPredicateArray = CondPredicateArray()
         self.structure_pointer_list: StructureArray = StructureArray()
         self.name_space_levels: List[int] = []
 
@@ -33,36 +36,91 @@ class SV2aplan:
                 protocol_params = task.parametrs
         return protocol_params
 
-
-    def removeLastNameSpaceLevel(self):
-        list_len = len(self.name_space_levels)
-        if list_len > 0:
-            element = self.name_space_levels[list_len - 1]
-            self.name_space_levels.remove(element)
-
     def getLastNameSpaceLevel(self):
-        element = 0
-        list_len = len(self.name_space_levels)
-        if list_len > 0:
-            element = self.name_space_levels[list_len - 1]
-        else:
-            element = Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)
-            self.name_space_levels.append(element)
-            Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
-        return element
 
-    def removeLastCondPointer(self):
-        if self.condPredicate_pointer_list.getLen() > 0:
-            self.condPredicate_pointer_list.removeElementByIndex(
-                self.condPredicate_pointer_list.getLen() - 1
-            )
+        struct: Structure | None = self.structure_pointer_list.getLastElement()
+        if struct:
+            return struct.number
+        else:
+            return self.module.number
 
     def removeLastStructPointer(self):
         if self.structure_pointer_list.getLen() > 0:
             self.structure_pointer_list.removeElementByIndex(
                 self.structure_pointer_list.getLen() - 1
             )
+            # Counters_Object.decrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
 
+    def createStatementToSvStruct(self, name, element_type_):
+        sv_structure: Structure | None = self.structure_pointer_list.getLastElement()
+
+        if sv_structure:
+            protocol_params = self.getProtocolParams()
+            beh_index = sv_structure.getLastBehaviorIndex()
+            Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+            if beh_index is not None:
+                sv_structure.behavior[beh_index].addBody(
+                    BodyElement(
+                        identifier="{0}_{1}".format(
+                            name,
+                            Counters_Object.getCounter(CounterTypes.B_COUNTER),
+                        ),
+                        element_type=ElementsTypes.PROTOCOL_ELEMENT,
+                        parametrs=protocol_params,
+                    )
+                )
+
+            tmp: ParametrArray = ParametrArray()
+            if (self.inside_the_task or self.inside_the_function) is False:
+                if sv_structure.parametrs is not None:
+                    tmp += sv_structure.parametrs
+                if protocol_params is not None:
+                    tmp += protocol_params
+            else:
+                tmp = protocol_params
+
+            if element_type_ == ElementsTypes.CASE_STATEMENT_ELEMENT:
+                struct = CaseStmt(
+                    "{0}_{1}".format(
+                        name, Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                    ),
+                    (0, 0),
+                    Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+                )
+            elif element_type_ == ElementsTypes.IF_STATEMENT_ELEMENT:
+                struct = IfStmt(
+                    "{0}_{1}".format(
+                        name, Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                    ),
+                    (0, 0),
+                    Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+                )
+            else:
+                struct = Structure(
+                    "{0}_{1}".format(
+                        name, Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                    ),
+                    (0, 0),
+                    element_type_,
+                    Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+                )
+
+            struct.parametrs = tmp
+            sv_structure.behavior.append(struct)
+
+            struct.addProtocol(
+                "{0}_{1}".format(
+                    name, Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                ),
+                element_type=element_type_,
+                parametrs=protocol_params,
+                inside_the_task=(self.inside_the_task or self.inside_the_function),
+                name_space_level=Counters_Object.getCounter(
+                    CounterTypes.UNIQ_NAMES_COUNTER
+                ),
+            )
+            self.structure_pointer_list.addElement(struct)
+            Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
 
     def extractSensetive(self, ctx):
         from translator.sensetive.sensetive import extractSensetiveImpl
@@ -387,12 +445,20 @@ class SV2aplan:
     def case2Aplan(
         self,
         ctx: SystemVerilogParser.Case_statementContext,
-        sv_structure: Structure,
-        names_for_change: List[str],
     ):
         from translator.case_statement.case_statement import caseStatement2AplanImpl
 
-        caseStatement2AplanImpl(self, ctx, sv_structure, names_for_change)
+        caseStatement2AplanImpl(self, ctx)
+
+    # =================================CASE ITEM===================================
+
+    def caseItem2Aplan(
+        self,
+        ctx: SystemVerilogParser.Case_itemContext,
+    ):
+        from translator.case_statement.case_statement import caseItem2AplanImpl
+
+        caseItem2AplanImpl(self, ctx)
 
     # =================================IDENTIFIER===================================
 
@@ -585,8 +651,8 @@ class SV2aplan:
             elif type(child) is SystemVerilogParser.Loop_statementContext:
                 self.loop2Aplan(child, sv_structure)
             # ---------------------------------------------------------------------------
-            elif type(child) is SystemVerilogParser.Case_statementContext:
-                self.case2Aplan(child, sv_structure, names_for_change)
+            # elif type(child) is SystemVerilogParser.Case_statementContext:
+            #    self.case2Aplan(child, sv_structure, names_for_change)
             # ---------------------------------------------------------------------------
             # elif type(child) is SystemVerilogParser.Conditional_statementContext:
             #    self.ifStatement2Aplan(child, sv_structure, names_for_change)

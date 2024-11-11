@@ -8,8 +8,9 @@ class Always(Structure):
         identifier: str,
         sensetive: str | None,
         source_interval: Tuple[int, int],
+        name_space_level: int,
     ):
-        super().__init__(identifier, source_interval)
+        super().__init__(identifier, source_interval, name_space_level=name_space_level)
         self.sensetive = sensetive
 
     def getSensetiveForB0(self):

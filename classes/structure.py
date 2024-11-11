@@ -1,8 +1,9 @@
 from typing import Tuple, List
 from classes.parametrs import ParametrArray
 from classes.basic import Basic, BasicArray
-from classes.protocols import Protocol
+from classes.protocols import BodyElement, Protocol
 from classes.element_types import ElementsTypes
+from utils.utils import Color, printWithColor
 
 
 class Structure(Basic):
@@ -11,12 +12,14 @@ class Structure(Basic):
         identifier: str,
         source_interval: Tuple[int, int],
         element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT,
+        name_space_level: int = 0,
     ):
         super().__init__(identifier, source_interval, element_type)
-        self.behavior: List[Protocol] = []
+        self.behavior: List[Protocol | Structure] = []
         self.elements: BasicArray = BasicArray(Basic)
         self.parametrs: ParametrArray = ParametrArray()
         self.additional_params: str | None = None
+        self.number = name_space_level
 
     def copy(self):
         struct = Structure(self.identifier, self.source_interval, self.element_type)
@@ -66,6 +69,7 @@ class Structure(Basic):
         element_type: ElementsTypes | None = None,
         parametrs: ParametrArray | None = None,
         inside_the_task: bool = False,
+        name_space_level: int = 0,
     ):
         tmp: ParametrArray = ParametrArray()
         if inside_the_task is False:
@@ -83,11 +87,11 @@ class Structure(Basic):
 
     def __str__(self):
         result = ""
-
-        if len(self.behavior) >= 1:
-            for element in self.behavior:
+        # if len(self.behavior) >= 1:
+        for index, element in enumerate(self.behavior):
+            if isinstance(element, Protocol):
                 result += "\n"
-                result += str(element)
+            result += str(element)
         return result
 
     def __repr__(self):

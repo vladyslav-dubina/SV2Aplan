@@ -11,12 +11,26 @@ from utils.string_formating import addEqueToBGET, valuesToAplanStandart
 from utils.utils import Counters_Object
 
 
+def caseItem2AplanImpl(
+    self: SV2aplan,
+    ctx: SystemVerilogParser.Case_itemContext,
+):
+    Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+    return
+
+
 def caseStatement2AplanImpl(
     self: SV2aplan,
     ctx: SystemVerilogParser.Case_statementContext,
-    sv_structure: Structure,
-    names_for_change: List[str],
 ):
+    self.createStatementToSvStruct(
+        "CASE_STATEMENT", ElementsTypes.CASE_STATEMENT_ELEMENT
+    )
+
+    #case_item_list = ctx.case_item()
+    #for index, case_item in enumerate(case_item_list):
+
+    return
     case_expression = ctx.case_expression()
     case_item_list = ctx.case_item()
     for index, case_item in enumerate(case_item_list):
@@ -219,5 +233,5 @@ def caseStatement2AplanImpl(
                     sv_structure,
                     ElementsTypes.ELSE_BODY_ELEMENT,
                 )
-           
+
             Counters_Object.incrieseCounter(CounterTypes.CASE_COUNTER)

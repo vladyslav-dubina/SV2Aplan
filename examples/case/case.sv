@@ -11,7 +11,9 @@ module case_example (
             2'b01: result = a - b;
             2'b10: result = a * b;
             2'b11: result = a & b;
-            default: result = 4'h0;
+            default:begin result = 4'h0; 
+                          result = a & b; 
+                     end
         endcase
     end
 

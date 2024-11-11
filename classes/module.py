@@ -22,11 +22,13 @@ class Module(Basic):
         source_interval: Tuple[int, int],
         ident_uniq_name,
         element_type: ElementsTypes = ElementsTypes.MODULE_ELEMENT,
+        name_space_level: int = 0
     ):
         super().__init__(identifier.upper(), source_interval, element_type)
         self.ident_uniq_name = ident_uniq_name
         self.identifier_upper = self.identifier.upper()
         self.ident_uniq_name_upper = self.ident_uniq_name.upper()
+        self.number = name_space_level
         # arrays
         self.declarations: DeclarationArray = DeclarationArray()
 

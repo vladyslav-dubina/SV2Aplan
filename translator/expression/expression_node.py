@@ -40,7 +40,7 @@ def identifier2AplanImpl(
         )
         node = destination_node_array.getElementByIndex(index)
 
-        identifier, decl = self.module.declarations.findAndReplaceDeclName(identifier)
+        identifier, decl = self.module.declarations.replaceDeclName(identifier)
 
         if isinstance(decl, Declaration):
             node.identifier = identifier
@@ -88,7 +88,7 @@ def unpackedDimention2AplanImpl(
         node = destination_node_array.getElementByIndex(index)
         node.bit_selection = True
 
-        expression, decl = self.module.declarations.findAndReplaceDeclName(expression)
+        expression, decl = self.module.declarations.replaceDeclName(expression)
         if isinstance(decl, Declaration):
             node.identifier = expression
             node.module_name = self.module.ident_uniq_name
@@ -128,7 +128,7 @@ def bitSelection2AplanImpl(
             node = destination_node_array.getElementByIndex(index)
             node.bit_selection = True
 
-            bit, decl = self.module.declarations.findAndReplaceDeclName(bit)
+            bit, decl = self.module.declarations.replaceDeclName(bit)
 
             if isinstance(decl, Declaration):
                 node.identifier = bit
