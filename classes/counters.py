@@ -38,7 +38,7 @@ class Counters:
         self.sequence = 0
         self.uniq_names_counter = 1
         self.repeat_counter = 1
-        self.case_counter = 1
+        self.case_counter = 0
         self.forever_counter = 1
         self.task_counter = 1
         self.enum_counter = 1

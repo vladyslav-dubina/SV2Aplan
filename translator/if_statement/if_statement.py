@@ -136,10 +136,4 @@ def ifStatement2AplanImpl(
         return
 
     statements = ctx.statement_or_null()
-    predicate = ctx.cond_predicate()
-    predicate_statements_count = 0
-
-    for i in range(len(statements)):
-        predicate_statements_count += 1
-
-    if_stmt.setCondPredicateCount(predicate_statements_count)
+    if_stmt.setCondPredicateCount(len(statements))

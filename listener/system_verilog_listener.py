@@ -2,6 +2,7 @@ from antlr4_verilog.systemverilog import (
     SystemVerilogParserListener,
     SystemVerilogParser,
 )
+from classes.case_stmt import CaseStmt
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.if_stmt import IfStmt
@@ -182,33 +183,35 @@ class SVListener(SystemVerilogParserListener):
         self.sv2aplan.case2Aplan(ctx)
 
     def exitCase_statement(self, ctx: SystemVerilogParser.Case_statementContext):
-
-        pass
+        self.sv2aplan.removeLastStructPointer()
 
     # CASE ITEM
-    def enterCase_item(self, ctx: SystemVerilogParser.Case_itemContext):
-        self.sv2aplan.caseItem2Aplan(ctx)
-        print("case item", ctx.getText())
-
     def exitCase_item(self, ctx: SystemVerilogParser.Case_itemContext):
-        print("case item exit")
+        case_stmt: Structure | None = (
+            self.sv2aplan.structure_pointer_list.getLastElement()
+        )
+        if isinstance(case_stmt, CaseStmt):
+            if case_stmt.case_count == 1 and case_stmt.init_case_count > 1:
+                protocol_params = self.sv2aplan.getProtocolParams()
+                case_stmt.addProtocol(
+                    "ELSE_BODY_{0}".format(
+                        Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER)
+                    ),
+                    element_type=ElementsTypes.CASE_STATEMENT_ELEMENT,
+                    parametrs=protocol_params,
+                    inside_the_task=(
+                        self.sv2aplan.inside_the_task
+                        or self.sv2aplan.inside_the_function
+                    ),
+                )
+                Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
+                case_stmt.case_count -= 1
 
     # Enter a parse tree produced by SystemVerilogParser#case_item_expression.
     def enterCase_item_expression(
         self, ctx: SystemVerilogParser.Case_item_expressionContext
     ):
-        print("case item expr", ctx.getText())
-        pass
-
-    # Exit a parse tree produced by SystemVerilogParser#case_item_expression.
-    def exitCase_item_expression(
-        self, ctx: SystemVerilogParser.Case_item_expressionContext
-    ):
-        print("case item expr exit")
-        pass
-
-    #  def exitStatement_or_null(self, ctx: SystemVerilogParser.Statement_or_nullContext):
-    #      print("stmt exit", ctx.getText())
+        self.sv2aplan.caseItemExpr2Aplan(ctx)
 
     # ASSERT
     def exitAssert_property_statement(self, ctx):

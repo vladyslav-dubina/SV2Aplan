@@ -1,9 +1,7 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
 from classes.actions import Action
-from classes.basic import BasicArray
 from classes.case_stmt import CaseStmt
-from classes.cond_predicate import CondPredicateArray
 from classes.counters import CounterTypes
 from classes.if_stmt import IfStmt
 from classes.module_call import ModuleCall
@@ -452,13 +450,13 @@ class SV2aplan:
 
     # =================================CASE ITEM===================================
 
-    def caseItem2Aplan(
+    def caseItemExpr2Aplan(
         self,
-        ctx: SystemVerilogParser.Case_itemContext,
+        ctx: SystemVerilogParser.Case_item_expressionContext,
     ):
-        from translator.case_statement.case_statement import caseItem2AplanImpl
+        from translator.case_statement.case_statement import caseItemExpr2AplanImpl
 
-        caseItem2AplanImpl(self, ctx)
+        caseItemExpr2AplanImpl(self, ctx)
 
     # =================================IDENTIFIER===================================
 

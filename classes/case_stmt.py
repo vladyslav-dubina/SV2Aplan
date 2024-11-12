@@ -1,6 +1,7 @@
 from typing import Tuple
 from classes.element_types import ElementsTypes
 from classes.structure import Structure
+from antlr4_verilog.systemverilog import SystemVerilogParser
 
 
 class CaseStmt(Structure):
@@ -16,7 +17,13 @@ class CaseStmt(Structure):
             element_type=ElementsTypes.CASE_STATEMENT_ELEMENT,
             name_space_level=name_space_level,
         )
-        self.expression: str | None = None
+        self.expression: SystemVerilogParser.Case_expressionContext | None = None
+        self.init_case_count:int = 0
+        self.case_count:int = 0
+
+    def setCaseCount(self, count: int):
+        self.init_case_count = count
+        self.case_count = count
 
     def __repr__(self):
         return (
