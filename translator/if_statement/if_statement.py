@@ -11,6 +11,29 @@ from utils.string_formating import valuesToAplanStandart
 from utils.utils import Color, Counters_Object, printWithColor
 
 
+def ifSeqBlock2AplanImpl(self: SV2aplan, ctx: SystemVerilogParser.Seq_blockContext):
+    sv_structure: Structure | None = self.structure_pointer_list.getLastElement()
+    if isinstance(sv_structure, IfStmt):
+        if (
+            sv_structure.cond_predicate_count == 1
+            and sv_structure.init_predicate_count > 1
+        ):
+            protocol_params = self.getProtocolParams()
+            sv_structure.addProtocol(
+                "ELSE_BODY_{0}".format(
+                    Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER)
+                ),
+                element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
+                parametrs=protocol_params,
+                inside_the_task=(self.inside_the_task or self.inside_the_function),
+            )
+            Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
+            sv_structure.cond_predicate_count -= 1
+            return True
+
+    return False
+
+
 def conditionalPredecate2AplanImpl(
     self: SV2aplan,
     ctx: SystemVerilogParser.Cond_predicateContext,

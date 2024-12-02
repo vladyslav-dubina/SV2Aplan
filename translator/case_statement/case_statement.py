@@ -12,6 +12,23 @@ from utils.string_formating import addEqueToBGET, valuesToAplanStandart
 from utils.utils import Color, Counters_Object, printWithColor
 
 
+def caseItem2AplanImpl(self: SV2aplan, ctx: SystemVerilogParser.Case_itemContext):
+    case_stmt: Structure | None = self.structure_pointer_list.getLastElement()
+    if isinstance(case_stmt, CaseStmt):
+        if case_stmt.case_count == 1 and case_stmt.init_case_count > 1:
+            protocol_params = self.getProtocolParams()
+            case_stmt.addProtocol(
+                "ELSE_BODY_{0}".format(
+                    Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER)
+                ),
+                element_type=ElementsTypes.CASE_STATEMENT_ELEMENT,
+                parametrs=protocol_params,
+                inside_the_task=(self.inside_the_task or self.inside_the_function),
+            )
+            Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
+            case_stmt.case_count -= 1
+
+
 def caseItemExpr2AplanImpl(
     self: SV2aplan,
     ctx: SystemVerilogParser.Case_item_expressionContext,

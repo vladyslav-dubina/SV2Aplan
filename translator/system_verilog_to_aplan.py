@@ -438,6 +438,13 @@ class SV2aplan:
 
         conditionalPredecate2AplanImpl(self, ctx)
 
+    def ifSeqBlock2Aplan(self, ctx: SystemVerilogParser.Seq_blockContext):
+        from translator.if_statement.if_statement import (
+            ifSeqBlock2AplanImpl,
+        )
+
+        return ifSeqBlock2AplanImpl(self, ctx)
+
     # =================================CASE STATEMENT===================================
 
     def case2Aplan(
@@ -448,7 +455,7 @@ class SV2aplan:
 
         caseStatement2AplanImpl(self, ctx)
 
-    # =================================CASE ITEM===================================
+    # =================================CASE ITEM EXPR ===================================
 
     def caseItemExpr2Aplan(
         self,
@@ -457,6 +464,16 @@ class SV2aplan:
         from translator.case_statement.case_statement import caseItemExpr2AplanImpl
 
         caseItemExpr2AplanImpl(self, ctx)
+
+    # =================================CASE Item ===================================
+
+    def caseItem2Aplan(
+        self,
+        ctx: SystemVerilogParser.Case_itemContext,
+    ):
+        from translator.case_statement.case_statement import caseItem2AplanImpl
+
+        caseItem2AplanImpl(self, ctx)
 
     # =================================IDENTIFIER===================================
 

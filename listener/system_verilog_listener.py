@@ -85,6 +85,24 @@ class SVListener(SystemVerilogParserListener):
     def exitAnsi_port_declaration(self, ctx):
         self.sv2aplan.ansiPortDeclaration2Aplan(ctx)
 
+    def exitTask_declaration(self, ctx: SystemVerilogParser.Task_declarationContext):
+        self.sv2aplan.taskOrFunctionDeclaration2Aplan(ctx)
+
+    def exitFunction_declaration(
+        self, ctx: SystemVerilogParser.Function_declarationContext
+    ):
+        self.sv2aplan.taskOrFunctionDeclaration2Aplan(ctx)
+
+    def exitClass_constructor_declaration(
+        self, ctx: SystemVerilogParser.Class_constructor_declarationContext
+    ):
+        self.sv2aplan.taskOrFunctionDeclaration2Aplan(ctx)
+
+    def exitPackage_import_declaration(
+        self, ctx: SystemVerilogParser.Package_import_declarationContext
+    ):
+        self.sv2aplan.packageImport2Apan(ctx)
+
     # ASSIGNMENTS
     def exitNet_assignment(self, ctx):
         self.sv2aplan.netAssignment2Aplan(ctx)
@@ -115,6 +133,7 @@ class SVListener(SystemVerilogParserListener):
         self.sv2aplan.blockAssignment2Aplan(ctx)
 
     # PARAMETRS
+
     def exitLocal_parameter_declaration(
         self, ctx: SystemVerilogParser.Local_parameter_declarationContext
     ):
@@ -140,30 +159,9 @@ class SVListener(SystemVerilogParserListener):
     # SEQUENCE BLOCK CONTEXT
 
     def exitSeq_block(self, ctx: SystemVerilogParser.Seq_blockContext):
-        sv_structure: Structure | None = (
-            self.sv2aplan.structure_pointer_list.getLastElement()
-        )
-        if isinstance(sv_structure, IfStmt):
-            if (
-                sv_structure.cond_predicate_count == 1
-                and sv_structure.init_predicate_count > 1
-            ):
-                protocol_params = self.sv2aplan.getProtocolParams()
-                sv_structure.addProtocol(
-                    "ELSE_BODY_{0}".format(
-                        Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER)
-                    ),
-                    element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
-                    parametrs=protocol_params,
-                    inside_the_task=(
-                        self.sv2aplan.inside_the_task
-                        or self.sv2aplan.inside_the_function
-                    ),
-                )
-                Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
-                sv_structure.cond_predicate_count -= 1
+        self.sv2aplan.ifSeqBlock2Aplan(ctx)
 
-    # IFStatement
+    # IF Statement
     def enterConditional_statement(
         self, ctx: SystemVerilogParser.Conditional_statementContext
     ):
@@ -174,7 +172,7 @@ class SVListener(SystemVerilogParserListener):
     ):
         self.sv2aplan.removeLastStructPointer()
 
-    # Enter a parse tree produced by SystemVerilogParser#cond_predicate.
+    # COND PREDICATE
     def enterCond_predicate(self, ctx: SystemVerilogParser.Cond_predicateContext):
         self.sv2aplan.conditionalPredecate2Aplan(ctx)
 
@@ -187,27 +185,9 @@ class SVListener(SystemVerilogParserListener):
 
     # CASE ITEM
     def exitCase_item(self, ctx: SystemVerilogParser.Case_itemContext):
-        case_stmt: Structure | None = (
-            self.sv2aplan.structure_pointer_list.getLastElement()
-        )
-        if isinstance(case_stmt, CaseStmt):
-            if case_stmt.case_count == 1 and case_stmt.init_case_count > 1:
-                protocol_params = self.sv2aplan.getProtocolParams()
-                case_stmt.addProtocol(
-                    "ELSE_BODY_{0}".format(
-                        Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER)
-                    ),
-                    element_type=ElementsTypes.CASE_STATEMENT_ELEMENT,
-                    parametrs=protocol_params,
-                    inside_the_task=(
-                        self.sv2aplan.inside_the_task
-                        or self.sv2aplan.inside_the_function
-                    ),
-                )
-                Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
-                case_stmt.case_count -= 1
+        self.sv2aplan.caseItem2Aplan(ctx)
 
-    # Enter a parse tree produced by SystemVerilogParser#case_item_expression.
+    # CASE ITEM EXPRESSION
     def enterCase_item_expression(
         self, ctx: SystemVerilogParser.Case_item_expressionContext
     ):
@@ -228,22 +208,3 @@ class SVListener(SystemVerilogParserListener):
 
     def exitInitial_construct(self, ctx: SystemVerilogParser.Initial_constructContext):
         self.sv2aplan.removeLastStructPointer()
-
-    #
-    def exitTask_declaration(self, ctx: SystemVerilogParser.Task_declarationContext):
-        self.sv2aplan.taskOrFunctionDeclaration2Aplan(ctx)
-
-    def exitFunction_declaration(
-        self, ctx: SystemVerilogParser.Function_declarationContext
-    ):
-        self.sv2aplan.taskOrFunctionDeclaration2Aplan(ctx)
-
-    def exitClass_constructor_declaration(
-        self, ctx: SystemVerilogParser.Class_constructor_declarationContext
-    ):
-        self.sv2aplan.taskOrFunctionDeclaration2Aplan(ctx)
-
-    def exitPackage_import_declaration(
-        self, ctx: SystemVerilogParser.Package_import_declarationContext
-    ):
-        self.sv2aplan.packageImport2Apan(ctx)
