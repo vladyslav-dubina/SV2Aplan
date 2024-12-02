@@ -275,6 +275,18 @@ class SV2aplan:
         )
 
         return loopVars2AplanImpl(self, ctx, sv_structure)
+    
+    def foreverIteration2Aplan(
+        self,
+        ctx: SystemVerilogParser.Loop_variablesContext,
+    ):
+        from translator.loops.forever import (
+            foreverIteration2AplanImpl,
+        )
+
+        return foreverIteration2AplanImpl(self, ctx)
+    
+    
 
     # ---------------------------------------------------------------------------------
 

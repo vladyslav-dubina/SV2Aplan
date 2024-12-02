@@ -378,14 +378,14 @@ def expression2AplanImpl(
 
         if element_type != ElementsTypes.REPEAT_ELEMENT:
             Counters_Object.incrieseCounter(counter_type)
-    
+
     if action_name is not None:
         action_parametrs_count = action.parametrs.getLen()
         action_identifier = action.identifier
         if action_pointer:
             action_identifier = action_pointer.identifier
         action_name = f"{action_identifier}{action.parametrs.getIdentifiersListString(action_parametrs_count)}"
-        print(action_name, element_type)
+
         if element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT:
             action_name = f"Sensetive({action_name})"
         if last_element:

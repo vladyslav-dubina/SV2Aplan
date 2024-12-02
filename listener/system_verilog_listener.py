@@ -215,5 +215,5 @@ class SVListener(SystemVerilogParserListener):
         self.sv2aplan.loop2Aplan(ctx)
 
     def exitLoop_statement(self, ctx: SystemVerilogParser.Loop_statementContext):
-        foreverIteration2AplanImpl(self.sv2aplan, ctx)
+        self.sv2aplan.foreverIteration2Aplan(ctx)
         self.sv2aplan.removeLastStructPointer()
