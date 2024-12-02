@@ -312,10 +312,18 @@ def expression2AplanImpl(
     out_block_len = self.module.out_of_block_elements.getLen()
 
     if not remove_association:
+
         if sv_structure is not None:
             beh_index = sv_structure.getLastBehaviorIndex()
             if beh_index is not None:
                 protocol = sv_structure.behavior[beh_index]
+                while True:
+                    if isinstance(protocol, Structure):
+                        protocol = protocol.behavior[protocol.getLastBehaviorIndex()]
+                        continue
+                    else:
+                        break
+
                 last_element, previus_action, action_name = findAssociatedAction(
                     protocol,
                     element_type,
@@ -324,7 +332,6 @@ def expression2AplanImpl(
                     previus_action,
                     action_name,
                 )
-
         elif out_block_len > 0:
             protocol: Protocol = self.module.out_of_block_elements.getElementByIndex(
                 out_block_len - 1
@@ -371,14 +378,14 @@ def expression2AplanImpl(
 
         if element_type != ElementsTypes.REPEAT_ELEMENT:
             Counters_Object.incrieseCounter(counter_type)
-
+    
     if action_name is not None:
         action_parametrs_count = action.parametrs.getLen()
         action_identifier = action.identifier
         if action_pointer:
             action_identifier = action_pointer.identifier
         action_name = f"{action_identifier}{action.parametrs.getIdentifiersListString(action_parametrs_count)}"
-
+        print(action_name, element_type)
         if element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT:
             action_name = f"Sensetive({action_name})"
         if last_element:

@@ -46,7 +46,6 @@ class ElementsTypes(Enum):
     PRECONDITION_ELEMENT = auto()
     POSTCONDITION_ELEMENT = auto()
 
-    SINGLE_IF_PREDICATE = auto()
     IF_PREDICATE = auto()
     IF_ELSE_PREDICATE = auto()
     ELSE_PREDICATE = auto()

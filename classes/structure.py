@@ -103,6 +103,25 @@ class Structure(Basic):
             )
 
 
+class ForeverStmt(Structure):
+    def __init__(
+        self,
+        identifier: str,
+        source_interval: Tuple[int, int],
+        name_space_level: int,
+    ):
+        super().__init__(
+            identifier,
+            source_interval,
+            element_type=ElementsTypes.FOREVER_ELEMENT,
+            name_space_level=name_space_level,
+        )
+        self.forever = True
+
+    def __repr__(self):
+        return f"\Forever({self.identifier!r}, {self.sequence!r})\n"
+
+
 class StructureArray(BasicArray):
     def __init__(self):
         super().__init__(Structure)

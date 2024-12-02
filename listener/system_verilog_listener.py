@@ -8,6 +8,7 @@ from classes.element_types import ElementsTypes
 from classes.if_stmt import IfStmt
 from classes.structure import Structure
 
+from translator.loops.forever import foreverIteration2AplanImpl
 from utils.utils import Counters_Object
 from translator.declarations.class_declaration import classDeclaration2Aplan
 from translator.declarations.interface_declaration import interfaceDeclaration2Aplan
@@ -207,4 +208,12 @@ class SVListener(SystemVerilogParserListener):
         self.sv2aplan.initial2Aplan(ctx)
 
     def exitInitial_construct(self, ctx: SystemVerilogParser.Initial_constructContext):
+        self.sv2aplan.removeLastStructPointer()
+
+    # LOOP
+    def enterLoop_statement(self, ctx: SystemVerilogParser.Loop_statementContext):
+        self.sv2aplan.loop2Aplan(ctx)
+
+    def exitLoop_statement(self, ctx: SystemVerilogParser.Loop_statementContext):
+        foreverIteration2AplanImpl(self.sv2aplan, ctx)
         self.sv2aplan.removeLastStructPointer()

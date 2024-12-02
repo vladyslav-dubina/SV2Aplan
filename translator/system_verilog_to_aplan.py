@@ -8,7 +8,7 @@ from classes.module_call import ModuleCall
 from classes.node import NodeArray
 from classes.parametrs import ParametrArray
 from classes.protocols import BodyElement
-from classes.structure import Structure, StructureArray
+from classes.structure import ForeverStmt, Structure, StructureArray
 from classes.module import Module
 from classes.element_types import ElementsTypes
 from program.program import Program
@@ -49,7 +49,12 @@ class SV2aplan:
             )
             # Counters_Object.decrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
 
-    def createStatementToSvStruct(self, name, element_type_):
+    def createStatementToSvStruct(
+        self,
+        name,
+        element_type_,
+        sensetive: str | None = None,
+    ):
         sv_structure: Structure | None = self.structure_pointer_list.getLastElement()
 
         if sv_structure:
@@ -57,16 +62,28 @@ class SV2aplan:
             beh_index = sv_structure.getLastBehaviorIndex()
             Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
             if beh_index is not None:
-                sv_structure.behavior[beh_index].addBody(
-                    BodyElement(
-                        identifier="{0}_{1}".format(
-                            name,
-                            Counters_Object.getCounter(CounterTypes.B_COUNTER),
-                        ),
-                        element_type=ElementsTypes.PROTOCOL_ELEMENT,
-                        parametrs=protocol_params,
+                if element_type_ == ElementsTypes.FOREVER_ELEMENT:
+                    sv_structure.behavior[beh_index].addBody(
+                        BodyElement(
+                            identifier="Sensetive({0}_{1}, {2})".format(
+                                name,
+                                Counters_Object.getCounter(CounterTypes.B_COUNTER),
+                                sensetive,
+                            ),
+                            element_type=ElementsTypes.PROTOCOL_ELEMENT,
+                            parametrs=protocol_params,
+                        )
                     )
-                )
+                else:
+                    sv_structure.behavior[beh_index].addBody(
+                        BodyElement(
+                            identifier="{0}_{1}".format(
+                                name, Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                            ),
+                            element_type=ElementsTypes.PROTOCOL_ELEMENT,
+                            parametrs=protocol_params,
+                        )
+                    )
 
             tmp: ParametrArray = ParametrArray()
             if (self.inside_the_task or self.inside_the_function) is False:
@@ -87,6 +104,14 @@ class SV2aplan:
                 )
             elif element_type_ == ElementsTypes.IF_STATEMENT_ELEMENT:
                 struct = IfStmt(
+                    "{0}_{1}".format(
+                        name, Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                    ),
+                    (0, 0),
+                    Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+                )
+            elif element_type_ == ElementsTypes.FOREVER_ELEMENT:
+                struct = ForeverStmt(
                     "{0}_{1}".format(
                         name, Counters_Object.getCounter(CounterTypes.B_COUNTER)
                     ),
@@ -579,18 +604,17 @@ class SV2aplan:
             SystemVerilogParser.Loop_generate_constructContext
             | SystemVerilogParser.Loop_statementContext
         ),
-        sv_structure: Structure,
     ):
         from translator.loops.loop import loop2AplanImpl
         from translator.loops.repeat import repeat2AplanImpl
         from translator.loops.forever import forever2AplanImpl
 
         if ctx.REPEAT():
-            repeat2AplanImpl(self, ctx, sv_structure)
+            repeat2AplanImpl(self, ctx)
         elif ctx.FOREVER():
-            forever2AplanImpl(self, ctx, sv_structure)
+            forever2AplanImpl(self, ctx)
         else:
-            loop2AplanImpl(self, ctx, sv_structure)
+            loop2AplanImpl(self, ctx)
 
     def body2Aplan(
         self,
@@ -663,17 +687,12 @@ class SV2aplan:
             # ---------------------------------------------------------------------------
 
             # ---------------------------------------------------------------------------
-            elif type(child) is SystemVerilogParser.Loop_statementContext:
-                self.loop2Aplan(child, sv_structure)
-            # ---------------------------------------------------------------------------
-            # elif type(child) is SystemVerilogParser.Case_statementContext:
-            #    self.case2Aplan(child, sv_structure, names_for_change)
-            # ---------------------------------------------------------------------------
-            # elif type(child) is SystemVerilogParser.Conditional_statementContext:
-            #    self.ifStatement2Aplan(child, sv_structure, names_for_change)
+            # elif type(child) is SystemVerilogParser.Loop_statementContext:
+            #     self.loop2Aplan(child, sv_structure)
             # ---------------------------------------------------------------------------
             elif type(child) is Tree.TerminalNodeImpl:
                 self.operator2Aplan(child, destination_node_array)
+            # ---------------------------------------------------------------------------
             else:
                 names_for_change += self.body2Aplan(
                     child, sv_structure, destination_node_array

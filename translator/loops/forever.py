@@ -4,7 +4,7 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.protocols import BodyElement
-from classes.structure import Structure
+from classes.structure import ForeverStmt, Structure
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.utils import Counters_Object
 
@@ -22,60 +22,58 @@ def extractCondition(ctx: SystemVerilogParser.Statement_or_nullContext):
 def forever2AplanImpl(
     self: SV2aplan,
     ctx: SystemVerilogParser.Loop_statementContext,
-    sv_structure: Structure,
 ):
-    # Event_controlContext
+    condition = extractCondition(ctx.statement_or_null())
+    sensetive = self.extractSensetive(condition)
+    self.createStatementToSvStruct(
+        "FOREVER_LOOP", ElementsTypes.FOREVER_ELEMENT, sensetive
+    )
+    forever_stmt: Structure | None = self.structure_pointer_list.getLastElement()
+    if not isinstance(forever_stmt, ForeverStmt):
+        return
+
+    self.body2Aplan(ctx.statement_or_null(), forever_stmt)
+
+
+def foreverIteration2AplanImpl(
+    self: SV2aplan,
+    ctx: SystemVerilogParser.Loop_statementContext,
+):
+    forever_stmt: Structure | None = self.structure_pointer_list.getLastElement()
+    if not isinstance(forever_stmt, ForeverStmt):
+        return
     condition = extractCondition(ctx.statement_or_null())
     sensetive = self.extractSensetive(condition)
 
-    protocol_params = ""
-    if self.inside_the_task == True:
-        task = self.module.tasks.getLastTask()
-        if task is not None:
-            protocol_params = "({0})".format(task.parametrs)
+    protocol_params = self.getProtocolParams()
 
-    forever_loop = "FOREVER_LOOP_{0}{1}".format(
-        Counters_Object.getCounter(CounterTypes.FOREVER_COUNTER), protocol_params
-    )
-    forever_sensetive_name = "Sensetive({0}, {1})".format(forever_loop, sensetive)
-    beh_index = sv_structure.getLastBehaviorIndex()
-    if beh_index is not None:
-        sv_structure.behavior[beh_index].addBody(
-            BodyElement(
-                identifier=forever_sensetive_name,
-                element_type=ElementsTypes.PROTOCOL_ELEMENT,
-            )
-        )
-
-    beh_index = sv_structure.addProtocol(
-        forever_loop, inside_the_task=(self.inside_the_task or self.inside_the_function)
+    forever_iteration = "FOREVER_ITERATION_{0}".format(
+        Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
     )
 
-    names_for_change = self.body2Aplan(
-        ctx.statement_or_null(), sv_structure, ElementsTypes.FOREVER_ELEMENT
-    )
-
-    forever_iteration = "FOREVER_ITERATION_{0}{1}".format(
-        Counters_Object.getCounter(CounterTypes.FOREVER_COUNTER), protocol_params
-    )
-
-    sv_structure.behavior[beh_index].addBody(
+    forever_stmt.behavior[0].addBody(
         BodyElement(
             identifier=forever_iteration,
             element_type=ElementsTypes.PROTOCOL_ELEMENT,
+            parametrs=protocol_params,
         )
     )
 
-    beh_index = sv_structure.addProtocol(
+    beh_index = forever_stmt.addProtocol(
         forever_iteration,
         inside_the_task=(self.inside_the_task or self.inside_the_function),
     )
 
-    sv_structure.behavior[beh_index].addBody(
+    forever_sensetive_name = "Sensetive({0}, {1})".format(
+        forever_stmt.behavior[0].getName(),
+        sensetive,
+    )
+
+    forever_stmt.behavior[beh_index].addBody(
         BodyElement(
             identifier=forever_sensetive_name,
             element_type=ElementsTypes.PROTOCOL_ELEMENT,
         )
     )
 
-    Counters_Object.incrieseCounter(CounterTypes.FOREVER_COUNTER)
+    Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)

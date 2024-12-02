@@ -88,6 +88,12 @@ def createPushBack(
             beh_index = sv_structure.getLastBehaviorIndex()
             if beh_index is not None:
                 protocol = sv_structure.behavior[beh_index]
+                while True:
+                    if isinstance(protocol, Structure):
+                        protocol = protocol.behavior[protocol.getLastBehaviorIndex()]
+                        continue
+                    else:
+                        break
                 action_pointer: Action = action
                 last_element, previus_action, action_name = findAssociatedAction(
                     protocol,

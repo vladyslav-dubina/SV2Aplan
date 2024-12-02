@@ -24,4 +24,4 @@ class IfStmt(Structure):
         self.cond_predicate_count = count
 
     def __repr__(self):
-        return f"\IfStmt({self.identifier!r}, {self.sensetive!r}, {self.sequence!r})\n"
+        return f"\IfStmt({self.identifier!r}, {self.sequence!r})\n"
