@@ -1,9 +1,10 @@
 from typing import Tuple, List
+from classes.counters import CounterTypes
 from classes.parametrs import ParametrArray
 from classes.basic import Basic, BasicArray
 from classes.protocols import BodyElement, Protocol
 from classes.element_types import ElementsTypes
-from utils.utils import Color, printWithColor
+from utils.utils import Counters_Object
 
 
 class Structure(Basic):
@@ -20,6 +21,12 @@ class Structure(Basic):
         self.parametrs: ParametrArray = ParametrArray()
         self.additional_params: str | None = None
         self.number = name_space_level
+        self.inside_the_task = False
+
+    def addBody(self, body: BodyElement):
+        beh_index = self.getLastBehaviorIndex()
+        if beh_index:
+            self.behavior[beh_index].addBody(body)
 
     def copy(self):
         struct = Structure(self.identifier, self.source_interval, self.element_type)
@@ -82,8 +89,30 @@ class Structure(Basic):
         self.behavior.append(Protocol(protocol_identifier, (0, 0), element_type, tmp))
         return len(self.behavior) - 1
 
+    def addInitProtocol(self):
+        self.addProtocol(
+            "{0}_{1}".format(
+                self.identifier, Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+            ),
+            element_type=self.element_type,
+            parametrs=self.parametrs,
+            inside_the_task=self.inside_the_task,
+            name_space_level=Counters_Object.getCounter(
+                CounterTypes.UNIQ_NAMES_COUNTER
+            ),
+        )
+
     def getBehLen(self):
         return len(self.behavior)
+
+    def getName(self):
+        identifier = self.identifier
+        if self.number:
+            identifier = "{0}_{1}".format(identifier, self.number)
+        if self.parametrs.getLen() > 0:
+            identifier = "{0}({1})".format(identifier, str(self.parametrs))
+
+        return identifier
 
     def __str__(self):
         result = ""
@@ -101,25 +130,6 @@ class Structure(Basic):
             return (
                 f"\tStructure({self.identifier!r}_{self.number!r}, {self.sequence!r})\n"
             )
-
-
-class ForeverStmt(Structure):
-    def __init__(
-        self,
-        identifier: str,
-        source_interval: Tuple[int, int],
-        name_space_level: int,
-    ):
-        super().__init__(
-            identifier,
-            source_interval,
-            element_type=ElementsTypes.FOREVER_ELEMENT,
-            name_space_level=name_space_level,
-        )
-        self.forever = True
-
-    def __repr__(self):
-        return f"\Forever({self.identifier!r}, {self.sequence!r})\n"
 
 
 class StructureArray(BasicArray):

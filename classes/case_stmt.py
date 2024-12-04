@@ -9,7 +9,7 @@ class CaseStmt(Structure):
         self,
         identifier: str,
         source_interval: Tuple[int, int],
-        name_space_level: int ,
+        name_space_level: int,
     ):
         super().__init__(
             identifier,
@@ -18,8 +18,9 @@ class CaseStmt(Structure):
             name_space_level=name_space_level,
         )
         self.expression: SystemVerilogParser.Case_expressionContext | None = None
-        self.init_case_count:int = 0
-        self.case_count:int = 0
+        self.init_case_count: int = 0
+        self.case_count: int = 0
+
 
     def setCaseCount(self, count: int):
         self.init_case_count = count

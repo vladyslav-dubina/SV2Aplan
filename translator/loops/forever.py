@@ -3,8 +3,9 @@ from antlr4.tree import Tree
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
+from classes.loop_stmt import ForeverStmt
 from classes.protocols import BodyElement
-from classes.structure import ForeverStmt, Structure
+from classes.structure import Structure
 from translator.system_verilog_to_aplan import SV2aplan
 from utils.utils import Counters_Object
 

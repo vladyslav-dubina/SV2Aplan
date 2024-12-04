@@ -4,11 +4,12 @@ from classes.actions import Action
 from classes.case_stmt import CaseStmt
 from classes.counters import CounterTypes
 from classes.if_stmt import IfStmt
+from classes.loop_stmt import ForeverStmt, LoopStmt
 from classes.module_call import ModuleCall
 from classes.node import NodeArray
 from classes.parametrs import ParametrArray
 from classes.protocols import BodyElement
-from classes.structure import ForeverStmt, Structure, StructureArray
+from classes.structure import Structure, StructureArray
 from classes.module import Module
 from classes.element_types import ElementsTypes
 from program.program import Program
@@ -60,14 +61,15 @@ class SV2aplan:
         if sv_structure:
             protocol_params = self.getProtocolParams()
             beh_index = sv_structure.getLastBehaviorIndex()
-            Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
             if beh_index is not None:
                 if element_type_ == ElementsTypes.FOREVER_ELEMENT:
                     sv_structure.behavior[beh_index].addBody(
                         BodyElement(
                             identifier="Sensetive({0}_{1}, {2})".format(
                                 name,
-                                Counters_Object.getCounter(CounterTypes.B_COUNTER),
+                                Counters_Object.getCounter(
+                                    CounterTypes.UNIQ_NAMES_COUNTER
+                                ),
                                 sensetive,
                             ),
                             element_type=ElementsTypes.PROTOCOL_ELEMENT,
@@ -78,7 +80,10 @@ class SV2aplan:
                     sv_structure.behavior[beh_index].addBody(
                         BodyElement(
                             identifier="{0}_{1}".format(
-                                name, Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                                name,
+                                Counters_Object.getCounter(
+                                    CounterTypes.UNIQ_NAMES_COUNTER
+                                ),
                             ),
                             element_type=ElementsTypes.PROTOCOL_ELEMENT,
                             parametrs=protocol_params,
@@ -96,52 +101,39 @@ class SV2aplan:
 
             if element_type_ == ElementsTypes.CASE_STATEMENT_ELEMENT:
                 struct = CaseStmt(
-                    "{0}_{1}".format(
-                        name, Counters_Object.getCounter(CounterTypes.B_COUNTER)
-                    ),
+                    name,
                     (0, 0),
                     Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
                 )
             elif element_type_ == ElementsTypes.IF_STATEMENT_ELEMENT:
                 struct = IfStmt(
-                    "{0}_{1}".format(
-                        name, Counters_Object.getCounter(CounterTypes.B_COUNTER)
-                    ),
+                    name,
                     (0, 0),
                     Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
                 )
             elif element_type_ == ElementsTypes.FOREVER_ELEMENT:
                 struct = ForeverStmt(
-                    "{0}_{1}".format(
-                        name, Counters_Object.getCounter(CounterTypes.B_COUNTER)
-                    ),
+                    name,
+                    (0, 0),
+                    Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+                )
+            elif element_type_ == ElementsTypes.LOOP_ELEMENT:
+                struct = LoopStmt(
+                    name,
                     (0, 0),
                     Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
                 )
             else:
                 struct = Structure(
-                    "{0}_{1}".format(
-                        name, Counters_Object.getCounter(CounterTypes.B_COUNTER)
-                    ),
+                    name,
                     (0, 0),
                     element_type_,
                     Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
                 )
-
+            struct.addInitProtocol()
             struct.parametrs = tmp
+            struct.inside_the_task = self.inside_the_task or self.inside_the_function
             sv_structure.behavior.append(struct)
-
-            struct.addProtocol(
-                "{0}_{1}".format(
-                    name, Counters_Object.getCounter(CounterTypes.B_COUNTER)
-                ),
-                element_type=element_type_,
-                parametrs=protocol_params,
-                inside_the_task=(self.inside_the_task or self.inside_the_function),
-                name_space_level=Counters_Object.getCounter(
-                    CounterTypes.UNIQ_NAMES_COUNTER
-                ),
-            )
             self.structure_pointer_list.addElement(struct)
             Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
 
@@ -275,18 +267,23 @@ class SV2aplan:
         )
 
         return loopVars2AplanImpl(self, ctx, sv_structure)
-    
-    def foreverIteration2Aplan(
+
+    # ---------------------------------------------------------------------------------
+    def loopIteration2Aplan(
         self,
-        ctx: SystemVerilogParser.Loop_variablesContext,
+        ctx: SystemVerilogParser.Loop_statementContext,
     ):
         from translator.loops.forever import (
             foreverIteration2AplanImpl,
         )
 
-        return foreverIteration2AplanImpl(self, ctx)
-    
-    
+        if ctx.FOREVER():
+            foreverIteration2AplanImpl(self, ctx)
+        elif ctx.REPEAT():
+            return
+
+    # else:
+    #    loop2AplanImpl(self, ctx)
 
     # ---------------------------------------------------------------------------------
 

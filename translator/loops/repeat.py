@@ -2,6 +2,7 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
+from classes.loop_stmt import LoopStmt
 from classes.protocols import BodyElement
 from classes.structure import Structure
 from translator.expression.expression import actionFromNodeStr
@@ -13,10 +14,12 @@ from utils.utils import Counters_Object
 def repeat2AplanImpl(
     self: SV2aplan,
     ctx: SystemVerilogParser.Loop_statementContext,
-    sv_structure: Structure,
 ):
+    stmt: Structure | None = self.structure_pointer_list.getLastElement()
+    if not isinstance(stmt, Structure):
+        return
     identifier = "repeat_var_{0}".format(
-        Counters_Object.getCounter(CounterTypes.REPEAT_COUNTER)
+        Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)
     )
     expression = ctx.expression().getText()
     expression_source_interval = ctx.expression().getSourceInterval()
@@ -33,9 +36,9 @@ def repeat2AplanImpl(
             0,
             "",
             0,
-            ctx.getSourceInterval(),
-            ElementsTypes.NONE_ELEMENT,
-            None,
+            source_interval=ctx.getSourceInterval(),
+            element_type=ElementsTypes.NONE_ELEMENT,
+            name_space_level=self.getLastNameSpaceLevel(),
         )
     )
 
@@ -44,62 +47,30 @@ def repeat2AplanImpl(
         assing_expr,
         ctx.getSourceInterval(),
         ElementsTypes.ASSIGN_ELEMENT,
-        sv_structure=sv_structure,
+        sv_structure=stmt,
     )
 
     decl = self.module.declarations.getElementByIndex(decl_index)
 
     decl.action = action_pointer
 
-    sv_structure.elements.addElement(decl)
+    stmt.elements.addElement(decl)
 
-    beh_index = sv_structure.getLastBehaviorIndex()
+    beh_index = stmt.getLastBehaviorIndex()
     if beh_index is not None:
-        sv_structure.behavior[beh_index].addBody(
+        stmt.behavior[beh_index].addBody(
             BodyElement(assign_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
         )
     else:
         raise ValueError("sv_structure is empty")
 
-    sensetive = self.extractSensetive(ctx.statement_or_null())
+    self.createStatementToSvStruct("REPEAT_LOOP", ElementsTypes.LOOP_ELEMENT)
+    repeat_stmt: Structure | None = self.structure_pointer_list.getLastElement()
+    if not isinstance(repeat_stmt, LoopStmt):
+        return
 
-    increase_expr = "{0} = {0} + 1".format(identifier)
-    action_pointer, assign_name, source_interval, uniq_action = actionFromNodeStr(
-        self,
-        increase_expr,
-        ctx.getSourceInterval(),
-        ElementsTypes.REPEAT_ELEMENT,
-        sv_structure=sv_structure,
-    )
-
-    repeat_loop = "REPEAT_LOOP_{}".format(
-        Counters_Object.getCounter(CounterTypes.REPEAT_COUNTER)
-    )
     repeat_iteration = "REPEAT_ITERATION_{}".format(
-        Counters_Object.getCounter(CounterTypes.REPEAT_COUNTER)
-    )
-    beh_index = sv_structure.getLastBehaviorIndex()
-    if beh_index is not None:
-        sv_structure.behavior[beh_index].addBody(
-            BodyElement(
-                identifier=repeat_loop, element_type=ElementsTypes.ACTION_ELEMENT
-            )
-        )
-    else:
-        raise ValueError("sv_structure is empty")
-
-    protocol_call = "Sensetive({0}, {1})".format(repeat_loop, sensetive)
-
-    beh_index = sv_structure.addProtocol(
-        repeat_iteration,
-        inside_the_task=(self.inside_the_task or self.inside_the_function),
-    )
-    sv_structure.behavior[beh_index].addBody(
-        BodyElement(
-            "{0}.{1}".format(assign_name, protocol_call),
-            action_pointer,
-            ElementsTypes.ACTION_ELEMENT,
-        )
+        Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)
     )
 
     condition_expr = "{0} < {1}".format(decl.identifier, expression)
@@ -108,14 +79,11 @@ def repeat2AplanImpl(
         condition_expr,
         expression_source_interval,
         ElementsTypes.CONDITION_ELEMENT,
-        sv_structure=sv_structure,
+        sv_structure=repeat_stmt,
     )
 
-    beh_index = sv_structure.addProtocol(
-        repeat_loop,
-        inside_the_task=(self.inside_the_task or self.inside_the_function),
-    )
-    sv_structure.behavior[beh_index].addBody(
+    beh_index = repeat_stmt.getLastBehaviorIndex()
+    repeat_stmt.behavior[beh_index].addBody(
         BodyElement(
             "{0}.{1} + !{0}".format(assign_name, repeat_iteration),
             action_pointer,
@@ -123,4 +91,37 @@ def repeat2AplanImpl(
         )
     )
 
-    Counters_Object.incrieseCounter(CounterTypes.REPEAT_COUNTER)
+    repeat_iteration = "REPEAT_ITERATION_{}".format(
+        Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+    )
+
+    increase_expr = "{0} = {0} + 1".format(identifier)
+    action_pointer, assign_name, source_interval, uniq_action = actionFromNodeStr(
+        self,
+        increase_expr,
+        ctx.getSourceInterval(),
+        ElementsTypes.REPEAT_ELEMENT,
+        sv_structure=repeat_stmt,
+    )
+
+    sensetive = self.extractSensetive(ctx.statement_or_null())
+    protocol_call = "Sensetive({0}, {1})".format(repeat_stmt.getName(), sensetive)
+
+    beh_index = repeat_stmt.addProtocol(
+        repeat_iteration,
+        inside_the_task=(self.inside_the_task or self.inside_the_function),
+    )
+
+    repeat_stmt.behavior[beh_index].addBody(
+        BodyElement(
+            "{0}.{1}".format(assign_name, protocol_call),
+            action_pointer,
+            ElementsTypes.ACTION_ELEMENT,
+        )
+    )
+    
+    copy = repeat_stmt.behavior[beh_index].copy()
+    repeat_stmt.behavior[beh_index] = repeat_stmt.behavior[beh_index-1].copy()
+    repeat_stmt.behavior[beh_index-1]= copy
+   
+    self.body2Aplan(ctx.statement_or_null(), repeat_stmt)

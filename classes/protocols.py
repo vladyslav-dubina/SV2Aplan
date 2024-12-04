@@ -20,6 +20,11 @@ class BodyElement(Basic):
         self.parametrs = parametrs
         self.pointer_to_related = pointer_to_related
 
+    def copy(self):
+        element = BodyElement(self.identifier, self.pointer_to_related, self.element_type, self.parametrs)
+
+        return element
+
     def getName(self):
         if self.parametrs:
             if self.parametrs.getLen() == 0:

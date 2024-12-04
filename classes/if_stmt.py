@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import Tuple
 from classes.element_types import ElementsTypes
 from classes.structure import Structure
 

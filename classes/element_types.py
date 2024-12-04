@@ -18,8 +18,6 @@ class ElementsTypes(Enum):
     PROTOCOL_ELEMENT = auto()
     MODULE_CALL_ELEMENT = auto()
     MODULE_ASSIGN_ELEMENT = auto()
-    LOOP_ELEMENT = auto()
-    FOREVER_ELEMENT = auto()
     ALWAYS_ELEMENT = auto()
     INITIAL_ELEMENT = auto()
     REPEAT_ELEMENT = auto()
@@ -27,6 +25,10 @@ class ElementsTypes(Enum):
     FUNCTION_ELEMENT = auto()
     ARRAY_ELEMENT = auto()
     ARRAY_SIZE_ELEMENT = auto()
+
+    # LOOPS
+    LOOP_ELEMENT = auto()
+    FOREVER_ELEMENT = auto()
 
     # Agents types
     MODULE_ELEMENT = auto()
