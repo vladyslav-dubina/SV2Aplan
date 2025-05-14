@@ -89,17 +89,15 @@ class Structure(Basic):
         self.behavior.append(Protocol(protocol_identifier, (0, 0), element_type, tmp))
         return len(self.behavior) - 1
 
-    def addInitProtocol(self):
+    def addInitProtocol(
+        self, counter_type: CounterTypes = CounterTypes.UNIQ_NAMES_COUNTER
+    ):
         self.addProtocol(
-            "{0}_{1}".format(
-                self.identifier, Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)
-            ),
+            "{0}_{1}".format(self.identifier, Counters_Object.getCounter(counter_type)),
             element_type=self.element_type,
             parametrs=self.parametrs,
             inside_the_task=self.inside_the_task,
-            name_space_level=Counters_Object.getCounter(
-                CounterTypes.UNIQ_NAMES_COUNTER
-            ),
+            name_space_level=Counters_Object.getCounter(counter_type),
         )
 
     def getBehLen(self):

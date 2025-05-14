@@ -4,7 +4,7 @@ from classes.actions import Action
 from classes.case_stmt import CaseStmt
 from classes.counters import CounterTypes
 from classes.if_stmt import IfStmt
-from classes.loop_stmt import ForeverStmt, LoopStmt
+from classes.loop_stmt import ForeverStmt, LoopStmt, WhileStmt
 from classes.module_call import ModuleCall
 from classes.node import NodeArray
 from classes.parametrs import ParametrArray
@@ -55,6 +55,7 @@ class SV2aplan:
         name,
         element_type_,
         sensetive: str | None = None,
+        counter_type: CounterTypes = CounterTypes.UNIQ_NAMES_COUNTER,
     ):
         sv_structure: Structure | None = self.structure_pointer_list.getLastElement()
 
@@ -67,9 +68,7 @@ class SV2aplan:
                         BodyElement(
                             identifier="Sensetive({0}_{1}, {2})".format(
                                 name,
-                                Counters_Object.getCounter(
-                                    CounterTypes.UNIQ_NAMES_COUNTER
-                                ),
+                                Counters_Object.getCounter(counter_type),
                                 sensetive,
                             ),
                             element_type=ElementsTypes.PROTOCOL_ELEMENT,
@@ -81,9 +80,7 @@ class SV2aplan:
                         BodyElement(
                             identifier="{0}_{1}".format(
                                 name,
-                                Counters_Object.getCounter(
-                                    CounterTypes.UNIQ_NAMES_COUNTER
-                                ),
+                                Counters_Object.getCounter(counter_type),
                             ),
                             element_type=ElementsTypes.PROTOCOL_ELEMENT,
                             parametrs=protocol_params,
@@ -103,39 +100,50 @@ class SV2aplan:
                 struct = CaseStmt(
                     name,
                     (0, 0),
-                    Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+                    Counters_Object.getCounter(counter_type),
                 )
+
             elif element_type_ == ElementsTypes.IF_STATEMENT_ELEMENT:
                 struct = IfStmt(
                     name,
                     (0, 0),
-                    Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+                    Counters_Object.getCounter(counter_type),
                 )
             elif element_type_ == ElementsTypes.FOREVER_ELEMENT:
                 struct = ForeverStmt(
                     name,
                     (0, 0),
-                    Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+                    Counters_Object.getCounter(counter_type),
                 )
+
+            elif element_type_ == ElementsTypes.WHILE_ELEMENT:
+                struct = WhileStmt(
+                    name,
+                    (0, 0),
+                    Counters_Object.getCounter(counter_type),
+                )
+
             elif element_type_ == ElementsTypes.LOOP_ELEMENT:
                 struct = LoopStmt(
                     name,
                     (0, 0),
-                    Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+                    Counters_Object.getCounter(counter_type),
                 )
+
             else:
                 struct = Structure(
                     name,
                     (0, 0),
                     element_type_,
-                    Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+                    Counters_Object.getCounter(counter_type),
                 )
+
             struct.addInitProtocol()
             struct.parametrs = tmp
             struct.inside_the_task = self.inside_the_task or self.inside_the_function
             sv_structure.behavior.append(struct)
             self.structure_pointer_list.addElement(struct)
-            Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+            Counters_Object.incrieseCounter(counter_type)
 
     def extractSensetive(self, ctx):
         from translator.sensetive.sensetive import extractSensetiveImpl
@@ -617,11 +625,14 @@ class SV2aplan:
         from translator.loops.loop import loop2AplanImpl
         from translator.loops.repeat import repeat2AplanImpl
         from translator.loops.forever import forever2AplanImpl
+        from translator.loops._while import while2AplanImpl
 
         if ctx.REPEAT():
             repeat2AplanImpl(self, ctx)
         elif ctx.FOREVER():
             forever2AplanImpl(self, ctx)
+        elif ctx.WHILE():
+            while2AplanImpl(self, ctx)
         else:
             loop2AplanImpl(self, ctx)
 

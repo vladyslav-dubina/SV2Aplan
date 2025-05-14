@@ -29,6 +29,7 @@ class ElementsTypes(Enum):
     # LOOPS
     LOOP_ELEMENT = auto()
     FOREVER_ELEMENT = auto()
+    WHILE_ELEMENT = auto()
 
     # Agents types
     MODULE_ELEMENT = auto()
