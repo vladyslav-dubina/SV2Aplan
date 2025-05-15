@@ -6,7 +6,7 @@ from classes.element_types import ElementsTypes
 from classes.loop_stmt import ForeverStmt
 from classes.protocols import BodyElement
 from classes.structure import Structure
-from translator.translator import Translator
+from translator.translator import Module_Translator
 from utils.utils import Counters_Object
 
 
@@ -21,7 +21,7 @@ def extractCondition(ctx: SystemVerilogParser.Statement_or_nullContext):
 
 
 def forever2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.Loop_statementContext,
 ):
     condition = extractCondition(ctx.statement_or_null())
@@ -37,7 +37,7 @@ def forever2AplanImpl(
 
 
 def foreverIteration2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.Loop_statementContext,
 ):
     forever_stmt: Structure | None = self.structure_pointer_list.getLastElement()

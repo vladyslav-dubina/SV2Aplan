@@ -6,10 +6,10 @@ from classes.node import Node, NodeArray
 from classes.parametrs import Parametr, ParametrArray
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
-from translator.translator import Translator
+from translator.translator import Module_Translator
 
 
-def createModfAction(self: Translator, grater_than_zero: bool):
+def createModfAction(self: Module_Translator, grater_than_zero: bool):
     name_part = "_ltz"
     if grater_than_zero:
         name_part = "_gtz"
@@ -108,7 +108,7 @@ def createModfAction(self: Translator, grater_than_zero: bool):
 
 
 def modf2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     source_interval: Tuple[int, int],
     sv_structure: Structure | None = None,
     destination_node_array: NodeArray | None = None,

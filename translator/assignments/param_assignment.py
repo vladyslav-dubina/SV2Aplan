@@ -3,12 +3,12 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.module import Module
 from classes.module_call import ModuleCall
 from classes.value_parametrs import ValueParametr
-from translator.translator import Translator
+from translator.translator import Module_Translator
 from utils.utils import isNumericString
 
 
 def createParametr(
-    self: Translator,
+    self: Module_Translator,
     identifier: str,
     expression: str,
     source_interval: Tuple[int, int],
@@ -39,7 +39,7 @@ def createParametr(
 
 
 def paramAssignment2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: (
         SystemVerilogParser.Param_assignmentContext
         | SystemVerilogParser.Local_parameter_declarationContext

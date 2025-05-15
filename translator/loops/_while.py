@@ -5,11 +5,11 @@ from classes.element_types import ElementsTypes
 from classes.loop_stmt import WhileStmt
 from classes.structure import Structure
 from translator.loops.loops_utils import createLoopBeh
-from translator.translator import Translator
+from translator.translator import Module_Translator
 
 
 def while2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.Loop_statementContext,
 ):
     self.createStatementToSvStruct(

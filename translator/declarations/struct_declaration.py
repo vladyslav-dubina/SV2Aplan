@@ -4,7 +4,7 @@ from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from classes.typedef import Typedef
-from translator.translator import Translator
+from translator.translator import Module_Translator
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
     Color,
@@ -18,7 +18,7 @@ from utils.utils import (
 
 
 def structDeclaration2AplanImpl(
-    self: Translator, ctx: SystemVerilogParser.Data_declarationContext
+    self: Module_Translator, ctx: SystemVerilogParser.Data_declarationContext
 ):
     struct_decl = ctx.data_type_or_implicit().data_type()
     unique_identifier = "{0}_{1}".format(
@@ -44,7 +44,7 @@ def structDeclaration2AplanImpl(
 
 
 def structMembersToDeclarations(
-    self: Translator, ctx: SystemVerilogParser.Data_typeContext, typedef: Typedef
+    self: Module_Translator, ctx: SystemVerilogParser.Data_typeContext, typedef: Typedef
 ):
     for element in ctx.struct_union_member():
         if isinstance(element, SystemVerilogParser.Struct_union_memberContext):
@@ -145,7 +145,7 @@ def structMembersToDeclarations(
 
 
 def typedefDecaration2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.Data_declarationContext,
 ):
     type_declaration: SystemVerilogParser.Type_declarationContext | None = (
@@ -201,7 +201,7 @@ def typedefDecaration2AplanImpl(
 
 
 def createArrayStruct(
-    self: Translator,
+    self: Module_Translator,
     identifier: str,
     decl_type: DeclTypes,
     source_interval: Tuple[int, int],

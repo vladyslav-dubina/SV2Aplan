@@ -7,12 +7,12 @@ from classes.node import Node, NodeArray
 from classes.parametrs import Parametr, ParametrArray
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
-from translator.translator import Translator
+from translator.translator import Module_Translator
 from translator.utils import createDeclaration, createParametrArray, createTypedef
 from utils.utils import isNumericString
 
 
-def createFloorAction(self: Translator, type: int, protocol_params: ParametrArray):
+def createFloorAction(self: Module_Translator, type: int, protocol_params: ParametrArray):
 
     if type == 0:
         name_part = "check"
@@ -263,7 +263,7 @@ def createFloorAction(self: Translator, type: int, protocol_params: ParametrArra
 
 
 def floor2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.System_tf_callContext,
     sv_structure: Structure | None = None,
     destination_node_array: NodeArray | None = None,

@@ -5,7 +5,7 @@ from classes.declarations import DeclTypes, Declaration
 from classes.parametrs import Parametr
 from classes.element_types import ElementsTypes
 from classes.node import Node, NodeArray, RangeTypes
-from translator.translator import Translator
+from translator.translator import Module_Translator
 from utils.string_formating import (
     parallelAssignment2Assignment,
     replaceValueParametrsCalls,
@@ -13,7 +13,7 @@ from utils.string_formating import (
 )
 
 
-def paramsCallReplace(self: Translator, expression):
+def paramsCallReplace(self: Module_Translator, expression):
     parametrs_array = self.module.value_parametrs.copy()
 
     packages = self.module.packages_and_objects.getElementsIE(
@@ -28,7 +28,7 @@ def paramsCallReplace(self: Translator, expression):
 
 
 def identifier2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.IdentifierContext,
     destination_node_array: NodeArray,
 ):
@@ -56,7 +56,7 @@ def identifier2AplanImpl(
 
 
 def number2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.NumberContext,
     destination_node_array: NodeArray,
 ):
@@ -74,7 +74,7 @@ def number2AplanImpl(
 
 
 def unpackedDimention2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.Unpacked_dimensionContext,
     destination_node_array: NodeArray,
 ):
@@ -105,7 +105,7 @@ def unpackedDimention2AplanImpl(
 
 
 def bitSelection2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: (
         SystemVerilogParser.Bit_selectContext
         | SystemVerilogParser.Constant_bit_selectContext
@@ -146,7 +146,7 @@ def bitSelection2AplanImpl(
 
 
 def rangeSelection2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.Part_select_rangeContext,
     destination_node_array: NodeArray,
 ):
@@ -176,7 +176,7 @@ def rangeSelection2AplanImpl(
 
 
 def operator2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: Tree.TerminalNodeImpl,
     destination_node_array: NodeArray,
 ):

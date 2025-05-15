@@ -3,7 +3,7 @@ from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from classes.typedef import Typedef
 from translator.declarations.object_declaration import objectDeclaration2AplanImpl
-from translator.translator import Translator
+from translator.translator import Module_Translator
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
     extractDimentionSize,
@@ -13,16 +13,16 @@ from utils.utils import (
 
 
 def netDeclaration2AplanImpl(
-    self: Translator, ctx: SystemVerilogParser.Net_declarationContext
+    self: Module_Translator, ctx: SystemVerilogParser.Net_declarationContext
 ):
     """The function `netDeclaration2AplanImpl` processes SystemVerilog net declarations and adds them
     to a module's declarations in Aplan format.
 
     Parameters
     ----------
-    self : Translator
+    self : Module_Translator
         The `self` parameter in the `netDeclaration2AplanImpl` function refers to the instance of the
-    `Translator` class to which the method belongs. It is a common convention in Python to use `self` as
+    `Module_Translator` class to which the method belongs. It is a common convention in Python to use `self` as
     the first parameter in instance methods to refer to the instance itself
     ctx : SystemVerilogParser.Net_declarationContext
         The `ctx` parameter in the `netDeclaration2AplanImpl` function is of type

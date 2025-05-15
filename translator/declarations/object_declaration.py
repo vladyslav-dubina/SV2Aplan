@@ -2,12 +2,12 @@ from typing import Tuple
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from program.program import Program
-from translator.translator import Translator
+from translator.translator import Module_Translator
 from utils.utils import Counters_Object
 
 
 def objectDeclaration2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     class_name: str,
     identifier: str,
     source_interval: Tuple[int, int],

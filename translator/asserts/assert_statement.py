@@ -3,12 +3,12 @@ from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
-from translator.translator import Translator
+from translator.translator import Module_Translator
 from utils.utils import Counters_Object
 
 
 def assertPropertyStatement2AplanImpl(
-    self: Translator, ctx: SystemVerilogParser.Assert_property_statementContext
+    self: Module_Translator, ctx: SystemVerilogParser.Assert_property_statementContext
 ):
     expression = ctx.property_spec()
     if expression is not None:
@@ -41,7 +41,7 @@ def assertPropertyStatement2AplanImpl(
 
 
 def assertInBlock2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.Simple_immediate_assert_statementContext,
 ):
     sv_structure: Structure | None = self.structure_pointer_list.getLastElement()

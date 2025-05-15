@@ -2,12 +2,12 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.protocols import BodyElement, Protocol
-from translator.translator import Translator
+from translator.translator import Module_Translator
 from utils.utils import Counters_Object
 
 
 def netAssignment2AplanImpl(
-    self: Translator, ctx: SystemVerilogParser.Net_assignmentContext
+    self: Module_Translator, ctx: SystemVerilogParser.Net_assignmentContext
 ):
     if not self.module.processed_elements.isInProcessedElementAlready(
         ctx.getSourceInterval()

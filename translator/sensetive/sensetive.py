@@ -2,10 +2,10 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
 
 from classes.element_types import ElementsTypes
-from translator.translator import Translator
+from translator.translator import Module_Translator
 
 
-def extractSensetiveImpl(self: Translator, ctx):
+def extractSensetiveImpl(self: Module_Translator, ctx):
     res = ""
     for child in ctx.getChildren():
         if type(child) is SystemVerilogParser.Edge_identifierContext:

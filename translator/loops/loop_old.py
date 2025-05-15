@@ -3,12 +3,12 @@ from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.protocols import BodyElement
 from classes.structure import Structure
-from translator.translator import Translator
+from translator.translator import Module_Translator
 from utils.utils import Counters_Object
 
 
 def loop2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: (
         SystemVerilogParser.Loop_generate_constructContext
         | SystemVerilogParser.Loop_statementContext

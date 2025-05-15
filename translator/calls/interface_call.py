@@ -1,12 +1,12 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.module_call import ModuleCall
 from classes.parametrs import Parametr
-from translator.translator import Translator
+from translator.translator import Module_Translator
 from utils.string_formating import replace_filename
 
 
 def interfaceCall2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.Ansi_port_declarationContext,
 ):
     from translator.translation_mngr import TranslationManager
@@ -38,7 +38,7 @@ def interfaceCall2AplanImpl(
         file_data = self.program.readFileData(file_path)
         translation_mngr = TranslationManager()
         translation_mngr.setUp(file_data)
-        translation_mngr.startTranslate(self.program, module_call)
+        translation_mngr.startTranslate(module_call)
     except Exception as e:
 
         self.program.module_calls.addElement(module_call)

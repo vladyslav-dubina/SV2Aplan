@@ -2,11 +2,11 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 
 from classes.structure import Structure
 from classes.element_types import ElementsTypes
-from translator.translator import Translator
+from translator.translator import Module_Translator
 
 
 def initital2AplanImpl(
-    self: Translator, ctx: SystemVerilogParser.Initial_constructContext
+    self: Module_Translator, ctx: SystemVerilogParser.Initial_constructContext
 ):
     initial_name = self.module.ident_uniq_name_upper + "_" + "INITITAL"
     structure = Structure(

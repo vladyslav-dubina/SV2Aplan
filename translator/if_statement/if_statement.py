@@ -6,12 +6,12 @@ from classes.if_stmt import IfStmt
 from classes.node import Node
 from classes.protocols import BodyElement
 from classes.structure import Structure
-from translator.translator import Translator
+from translator.translator import Module_Translator
 from utils.string_formating import valuesToAplanStandart
 from utils.utils import Color, Counters_Object, printWithColor
 
 
-def ifSeqBlock2AplanImpl(self: Translator, ctx: SystemVerilogParser.Seq_blockContext):
+def ifSeqBlock2AplanImpl(self: Module_Translator, ctx: SystemVerilogParser.Seq_blockContext):
     sv_structure: Structure | None = self.structure_pointer_list.getLastElement()
     if isinstance(sv_structure, IfStmt):
         if (
@@ -35,7 +35,7 @@ def ifSeqBlock2AplanImpl(self: Translator, ctx: SystemVerilogParser.Seq_blockCon
 
 
 def conditionalPredecate2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.Cond_predicateContext,
 ):
     if_stmt: Structure | None = self.structure_pointer_list.getLastElement()
@@ -149,7 +149,7 @@ def conditionalPredecate2AplanImpl(
 
 
 def ifStatement2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.Conditional_statementContext,
 ):
 

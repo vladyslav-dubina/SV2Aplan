@@ -6,7 +6,7 @@ from classes.element_types import ElementsTypes
 from classes.node import Node, NodeArray
 from classes.parametrs import Parametr, ParametrArray
 from classes.structure import Structure
-from translator.translator import Translator
+from translator.translator import Module_Translator
 from translator.task_and_function.build_in_functions.mathematic.ceil import (
     ceil2AplanImpl,
 )
@@ -21,7 +21,7 @@ from translator.utils import createProtocol
 
 
 def systemTF2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.System_tf_callContext,
     destination_node_array: NodeArray | None = None,
     sv_structure: Structure | None = None,
@@ -149,7 +149,7 @@ def systemTF2AplanImpl(
 
 
 def size2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.System_tf_callContext,
     parametrs: ParametrArray,
     description_start: List[str],

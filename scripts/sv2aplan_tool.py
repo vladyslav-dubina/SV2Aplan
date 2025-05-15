@@ -13,7 +13,7 @@ from utils.utils import (
     programCountersDeinit,
 )
 from program.program import Program
-from translator.translator import SystemVerilogFinder
+from translator.translation_mngr import TranslationManager
 
 
 def is_sv_file(path: str):
@@ -45,9 +45,9 @@ def start(path, path_to_aplan_result):
         program = Program(path_to_aplan_result)
         if is_sv_file(path):
             file_data = program.readFileData(path)
-            finder = SystemVerilogFinder()
-            finder.setUp(file_data)
-            finder.startTranslate(program, None)
+            translation_mngr = TranslationManager()
+            translation_mngr.setUp(file_data)
+            translation_mngr.startTranslate()
         program.createResDir()
         program.createAplanFiles()
     except Exception as e:

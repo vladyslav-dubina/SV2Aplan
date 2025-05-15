@@ -1,7 +1,7 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
-from translator.translator import Translator
+from translator.translator import Module_Translator
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
     dataTypeToStr,
@@ -12,7 +12,7 @@ from utils.utils import (
 
 
 def ansiPortDeclaration2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.Ansi_port_declarationContext,
 ):
     """The function `ansiPortDeclaration2AplanImpl` processes ANSI port declarations in SystemVerilog and adds them
@@ -20,9 +20,9 @@ def ansiPortDeclaration2AplanImpl(
 
     Parameters
     ----------
-    self : Translator
+    self : Module_Translator
         The `self` parameter in Python is a reference to the current instance of the class. In this
-    context, it is used within a method of the `Translator` class to refer to the current instance of that
+    context, it is used within a method of the `Module_Translator` class to refer to the current instance of that
     class. It allows you to access the attributes and methods of the class within
     ctx : SystemVerilogParser.Ansi_port_declarationContext
         The `ctx` parameter in the `ansiPortDeclaration2AplanImpl` function is of type

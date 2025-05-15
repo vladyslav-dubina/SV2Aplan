@@ -1,5 +1,5 @@
 from antlr4_verilog import InputStream, CommonTokenStream, ParseTreeWalker
-from listener.system_verilog_listener import SVToAplanListener
+from listener.listener import SVToAplanListener
 from antlr4_verilog.systemverilog import SystemVerilogLexer, SystemVerilogParser
 from utils.utils import printWithColor, printWithColors, Color
 from program.program import Program
@@ -15,10 +15,10 @@ class TranslationManager:
         self.tree = parser.source_text()
         self.walker = ParseTreeWalker()
 
-    def startTranslate(self, program: Program, module_call: ModuleCall | None = None):
+    def startTranslate(self, module_call: ModuleCall | None = None):
         printWithColor(f"Translation process start... \n", Color.ORANGE)
 
-        listener = SVToAplanListener(program, module_call)
+        listener = SVToAplanListener(module_call)
         self.walker.walk(listener, self.tree)
         printWithColor(f"File tranlation process finished! \n", Color.ORANGE)
         printWithColors(

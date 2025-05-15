@@ -14,18 +14,29 @@ from classes.module import Module
 from classes.element_types import ElementsTypes
 from program.program import Program
 from typing import Tuple, List
+from translator.classes.declarations.data import DataDeclTranslator
+from translator.classes.declarations.genvar import GenvarDeclTranslator
+from translator.classes.declarations.interface import (
+    InterfaceDeclTranslator,
+)
+from translator.classes.declarations.module import (
+    Module_Translator,
+    ModuleDeclTranslator,
+)
+from translator.classes.declarations.net import NewDeclTranslator
+from translator.classes.declarations.object import ObjectDeclTranslator
+from translator.classes.declarations.package import PackageDeclTranslator
+from translator.classes.declarations.struct import StructDeclTranslator
+from translator.classes.expressions.expression import ExpressionTranslator
 from utils.utils import Counters_Object
 
 
-class Translator:
+class Module_Translator2:
     def __init__(self, module: Module, program: Program | None = None):
         self.module = module
         self.program: Program = program
-        self.inside_the_task = False
-        self.inside_the_function = False
+
         self.current_genvar_value: Tuple[str, int] | None = None
-        self.structure_pointer_list: StructureArray = StructureArray()
-        self.name_space_levels: List[int] = []
 
     def getProtocolParams(self):
         protocol_params = None
@@ -748,3 +759,60 @@ class Translator:
         )
 
         taskOrFunctionDeclaration2AplanImpl(self, ctx)
+
+
+from program.program import Program
+
+
+class Translator:
+    module_call: ModuleCall | None = None
+    _module: Module | None = None
+    _structure_pointer_list: StructureArray = StructureArray()
+    _inside_the_task = False
+    _inside_the_function = False
+    _cache = {}
+
+    def __init__(self):
+
+        pass
+
+    def _get_translator(self, key, cls):
+        if key not in self._cache:
+            self._cache[key] = cls(self)
+        return self._cache[key]
+
+    @property
+    def interface_decl_translator(self) -> InterfaceDeclTranslator:
+        return self._get_translator("interface_decl_trnslt", InterfaceDeclTranslator)
+
+    @property
+    def module_decl_translator(self) -> ModuleDeclTranslator:
+        return self._get_translator("module_decl_trnslt", ModuleDeclTranslator)
+
+    @property
+    def package_decl_translator(self) -> PackageDeclTranslator:
+        return self._get_translator("package_decl_trnslt", PackageDeclTranslator)
+
+    @property
+    def genvar_decl_translator(self) -> GenvarDeclTranslator:
+        return self._get_translator("genvar_decl_trnslt", GenvarDeclTranslator)
+
+    @property
+    def struct_decl_translator(self) -> StructDeclTranslator:
+        return self._get_translator("struct_decl_trnslt", StructDeclTranslator)
+
+    @property
+    def data_decl_translator(self) -> DataDeclTranslator:
+        return self._get_translator("data_decl_trnslt", DataDeclTranslator)
+
+    @property
+    def net_decl_translator(self) -> NewDeclTranslator:
+        return self._get_translator("net_decl_trnslt", NewDeclTranslator)
+    
+    @property
+    def obj_decl_translator(self) -> ObjectDeclTranslator:
+        return self._get_translator("obj_decl_trnslt", ObjectDeclTranslator)
+    
+    @property
+    def expr_translator(self) -> ExpressionTranslator:
+        return self._get_translator("expr_trnslt", ExpressionTranslator)

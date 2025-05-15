@@ -3,11 +3,11 @@ from classes.parametrs import Parametr, ParametrArray
 from classes.element_types import ElementsTypes
 from classes.protocols import BodyElement
 from classes.structure import Structure
-from translator.translator import Translator
+from translator.translator import Module_Translator
 
 
 def returnToAssign2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.ExpressionContext,
     sv_structure: Structure | None = None,
 ):

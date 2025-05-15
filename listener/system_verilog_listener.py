@@ -2,11 +2,8 @@ from antlr4_verilog.systemverilog import (
     SystemVerilogParserListener,
     SystemVerilogParser,
 )
-from classes.case_stmt import CaseStmt
 from classes.counters import CounterTypes
-from classes.element_types import ElementsTypes
-from classes.if_stmt import IfStmt
-from classes.structure import Structure
+
 
 from translator.loops.forever import foreverIteration2AplanImpl
 from utils.utils import Counters_Object
@@ -15,7 +12,7 @@ from translator.declarations.interface_declaration import interfaceDeclaration2A
 from translator.declarations.module_declaration import moduleDeclaration2Aplan
 from translator.declarations.package_declaration import packageDeclaration2Aplan
 from translator.translator import (
-    Translator,
+    Module_Translator,
 )
 from classes.module import Module
 from classes.module import Module
@@ -31,54 +28,20 @@ def body_run(ctx):
 
 
 class SVToAplanListener(SystemVerilogParserListener):
-    def __init__(self, program, module_call: ModuleCall | None = None):
-        from program.program import Program
+    def __init__(self, module_call: ModuleCall | None = None):
 
         self.module: Module = None
-        self.program: Program = program
-        self.translator: Translator = Translator(None, program)
+        self.translator: Module_Translator = Module_Translator(None, program)
         self.module_call: ModuleCall | None = module_call
 
-    # DECLARATIONS
-    def enterInterface_declaration(
-        self, ctx: SystemVerilogParser.Interface_declarationContext
-    ):
-        self.module = interfaceDeclaration2Aplan(ctx, self.program, self.module_call)
-        self.translator = Translator(self.module, self.program)
 
-    def enterModule_declaration(
-        self, ctx: SystemVerilogParser.Module_declarationContext
-    ):
-        self.module = moduleDeclaration2Aplan(ctx, self.program, self.module_call)
-        self.translator = Translator(
-            self.module,
-            self.program,
-        )
-        # body_run(ctx)
-
-        self.translator.name_space_levels.append(
-            Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)
-        )
-        Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
-
-    def enterPackage_declaration(
-        self, ctx: SystemVerilogParser.Package_declarationContext
-    ):
-        self.module = packageDeclaration2Aplan(ctx, self.program, self.module_call)
-        self.translator = Translator(self.module, self.program)
-
-    def enterClass_declaration(self, ctx: SystemVerilogParser.Class_declarationContext):
-        self.module = classDeclaration2Aplan(ctx, self.program, self.module_call)
-        self.translator = Translator(self.module, self.program)
 
     def enterSystem_tf_call(self, ctx: SystemVerilogParser.System_tf_callContext):
         self.translator.systemTFCall2Aplan(ctx)
 
-    def exitGenvar_declaration(self, ctx):
-        self.translator.genvarDeclaration2Aplan(ctx)
 
-    def exitData_declaration(self, ctx):
-        self.translator.dataDecaration2Aplan(ctx, True)
+
+  
 
     def exitNet_declaration(self, ctx: SystemVerilogParser.Net_declarationContext):
         self.translator.netDeclaration2Aplan(ctx)

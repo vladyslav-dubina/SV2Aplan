@@ -3,11 +3,11 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.always import Always
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
-from translator.translator import Translator
+from translator.translator import Module_Translator
 from utils.utils import Counters_Object
 
 
-def always2AplanImpl(self: Translator, ctx: SystemVerilogParser.Always_constructContext):
+def always2AplanImpl(self: Module_Translator, ctx: SystemVerilogParser.Always_constructContext):
 
     sensetive = None
 

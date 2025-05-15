@@ -3,10 +3,10 @@ from classes.element_types import ElementsTypes
 from classes.protocols import BodyElement
 from classes.structure import Structure
 from utils.utils import Counters_Object
-from translator.translator import Translator
+from translator.translator import Module_Translator
 
 
-def createLoopBeh(self: Translator, loop_stmt: Structure, condition):
+def createLoopBeh(self: Module_Translator, loop_stmt: Structure, condition):
 
     protocol_params = self.getProtocolParams()
 

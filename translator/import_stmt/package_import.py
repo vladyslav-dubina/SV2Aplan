@@ -13,13 +13,13 @@ from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from classes.tasks import Task
 from program.program import Program
-from translator.translator import Translator
+from translator.translator import Module_Translator
 from utils.string_formating import replace_filename
 from utils.utils import Color, Counters_Object, printWithColor
 
 
 def packageImport2ApanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.Package_import_declarationContext,
 ):
     from translator.translation_mngr import TranslationManager
@@ -37,7 +37,7 @@ def packageImport2ApanImpl(
                 file_data = self.program.readFileData(file_path)
                 translation_mngr = TranslationManager()
                 translation_mngr.setUp(file_data)
-                translation_mngr.startTranslate(self.program)
+                translation_mngr.startTranslate()
 
                 self.program.file_path = previous_file_path
 

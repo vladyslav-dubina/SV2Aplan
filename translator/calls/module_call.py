@@ -9,13 +9,13 @@ from classes.module_call import ModuleCall
 from classes.node import Node, NodeArray
 from classes.protocols import BodyElement, Protocol
 from translator.expression.expression import actionFromNodeStr
-from translator.translator import Translator
+from translator.translator import Module_Translator
 from utils.string_formating import replace_filename
 from utils.utils import Color, Counters_Object, printWithColor
 
 
 def moduleCallAssign2Aplan(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.Module_instantiationContext,
     destination_module_name: str,
     destination_identifier: str,
@@ -162,7 +162,7 @@ def moduleCallAssign2Aplan(
 
 
 def moduleCall2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.Module_instantiationContext,
 ):
     from translator.translation_mngr import TranslationManager
@@ -204,7 +204,7 @@ def moduleCall2AplanImpl(
         file_data = self.program.readFileData(file_path)
         translation_mngr = TranslationManager()
         translation_mngr.setUp(file_data)
-        translation_mngr.startTranslate(self.program, module_call)
+        translation_mngr.startTranslate( module_call)
     except Exception as e:
 
         self.program.module_calls.addElement(module_call)

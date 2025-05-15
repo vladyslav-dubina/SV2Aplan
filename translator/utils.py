@@ -3,16 +3,19 @@ from classes.actions import Action
 from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
+
 from classes.parametrs import Parametr, ParametrArray
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from classes.typedef import Typedef
-from translator.translator import Translator
+from classes.module_call import ModuleCall
+from program.program import Program
+from translator.translator import Module_Translator
 from utils.utils import Counters_Object
 
 
 def createProtocol(
-    self: Translator,
+    self: Module_Translator,
     action_pointer: Action,
     body: str,
     action_name: str,
@@ -86,7 +89,7 @@ def createProtocol(
 
 
 def createDeclaration(
-    self: Translator,
+    self: Module_Translator,
     name_part,
     type: DeclTypes,
     counter_type: CounterTypes,
@@ -111,7 +114,7 @@ def createDeclaration(
     return self.module.declarations.getElementByIndex(index)
 
 
-def createParametrArray(self: Translator, parametrs: List[str]):
+def createParametrArray(self: Module_Translator, parametrs: List[str]):
     result: ParametrArray = ParametrArray()
     for element in parametrs:
         result.addElement(
@@ -124,7 +127,7 @@ def createParametrArray(self: Translator, parametrs: List[str]):
 
 
 def createTypedef(
-    self: Translator,
+    self: Module_Translator,
     identifier: str,
     source_interval: Tuple[int, int],
     arguments: List[Tuple[str, DeclTypes]],
@@ -159,3 +162,18 @@ def createTypedef(
         decl_unique, decl_index = self.module.typedefs.addElement(typedef)
     else:
         decl_unique, decl_index = self.program.typedefs.addElement(typedef)
+
+
+def module_call_resolve(module_call: ModuleCall, identifier):
+    local_module_call: ModuleCall = None
+    uniq_name = identifier
+    if module_call is not None:
+        local_module_call = module_call
+    else:
+        local_module_call = Program().module_calls.findElement(identifier)
+    if local_module_call is not None:
+        if identifier == local_module_call.identifier:
+            identifier = local_module_call.identifier
+            uniq_name = local_module_call.object_name
+
+    return (identifier, uniq_name)

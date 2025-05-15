@@ -7,12 +7,12 @@ from classes.node import Node
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from translator.expression.expression import findAssociatedAction, getNamePartAndCounter
-from translator.translator import Translator
+from translator.translator import Module_Translator
 from utils.utils import Counters_Object
 
 
 def createPushBack(
-    self: Translator,
+    self: Module_Translator,
     sv_structure: Structure,
     task_identifier: str,
     object_identifier: str,

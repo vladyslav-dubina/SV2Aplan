@@ -5,12 +5,12 @@ from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from classes.structure import Structure
 from translator.expression.expression import actionFromNodeStr
-from translator.translator import Translator
+from translator.translator import Module_Translator
 from utils.utils import Counters_Object
 
 
 def loopVars2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.Loop_variablesContext,
     sv_structure: Structure,
 ):
@@ -19,8 +19,8 @@ def loopVars2AplanImpl(
 
     Parameters
     ----------
-    self : Translator
-        The `self` parameter refers to an instance of the `Translator` class.
+    self : Module_Translator
+        The `self` parameter refers to an instance of the `Module_Translator` class.
     ctx : SystemVerilogParser.Loop_variablesContext
         The `ctx` parameter in the `loopVars2AplanImpl` function is of type
     `SystemVerilogParser.Loop_variablesContext`. It is used to extract loop variables from a
@@ -76,7 +76,7 @@ def loopVars2AplanImpl(
 
 
 def loopVarsDeclarations2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     vars_names: List[str],
     source_intervals: List[Tuple[int, int]],
     sv_structure: Structure,
@@ -86,8 +86,8 @@ def loopVarsDeclarations2AplanImpl(
 
     Parameters
     ----------
-    self : Translator
-        Translator - an instance of a class
+    self : Module_Translator
+        Module_Translator - an instance of a class
     vars_names : List[str]
         The `vars_names` parameter is a list of strings containing the names of variables that need to be
     declared and initialized to 0 in the function `loopVarsDeclarations2AplanImpl`.
@@ -124,7 +124,7 @@ def loopVarsDeclarations2AplanImpl(
 
 
 def loopVarsToIteration2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     vars_names: List[str],
     source_intervals: List[Tuple[int, int]],
     sv_structure: Structure,
@@ -134,8 +134,8 @@ def loopVarsToIteration2AplanImpl(
 
     Parameters
     ----------
-    self : Translator
-        Translator instance that the method belongs to
+    self : Module_Translator
+        Module_Translator instance that the method belongs to
     vars_names : List[str]
         The `vars_names` parameter is a list of strings representing the names of variables that you want
     to increment by 1 in the loop.
@@ -172,7 +172,7 @@ def loopVarsToIteration2AplanImpl(
 
 
 def loopVarsAndArrayIdentifierToCondition2AplanImpl(
-    self: Translator,
+    self: Module_Translator,
     vars_names: List[str],
     ctx: SystemVerilogParser.Ps_or_hierarchical_array_identifierContext,
     sv_structure: Structure,
@@ -182,8 +182,8 @@ def loopVarsAndArrayIdentifierToCondition2AplanImpl(
 
     Parameters
     ----------
-    self : Translator
-        The `self` parameter refers to an instance of the `Translator` class. It is used to access methods
+    self : Module_Translator
+        The `self` parameter refers to an instance of the `Module_Translator` class. It is used to access methods
     and attributes within the class.
     vars_names : List[str]
         The `vars_names` parameter is a list of strings that represent the names of variables. In the
@@ -225,7 +225,7 @@ def loopVarsAndArrayIdentifierToCondition2AplanImpl(
 
 
 def forInitialization2ApanImpl(
-    self: Translator,
+    self: Module_Translator,
     ctx: SystemVerilogParser.For_initializationContext,
     sv_structure: Structure,
 ):
@@ -233,9 +233,9 @@ def forInitialization2ApanImpl(
 
     Parameters
     ----------
-    self : Translator
+    self : Module_Translator
         The `self` parameter in the `forInitialization2ApanImpl` function refers to an instance of the
-    `Translator` class. It is used to access attributes and methods within the class.
+    `Module_Translator` class. It is used to access attributes and methods within the class.
     ctx : SystemVerilogParser.For_initializationContext
         The `ctx` parameter in the `forInitialization2ApanImpl` function is of type
     `SystemVerilogParser.For_initializationContext`. This parameter is used to access information

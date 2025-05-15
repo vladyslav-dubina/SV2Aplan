@@ -1,5 +1,6 @@
 from classes.declarations import DeclTypes, DeclarationArray
 from classes.element_types import ElementsTypes
+from classes.singleton import SingletonMeta
 from classes.typedef import TypedefArray
 from utils.string_formating import removeTrailingComma
 from utils.utils import printWithColor, Color
@@ -8,12 +9,21 @@ from classes.module_call import ModuleCallArray
 import os
 
 
-class Program:
+class Program(metaclass=SingletonMeta):
     def __init__(self, path_to_result: str = None) -> None:
         self.path_to_result = path_to_result
         self.modules: ModuleArray = ModuleArray()
-        self.module_calls: ModuleCallArray = ModuleCallArray()
-        self.typedefs: TypedefArray = TypedefArray()
+        self._module_calls: ModuleCallArray = ModuleCallArray()
+        self._typedefs: TypedefArray = TypedefArray()
+
+    @property
+    def module_calls(self) -> ModuleCallArray:
+        return self._module_calls
+    
+    @property
+    def typedefs(self) -> TypedefArray:
+        return self._typedefs
+
 
     def readFileData(self, path):
         self.file_path = path
