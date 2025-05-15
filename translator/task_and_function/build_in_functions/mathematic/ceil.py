@@ -6,7 +6,7 @@ from classes.node import Node, NodeArray
 from classes.parametrs import Parametr, ParametrArray
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
-from translator.system_verilog_to_aplan import SV2aplan
+from translator.translator import Translator
 from translator.task_and_function.build_in_functions.mathematic.modf import (
     modf2AplanImpl,
 )
@@ -14,7 +14,7 @@ from utils.utils import isNumericString
 
 
 def createCeilAction(
-    self: SV2aplan, return_the_wlole_part: bool, node_type: ElementsTypes
+    self: Translator, return_the_wlole_part: bool, node_type: ElementsTypes
 ):
     name_part = "_rtfp"
     if return_the_wlole_part:
@@ -98,7 +98,7 @@ def createCeilAction(
 
 
 def ceil2AplanImpl(
-    self: SV2aplan,
+    self: Translator,
     ctx: SystemVerilogParser.System_tf_callContext,
     sv_structure: Structure | None = None,
     destination_node_array: NodeArray | None = None,

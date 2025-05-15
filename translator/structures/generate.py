@@ -5,7 +5,7 @@ from classes.module import Module
 from classes.processed import ProcessedElement
 from classes.protocols import BodyElement
 from classes.structure import Structure
-from translator.system_verilog_to_aplan import SV2aplan
+from translator.translator import Translator
 from utils.string_formating import (
     parallelAssignment2Assignment,
     replace_cpp_operators,
@@ -15,7 +15,7 @@ from utils.utils import Counters_Object
 
 
 def generateBodyToAplan(
-    self: SV2aplan, ctx, sv_structure: Structure, init_var_name, current_value
+    self: Translator, ctx, sv_structure: Structure, init_var_name, current_value
 ):
     if ctx.getChildCount() == 0:
         return
@@ -63,7 +63,7 @@ def prepareGenerateExpression(module: Module, expression: str):
 
 
 def generate2AplanImpl(
-    self: SV2aplan, ctx: SystemVerilogParser.Loop_generate_constructContext
+    self: Translator, ctx: SystemVerilogParser.Loop_generate_constructContext
 ):
     generate_name = (
         "GENERATE" + "_" + str(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))

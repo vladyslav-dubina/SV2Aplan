@@ -7,12 +7,12 @@ from classes.parametrs import Parametr, ParametrArray
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from classes.typedef import Typedef
-from translator.system_verilog_to_aplan import SV2aplan
+from translator.translator import Translator
 from utils.utils import Counters_Object
 
 
 def createProtocol(
-    self: SV2aplan,
+    self: Translator,
     action_pointer: Action,
     body: str,
     action_name: str,
@@ -86,7 +86,7 @@ def createProtocol(
 
 
 def createDeclaration(
-    self: SV2aplan,
+    self: Translator,
     name_part,
     type: DeclTypes,
     counter_type: CounterTypes,
@@ -111,7 +111,7 @@ def createDeclaration(
     return self.module.declarations.getElementByIndex(index)
 
 
-def createParametrArray(self: SV2aplan, parametrs: List[str]):
+def createParametrArray(self: Translator, parametrs: List[str]):
     result: ParametrArray = ParametrArray()
     for element in parametrs:
         result.addElement(
@@ -124,7 +124,7 @@ def createParametrArray(self: SV2aplan, parametrs: List[str]):
 
 
 def createTypedef(
-    self: SV2aplan,
+    self: Translator,
     identifier: str,
     source_interval: Tuple[int, int],
     arguments: List[Tuple[str, DeclTypes]],

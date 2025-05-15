@@ -6,10 +6,10 @@ from classes.node import Node, NodeArray
 from classes.parametrs import Parametr, ParametrArray
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
-from translator.system_verilog_to_aplan import SV2aplan
+from translator.translator import Translator
 
 
-def createModfAction(self: SV2aplan, grater_than_zero: bool):
+def createModfAction(self: Translator, grater_than_zero: bool):
     name_part = "_ltz"
     if grater_than_zero:
         name_part = "_gtz"
@@ -108,7 +108,7 @@ def createModfAction(self: SV2aplan, grater_than_zero: bool):
 
 
 def modf2AplanImpl(
-    self: SV2aplan,
+    self: Translator,
     source_interval: Tuple[int, int],
     sv_structure: Structure | None = None,
     destination_node_array: NodeArray | None = None,

@@ -2,12 +2,12 @@ from typing import Tuple
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from program.program import Program
-from translator.system_verilog_to_aplan import SV2aplan
+from translator.translator import Translator
 from utils.utils import Counters_Object
 
 
 def objectDeclaration2AplanImpl(
-    self: SV2aplan,
+    self: Translator,
     class_name: str,
     identifier: str,
     source_interval: Tuple[int, int],

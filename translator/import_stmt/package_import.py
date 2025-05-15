@@ -13,16 +13,16 @@ from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from classes.tasks import Task
 from program.program import Program
-from translator.system_verilog_to_aplan import SV2aplan
+from translator.translator import Translator
 from utils.string_formating import replace_filename
 from utils.utils import Color, Counters_Object, printWithColor
 
 
 def packageImport2ApanImpl(
-    self: SV2aplan,
+    self: Translator,
     ctx: SystemVerilogParser.Package_import_declarationContext,
 ):
-    from translator.translator import SystemVerilogFinder
+    from translator.translation_mngr import TranslationManager
 
     for element in ctx.package_import_item():
         package_identifier = element.package_identifier()
@@ -35,9 +35,9 @@ def packageImport2ApanImpl(
                     self.program.file_path, f"{package_identifier}.sv"
                 )
                 file_data = self.program.readFileData(file_path)
-                finder = SystemVerilogFinder()
-                finder.setUp(file_data)
-                finder.startTranslate(self.program)
+                translation_mngr = TranslationManager()
+                translation_mngr.setUp(file_data)
+                translation_mngr.startTranslate(self.program)
 
                 self.program.file_path = previous_file_path
 

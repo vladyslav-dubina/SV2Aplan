@@ -5,7 +5,7 @@ from classes.protocols import BodyElement
 from classes.structure import Structure
 from translator.declarations.struct_declaration import createArrayStruct
 from translator.expression.expression import createSizeExpression
-from translator.system_verilog_to_aplan import SV2aplan
+from translator.translator import Translator
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
     dataTypeToStr,
@@ -16,7 +16,7 @@ from utils.utils import (
 
 
 def dataDecaration2AplanImpl(
-    self: SV2aplan,
+    self: Translator,
     ctx: SystemVerilogParser.Data_declarationContext,
     listener: bool,
     sv_structure: Structure | None = None,
@@ -27,9 +27,9 @@ def dataDecaration2AplanImpl(
 
     Parameters
     ----------
-    self : SV2aplan
+    self : Translator
         The `self` parameter in the `dataDecaration2AplanImpl` method refers to the instance of the
-    `SV2aplan` class to which the method belongs. It is a common convention in Python to use `self` as
+    `Translator` class to which the method belongs. It is a common convention in Python to use `self` as
     the first parameter in instance methods to refer to the
     ctx : SystemVerilogParser.Data_declarationContext
         The `ctx` parameter in the `dataDecaration2AplanImpl` function is of type

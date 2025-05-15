@@ -7,13 +7,13 @@ from classes.node import Node, NodeArray
 from classes.parametrs import Parametr, ParametrArray
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
-from translator.system_verilog_to_aplan import SV2aplan
+from translator.translator import Translator
 from translator.utils import createDeclaration, createParametrArray, createTypedef
 from utils.utils import Counters_Object, isNumericString
 
 
 def createPowAction(
-    self: SV2aplan, type: int = 0, protocol_params: ParametrArray = ParametrArray()
+    self: Translator, type: int = 0, protocol_params: ParametrArray = ParametrArray()
 ):
 
     name_part = "init"
@@ -192,7 +192,7 @@ def createPowAction(
 
 
 def pow2AplanImpl(
-    self: SV2aplan,
+    self: Translator,
     ctx: SystemVerilogParser.System_tf_callContext,
     sv_structure: Structure | None = None,
     destination_node_array: NodeArray | None = None,

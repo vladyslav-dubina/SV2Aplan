@@ -1,15 +1,15 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.module_call import ModuleCall
 from classes.parametrs import Parametr
-from translator.system_verilog_to_aplan import SV2aplan
+from translator.translator import Translator
 from utils.string_formating import replace_filename
 
 
 def interfaceCall2AplanImpl(
-    self: SV2aplan,
+    self: Translator,
     ctx: SystemVerilogParser.Ansi_port_declarationContext,
 ):
-    from translator.translator import SystemVerilogFinder
+    from translator.translation_mngr import TranslationManager
 
     destination_identifier = (
         ctx.net_port_header()
@@ -36,9 +36,9 @@ def interfaceCall2AplanImpl(
             self.program.file_path, f"{destination_identifier}.sv"
         )
         file_data = self.program.readFileData(file_path)
-        finder = SystemVerilogFinder()
-        finder.setUp(file_data)
-        finder.startTranslate(self.program, module_call)
+        translation_mngr = TranslationManager()
+        translation_mngr.setUp(file_data)
+        translation_mngr.startTranslate(self.program, module_call)
     except Exception as e:
 
         self.program.module_calls.addElement(module_call)

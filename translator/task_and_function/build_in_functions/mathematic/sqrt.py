@@ -7,7 +7,7 @@ from classes.node import Node, NodeArray
 from classes.parametrs import ParametrArray
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
-from translator.system_verilog_to_aplan import SV2aplan
+from translator.translator import Translator
 from translator.utils import createDeclaration, createParametrArray, createTypedef
 from utils.utils import isNumericString
 
@@ -31,7 +31,7 @@ double sqrt(double x) {
 """
 
 
-def createSqrtStart(self: SV2aplan, protocol_params: ParametrArray = ParametrArray()):
+def createSqrtStart(self: Translator, protocol_params: ParametrArray = ParametrArray()):
     action_name = f"sqrt_ltz"
     action = Action(action_name, (0, 0), element_type=ElementsTypes.ASSIGN_ELEMENT)
 
@@ -112,7 +112,7 @@ def createSqrtStart(self: SV2aplan, protocol_params: ParametrArray = ParametrArr
 
 
 def createSqrtAction(
-    self: SV2aplan, type: int = 0, protocol_params: ParametrArray = ParametrArray()
+    self: Translator, type: int = 0, protocol_params: ParametrArray = ParametrArray()
 ):
 
     name_part = "init"
@@ -401,7 +401,7 @@ def createSqrtAction(
 
 
 def sqrt2AplanImpl(
-    self: SV2aplan,
+    self: Translator,
     ctx: SystemVerilogParser.System_tf_callContext,
     sv_structure: Structure | None = None,
     destination_node_array: NodeArray | None = None,

@@ -10,14 +10,14 @@ from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from classes.tasks import Task
 from translator.expression.expression import actionFromNodeStr, getNamePartAndCounter
-from translator.system_verilog_to_aplan import SV2aplan
+from translator.translator import Translator
 from translator.task_and_function.build_in_functions.array_methods import createPushBack
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import Counters_Object, extractDimentionSize
 
 
 def taskOrFunctionDeclaration2AplanImpl(
-    self: SV2aplan,
+    self: Translator,
     ctx: (
         SystemVerilogParser.Task_declarationContext
         | SystemVerilogParser.Function_declarationContext
@@ -35,7 +35,7 @@ def taskOrFunctionDeclaration2AplanImpl(
 
 
 def taskOrFunctionBodyDeclaration2AplanImpl(
-    self: SV2aplan,
+    self: Translator,
     ctx: (
         SystemVerilogParser.Task_body_declarationContext
         | SystemVerilogParser.Function_body_declarationContext
@@ -120,7 +120,7 @@ def taskOrFunctionBodyDeclaration2AplanImpl(
 
 
 def methodCall2AplanImpl(
-    self: SV2aplan,
+    self: Translator,
     ctx: SystemVerilogParser.Method_call_bodyContext,
     sv_structure: Structure,
     destination_node_array: NodeArray | None = None,
@@ -163,7 +163,7 @@ def methodCall2AplanImpl(
 
 
 def dinamycArrayNew2AplanImpl(
-    self: SV2aplan,
+    self: Translator,
     ctx: SystemVerilogParser.Dynamic_array_newContext,
     sv_structure: Structure,
     destination_node_array: NodeArray | None = None,
@@ -218,7 +218,7 @@ def dinamycArrayNew2AplanImpl(
 
 
 def classNew2AplanImpl(
-    self: SV2aplan,
+    self: Translator,
     ctx: SystemVerilogParser.Class_newContext,
     sv_structure: Structure,
     destination_node_array: NodeArray | None = None,
@@ -260,7 +260,7 @@ def classNew2AplanImpl(
 
 
 def taskCall2AplanImpl(
-    self: SV2aplan,
+    self: Translator,
     ctx: SystemVerilogParser.Tf_callContext,
     sv_structure: Structure,
     destination_node_array: NodeArray | None = None,
@@ -334,7 +334,7 @@ def taskCall2AplanImpl(
 
 
 def createTFNMCall(
-    self: SV2aplan,
+    self: Translator,
     task: Task | None,
     sv_structure: Structure,
     destination_node_array: NodeArray | None = None,

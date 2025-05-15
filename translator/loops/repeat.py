@@ -6,13 +6,13 @@ from classes.loop_stmt import LoopStmt
 from classes.protocols import BodyElement
 from classes.structure import Structure
 from translator.expression.expression import actionFromNodeStr
-from translator.system_verilog_to_aplan import SV2aplan
+from translator.translator import Translator
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import Counters_Object
 
 
 def repeat2AplanImpl(
-    self: SV2aplan,
+    self: Translator,
     ctx: SystemVerilogParser.Loop_statementContext,
 ):
     stmt: Structure | None = self.structure_pointer_list.getLastElement()

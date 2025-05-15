@@ -7,12 +7,12 @@ from classes.element_types import ElementsTypes
 from classes.node import Node
 from classes.protocols import BodyElement
 from classes.structure import Structure
-from translator.system_verilog_to_aplan import SV2aplan
+from translator.translator import Translator
 from utils.string_formating import addEqueToBGET, valuesToAplanStandart
 from utils.utils import Color, Counters_Object, printWithColor
 
 
-def caseItem2AplanImpl(self: SV2aplan, ctx: SystemVerilogParser.Case_itemContext):
+def caseItem2AplanImpl(self: Translator, ctx: SystemVerilogParser.Case_itemContext):
     case_stmt: Structure | None = self.structure_pointer_list.getLastElement()
     if isinstance(case_stmt, CaseStmt):
         if case_stmt.case_count == 1 and case_stmt.init_case_count > 1:
@@ -30,7 +30,7 @@ def caseItem2AplanImpl(self: SV2aplan, ctx: SystemVerilogParser.Case_itemContext
 
 
 def caseItemExpr2AplanImpl(
-    self: SV2aplan,
+    self: Translator,
     ctx: SystemVerilogParser.Case_item_expressionContext,
 ):
 
@@ -179,7 +179,7 @@ def caseItemExpr2AplanImpl(
 
 
 def caseStatement2AplanImpl(
-    self: SV2aplan,
+    self: Translator,
     ctx: SystemVerilogParser.Case_statementContext,
 ):
     self.createStatementToSvStruct(

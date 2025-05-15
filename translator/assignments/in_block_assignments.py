@@ -3,11 +3,11 @@ from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
-from translator.system_verilog_to_aplan import SV2aplan
+from translator.translator import Translator
 from utils.utils import Counters_Object
 
 
-def blockAssignment2AplanImpl(self: SV2aplan, ctx):
+def blockAssignment2AplanImpl(self: Translator, ctx):
     sv_structure: Structure | None = self.structure_pointer_list.getLastElement()
     element_type = ElementsTypes.ASSIGN_ELEMENT
     if type(ctx) is SystemVerilogParser.Nonblocking_assignmentContext:

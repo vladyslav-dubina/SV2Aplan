@@ -9,13 +9,13 @@ from classes.module_call import ModuleCall
 from classes.node import Node, NodeArray
 from classes.protocols import BodyElement, Protocol
 from translator.expression.expression import actionFromNodeStr
-from translator.system_verilog_to_aplan import SV2aplan
+from translator.translator import Translator
 from utils.string_formating import replace_filename
 from utils.utils import Color, Counters_Object, printWithColor
 
 
 def moduleCallAssign2Aplan(
-    self: SV2aplan,
+    self: Translator,
     ctx: SystemVerilogParser.Module_instantiationContext,
     destination_module_name: str,
     destination_identifier: str,
@@ -162,10 +162,10 @@ def moduleCallAssign2Aplan(
 
 
 def moduleCall2AplanImpl(
-    self: SV2aplan,
+    self: Translator,
     ctx: SystemVerilogParser.Module_instantiationContext,
 ):
-    from translator.translator import SystemVerilogFinder
+    from translator.translation_mngr import TranslationManager
 
     destination_identifier = ctx.module_identifier().getText()
 
@@ -202,9 +202,9 @@ def moduleCall2AplanImpl(
             self.program.file_path, f"{destination_identifier}.sv"
         )
         file_data = self.program.readFileData(file_path)
-        finder = SystemVerilogFinder()
-        finder.setUp(file_data)
-        finder.startTranslate(self.program, module_call)
+        translation_mngr = TranslationManager()
+        translation_mngr.setUp(file_data)
+        translation_mngr.startTranslate(self.program, module_call)
     except Exception as e:
 
         self.program.module_calls.addElement(module_call)

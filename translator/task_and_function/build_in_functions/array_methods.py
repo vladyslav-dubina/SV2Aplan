@@ -7,12 +7,12 @@ from classes.node import Node
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from translator.expression.expression import findAssociatedAction, getNamePartAndCounter
-from translator.system_verilog_to_aplan import SV2aplan
+from translator.translator import Translator
 from utils.utils import Counters_Object
 
 
 def createPushBack(
-    self: SV2aplan,
+    self: Translator,
     sv_structure: Structure,
     task_identifier: str,
     object_identifier: str,

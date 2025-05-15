@@ -8,7 +8,7 @@ from classes.element_types import ElementsTypes
 from classes.node import Node, NodeArray
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
-from translator.system_verilog_to_aplan import SV2aplan
+from translator.translator import Translator
 from utils.string_formating import (
     addSpacesAroundOperators,
     notConcreteIndex2AplanStandart,
@@ -24,7 +24,7 @@ from utils.utils import (
 
 
 def prepareExpressionStringImpl(
-    self: SV2aplan,
+    self: Translator,
     expression: str,
     expr_type: ElementsTypes,
 ):
@@ -43,7 +43,7 @@ def prepareExpressionStringImpl(
     return (expression, expression_with_replaced_names)
 
 
-def taskAssignIfPosible(self: SV2aplan, ctx, destination_node_array: NodeArray):
+def taskAssignIfPosible(self: Translator, ctx, destination_node_array: NodeArray):
     if isinstance(ctx, SystemVerilogParser.ExpressionContext):
         task = self.module.tasks.getLastTask()
         if task is not None:
@@ -83,7 +83,7 @@ def getNamePartAndCounter(element_type: ElementsTypes) -> Tuple[str, CounterType
 
 
 def actionFromNodeStr(
-    self: SV2aplan,
+    self: Translator,
     node_str: str | List[str],
     source_interval: Tuple[int, int],
     element_type: ElementsTypes,
@@ -243,7 +243,7 @@ def actionFromNodeStr(
 
 
 def expression2AplanImpl(
-    self: SV2aplan,
+    self: Translator,
     ctx,
     element_type: ElementsTypes,
     sv_structure: Structure | None = None,
@@ -443,7 +443,7 @@ def copyToAssociatedAction(last_element: Action, action: Action):
 
 
 def createSizeExpression(
-    self: SV2aplan, identifier, size, source_interval: Tuple[int, int]
+    self: Translator, identifier, size, source_interval: Tuple[int, int]
 ):
     (name_part, counter_type) = getNamePartAndCounter(ElementsTypes.ASSIGN_ELEMENT)
     action_name = "{0}_{1}".format(name_part, Counters_Object.getCounter(counter_type))
