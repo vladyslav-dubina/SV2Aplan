@@ -1,3 +1,4 @@
+from os import name
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
 from classes.actions import Action
@@ -13,7 +14,10 @@ from classes.structure import Structure, StructureArray
 from classes.module import Module
 from classes.element_types import ElementsTypes
 from program.program import Program
-from typing import Tuple, List
+from typing import Literal, Tuple, List, overload
+from translator.classes.assignments.net import NetAssignmentTranslator
+from translator.classes.calls.interface_call import InterfaceCallTranslator
+from translator.classes.declarations.ansi_port import AnsiPortDeclTranslator
 from translator.classes.declarations.data import DataDeclTranslator
 from translator.classes.declarations.genvar import GenvarDeclTranslator
 from translator.classes.declarations.interface import (
@@ -26,6 +30,7 @@ from translator.classes.declarations.module import (
 from translator.classes.declarations.net import NewDeclTranslator
 from translator.classes.declarations.object import ObjectDeclTranslator
 from translator.classes.declarations.package import PackageDeclTranslator
+from translator.classes.declarations.package_import import PackageImportDeclTranslator
 from translator.classes.declarations.struct import StructDeclTranslator
 from translator.classes.expressions.expression import ExpressionTranslator
 from utils.utils import Counters_Object
@@ -45,14 +50,6 @@ class Module_Translator2:
             if task is not None:
                 protocol_params = task.parametrs
         return protocol_params
-
-    def getLastNameSpaceLevel(self):
-
-        struct: Structure | None = self.structure_pointer_list.getLastElement()
-        if struct:
-            return struct.number
-        else:
-            return self.module.number
 
     def removeLastStructPointer(self):
         if self.structure_pointer_list.getLen() > 0:
@@ -647,6 +644,142 @@ class Module_Translator2:
         else:
             loop2AplanImpl(self, ctx)
 
+    def generate2Aplan(self, ctx: SystemVerilogParser.Loop_generate_constructContext):
+        from translator.structures.generate import generate2AplanImpl
+
+        generate2AplanImpl(self, ctx)
+
+    def always2Aplan(self, ctx: SystemVerilogParser.Always_constructContext):
+        from translator.structures.always import always2AplanImpl
+
+        always2AplanImpl(self, ctx)
+
+    def initial2Aplan(self, ctx: SystemVerilogParser.Initial_constructContext):
+        from translator.structures.initial import initital2AplanImpl
+
+        initital2AplanImpl(self, ctx)
+
+    def taskOrFunctionDeclaration2Aplan(
+        self,
+        ctx: (
+            SystemVerilogParser.Task_declarationContext
+            | SystemVerilogParser.Function_declarationContext
+            | SystemVerilogParser.Class_constructor_declarationContext
+        ),
+    ):
+        from translator.task_and_function.task_function import (
+            taskOrFunctionDeclaration2AplanImpl,
+        )
+
+        taskOrFunctionDeclaration2AplanImpl(self, ctx)
+
+
+from program.program import Program
+
+
+class Translator:
+    module_call: ModuleCall | None = None
+    _module: Module | None = None
+    _structure_pointer_list: StructureArray = StructureArray()
+    _inside_the_task = False
+    _inside_the_function = False
+    _cache = {}
+
+    TranslatorName = Literal[
+        "interface_decl",
+        "module_decl",
+        "package_decl",
+        "genvar_decl",
+        "struct_decl",
+        "data_decl",
+        "net_decl",
+        "obj_decl",
+        "ansi_port_decl",
+        "package_import_decl",
+        "expr",
+        "interface_call",
+        "net_assign",
+    ]
+
+    _translators: dict[str, type] = {
+        "interface_decl": InterfaceDeclTranslator,
+        "module_decl": ModuleDeclTranslator,
+        "package_decl": PackageDeclTranslator,
+        "genvar_decl": GenvarDeclTranslator,
+        "struct_decl": StructDeclTranslator,
+        "data_decl": DataDeclTranslator,
+        "net_decl": NewDeclTranslator,
+        "obj_decl": ObjectDeclTranslator,
+        "ansi_port_decl": AnsiPortDeclTranslator,
+        "package_import_decl": PackageImportDeclTranslator,
+        "expr": ExpressionTranslator,
+        "interface_call": InterfaceCallTranslator,
+        "net_assign": NetAssignmentTranslator,
+    }
+
+    def __init__(self):
+
+        pass
+
+    @overload
+    def getTranslator(
+        self, key: Literal["interface_decl"]
+    ) -> InterfaceDeclTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["module_decl"]) -> ModuleDeclTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["package_decl"]) -> PackageDeclTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["genvar_decl"]) -> GenvarDeclTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["struct_decl"]) -> StructDeclTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["data_decl"]) -> DataDeclTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["net_decl"]) -> NewDeclTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["obj_decl"]) -> ObjectDeclTranslator: ...
+    @overload
+    def getTranslator(
+        self, key: Literal["ansi_port_decl"]
+    ) -> AnsiPortDeclTranslator: ...
+    @overload
+    def getTranslator(
+        self, key: Literal["package_import_decl"]
+    ) -> PackageImportDeclTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["expr"]) -> ExpressionTranslator: ...
+    @overload
+    def getTranslator(
+        self, key: Literal["interface_call"]
+    ) -> InterfaceCallTranslator: ...
+
+    @overload
+    def getTranslator(self, key: Literal["net_assign"]) -> NetAssignmentTranslator: ...
+
+    def getTranslator(self, key: TranslatorName):
+        cls = self._selectTranlator(name)
+        if key not in self._cache:
+            self._cache[key] = cls(self)
+        return self._cache[key]
+
+    def getLastNameSpaceLevel(self):
+
+        struct: Structure | None = self._structure_pointer_list.getLastElement()
+        if struct:
+            return struct.number
+        else:
+            return self._module.number
+
+    def _selectTranlator(self, name: TranslatorName):
+        if name not in self._translators:
+            raise ValueError(f"Unknown translator name: {name}")
+        return self._translators[name]
+
+    def translate(self, trnslt_name: TranslatorName, *args, **kwargs):
+        translator = self.getTranslator(trnslt_name)
+        return translator.translate(*args, **kwargs)
+
     def body2Aplan(
         self,
         ctx,
@@ -730,89 +863,3 @@ class Module_Translator2:
                 )
 
         return names_for_change
-
-    def generate2Aplan(self, ctx: SystemVerilogParser.Loop_generate_constructContext):
-        from translator.structures.generate import generate2AplanImpl
-
-        generate2AplanImpl(self, ctx)
-
-    def always2Aplan(self, ctx: SystemVerilogParser.Always_constructContext):
-        from translator.structures.always import always2AplanImpl
-
-        always2AplanImpl(self, ctx)
-
-    def initial2Aplan(self, ctx: SystemVerilogParser.Initial_constructContext):
-        from translator.structures.initial import initital2AplanImpl
-
-        initital2AplanImpl(self, ctx)
-
-    def taskOrFunctionDeclaration2Aplan(
-        self,
-        ctx: (
-            SystemVerilogParser.Task_declarationContext
-            | SystemVerilogParser.Function_declarationContext
-            | SystemVerilogParser.Class_constructor_declarationContext
-        ),
-    ):
-        from translator.task_and_function.task_function import (
-            taskOrFunctionDeclaration2AplanImpl,
-        )
-
-        taskOrFunctionDeclaration2AplanImpl(self, ctx)
-
-
-from program.program import Program
-
-
-class Translator:
-    module_call: ModuleCall | None = None
-    _module: Module | None = None
-    _structure_pointer_list: StructureArray = StructureArray()
-    _inside_the_task = False
-    _inside_the_function = False
-    _cache = {}
-
-    def __init__(self):
-
-        pass
-
-    def _get_translator(self, key, cls):
-        if key not in self._cache:
-            self._cache[key] = cls(self)
-        return self._cache[key]
-
-    @property
-    def interface_decl_translator(self) -> InterfaceDeclTranslator:
-        return self._get_translator("interface_decl_trnslt", InterfaceDeclTranslator)
-
-    @property
-    def module_decl_translator(self) -> ModuleDeclTranslator:
-        return self._get_translator("module_decl_trnslt", ModuleDeclTranslator)
-
-    @property
-    def package_decl_translator(self) -> PackageDeclTranslator:
-        return self._get_translator("package_decl_trnslt", PackageDeclTranslator)
-
-    @property
-    def genvar_decl_translator(self) -> GenvarDeclTranslator:
-        return self._get_translator("genvar_decl_trnslt", GenvarDeclTranslator)
-
-    @property
-    def struct_decl_translator(self) -> StructDeclTranslator:
-        return self._get_translator("struct_decl_trnslt", StructDeclTranslator)
-
-    @property
-    def data_decl_translator(self) -> DataDeclTranslator:
-        return self._get_translator("data_decl_trnslt", DataDeclTranslator)
-
-    @property
-    def net_decl_translator(self) -> NewDeclTranslator:
-        return self._get_translator("net_decl_trnslt", NewDeclTranslator)
-    
-    @property
-    def obj_decl_translator(self) -> ObjectDeclTranslator:
-        return self._get_translator("obj_decl_trnslt", ObjectDeclTranslator)
-    
-    @property
-    def expr_translator(self) -> ExpressionTranslator:
-        return self._get_translator("expr_trnslt", ExpressionTranslator)

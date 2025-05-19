@@ -82,9 +82,11 @@ class NewDeclTranslator(BaseTranslator):
             for elem in ctx.list_of_net_decl_assignments().net_decl_assignment():
                 identifier = elem.net_identifier().identifier().getText()
                 if data_check_type is DeclTypes.CLASS:
-                    self._translator_ptr.obj_decl_translator.translate(
-                        size_expression, identifier, ctx.getSourceInterval()
+
+                    self._translator_ptr.translate(
+                        "obj_decl", size_expression, identifier, ctx.getSourceInterval()
                     )
+
                 else:
                     assign_name = ""
                     decl_unique, decl_index = self.module.declarations.addElement(
@@ -109,7 +111,8 @@ class NewDeclTranslator(BaseTranslator):
                                 assign_name,
                                 source_interval,
                                 uniq_action,
-                            ) = self._translator_ptr.expr_translator.translate(
+                            ) = self._translator_ptr.translate(
+                                "expr",
                                 elem.getText(),
                                 ElementsTypes.ASSIGN_ELEMENT,
                             )

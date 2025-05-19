@@ -39,13 +39,20 @@ class BaseTranslator:
     def inside_the_function(self) -> bool:
         return self._translator_ptr._inside_the_function
 
+    @inside_the_function.setter
+    def inside_the_function(self, value: bool):
+        self._translator_ptr._inside_the_function = value
+
     @property
     def inside_the_task(self) -> bool:
         return self._translator_ptr._inside_the_task
 
-    @inside_the_function.setter
-    def inside_the_function(self, value: bool):
-        self._translator_ptr._inside_the_function = value
+    @inside_the_task.setter
+    def inside_the_task(self, value: bool):
+        self._translator_ptr._inside_the_task = value
+
+    def getLastNameSpaceLevel(self) -> bool:
+        return self._translator_ptr.getLastNameSpaceLevel()
 
     @inside_the_task.setter
     def inside_the_task(self, value: bool):

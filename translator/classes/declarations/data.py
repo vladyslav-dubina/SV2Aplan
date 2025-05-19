@@ -4,6 +4,7 @@ from classes.element_types import ElementsTypes
 from classes.protocols import BodyElement
 from classes.structure import Structure
 from translator.classes.base_translator import BaseTranslator
+from translator.classes.expressions.expression import ExpressionTranslator
 from translator.declarations.struct_declaration import createArrayStruct
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
@@ -25,7 +26,10 @@ class DataDeclTranslator(BaseTranslator):
             data_type = ctx.data_type_or_implicit().data_type()
             if data_type is not None:
                 if data_type.struct_union():
-                    struct = self._translator_ptr.struct_decl_translator.translate(ctx)
+                    struct = self._translator_ptr.translate(
+                        "struct_decl",
+                        ctx,
+                    )
                 else:
                     struct = None
 
@@ -98,7 +102,9 @@ class DataDeclTranslator(BaseTranslator):
                             if data_check_type == DeclTypes.INT:
                                 data_check_type = DeclTypes.ARRAY
 
-                                self._translator_ptr.expr_translator.createSizeExpression(
+                                self._translator_ptr.getTranslator(
+                                    "expr"
+                                ).createSizeExpression(
                                     original_identifier,
                                     dimension_size,
                                     elem.getSourceInterval(),

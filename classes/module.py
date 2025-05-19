@@ -283,7 +283,7 @@ class ModuleArray(BasicArray):
             new_aray.addElement(element.copy())
         return new_aray
 
-    def findModuleByUniqIdentifier(self, ident_uniq_name: str):
+    def findModuleByUniqIdentifier(self, ident_uniq_name: str) -> Module|None:
         for element in self.elements:
             if element.ident_uniq_name == ident_uniq_name:
                 return element

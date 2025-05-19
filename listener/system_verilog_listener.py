@@ -36,36 +36,10 @@ class SVToAplanListener(SystemVerilogParserListener):
 
 
 
-    def enterSystem_tf_call(self, ctx: SystemVerilogParser.System_tf_callContext):
-        self.translator.systemTFCall2Aplan(ctx)
 
 
 
-  
 
-    def exitNet_declaration(self, ctx: SystemVerilogParser.Net_declarationContext):
-        self.translator.netDeclaration2Aplan(ctx)
-
-    def exitAnsi_port_declaration(self, ctx):
-        self.translator.ansiPortDeclaration2Aplan(ctx)
-
-    def exitTask_declaration(self, ctx: SystemVerilogParser.Task_declarationContext):
-        self.translator.taskOrFunctionDeclaration2Aplan(ctx)
-
-    def exitFunction_declaration(
-        self, ctx: SystemVerilogParser.Function_declarationContext
-    ):
-        self.translator.taskOrFunctionDeclaration2Aplan(ctx)
-
-    def exitClass_constructor_declaration(
-        self, ctx: SystemVerilogParser.Class_constructor_declarationContext
-    ):
-        self.translator.taskOrFunctionDeclaration2Aplan(ctx)
-
-    def exitPackage_import_declaration(
-        self, ctx: SystemVerilogParser.Package_import_declarationContext
-    ):
-        self.translator.packageImport2Apan(ctx)
 
     # ASSIGNMENTS
     def exitNet_assignment(self, ctx):
