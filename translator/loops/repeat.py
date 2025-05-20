@@ -64,7 +64,7 @@ def repeat2AplanImpl(
     else:
         raise ValueError("sv_structure is empty")
 
-    self.createStatementToSvStruct("REPEAT_LOOP", ElementsTypes.LOOP_ELEMENT)
+    self.createStatement("REPEAT_LOOP", ElementsTypes.LOOP_ELEMENT)
     repeat_stmt: Structure | None = self.structure_pointer_list.getLastElement()
     if not isinstance(repeat_stmt, LoopStmt):
         return

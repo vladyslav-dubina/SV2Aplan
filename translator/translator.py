@@ -15,8 +15,10 @@ from classes.module import Module
 from classes.element_types import ElementsTypes
 from program.program import Program
 from typing import Literal, Tuple, List, overload
+from translator.classes.assignments.in_block import InBlockAssignmentTranslator
 from translator.classes.assignments.net import NetAssignmentTranslator
-from translator.classes.calls.interface_call import InterfaceCallTranslator
+from translator.classes.calls.interface import InterfaceCallTranslator
+from translator.classes.calls.module import ModuleCallTranslator
 from translator.classes.declarations.ansi_port import AnsiPortDeclTranslator
 from translator.classes.declarations.data import DataDeclTranslator
 from translator.classes.declarations.genvar import GenvarDeclTranslator
@@ -33,6 +35,11 @@ from translator.classes.declarations.package import PackageDeclTranslator
 from translator.classes.declarations.package_import import PackageImportDeclTranslator
 from translator.classes.declarations.struct import StructDeclTranslator
 from translator.classes.expressions.expression import ExpressionTranslator
+from translator.classes.parameters.parameters_assignment import (
+    ParametrsAssignmentTranslator,
+)
+from translator.classes.structures.always import AlwaysStructureTranslator
+from translator.classes.structures.generate import GenerateStructTranslator
 from utils.utils import Counters_Object
 
 
@@ -58,10 +65,10 @@ class Module_Translator2:
             )
             # Counters_Object.decrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
 
-    def createStatementToSvStruct(
+    def createStatement(
         self,
         name,
-        element_type_,
+        element_type: ElementsTypes,
         sensetive: str | None = None,
         counter_type: CounterTypes = CounterTypes.UNIQ_NAMES_COUNTER,
     ):
@@ -71,7 +78,7 @@ class Module_Translator2:
             protocol_params = self.getProtocolParams()
             beh_index = sv_structure.getLastBehaviorIndex()
             if beh_index is not None:
-                if element_type_ == ElementsTypes.FOREVER_ELEMENT:
+                if element_type == ElementsTypes.FOREVER_ELEMENT:
                     sv_structure.behavior[beh_index].addBody(
                         BodyElement(
                             identifier="Sensetive({0}_{1}, {2})".format(
@@ -104,34 +111,34 @@ class Module_Translator2:
             else:
                 tmp = protocol_params
 
-            if element_type_ == ElementsTypes.CASE_STATEMENT_ELEMENT:
+            if element_type == ElementsTypes.CASE_STATEMENT_ELEMENT:
                 struct = CaseStmt(
                     name,
                     (0, 0),
                     Counters_Object.getCounter(counter_type),
                 )
 
-            elif element_type_ == ElementsTypes.IF_STATEMENT_ELEMENT:
+            elif element_type == ElementsTypes.IF_STATEMENT_ELEMENT:
                 struct = IfStmt(
                     name,
                     (0, 0),
                     Counters_Object.getCounter(counter_type),
                 )
-            elif element_type_ == ElementsTypes.FOREVER_ELEMENT:
+            elif element_type == ElementsTypes.FOREVER_ELEMENT:
                 struct = ForeverStmt(
                     name,
                     (0, 0),
                     Counters_Object.getCounter(counter_type),
                 )
 
-            elif element_type_ == ElementsTypes.WHILE_ELEMENT:
+            elif element_type == ElementsTypes.WHILE_ELEMENT:
                 struct = WhileStmt(
                     name,
                     (0, 0),
                     Counters_Object.getCounter(counter_type),
                 )
 
-            elif element_type_ == ElementsTypes.LOOP_ELEMENT:
+            elif element_type == ElementsTypes.LOOP_ELEMENT:
                 struct = LoopStmt(
                     name,
                     (0, 0),
@@ -142,7 +149,7 @@ class Module_Translator2:
                 struct = Structure(
                     name,
                     (0, 0),
-                    element_type_,
+                    element_type,
                     Counters_Object.getCounter(counter_type),
                 )
 
@@ -150,7 +157,7 @@ class Module_Translator2:
             struct.parametrs = tmp
             struct.inside_the_task = self.inside_the_task or self.inside_the_function
             sv_structure.behavior.append(struct)
-            self.structure_pointer_list.addElement(struct)
+            self._structure_pointer_list.addElement(struct)
             Counters_Object.incrieseCounter(counter_type)
 
     def extractSensetive(self, ctx):
@@ -698,7 +705,12 @@ class Translator:
         "package_import_decl",
         "expr",
         "interface_call",
+        "module_call",
         "net_assign",
+        "in_block_assign",
+        "params_assign",
+        "generate_struct",
+        "alaways_struct",
     ]
 
     _translators: dict[str, type] = {
@@ -714,7 +726,12 @@ class Translator:
         "package_import_decl": PackageImportDeclTranslator,
         "expr": ExpressionTranslator,
         "interface_call": InterfaceCallTranslator,
+        "module_call": ModuleCallTranslator,
         "net_assign": NetAssignmentTranslator,
+        "in_block_assign": InBlockAssignmentTranslator,
+        "params_assign": ParametrsAssignmentTranslator,
+        "generate_struct": GenerateStructTranslator,
+        "alaways_struct": AlwaysStructureTranslator,
     }
 
     def __init__(self):
@@ -753,23 +770,32 @@ class Translator:
     def getTranslator(
         self, key: Literal["interface_call"]
     ) -> InterfaceCallTranslator: ...
-
     @overload
     def getTranslator(self, key: Literal["net_assign"]) -> NetAssignmentTranslator: ...
+    @overload
+    def getTranslator(
+        self, key: Literal["in_block_assign"]
+    ) -> InBlockAssignmentTranslator: ...
+    @overload
+    def getTranslator(
+        self, key: Literal["params_assign"]
+    ) -> ParametrsAssignmentTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["module_call"]) -> ModuleCallTranslator: ...
+    @overload
+    def getTranslator(
+        self, key: Literal["generate_struct"]
+    ) -> GenerateStructTranslator: ...
+    @overload
+    def getTranslator(
+        self, key: Literal["alaways_struct"]
+    ) -> AlwaysStructureTranslator: ...
 
     def getTranslator(self, key: TranslatorName):
         cls = self._selectTranlator(name)
         if key not in self._cache:
             self._cache[key] = cls(self)
         return self._cache[key]
-
-    def getLastNameSpaceLevel(self):
-
-        struct: Structure | None = self._structure_pointer_list.getLastElement()
-        if struct:
-            return struct.number
-        else:
-            return self._module.number
 
     def _selectTranlator(self, name: TranslatorName):
         if name not in self._translators:
@@ -779,6 +805,29 @@ class Translator:
     def translate(self, trnslt_name: TranslatorName, *args, **kwargs):
         translator = self.getTranslator(trnslt_name)
         return translator.translate(*args, **kwargs)
+
+    def getProtocolParams(self):
+        protocol_params = None
+        if self._inside_the_task == True:
+            task = self._module.tasks.getLastTask()
+            if task is not None:
+                protocol_params = task.parametrs
+        return protocol_params
+
+    def getLastNameSpaceLevel(self):
+
+        struct: Structure | None = self._structure_pointer_list.getLastElement()
+        if struct:
+            return struct.number
+        else:
+            return self._module.number
+
+    def removeLastStructPointer(self):
+        if self._structure_pointer_list.getLen() > 0:
+            self._structure_pointer_list.removeElementByIndex(
+                self._structure_pointer_list.getLen() - 1
+            )
+            # Counters_Object.decrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
 
     def body2Aplan(
         self,
@@ -863,3 +912,98 @@ class Translator:
                 )
 
         return names_for_change
+
+    def createStatement(
+        self,
+        name,
+        element_type: ElementsTypes,
+        sensetive: str | None = None,
+        counter_type: CounterTypes = CounterTypes.UNIQ_NAMES_COUNTER,
+    ):
+        sv_structure: Structure | None = self._structure_pointer_list.getLastElement()
+
+        if sv_structure:
+            protocol_params = self.getProtocolParams()
+            beh_index = sv_structure.getLastBehaviorIndex()
+            if beh_index is not None:
+                if element_type == ElementsTypes.FOREVER_ELEMENT:
+                    sv_structure.behavior[beh_index].addBody(
+                        BodyElement(
+                            identifier="Sensetive({0}_{1}, {2})".format(
+                                name,
+                                Counters_Object.getCounter(counter_type),
+                                sensetive,
+                            ),
+                            element_type=ElementsTypes.PROTOCOL_ELEMENT,
+                            parametrs=protocol_params,
+                        )
+                    )
+                else:
+                    sv_structure.behavior[beh_index].addBody(
+                        BodyElement(
+                            identifier="{0}_{1}".format(
+                                name,
+                                Counters_Object.getCounter(counter_type),
+                            ),
+                            element_type=ElementsTypes.PROTOCOL_ELEMENT,
+                            parametrs=protocol_params,
+                        )
+                    )
+
+            tmp: ParametrArray = ParametrArray()
+            if (self._inside_the_task or self._inside_the_function) is False:
+                if sv_structure.parametrs is not None:
+                    tmp += sv_structure.parametrs
+                if protocol_params is not None:
+                    tmp += protocol_params
+            else:
+                tmp = protocol_params
+
+            if element_type == ElementsTypes.CASE_STATEMENT_ELEMENT:
+                struct = CaseStmt(
+                    name,
+                    (0, 0),
+                    Counters_Object.getCounter(counter_type),
+                )
+
+            elif element_type == ElementsTypes.IF_STATEMENT_ELEMENT:
+                struct = IfStmt(
+                    name,
+                    (0, 0),
+                    Counters_Object.getCounter(counter_type),
+                )
+            elif element_type == ElementsTypes.FOREVER_ELEMENT:
+                struct = ForeverStmt(
+                    name,
+                    (0, 0),
+                    Counters_Object.getCounter(counter_type),
+                )
+
+            elif element_type == ElementsTypes.WHILE_ELEMENT:
+                struct = WhileStmt(
+                    name,
+                    (0, 0),
+                    Counters_Object.getCounter(counter_type),
+                )
+
+            elif element_type == ElementsTypes.LOOP_ELEMENT:
+                struct = LoopStmt(
+                    name,
+                    (0, 0),
+                    Counters_Object.getCounter(counter_type),
+                )
+
+            else:
+                struct = Structure(
+                    name,
+                    (0, 0),
+                    element_type,
+                    Counters_Object.getCounter(counter_type),
+                )
+
+            struct.addInitProtocol()
+            struct.parametrs = tmp
+            struct.inside_the_task = self._inside_the_task or self._inside_the_function
+            sv_structure.behavior.append(struct)
+            self._structure_pointer_list.addElement(struct)
+            Counters_Object.incrieseCounter(counter_type)

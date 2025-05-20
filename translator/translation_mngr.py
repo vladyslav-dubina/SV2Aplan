@@ -20,6 +20,7 @@ class TranslationManager:
 
         listener = SVToAplanListener(module_call)
         self.walker.walk(listener, self.tree)
+        program = Program()
         printWithColor(f"File tranlation process finished! \n", Color.ORANGE)
         printWithColors(
             [

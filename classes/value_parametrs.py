@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, overload
 from classes.basic import Basic, BasicArray
 from classes.element_types import ElementsTypes
 
@@ -119,6 +119,11 @@ class ValueParametrArray(BasicArray):
             expression = evaluateExpression(expression)
             parametr.value = expression
         return expression
+
+    @overload
+    def getElementByIndex(self, index) -> ValueParametr: ...
+    @overload
+    def findElement(self, identifier: str) -> ValueParametr | None: ...
 
     def __repr__(self):
         return f"ParametrsArray(\n{self.elements!r}\n)"

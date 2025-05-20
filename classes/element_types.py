@@ -14,6 +14,7 @@ class ElementsTypes(Enum):
     ASSIGN_OUT_OF_BLOCK_ELEMENT = auto()
     CONDITION_ELEMENT = auto()
     ACTION_ELEMENT = auto()
+    GENERATE_STATEMENT_ELEMENT = auto()
     GENERATE_ELEMENT = auto()
     PROTOCOL_ELEMENT = auto()
     MODULE_CALL_ELEMENT = auto()

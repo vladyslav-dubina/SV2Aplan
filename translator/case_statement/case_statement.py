@@ -182,7 +182,7 @@ def caseStatement2AplanImpl(
     self: Module_Translator,
     ctx: SystemVerilogParser.Case_statementContext,
 ):
-    self.createStatementToSvStruct(
+    self.createStatement(
         "CASE_STATEMENT", ElementsTypes.CASE_STATEMENT_ELEMENT
     )
     case_stmt: Structure | None = self.structure_pointer_list.getLastElement()

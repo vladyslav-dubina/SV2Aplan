@@ -122,7 +122,7 @@ class TaskArray(BasicArray):
 
         return result
 
-    def getLastTask(self):
+    def getLastTask(self) -> Task | None:
         index = len(self.getElements()) - 1
         if index >= 0:
             return self.getElementByIndex(index)

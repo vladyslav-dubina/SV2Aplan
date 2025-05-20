@@ -16,7 +16,9 @@ class SVToAplanListener(SystemVerilogParserListener):
     def __init__(self, module_call: ModuleCall | None = None):
         self.translator.module_call = module_call
 
+    # =========================================================================================
     # DECLARATIONS
+    # =========================================================================================
 
     def enterInterface_declaration(
         self, ctx: SystemVerilogParser.Interface_declarationContext
@@ -69,35 +71,92 @@ class SVToAplanListener(SystemVerilogParserListener):
     ):
         self.translator.taskOrFunctionDeclaration2Aplan(ctx)
 
+    # =========================================================================================
     # CALLS
+    # =========================================================================================
     def enterSystem_tf_call(self, ctx: SystemVerilogParser.System_tf_callContext):
         self.translator.systemTFCall2Aplan(ctx)
 
+    def exitModule_instantiation(
+        self, ctx: SystemVerilogParser.Module_instantiationContext
+    ):
+        self.translator.translate("module_call", ctx)
+
+    # =========================================================================================
     # ASSIGNMENTS
-    def exitNet_assignment(self, ctx):
-        self.translator.translate("net_assign", ctx)
+    # =========================================================================================
+    # def exitNet_assignment(self, ctx):
+    #    self.translator.translate("net_assign", ctx)
+
+    def exitNet_assignment(self, ctx: SystemVerilogParser.Net_assignmentContext):
+        self.translator.translate("in_block_assign", ctx)
 
     def exitVariable_decl_assignment(
         self, ctx: SystemVerilogParser.Variable_decl_assignmentContext
     ):
         if ctx.expression():
-
-            self.translator.blockAssignment2Aplan(ctx)
+            self.translator.translate("in_block_assign", ctx)
 
     def exitNonblocking_assignment(
         self, ctx: SystemVerilogParser.Nonblocking_assignmentContext
     ):
-        self.translator.blockAssignment2Aplan(ctx)
-
-    def exitNet_assignment(self, ctx: SystemVerilogParser.Net_assignmentContext):
-        self.translator.blockAssignment2Aplan(ctx)
+        self.translator.translate("in_block_assign", ctx)
 
     def exitVariable_assignment(
         self, ctx: SystemVerilogParser.Variable_assignmentContext
     ):
-        self.translator.blockAssignment2Aplan(ctx)
+        self.translator.translate("in_block_assign", ctx)
 
     def exitOperator_assignment(
         self, ctx: SystemVerilogParser.Operator_assignmentContext
     ):
-        self.translator.blockAssignment2Aplan(ctx)
+        self.translator.translate("in_block_assign", ctx)
+
+    # =========================================================================================
+    # PARAMETRS
+    # =========================================================================================
+    def exitLocal_parameter_declaration(
+        self, ctx: SystemVerilogParser.Local_parameter_declarationContext
+    ):
+        self.translator.translate("params_assign", ctx)
+
+    def exitParam_assignment(self, ctx: SystemVerilogParser.Param_assignmentContext):
+        self.translator.translate("params_assign", ctx)
+
+    def enterLoop_generate_construct(
+        self, ctx: SystemVerilogParser.Loop_generate_constructContext
+    ):
+        self.translator.translate("generate_struct", ctx)
+
+    def enterLoop_generate_construct(
+        self, ctx: SystemVerilogParser.Loop_generate_constructContext
+    ):
+        self.translator.removeLastStructPointer()
+
+    # =========================================================================================
+    # ALWAYS
+    # =========================================================================================
+    def enterAlways_construct(self, ctx: SystemVerilogParser.Always_constructContext):
+        self.translator.translate("alaways_struct", ctx)
+
+    def exitAlways_construct(self, ctx: SystemVerilogParser.Always_constructContext):
+        self.translator.removeLastStructPointer()
+
+    # =========================================================================================
+    # SEQUENCE BLOCK CONTEXT
+    # =========================================================================================
+    def exitSeq_block(self, ctx: SystemVerilogParser.Seq_blockContext):
+        self.translator.ifSeqBlock2Aplan(ctx)
+
+    # =========================================================================================
+    # IF Statement
+    # =========================================================================================
+    def enterConditional_statement(
+        self, ctx: SystemVerilogParser.Conditional_statementContext
+    ):
+        self.translator.ifStatement2Aplan(ctx)
+
+    def exitConditional_statement(
+        self, ctx: SystemVerilogParser.Conditional_statementContext
+    ):
+        self.translator.removeLastStructPointer()

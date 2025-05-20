@@ -1,5 +1,7 @@
 import typing
 
+from classes.counters import CounterTypes
+from classes.element_types import ElementsTypes
 from classes.structure import StructureArray
 
 if typing.TYPE_CHECKING:
@@ -18,6 +20,13 @@ class BaseTranslator:
 
     def translate(self, ctx) -> None:
         raise TypeError("Run base translator")
+
+    def createStatement(self,
+        name,
+        element_type:ElementsTypes,
+        sensetive: str | None = None,
+        counter_type: CounterTypes = CounterTypes.UNIQ_NAMES_COUNTER,
+    ): self._translator_ptr.createStatement(name, element_type, sensetive,counter_type)
 
     @property
     def module_call(self) -> ModuleCall:
@@ -53,6 +62,9 @@ class BaseTranslator:
 
     def getLastNameSpaceLevel(self) -> bool:
         return self._translator_ptr.getLastNameSpaceLevel()
+
+    def getProtocolParams(self):
+        return self._translator_ptr.getProtocolParams()
 
     @inside_the_task.setter
     def inside_the_task(self, value: bool):

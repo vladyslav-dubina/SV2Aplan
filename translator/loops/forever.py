@@ -26,7 +26,7 @@ def forever2AplanImpl(
 ):
     condition = extractCondition(ctx.statement_or_null())
     sensetive = self.extractSensetive(condition)
-    self.createStatementToSvStruct(
+    self.createStatement(
         "FOREVER_LOOP", ElementsTypes.FOREVER_ELEMENT, sensetive
     )
     forever_stmt: Structure | None = self.structure_pointer_list.getLastElement()

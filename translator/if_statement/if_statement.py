@@ -153,7 +153,7 @@ def ifStatement2AplanImpl(
     ctx: SystemVerilogParser.Conditional_statementContext,
 ):
 
-    self.createStatementToSvStruct("IF_STATEMENT", ElementsTypes.IF_STATEMENT_ELEMENT)
+    self.createStatement("IF_STATEMENT", ElementsTypes.IF_STATEMENT_ELEMENT)
     if_stmt: Structure | None = self.structure_pointer_list.getLastElement()
     if not isinstance(if_stmt, IfStmt):
         return

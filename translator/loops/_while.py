@@ -12,7 +12,7 @@ def while2AplanImpl(
     self: Module_Translator,
     ctx: SystemVerilogParser.Loop_statementContext,
 ):
-    self.createStatementToSvStruct(
+    self.createStatement(
         "WHILE_LOOP", ElementsTypes.WHILE_ELEMENT, None, CounterTypes.LOOP_COUNTER
     )
     while_stmt: Structure | None = self.structure_pointer_list.getLastElement()
