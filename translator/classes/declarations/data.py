@@ -110,7 +110,9 @@ class DataDeclTranslator(BaseTranslator):
                                     elem.getSourceInterval(),
                                 )
 
-                                size_expression = createArrayStruct(
+                                size_expression = self._translator_ptr.getTranslator(
+                                    "struct_decl"
+                                ).createArrayStruct(
                                     self,
                                     original_identifier,
                                     DeclTypes.INT,
@@ -189,4 +191,5 @@ class DataDeclTranslator(BaseTranslator):
                                     declaration.action = action_pointer
 
         else:
-            self.enumDecaration2Aplan(ctx)
+
+            self._translator_ptr.translate("typedef", ctx)

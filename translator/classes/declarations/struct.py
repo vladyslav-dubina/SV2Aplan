@@ -1,10 +1,20 @@
+from typing import Tuple
 from antlr4_verilog.systemverilog import SystemVerilogParser
+from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from classes.typedef import Typedef
 from translator.classes.base_translator import BaseTranslator
 from utils.string_formating import replaceValueParametrsCalls
-from utils.utils import Color, dataTypeToStr, extractDimentionSize, extractVectorSize, printWithColor, vectorSize2AplanVectorSize
+from utils.utils import (
+    Color,
+    Counters_Object,
+    dataTypeToStr,
+    extractDimentionSize,
+    extractVectorSize,
+    printWithColor,
+    vectorSize2AplanVectorSize,
+)
 
 
 class StructDeclTranslator(BaseTranslator):
@@ -36,8 +46,8 @@ class StructDeclTranslator(BaseTranslator):
 
         return typedef
 
-    def structMembersToDeclarations(self,
-        ctx: SystemVerilogParser.Data_typeContext, typedef: Typedef
+    def structMembersToDeclarations(
+        self, ctx: SystemVerilogParser.Data_typeContext, typedef: Typedef
     ):
         for element in ctx.struct_union_member():
             if isinstance(element, SystemVerilogParser.Struct_union_memberContext):
@@ -145,3 +155,54 @@ class StructDeclTranslator(BaseTranslator):
                 raise Warning(
                     f"WARNING: Struct or union member is not SystemVerilogParser.Struct_union_memberContext \n"
                 )
+
+    def createArrayStruct(
+        self,
+        identifier: str,
+        decl_type: DeclTypes,
+        source_interval: Tuple[int, int],
+    ):
+        enum_type_identifier = "{0}".format(identifier)
+        unique_identifier = "{0}_{1}".format(
+            enum_type_identifier,
+            Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+        )
+        Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+        typedef = Typedef(
+            enum_type_identifier,
+            unique_identifier,
+            source_interval,
+            self.program.file_path,
+            DeclTypes.STRUCT_TYPE,
+        )
+
+        new_decl = Declaration(
+            DeclTypes.INT,
+            "size",
+            "",
+            "",
+            0,
+            "",
+            0,
+            (0, 0),
+        )
+        typedef.declarations.addElement(new_decl)
+
+        new_decl = Declaration(
+            decl_type,
+            "value",
+            "",
+            "",
+            0,
+            "",
+            1,
+            (0, 1),
+        )
+        typedef.declarations.addElement(new_decl)
+
+        if self.module:
+            decl_unique, decl_index = self.module.typedefs.addElement(typedef)
+        else:
+            decl_unique, decl_index = self.program.typedefs.addElement(typedef)
+
+        return unique_identifier

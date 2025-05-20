@@ -34,6 +34,7 @@ from translator.classes.declarations.object import ObjectDeclTranslator
 from translator.classes.declarations.package import PackageDeclTranslator
 from translator.classes.declarations.package_import import PackageImportDeclTranslator
 from translator.classes.declarations.struct import StructDeclTranslator
+from translator.classes.declarations.typedef import TypedefDeclTranslator
 from translator.classes.expressions.expression import ExpressionTranslator
 from translator.classes.assignments.parameters import (
     ParametrsAssignmentTranslator,
@@ -90,150 +91,6 @@ class Module_Translator2:
             )
             # Counters_Object.decrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
 
-    def createStatement(
-        self,
-        name,
-        element_type: ElementsTypes,
-        sensetive: str | None = None,
-        counter_type: CounterTypes = CounterTypes.UNIQ_NAMES_COUNTER,
-    ):
-        sv_structure: Structure | None = self.structure_pointer_list.getLastElement()
-
-        if sv_structure:
-            protocol_params = self.getProtocolParams()
-            beh_index = sv_structure.getLastBehaviorIndex()
-            if beh_index is not None:
-                if element_type == ElementsTypes.FOREVER_ELEMENT:
-                    sv_structure.behavior[beh_index].addBody(
-                        BodyElement(
-                            identifier="Sensetive({0}_{1}, {2})".format(
-                                name,
-                                Counters_Object.getCounter(counter_type),
-                                sensetive,
-                            ),
-                            element_type=ElementsTypes.PROTOCOL_ELEMENT,
-                            parametrs=protocol_params,
-                        )
-                    )
-                else:
-                    sv_structure.behavior[beh_index].addBody(
-                        BodyElement(
-                            identifier="{0}_{1}".format(
-                                name,
-                                Counters_Object.getCounter(counter_type),
-                            ),
-                            element_type=ElementsTypes.PROTOCOL_ELEMENT,
-                            parametrs=protocol_params,
-                        )
-                    )
-
-            tmp: ParametrArray = ParametrArray()
-            if (self.inside_the_task or self.inside_the_function) is False:
-                if sv_structure.parametrs is not None:
-                    tmp += sv_structure.parametrs
-                if protocol_params is not None:
-                    tmp += protocol_params
-            else:
-                tmp = protocol_params
-
-            if element_type == ElementsTypes.CASE_STATEMENT_ELEMENT:
-                struct = CaseStmt(
-                    name,
-                    (0, 0),
-                    Counters_Object.getCounter(counter_type),
-                )
-
-            elif element_type == ElementsTypes.IF_STATEMENT_ELEMENT:
-                struct = IfStmt(
-                    name,
-                    (0, 0),
-                    Counters_Object.getCounter(counter_type),
-                )
-            elif element_type == ElementsTypes.FOREVER_ELEMENT:
-                struct = ForeverStmt(
-                    name,
-                    (0, 0),
-                    Counters_Object.getCounter(counter_type),
-                )
-
-            elif element_type == ElementsTypes.WHILE_ELEMENT:
-                struct = WhileStmt(
-                    name,
-                    (0, 0),
-                    Counters_Object.getCounter(counter_type),
-                )
-
-            elif element_type == ElementsTypes.LOOP_ELEMENT:
-                struct = LoopStmt(
-                    name,
-                    (0, 0),
-                    Counters_Object.getCounter(counter_type),
-                )
-
-            else:
-                struct = Structure(
-                    name,
-                    (0, 0),
-                    element_type,
-                    Counters_Object.getCounter(counter_type),
-                )
-
-            struct.addInitProtocol()
-            struct.parametrs = tmp
-            struct.inside_the_task = self.inside_the_task or self.inside_the_function
-            sv_structure.behavior.append(struct)
-            self._structure_pointer_list.addElement(struct)
-            Counters_Object.incrieseCounter(counter_type)
-
-
-    # ---------------------------------------------------------------------------------
-
-
-    # ---------------------------------------------------------------------------------
-    def enumDecaration2Aplan(
-        self,
-        ctx: SystemVerilogParser.Data_declarationContext,
-    ):
-        from translator.declarations.struct_declaration import (
-            typedefDecaration2AplanImpl,
-        )
-
-        return typedefDecaration2AplanImpl(self, ctx)
-
-        # ---------------------------------------------------------------------------------
-
-    def structDeclaration2Aplan(
-        self,
-        ctx: SystemVerilogParser.Data_declarationContext,
-    ):
-        from translator.declarations.struct_declaration import (
-            structDeclaration2AplanImpl,
-        )
-
-        return structDeclaration2AplanImpl(self, ctx)
-
-    # ---------------------------------------------------------------------------------
-    def dataDecaration2Aplan(
-        self,
-        ctx: SystemVerilogParser.Data_declarationContext,
-        listener: bool,
-        sv_structure: Structure | None = None,
-    ):
-        from translator.declarations.data_declaration import dataDecaration2AplanImpl
-
-        return dataDecaration2AplanImpl(self, ctx, listener, sv_structure)
-
-    # ---------------------------------------------------------------------------------
-    def netDeclaration2Aplan(
-        self,
-        ctx: SystemVerilogParser.Net_declarationContext,
-    ):
-        from translator.declarations.net_declaration import (
-            netDeclaration2AplanImpl,
-        )
-
-        netDeclaration2AplanImpl(self, ctx)
-
     # ---------------------------------------------------------------------------------
 
     def loopVarsToAplan(
@@ -247,24 +104,6 @@ class Module_Translator2:
 
         return loopVars2AplanImpl(self, ctx, sv_structure)
 
-    # ---------------------------------------------------------------------------------
-    def loopIteration2Aplan(
-        self,
-        ctx: SystemVerilogParser.Loop_statementContext,
-    ):
-        from translator.classes.structures.loops.forever import (
-            foreverIteration2AplanImpl,
-        )
-
-        if ctx.FOREVER():
-            foreverIteration2AplanImpl(self, ctx)
-        elif ctx.REPEAT():
-            return
-
-    # else:
-    #    loop2AplanImpl(self, ctx)
-
-    # ---------------------------------------------------------------------------------
 
     def loopVarsDeclarationsToAplan(
         self,
@@ -589,6 +428,7 @@ class Translator:
         "loop",
         "loop_iteration",
         "while",
+        "typedef",
     ]
 
     _translators: dict[str, type] = {
@@ -625,11 +465,14 @@ class Translator:
         "loop": LoopStructTranslator,
         "loop_iteration": LoopIterationTranslator,
         "while": WhileStructTranslator,
+        "typedef": TypedefDeclTranslator,
     }
 
     def __init__(self):
         pass
 
+    @overload
+    def getTranslator(self, key: Literal["typedef"]) -> TypedefDeclTranslator: ...
     @overload
     def getTranslator(self, key: Literal["while"]) -> WhileStructTranslator: ...
     @overload
