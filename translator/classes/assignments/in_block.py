@@ -21,6 +21,7 @@ class InBlockAssignmentTranslator(BaseTranslator):
             | SystemVerilogParser.Net_assignmentContext
             | SystemVerilogParser.Variable_assignmentContext
             | SystemVerilogParser.Operator_assignmentContext
+            | SystemVerilogParser.ExpressionContext
         ),
     ) -> None:
         structure: Structure | None = self.structure_pointer_list.getLastElement()

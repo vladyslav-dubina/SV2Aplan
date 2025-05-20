@@ -1,1 +1,0 @@
-class Loop_Translator

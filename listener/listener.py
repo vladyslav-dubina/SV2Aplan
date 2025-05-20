@@ -143,20 +143,79 @@ class SVToAplanListener(SystemVerilogParserListener):
         self.translator.removeLastStructPointer()
 
     # =========================================================================================
-    # SEQUENCE BLOCK CONTEXT
-    # =========================================================================================
-    def exitSeq_block(self, ctx: SystemVerilogParser.Seq_blockContext):
-        self.translator.ifSeqBlock2Aplan(ctx)
-
-    # =========================================================================================
     # IF Statement
     # =========================================================================================
     def enterConditional_statement(
         self, ctx: SystemVerilogParser.Conditional_statementContext
     ):
-        self.translator.ifStatement2Aplan(ctx)
+        self.translator.translate("if_stmt", ctx)
 
     def exitConditional_statement(
         self, ctx: SystemVerilogParser.Conditional_statementContext
     ):
+        self.translator.removeLastStructPointer()
+
+    # =========================================================================================
+    # COND PREDICATE
+    # =========================================================================================
+    def enterCond_predicate(self, ctx: SystemVerilogParser.Cond_predicateContext):
+        self.translator.translate("if_cond_predicate", ctx)
+
+    # =========================================================================================
+    # SEQUENCE BLOCK CONTEXT
+    # =========================================================================================
+    def exitSeq_block(self, ctx: SystemVerilogParser.Seq_blockContext):
+        self.translator.translate("if_seq_block", ctx)
+
+    # =========================================================================================
+    # CASE STATEMENT
+    # =========================================================================================
+    def enterCase_statement(self, ctx: SystemVerilogParser.Case_statementContext):
+        self.translator.translate("case_stmt", ctx)
+
+    def exitCase_statement(self, ctx: SystemVerilogParser.Case_statementContext):
+        self.translator.removeLastStructPointer()
+
+    # =========================================================================================
+    # CASE ITEM
+    # =========================================================================================
+    def exitCase_item(self, ctx: SystemVerilogParser.Case_itemContext):
+        self.translator.translate("case_item", ctx)
+
+    # =========================================================================================
+    # CASE ITEM EXPRESSION
+    # =========================================================================================
+    def enterCase_item_expression(
+        self, ctx: SystemVerilogParser.Case_item_expressionContext
+    ):
+        self.translator.translate("case_item_expr", ctx)
+
+    # =========================================================================================
+    # ASSERT
+    # =========================================================================================
+    def exitAssert_property_statement(self, ctx):
+        self.translator.translate("assert_property", ctx)
+
+    def exitSimple_immediate_assert_statement(
+        self, ctx: SystemVerilogParser.Simple_immediate_assert_statementContext
+    ):
+        self.translator.translate("assert_block", ctx)
+
+    # =========================================================================================
+    # INITIAL
+    # =========================================================================================
+    def enterInitial_construct(self, ctx: SystemVerilogParser.Initial_constructContext):
+        self.translator.translate("initial", ctx)
+
+    def exitInitial_construct(self, ctx: SystemVerilogParser.Initial_constructContext):
+        self.translator.removeLastStructPointer()
+
+    # =========================================================================================
+    # LOOP
+    # =========================================================================================
+    def enterLoop_statement(self, ctx: SystemVerilogParser.Loop_statementContext):
+        self.translator.translate("loop", ctx)
+
+    def exitLoop_statement(self, ctx: SystemVerilogParser.Loop_statementContext):
+        self.translator.translate("loop_iteration", ctx)
         self.translator.removeLastStructPointer()

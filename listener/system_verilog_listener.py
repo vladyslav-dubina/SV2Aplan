@@ -5,7 +5,7 @@ from antlr4_verilog.systemverilog import (
 from classes.counters import CounterTypes
 
 
-from translator.loops.forever import foreverIteration2AplanImpl
+from translator.classes.structures.loops.forever import foreverIteration2AplanImpl
 from utils.utils import Counters_Object
 from translator.declarations.class_declaration import classDeclaration2Aplan
 from translator.declarations.interface_declaration import interfaceDeclaration2Aplan
@@ -36,49 +36,4 @@ class SVToAplanListener(SystemVerilogParserListener):
 
 
 
-    
 
-    # COND PREDICATE
-    def enterCond_predicate(self, ctx: SystemVerilogParser.Cond_predicateContext):
-        self.translator.conditionalPredecate2Aplan(ctx)
-
-    # CASE STATEMENT
-    def enterCase_statement(self, ctx: SystemVerilogParser.Case_statementContext):
-        self.translator.case2Aplan(ctx)
-
-    def exitCase_statement(self, ctx: SystemVerilogParser.Case_statementContext):
-        self.translator.removeLastStructPointer()
-
-    # CASE ITEM
-    def exitCase_item(self, ctx: SystemVerilogParser.Case_itemContext):
-        self.translator.caseItem2Aplan(ctx)
-
-    # CASE ITEM EXPRESSION
-    def enterCase_item_expression(
-        self, ctx: SystemVerilogParser.Case_item_expressionContext
-    ):
-        self.translator.caseItemExpr2Aplan(ctx)
-
-    # ASSERT
-    def exitAssert_property_statement(self, ctx):
-        self.translator.assertPropertyStatement2Aplan(ctx)
-
-    def exitSimple_immediate_assert_statement(
-        self, ctx: SystemVerilogParser.Simple_immediate_assert_statementContext
-    ):
-        self.translator.assertInBlock2Aplan(ctx)
-
-    # INITIAL
-    def enterInitial_construct(self, ctx: SystemVerilogParser.Initial_constructContext):
-        self.translator.initial2Aplan(ctx)
-
-    def exitInitial_construct(self, ctx: SystemVerilogParser.Initial_constructContext):
-        self.translator.removeLastStructPointer()
-
-    # LOOP
-    def enterLoop_statement(self, ctx: SystemVerilogParser.Loop_statementContext):
-        self.translator.loop2Aplan(ctx)
-
-    def exitLoop_statement(self, ctx: SystemVerilogParser.Loop_statementContext):
-        self.translator.loopIteration2Aplan(ctx)
-        self.translator.removeLastStructPointer()

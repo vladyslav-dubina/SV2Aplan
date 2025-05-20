@@ -35,11 +35,36 @@ from translator.classes.declarations.package import PackageDeclTranslator
 from translator.classes.declarations.package_import import PackageImportDeclTranslator
 from translator.classes.declarations.struct import StructDeclTranslator
 from translator.classes.expressions.expression import ExpressionTranslator
-from translator.classes.parameters.parameters_assignment import (
+from translator.classes.assignments.parameters import (
     ParametrsAssignmentTranslator,
 )
 from translator.classes.structures.always import AlwaysStructureTranslator
+from translator.classes.structures.assert_stmt import (
+    AssertInBlockTranslator,
+    AssertPropertyTranslator,
+)
+from translator.classes.structures.case_stmt import (
+    CaseItemExprTranslator,
+    CaseItemTranslator,
+    CaseStmtTranslator,
+)
 from translator.classes.structures.generate import GenerateStructTranslator
+from translator.classes.structures.if_stmt import (
+    IfCondPredicateTranslator,
+    IfSequenceBlockTranslator,
+    IfStmtTranslator,
+)
+from translator.classes.structures.initial import InitialStructTranslator
+from translator.classes.structures.loops.forever import (
+    ForeverIterationTranslator,
+    ForeverStructTranslator,
+)
+from translator.classes.structures.loops.loop import (
+    LoopIterationTranslator,
+    LoopStructTranslator,
+)
+from translator.classes.structures.loops.repeat import RepeatStructTranslator
+from translator.classes.structures.loops.while_stmt import WhileStructTranslator
 from utils.utils import Counters_Object
 
 
@@ -160,78 +185,9 @@ class Module_Translator2:
             self._structure_pointer_list.addElement(struct)
             Counters_Object.incrieseCounter(counter_type)
 
-    def extractSensetive(self, ctx):
-        from translator.sensetive.sensetive import extractSensetiveImpl
-
-        return extractSensetiveImpl(self, ctx)
-
-    def prepareExpressionString(self, expression: str, expr_type: ElementsTypes):
-        from translator.expression.expression import prepareExpressionStringImpl
-
-        return prepareExpressionStringImpl(self, expression, expr_type)
 
     # ---------------------------------------------------------------------------------
 
-    # =============================ASSIGNMENTS=========================================
-
-    def netAssignment2Aplan(self, ctx: SystemVerilogParser.Net_assignmentContext):
-        from translator.assignments.net_assignment import netAssignment2AplanImpl
-
-        netAssignment2AplanImpl(self, ctx)
-
-    # ---------------------------------------------------------------------------------
-    def paramAssignment2Aplan(
-        self,
-        ctx: (
-            SystemVerilogParser.Param_assignmentContext
-            | SystemVerilogParser.Local_parameter_declarationContext
-        ),
-        module_call: ModuleCall,
-    ):
-        from translator.assignments.param_assignment import paramAssignment2AplanImpl
-
-        paramAssignment2AplanImpl(self, ctx, module_call)
-
-    # ---------------------------------------------------------------------------------
-    def blockAssignment2Aplan(
-        self,
-        ctx: (
-            SystemVerilogParser.Variable_decl_assignmentContext
-            | SystemVerilogParser.Nonblocking_assignmentContext
-            | SystemVerilogParser.Net_assignmentContext
-            | SystemVerilogParser.Variable_assignmentContext
-            | SystemVerilogParser.Operator_assignmentContext
-            | SystemVerilogParser.ExpressionContext
-        ),
-    ):
-        from translator.assignments.in_block_assignments import (
-            blockAssignment2AplanImpl,
-        )
-
-        blockAssignment2AplanImpl(self, ctx)
-
-    # ---------------------------------------------------------------------------------
-
-    # =============================DECLARATIONS========================================
-
-    def genvarDeclaration2Aplan(
-        self, ctx: SystemVerilogParser.Genvar_declarationContext
-    ):
-        from translator.declarations.genvar_declaration import (
-            genvarDeclaration2AplanImpl,
-        )
-
-        genvarDeclaration2AplanImpl(self, ctx)
-
-    # ---------------------------------------------------------------------------------
-    def ansiPortDeclaration2Aplan(
-        self, ctx: SystemVerilogParser.Ansi_port_declarationContext
-    ):
-        from translator.declarations.ansi_port_declaration import (
-            ansiPortDeclaration2AplanImpl,
-        )
-
-        ansiPortDeclaration2AplanImpl(self, ctx)
 
     # ---------------------------------------------------------------------------------
     def enumDecaration2Aplan(
@@ -296,7 +252,7 @@ class Module_Translator2:
         self,
         ctx: SystemVerilogParser.Loop_statementContext,
     ):
-        from translator.loops.forever import (
+        from translator.classes.structures.loops.forever import (
             foreverIteration2AplanImpl,
         )
 
@@ -454,84 +410,6 @@ class Module_Translator2:
 
         dinamycArrayNew2AplanImpl(self, ctx, sv_structure, destination_node_array)
 
-    # ===================================ASSERTS=======================================
-    def assertPropertyStatement2Aplan(
-        self, ctx: SystemVerilogParser.Assert_property_statementContext
-    ):
-        from translator.asserts.assert_statement import (
-            assertPropertyStatement2AplanImpl,
-        )
-
-        assertPropertyStatement2AplanImpl(self, ctx)
-
-    def assertInBlock2Aplan(
-        self,
-        ctx: SystemVerilogParser.Simple_immediate_assert_statementContext,
-    ):
-        from translator.asserts.assert_statement import (
-            assertInBlock2AplanImpl,
-        )
-
-        assertInBlock2AplanImpl(self, ctx)
-
-    # =================================IF STATEMENT=====================================
-    def ifStatement2Aplan(
-        self,
-        ctx: SystemVerilogParser.Conditional_statementContext,
-    ):
-        from translator.if_statement.if_statement import (
-            ifStatement2AplanImpl,
-        )
-
-        ifStatement2AplanImpl(self, ctx)
-
-    def conditionalPredecate2Aplan(
-        self,
-        ctx: SystemVerilogParser.Conditional_statementContext,
-    ):
-        from translator.if_statement.if_statement import (
-            conditionalPredecate2AplanImpl,
-        )
-
-        conditionalPredecate2AplanImpl(self, ctx)
-
-    def ifSeqBlock2Aplan(self, ctx: SystemVerilogParser.Seq_blockContext):
-        from translator.if_statement.if_statement import (
-            ifSeqBlock2AplanImpl,
-        )
-
-        return ifSeqBlock2AplanImpl(self, ctx)
-
-    # =================================CASE STATEMENT===================================
-
-    def case2Aplan(
-        self,
-        ctx: SystemVerilogParser.Case_statementContext,
-    ):
-        from translator.case_statement.case_statement import caseStatement2AplanImpl
-
-        caseStatement2AplanImpl(self, ctx)
-
-    # =================================CASE ITEM EXPR ===================================
-
-    def caseItemExpr2Aplan(
-        self,
-        ctx: SystemVerilogParser.Case_item_expressionContext,
-    ):
-        from translator.case_statement.case_statement import caseItemExpr2AplanImpl
-
-        caseItemExpr2AplanImpl(self, ctx)
-
-    # =================================CASE Item ===================================
-
-    def caseItem2Aplan(
-        self,
-        ctx: SystemVerilogParser.Case_itemContext,
-    ):
-        from translator.case_statement.case_statement import caseItem2AplanImpl
-
-        caseItem2AplanImpl(self, ctx)
-
     # =================================IDENTIFIER===================================
 
     def identifier2Aplan(
@@ -639,8 +517,8 @@ class Module_Translator2:
     ):
         from translator.loops.loop import loop2AplanImpl
         from translator.loops.repeat import repeat2AplanImpl
-        from translator.loops.forever import forever2AplanImpl
-        from translator.loops._while import while2AplanImpl
+        from translator.classes.structures.loops.forever import forever2AplanImpl
+        from translator.classes.structures.loops.while_stmt import while2AplanImpl
 
         if ctx.REPEAT():
             repeat2AplanImpl(self, ctx)
@@ -650,21 +528,6 @@ class Module_Translator2:
             while2AplanImpl(self, ctx)
         else:
             loop2AplanImpl(self, ctx)
-
-    def generate2Aplan(self, ctx: SystemVerilogParser.Loop_generate_constructContext):
-        from translator.structures.generate import generate2AplanImpl
-
-        generate2AplanImpl(self, ctx)
-
-    def always2Aplan(self, ctx: SystemVerilogParser.Always_constructContext):
-        from translator.structures.always import always2AplanImpl
-
-        always2AplanImpl(self, ctx)
-
-    def initial2Aplan(self, ctx: SystemVerilogParser.Initial_constructContext):
-        from translator.structures.initial import initital2AplanImpl
-
-        initital2AplanImpl(self, ctx)
 
     def taskOrFunctionDeclaration2Aplan(
         self,
@@ -711,6 +574,21 @@ class Translator:
         "params_assign",
         "generate_struct",
         "alaways_struct",
+        "if_seq_block",
+        "if_stmt",
+        "if_cond_predicate",
+        "case_stmt",
+        "case_item",
+        "case_item_expr",
+        "assert_property",
+        "assert_block",
+        "initial",
+        "repeat",
+        "forever",
+        "forever_iteration",
+        "loop",
+        "loop_iteration",
+        "while",
     ]
 
     _translators: dict[str, type] = {
@@ -732,12 +610,42 @@ class Translator:
         "params_assign": ParametrsAssignmentTranslator,
         "generate_struct": GenerateStructTranslator,
         "alaways_struct": AlwaysStructureTranslator,
+        "if_seq_block": IfSequenceBlockTranslator,
+        "if_stmt": IfStmtTranslator,
+        "if_cond_predicate": IfCondPredicateTranslator,
+        "case_stmt": CaseStmtTranslator,
+        "case_item": CaseItemTranslator,
+        "case_item_expr": CaseItemExprTranslator,
+        "assert_property": AssertPropertyTranslator,
+        "assert_block": AssertInBlockTranslator,
+        "initial": InitialStructTranslator,
+        "repeat": RepeatStructTranslator,
+        "forever": ForeverStructTranslator,
+        "forever_iteration": ForeverIterationTranslator,
+        "loop": LoopStructTranslator,
+        "loop_iteration": LoopIterationTranslator,
+        "while": WhileStructTranslator,
     }
 
     def __init__(self):
-
         pass
 
+    @overload
+    def getTranslator(self, key: Literal["while"]) -> WhileStructTranslator: ...
+    @overload
+    def getTranslator(
+        self, key: Literal["loop_iteration"]
+    ) -> LoopIterationTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["loop"]) -> LoopStructTranslator: ...
+    @overload
+    def getTranslator(
+        self, key: Literal["forever_iteration"]
+    ) -> ForeverIterationTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["forever"]) -> ForeverStructTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["repeat"]) -> RepeatStructTranslator: ...
     @overload
     def getTranslator(
         self, key: Literal["interface_decl"]
@@ -790,6 +698,34 @@ class Translator:
     def getTranslator(
         self, key: Literal["alaways_struct"]
     ) -> AlwaysStructureTranslator: ...
+    @overload
+    def getTranslator(
+        self, key: Literal["if_seq_block"]
+    ) -> IfSequenceBlockTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["if_stmt"]) -> IfStmtTranslator: ...
+    @overload
+    def getTranslator(
+        self, key: Literal["if_cond_predicate"]
+    ) -> IfCondPredicateTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["case_stmt"]) -> CaseStmtTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["case_item"]) -> CaseItemTranslator: ...
+    @overload
+    def getTranslator(
+        self, key: Literal["case_item_expr"]
+    ) -> CaseItemExprTranslator: ...
+    @overload
+    def getTranslator(
+        self, key: Literal["assert_property"]
+    ) -> AssertPropertyTranslator: ...
+    @overload
+    def getTranslator(
+        self, key: Literal["assert_block"]
+    ) -> AssertInBlockTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["initial"]) -> InitialStructTranslator: ...
 
     def getTranslator(self, key: TranslatorName):
         cls = self._selectTranlator(name)
@@ -899,10 +835,6 @@ class Translator:
                 self.methodCall2Aplan(child, sv_structure, destination_node_array)
             # ---------------------------------------------------------------------------
 
-            # ---------------------------------------------------------------------------
-            # elif type(child) is SystemVerilogParser.Loop_statementContext:
-            #     self.loop2Aplan(child, sv_structure)
-            # ---------------------------------------------------------------------------
             elif type(child) is Tree.TerminalNodeImpl:
                 self.operator2Aplan(child, destination_node_array)
             # ---------------------------------------------------------------------------
@@ -1007,3 +939,28 @@ class Translator:
             sv_structure.behavior.append(struct)
             self._structure_pointer_list.addElement(struct)
             Counters_Object.incrieseCounter(counter_type)
+
+    def extractSensetive(self, ctx):
+        res = ""
+        for child in ctx.getChildren():
+            if type(child) is SystemVerilogParser.Edge_identifierContext:
+                index = child.getText().find("negedge")
+                if index != -1:
+                    res += "!"
+            elif type(child) is Tree.TerminalNodeImpl:
+                index = child.getText().find("or")
+                if index != -1:
+                    res += " || "
+                index = child.getText().find("and")
+                if index != -1:
+                    res += " && "
+            elif type(child) is SystemVerilogParser.IdentifierContext:
+                packages = self._module.packages_and_objects.getElementsIE(
+                    include=ElementsTypes.PACKAGE_ELEMENT
+                )
+                res += self._module.findAndChangeNamesToAgentAttrCall(
+                    child.getText(), packages.getElements()
+                )
+            else:
+                res += self.extractSensetive(child)
+        return res

@@ -28,6 +28,8 @@ class BaseTranslator:
         counter_type: CounterTypes = CounterTypes.UNIQ_NAMES_COUNTER,
     ): self._translator_ptr.createStatement(name, element_type, sensetive,counter_type)
 
+    def extractSensetive(self, ctx):
+        return self._translator_ptr.extractSensetive(ctx)
     @property
     def module_call(self) -> ModuleCall:
         return self._translator_ptr.module_call
