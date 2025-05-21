@@ -13,18 +13,6 @@ from utils.string_formating import (
 )
 
 
-def paramsCallReplace(self: Module_Translator, expression):
-    parametrs_array = self.module.value_parametrs.copy()
-
-    packages = self.module.packages_and_objects.getElementsIE(
-        include=ElementsTypes.PACKAGE_ELEMENT,
-        exclude_ident_uniq_name=self.module.ident_uniq_name,
-    )
-
-    for element in packages.getElements():
-        parametrs_array += element.value_parametrs.copy()
-
-    return replaceValueParametrsCalls(parametrs_array, expression)
 
 
 def identifier2AplanImpl(
@@ -141,36 +129,6 @@ def bitSelection2AplanImpl(
                     f"{value}",
                     node.identifier,
                 )
-
-            node.identifier = paramsCallReplace(self, node.identifier)
-
-
-def rangeSelection2AplanImpl(
-    self: Module_Translator,
-    ctx: SystemVerilogParser.Part_select_rangeContext,
-    destination_node_array: NodeArray,
-):
-    if destination_node_array is not None:
-        expressions = ctx.constant_range().constant_expression()
-        for index, element in enumerate(expressions):
-            if index != 0:
-                range = ","
-                destination_node_array.addElement(
-                    Node(range, ctx.getSourceInterval(), ElementsTypes.OPERATOR_ELEMENT)
-                )
-
-            range = element.getText()
-            node_index = destination_node_array.addElement(
-                Node(range, ctx.getSourceInterval(), ElementsTypes.NUMBER_ELEMENT)
-            )
-            node = destination_node_array.getElementByIndex(node_index)
-            if len(ctx.constant_range().constant_expression()) == 1:
-                node.range_selection = RangeTypes.START_END
-            else:
-                if index == 0:
-                    node.range_selection = RangeTypes.START
-                if index == len(ctx.constant_range().constant_expression()) - 1:
-                    node.range_selection = RangeTypes.END
 
             node.identifier = paramsCallReplace(self, node.identifier)
 

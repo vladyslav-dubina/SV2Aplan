@@ -20,6 +20,7 @@ from translator.classes.assignments.net import NetAssignmentTranslator
 from translator.classes.calls.interface import InterfaceCallTranslator
 from translator.classes.calls.method import MethodCallTranslator
 from translator.classes.calls.module import ModuleCallTranslator
+from translator.classes.calls.params import ParametrsCallTranslator
 from translator.classes.calls.task import TaskCallTranslator
 from translator.classes.declarations.ansi_port import AnsiPortDeclTranslator
 from translator.classes.declarations.data import DataDeclTranslator
@@ -43,6 +44,8 @@ from translator.classes.assignments.parameters import (
     ParametrsAssignmentTranslator,
 )
 from translator.classes.expressions.operator import OperatorTranslator
+from translator.classes.expressions.range import RangeSelectionTranslator
+from translator.classes.jump.return_to_assign import ReturnTranslator
 from translator.classes.structures.always import AlwaysStructureTranslator
 from translator.classes.structures.assert_stmt import (
     AssertInBlockTranslator,
@@ -221,25 +224,6 @@ class Module_Translator2:
 
     # =================================OPERATOR===================================
 
-    def operator2Aplan(
-        self,
-        ctx: SystemVerilogParser.NumberContext,
-        destination_node_array: NodeArray,
-    ):
-        from translator.expression.expression_node import operator2AplanImpl
-
-        operator2AplanImpl(self, ctx, destination_node_array)
-        # ==================================================================================
-
-    def returnToAssign2Aplan(
-        self,
-        ctx: SystemVerilogParser.ExpressionContext,
-        sv_structure: Structure | None = None,
-    ):
-        from translator.assignments.return_to_assignment import returnToAssign2AplanImpl
-
-        returnToAssign2AplanImpl(self, ctx, sv_structure)
-
     # ==================================================================================
 
     def loop2Aplan(
@@ -340,6 +324,9 @@ class Translator:
         "class_new",
         "dynamic_array_new",
         "operator",
+        "return",
+        "param_call",
+        "range_select",
     ]
 
     _translators: dict[str, type] = {
@@ -383,11 +370,22 @@ class Translator:
         "class_new": ClassNewTranslator,
         "dynamic_array_new": DynamicArrayNewTranslator,
         "operator": OperatorTranslator,
+        "return": ReturnTranslator,
+        "param_call": ParametrsCallTranslator,
+        "range_select": RangeSelectionTranslator,
     }
 
     def __init__(self):
         pass
 
+    @overload
+    def getTranslator(
+        self, key: Literal["range_select"]
+    ) -> RangeSelectionTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["param_call"]) -> ParametrsCallTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["return"]) -> ReturnTranslator: ...
     @overload
     def getTranslator(self, key: Literal["operator"]) -> OperatorTranslator: ...
     @overload
@@ -575,25 +573,14 @@ class Translator:
             elif type(child) is SystemVerilogParser.Unpacked_dimensionContext:
                 self.unpackedDimention2Aplan(child, destination_node_array)
             elif type(child) is SystemVerilogParser.Part_select_rangeContext:
-                self.rangeSelection2Aplan(child, destination_node_array)
+                self.translate("range_select", child, destination_node_array)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.NumberContext:
                 self.number2Aplan(child, destination_node_array)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Jump_statementContext:
                 if child.RETURN and child.expression():
-                    self.returnToAssign2Aplan(child.expression(), sv_structure)
-                # ---------------------------------------------------------------------------
-                # Assign handler
-                """ elif (
-                    type(child) is SystemVerilogParser.Variable_decl_assignmentContext
-                    or type(child) is SystemVerilogParser.Nonblocking_assignmentContext
-                    or type(child) is SystemVerilogParser.Net_assignmentContext
-                    or type(child) is SystemVerilogParser.Variable_assignmentContext
-                    or type(child) is SystemVerilogParser.Operator_assignmentContext
-                    ):
-                        self.blockAssignment2Aplan(child, sv_structure)
-                """
+                    self.translate("return", child.expression(), sv_structure)
             # ---------------------------------------------------------------------------
             # Task and function handler
             elif type(child) is SystemVerilogParser.Tf_callContext:
