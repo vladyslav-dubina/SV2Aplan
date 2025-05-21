@@ -21,15 +21,20 @@ class BaseTranslator:
     def translate(self, ctx) -> None:
         raise TypeError("Run base translator")
 
-    def createStatement(self,
+    def createStatement(
+        self,
         name,
-        element_type:ElementsTypes,
+        element_type: ElementsTypes,
         sensetive: str | None = None,
         counter_type: CounterTypes = CounterTypes.UNIQ_NAMES_COUNTER,
-    ): self._translator_ptr.createStatement(name, element_type, sensetive,counter_type)
+    ):
+        self._translator_ptr.createStatement(
+            name, element_type, sensetive, counter_type
+        )
 
     def extractSensetive(self, ctx):
         return self._translator_ptr.extractSensetive(ctx)
+
     @property
     def module_call(self) -> ModuleCall:
         return self._translator_ptr.module_call
@@ -71,3 +76,11 @@ class BaseTranslator:
     @inside_the_task.setter
     def inside_the_task(self, value: bool):
         self._translator_ptr._inside_the_task = value
+
+    @property
+    def current_genvar_value(self) -> bool:
+        return self._translator_ptr._current_genvar_value
+
+    @current_genvar_value.setter
+    def current_genvar_value(self, value: typing.Tuple[str, int] | None):
+        self._translator_ptr._current_genvar_value = value

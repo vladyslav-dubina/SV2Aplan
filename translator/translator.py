@@ -1,7 +1,7 @@
 from os import name
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
-from classes.actions import Action
+
 from classes.case_stmt import CaseStmt
 from classes.counters import CounterTypes
 from classes.if_stmt import IfStmt
@@ -18,7 +18,9 @@ from typing import Literal, Tuple, List, overload
 from translator.classes.assignments.in_block import InBlockAssignmentTranslator
 from translator.classes.assignments.net import NetAssignmentTranslator
 from translator.classes.calls.interface import InterfaceCallTranslator
+from translator.classes.calls.method import MethodCallTranslator
 from translator.classes.calls.module import ModuleCallTranslator
+from translator.classes.calls.task import TaskCallTranslator
 from translator.classes.declarations.ansi_port import AnsiPortDeclTranslator
 from translator.classes.declarations.data import DataDeclTranslator
 from translator.classes.declarations.genvar import GenvarDeclTranslator
@@ -26,7 +28,6 @@ from translator.classes.declarations.interface import (
     InterfaceDeclTranslator,
 )
 from translator.classes.declarations.module import (
-    Module_Translator,
     ModuleDeclTranslator,
 )
 from translator.classes.declarations.net import NewDeclTranslator
@@ -34,11 +35,14 @@ from translator.classes.declarations.object import ObjectDeclTranslator
 from translator.classes.declarations.package import PackageDeclTranslator
 from translator.classes.declarations.package_import import PackageImportDeclTranslator
 from translator.classes.declarations.struct import StructDeclTranslator
+from translator.classes.declarations.task import TaskBodyDeclTranslator
 from translator.classes.declarations.typedef import TypedefDeclTranslator
+from translator.classes.dynamic_array import DynamicArrayNewTranslator
 from translator.classes.expressions.expression import ExpressionTranslator
 from translator.classes.assignments.parameters import (
     ParametrsAssignmentTranslator,
 )
+from translator.classes.expressions.operator import OperatorTranslator
 from translator.classes.structures.always import AlwaysStructureTranslator
 from translator.classes.structures.assert_stmt import (
     AssertInBlockTranslator,
@@ -49,6 +53,7 @@ from translator.classes.structures.case_stmt import (
     CaseItemTranslator,
     CaseStmtTranslator,
 )
+from translator.classes.structures.class_new import ClassNewTranslator
 from translator.classes.structures.generate import GenerateStructTranslator
 from translator.classes.structures.if_stmt import (
     IfCondPredicateTranslator,
@@ -74,23 +79,6 @@ class Module_Translator2:
         self.module = module
         self.program: Program = program
 
-        self.current_genvar_value: Tuple[str, int] | None = None
-
-    def getProtocolParams(self):
-        protocol_params = None
-        if self.inside_the_task == True:
-            task = self.module.tasks.getLastTask()
-            if task is not None:
-                protocol_params = task.parametrs
-        return protocol_params
-
-    def removeLastStructPointer(self):
-        if self.structure_pointer_list.getLen() > 0:
-            self.structure_pointer_list.removeElementByIndex(
-                self.structure_pointer_list.getLen() - 1
-            )
-            # Counters_Object.decrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
-
     # ---------------------------------------------------------------------------------
 
     def loopVarsToAplan(
@@ -103,7 +91,6 @@ class Module_Translator2:
         )
 
         return loopVars2AplanImpl(self, ctx, sv_structure)
-
 
     def loopVarsDeclarationsToAplan(
         self,
@@ -166,47 +153,6 @@ class Module_Translator2:
 
     # ---------------------------------------------------------------------------------
 
-    # ====================================CALLS=========================================
-    def moduleCall2Apan(
-        self,
-        ctx: SystemVerilogParser.Module_instantiationContext,
-    ):
-        from translator.calls.module_call import (
-            moduleCall2AplanImpl,
-        )
-
-        moduleCall2AplanImpl(self, ctx)
-
-    def packageImport2Apan(
-        self,
-        ctx: SystemVerilogParser.Package_import_declarationContext,
-    ):
-        from translator.import_stmt.package_import import (
-            packageImport2ApanImpl,
-        )
-
-        packageImport2ApanImpl(self, ctx)
-
-    def interfaceCall2Apan(
-        self,
-        ctx: SystemVerilogParser.Ansi_port_declarationContext,
-    ):
-        from translator.calls.interface_call import (
-            interfaceCall2AplanImpl,
-        )
-
-        interfaceCall2AplanImpl(self, ctx)
-
-    def taskCall2Aplan(
-        self,
-        ctx: SystemVerilogParser.Tf_callContext,
-        sv_structure: Structure,
-        destination_node_array: NodeArray | None = None,
-    ):
-        from translator.task_and_function.task_function import taskCall2AplanImpl
-
-        taskCall2AplanImpl(self, ctx, sv_structure, destination_node_array)
-
     def systemTFCall2Aplan(
         self,
         ctx: SystemVerilogParser.System_tf_callContext,
@@ -218,36 +164,6 @@ class Module_Translator2:
         )
 
         systemTF2AplanImpl(self, ctx, destination_node_array, sv_structure)
-
-    def methodCall2Aplan(
-        self,
-        ctx: SystemVerilogParser.Method_call_bodyContext,
-        sv_structure: Structure,
-        destination_node_array: NodeArray | None = None,
-    ):
-        from translator.task_and_function.task_function import methodCall2AplanImpl
-
-        methodCall2AplanImpl(self, ctx, sv_structure, destination_node_array)
-
-    def classNew2Aplan(
-        self,
-        ctx: SystemVerilogParser.Class_newContext,
-        sv_structure: Structure,
-        destination_node_array: NodeArray | None = None,
-    ):
-        from translator.task_and_function.task_function import classNew2AplanImpl
-
-        classNew2AplanImpl(self, ctx, sv_structure, destination_node_array)
-
-    def dinamycArrayNew2Aplan(
-        self,
-        ctx: SystemVerilogParser.Dynamic_array_newContext,
-        sv_structure: Structure,
-        destination_node_array: NodeArray | None = None,
-    ):
-        from translator.task_and_function.task_function import dinamycArrayNew2AplanImpl
-
-        dinamycArrayNew2AplanImpl(self, ctx, sv_structure, destination_node_array)
 
     # =================================IDENTIFIER===================================
 
@@ -325,27 +241,6 @@ class Module_Translator2:
         returnToAssign2AplanImpl(self, ctx, sv_structure)
 
     # ==================================================================================
-    def expression2Aplan(
-        self,
-        ctx: (
-            SystemVerilogParser.Net_assignmentContext
-            | SystemVerilogParser.Ansi_port_declarationContext
-        ),
-        element_type: ElementsTypes,
-        sv_structure: Structure | None = None,
-        remove_association: bool = False,
-    ) -> Tuple[Action, str, Tuple[int, int], bool]:
-        from translator.expression.expression import expression2AplanImpl
-
-        return expression2AplanImpl(
-            self,
-            ctx,
-            element_type,
-            sv_structure,
-            remove_association,
-        )
-
-    # ==================================================================================
 
     def loop2Aplan(
         self,
@@ -394,9 +289,21 @@ class Translator:
     _inside_the_function = False
     _cache = {}
 
+    _current_genvar_value: Tuple[str, int] | None = None
+
+    @property
+    def current_genvar_value(self) -> bool:
+        return self._current_genvar_value
+
+    @current_genvar_value.setter
+    def current_genvar_value(self, value: Tuple[str, int] | None):
+        self._current_genvar_value = value
+
     TranslatorName = Literal[
         "interface_decl",
+        "interface_call",
         "module_decl",
+        "module_call",
         "package_decl",
         "genvar_decl",
         "struct_decl",
@@ -406,8 +313,6 @@ class Translator:
         "ansi_port_decl",
         "package_import_decl",
         "expr",
-        "interface_call",
-        "module_call",
         "net_assign",
         "in_block_assign",
         "params_assign",
@@ -429,11 +334,19 @@ class Translator:
         "loop_iteration",
         "while",
         "typedef",
+        "task_body_decl",
+        "task_call",
+        "method_call",
+        "class_new",
+        "dynamic_array_new",
+        "operator",
     ]
 
     _translators: dict[str, type] = {
         "interface_decl": InterfaceDeclTranslator,
+        "interface_call": InterfaceCallTranslator,
         "module_decl": ModuleDeclTranslator,
+        "module_call": ModuleCallTranslator,
         "package_decl": PackageDeclTranslator,
         "genvar_decl": GenvarDeclTranslator,
         "struct_decl": StructDeclTranslator,
@@ -443,8 +356,6 @@ class Translator:
         "ansi_port_decl": AnsiPortDeclTranslator,
         "package_import_decl": PackageImportDeclTranslator,
         "expr": ExpressionTranslator,
-        "interface_call": InterfaceCallTranslator,
-        "module_call": ModuleCallTranslator,
         "net_assign": NetAssignmentTranslator,
         "in_block_assign": InBlockAssignmentTranslator,
         "params_assign": ParametrsAssignmentTranslator,
@@ -466,11 +377,33 @@ class Translator:
         "loop_iteration": LoopIterationTranslator,
         "while": WhileStructTranslator,
         "typedef": TypedefDeclTranslator,
+        "task_body_decl": TaskBodyDeclTranslator,
+        "task_call": TaskCallTranslator,
+        "method_call": MethodCallTranslator,
+        "class_new": ClassNewTranslator,
+        "dynamic_array_new": DynamicArrayNewTranslator,
+        "operator": OperatorTranslator,
     }
 
     def __init__(self):
         pass
 
+    @overload
+    def getTranslator(self, key: Literal["operator"]) -> OperatorTranslator: ...
+    @overload
+    def getTranslator(
+        self, key: Literal["dynamic_array_new"]
+    ) -> DynamicArrayNewTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["class_new"]) -> ClassNewTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["method_call"]) -> MethodCallTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["task_call"]) -> TaskCallTranslator: ...
+    @overload
+    def getTranslator(
+        self, key: Literal["task_body_decl"]
+    ) -> TaskBodyDeclTranslator: ...
     @overload
     def getTranslator(self, key: Literal["typedef"]) -> TypedefDeclTranslator: ...
     @overload
@@ -664,22 +597,26 @@ class Translator:
             # ---------------------------------------------------------------------------
             # Task and function handler
             elif type(child) is SystemVerilogParser.Tf_callContext:
-                self.taskCall2Aplan(child, sv_structure, destination_node_array)
+                self.translate("task_call", child, sv_structure, destination_node_array)
             # ---------------------------------------------------------------------------
             # Dynamic_array new[] handler
             elif type(child) is SystemVerilogParser.Dynamic_array_newContext:
-                self.dinamycArrayNew2Aplan(child, sv_structure, destination_node_array)
+                self.translate(
+                    "dynamic_array_new", child, sv_structure, destination_node_array
+                )
             # ---------------------------------------------------------------------------
             # Class new() handler
             elif type(child) is SystemVerilogParser.Class_newContext:
-                self.classNew2Aplan(child, sv_structure, destination_node_array)
+                self.translate("class_new", child, sv_structure, destination_node_array)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Method_call_bodyContext:
-                self.methodCall2Aplan(child, sv_structure, destination_node_array)
+                self.translate(
+                    "method_call", child, sv_structure, destination_node_array
+                )
             # ---------------------------------------------------------------------------
 
             elif type(child) is Tree.TerminalNodeImpl:
-                self.operator2Aplan(child, destination_node_array)
+                self.translate("operator", child, destination_node_array)
             # ---------------------------------------------------------------------------
             else:
                 names_for_change += self.body2Aplan(

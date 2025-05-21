@@ -61,15 +61,15 @@ class SVToAplanListener(SystemVerilogParserListener):
     def exitClass_constructor_declaration(
         self, ctx: SystemVerilogParser.Class_constructor_declarationContext
     ):
-        self.translator.taskOrFunctionDeclaration2Aplan(ctx)
+        self.translator.translate("task_body_decl", ctx)
 
     def exitTask_declaration(self, ctx: SystemVerilogParser.Task_declarationContext):
-        self.translator.taskOrFunctionDeclaration2Aplan(ctx)
+        self.translator.translate("task_body_decl", ctx.task_body_declaration())
 
     def exitFunction_declaration(
         self, ctx: SystemVerilogParser.Function_declarationContext
     ):
-        self.translator.taskOrFunctionDeclaration2Aplan(ctx)
+        self.translator.translate("task_body_decl", ctx.function_body_declaration())
 
     # =========================================================================================
     # CALLS
