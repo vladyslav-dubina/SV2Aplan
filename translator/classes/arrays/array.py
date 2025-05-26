@@ -64,5 +64,3 @@ class ArrayTranslator(BaseTranslator):
 
         return unique_identifier
 
-
-    def

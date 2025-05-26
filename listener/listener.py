@@ -4,6 +4,7 @@ from antlr4_verilog.systemverilog import (
 )
 
 from classes.counters import CounterTypes
+from classes.module import Module
 from classes.module_call import ModuleCall
 from translator.translator import Translator
 from utils.utils import Counters_Object
@@ -12,6 +13,10 @@ from utils.utils import Counters_Object
 class SVToAplanListener(SystemVerilogParserListener):
 
     translator = Translator()
+
+    @property
+    def module(self) -> Module:
+        return self.translator._module
 
     def __init__(self, module_call: ModuleCall | None = None):
         self.translator.module_call = module_call

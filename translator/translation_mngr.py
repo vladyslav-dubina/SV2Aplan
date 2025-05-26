@@ -18,7 +18,7 @@ class TranslationManager:
     def startTranslate(self, module_call: ModuleCall | None = None):
         printWithColor(f"Translation process start... \n", Color.ORANGE)
 
-        listener = SVToAplanListener(module_call)
+        listener: SVToAplanListener = SVToAplanListener(module_call)
         self.walker.walk(listener, self.tree)
         program = Program()
         printWithColor(f"File tranlation process finished! \n", Color.ORANGE)
