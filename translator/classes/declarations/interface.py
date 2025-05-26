@@ -2,7 +2,6 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.element_types import ElementsTypes
 from classes.module import Module
 from translator.classes.base_translator import BaseTranslator
-from translator.utils import module_call_resolve
 
 
 class InterfaceDeclTranslator(BaseTranslator):
@@ -15,7 +14,9 @@ class InterfaceDeclTranslator(BaseTranslator):
         self, ctx: SystemVerilogParser.Interface_declarationContext
     ) -> Module:
         identifier = ctx.interface_ansi_header().interface_identifier().getText()
-        (identifier, uniq_name) = module_call_resolve(self.module_call, identifier)
+        (identifier, uniq_name) = self._translator_ptr.getTranslator(
+            "module_call"
+        ).resolve(identifier)
         index = self.modules.addElement(
             Module(
                 identifier,

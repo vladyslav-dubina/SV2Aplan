@@ -1,3 +1,4 @@
+from typing import List, Tuple
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
@@ -39,7 +40,7 @@ class TypedefDeclTranslator(BaseTranslator):
                         enum_type_identifier,
                         unique_identifier,
                         type_identifier.getSourceInterval(),
-                        self.program.file_path,
+                        self._program.file_path,
                         decl_type,
                     )
 
@@ -69,6 +70,43 @@ class TypedefDeclTranslator(BaseTranslator):
                             typedef
                         )
                     else:
-                        decl_unique, decl_index = self.program.typedefs.addElement(
+                        decl_unique, decl_index = self._program.typedefs.addElement(
                             typedef
                         )
+
+    def create(
+        self,
+        identifier: str,
+        source_interval: Tuple[int, int],
+        arguments: List[Tuple[str, DeclTypes]],
+    ):
+        typedef = Typedef(
+            identifier,
+            identifier,
+            source_interval,
+            self._program.file_path,
+            DeclTypes.STRUCT_TYPE,
+        )
+
+        element_source_interval = (0, 0)
+        for element in arguments:
+            new_decl = Declaration(
+                element[1],
+                element[0],
+                "",
+                "",
+                0,
+                "",
+                0,
+                element_source_interval,
+            )
+            element_source_interval = (
+                element_source_interval[0],
+                element_source_interval[1] + 1,
+            )
+            typedef.declarations.addElement(new_decl)
+
+        if self.module:
+            decl_unique, decl_index = self.module.typedefs.addElement(typedef)
+        else:
+            decl_unique, decl_index = self._program.typedefs.addElement(typedef)

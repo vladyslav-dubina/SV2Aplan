@@ -40,7 +40,7 @@ class TaskCallTranslator(BaseTranslator):
             task_identifier = call_identifiers[call_identifiers_len - 3].getText()
             object_identifier = call_identifiers[call_identifiers_len - 2].getText()
             if task_identifier == "push_back":
-                self._translator_ptr.getTranslator("build_in").create(
+                self._translator_ptr.translate(
                     "push_back",
                     sv_structure,
                     task_identifier,

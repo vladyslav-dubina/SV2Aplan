@@ -59,7 +59,9 @@ class LoopStructTranslator(BaseTranslator):
             condition_name,
             source_interval,
             uniq_action,
-        ) = self.expression2Aplan(condition, ElementsTypes.CONDITION_ELEMENT, loop_stmt)
+        ) = self._translator_ptr.translate(
+            "expr", condition, ElementsTypes.CONDITION_ELEMENT, loop_stmt
+        )
 
         loop_stmt.behavior[beh_index].addBody(
             BodyElement(

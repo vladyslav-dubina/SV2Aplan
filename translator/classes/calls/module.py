@@ -8,6 +8,7 @@ from classes.module_call import ModuleCall
 from classes.node import Node, NodeArray
 from classes.parametrs import Parametr, ParametrArray
 from classes.protocols import BodyElement, Protocol
+from program.program import Program
 from translator.classes.base_translator import BaseTranslator
 from translator.translation_mngr import TranslationManager
 from utils.string_formating import replace_filename
@@ -69,7 +70,7 @@ class ModuleCallTranslator(BaseTranslator):
             )
         if call_module.element_type != ElementsTypes.INTERFACE_ELEMENT:
             self._program.file_path = previous_file_path
-            self.assign2Aplan(ctx, call_module_name, destination_identifier)
+            self.assign(ctx, call_module_name, destination_identifier)
             Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
             call_b = "MODULE_CALL_B_{}".format(
                 Counters_Object.getCounter(CounterTypes.B_COUNTER)
@@ -85,7 +86,7 @@ class ModuleCallTranslator(BaseTranslator):
             )
             self.module.out_of_block_elements.addElement(struct_call)
 
-    def assign2Aplan(
+    def assign(
         self,
         ctx: SystemVerilogParser.Module_instantiationContext,
         destination_module_name: str,
@@ -232,3 +233,17 @@ class ModuleCallTranslator(BaseTranslator):
                 )
 
                 self.module.out_of_block_elements.addElement(struct_call_assign)
+
+    def resolve(self, identifier):
+        local_module_call: ModuleCall = None
+        uniq_name = identifier
+        if self.module_call is not None:
+            local_module_call = self.module_call
+        else:
+            local_module_call = Program().module_calls.findElement(identifier)
+        if local_module_call is not None:
+            if identifier == local_module_call.identifier:
+                identifier = local_module_call.identifier
+                uniq_name = local_module_call.object_name
+
+        return (identifier, uniq_name)

@@ -55,7 +55,7 @@ class CaseItemExprTranslator(BaseTranslator):
         case_action.precondition.addElement(
             Node("(", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
         )
-        self.body2Aplan(
+        self._translator_ptr.body2Aplan(
             case_stmt.expression, destination_node_array=case_action.precondition
         )
         case_action.precondition.addElement(
@@ -67,7 +67,7 @@ class CaseItemExprTranslator(BaseTranslator):
         case_action.precondition.addElement(
             Node("(", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
         )
-        self.body2Aplan(
+        self._translator_ptr.body2Aplan(
             ctx,
             destination_node_array=case_action.precondition,
         )

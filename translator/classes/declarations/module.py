@@ -1,7 +1,6 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.module import Module
 from translator.classes.base_translator import BaseTranslator
-from translator.utils import module_call_resolve
 
 
 class ModuleDeclTranslator(BaseTranslator):
@@ -18,7 +17,9 @@ class ModuleDeclTranslator(BaseTranslator):
         else:
             raise (ValueError("Module type unhandled"))
 
-        (identifier, uniq_name) = module_call_resolve(self.module_call, identifier)
+        (identifier, uniq_name) = self._translator_ptr.getTranslator(
+            "module_call"
+        ).resolve(identifier)
         index = self.modules.addElement(
             Module(identifier, ctx.getSourceInterval(), uniq_name)
         )

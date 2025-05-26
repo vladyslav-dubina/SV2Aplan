@@ -1,7 +1,6 @@
 from os import name
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
-
 from classes.case_stmt import CaseStmt
 from classes.counters import CounterTypes
 from classes.if_stmt import IfStmt
@@ -13,17 +12,29 @@ from classes.protocols import BodyElement
 from classes.structure import Structure, StructureArray
 from classes.module import Module
 from classes.element_types import ElementsTypes
-from program.program import Program
-from typing import Literal, Tuple, List, overload
+from typing import Literal, Tuple, overload
+from translator.classes.arrays.array import ArrayTranslator
+from translator.classes.arrays.methods.push_back import PushBackTranslator
+from translator.classes.arrays.parametr import ParametrArrayTranslator
 from translator.classes.assignments.in_block import InBlockAssignmentTranslator
 from translator.classes.assignments.net import NetAssignmentTranslator
+from translator.classes.calls.build_in.mathematic.ceil import CeilTranslator
+from translator.classes.calls.build_in.mathematic.floor import FloorTranslator
+from translator.classes.calls.build_in.mathematic.modf import ModfTranslator
+from translator.classes.calls.build_in.mathematic.pow import PowTranslator
+from translator.classes.calls.build_in.mathematic.sqrt import SqrtTranslator
+from translator.classes.calls.build_in.size import SizeTranslator
+from translator.classes.calls.build_in.system import SystemTaskCallTranslator
 from translator.classes.calls.interface import InterfaceCallTranslator
 from translator.classes.calls.method import MethodCallTranslator
 from translator.classes.calls.module import ModuleCallTranslator
 from translator.classes.calls.params import ParametrsCallTranslator
 from translator.classes.calls.task import TaskCallTranslator
 from translator.classes.declarations.ansi_port import AnsiPortDeclTranslator
+from translator.classes.declarations.class_decl import ClassDeclTranslator
+
 from translator.classes.declarations.data import DataDeclTranslator
+from translator.classes.declarations.declaration import DeclarationTranslator
 from translator.classes.declarations.genvar import GenvarDeclTranslator
 from translator.classes.declarations.interface import (
     InterfaceDeclTranslator,
@@ -38,14 +49,21 @@ from translator.classes.declarations.package_import import PackageImportDeclTran
 from translator.classes.declarations.struct import StructDeclTranslator
 from translator.classes.declarations.task import TaskBodyDeclTranslator
 from translator.classes.declarations.typedef import TypedefDeclTranslator
-from translator.classes.dynamic_array import DynamicArrayNewTranslator
+from translator.classes.arrays.dynamic import DynamicArrayNewTranslator
+from translator.classes.expressions.bit_selection import BitSelectionTranslator
 from translator.classes.expressions.expression import ExpressionTranslator
 from translator.classes.assignments.parameters import (
     ParametrsAssignmentTranslator,
 )
+from translator.classes.expressions.identifier import IdentifierTranslator
+from translator.classes.expressions.number import NumberTranslator
 from translator.classes.expressions.operator import OperatorTranslator
 from translator.classes.expressions.range import RangeSelectionTranslator
+from translator.classes.expressions.unpacked_dimention import (
+    UnpackedDimentionTranslator,
+)
 from translator.classes.jump.return_to_assign import ReturnTranslator
+from translator.classes.expressions.protocol import ProtocolTranslator
 from translator.classes.structures.always import AlwaysStructureTranslator
 from translator.classes.structures.assert_stmt import (
     AssertInBlockTranslator,
@@ -77,192 +95,6 @@ from translator.classes.structures.loops.while_stmt import WhileStructTranslator
 from utils.utils import Counters_Object
 
 
-class Module_Translator2:
-    def __init__(self, module: Module, program: Program | None = None):
-        self.module = module
-        self.program: Program = program
-
-    # ---------------------------------------------------------------------------------
-
-    def loopVarsToAplan(
-        self,
-        ctx: SystemVerilogParser.Loop_variablesContext,
-        sv_structure: Structure,
-    ):
-        from translator.declarations.for_declaration import (
-            loopVars2AplanImpl,
-        )
-
-        return loopVars2AplanImpl(self, ctx, sv_structure)
-
-    def loopVarsDeclarationsToAplan(
-        self,
-        vars_names: List[str],
-        source_intervals: List[Tuple[int, int]],
-        sv_structure: Structure,
-    ):
-        from translator.declarations.for_declaration import (
-            loopVarsDeclarations2AplanImpl,
-        )
-
-        return loopVarsDeclarations2AplanImpl(
-            self, vars_names, source_intervals, sv_structure
-        )
-
-    # ---------------------------------------------------------------------------------
-
-    def loopVarsToIteration2Aplan(
-        self,
-        vars_names: List[str],
-        source_intervals: List[Tuple[int, int]],
-        sv_structure: Structure,
-    ):
-        from translator.declarations.for_declaration import (
-            loopVarsToIteration2AplanImpl,
-        )
-
-        return loopVarsToIteration2AplanImpl(
-            self, vars_names, source_intervals, sv_structure
-        )
-
-    # ---------------------------------------------------------------------------------
-
-    def loopVarsAndArrayIdentifierToCondition2Aplan(
-        self,
-        vars_names: List[str],
-        ctx: SystemVerilogParser.Ps_or_hierarchical_array_identifierContext,
-        sv_structure: Structure,
-    ):
-        from translator.declarations.for_declaration import (
-            loopVarsAndArrayIdentifierToCondition2AplanImpl,
-        )
-
-        return loopVarsAndArrayIdentifierToCondition2AplanImpl(
-            self, vars_names, ctx, sv_structure
-        )
-
-    # ---------------------------------------------------------------------------------
-
-    def forInitialization2Apan(
-        self,
-        ctx: SystemVerilogParser.For_initializationContext,
-        sv_structure: Structure,
-    ):
-        from translator.declarations.for_declaration import (
-            forInitialization2ApanImpl,
-        )
-
-        return forInitialization2ApanImpl(self, ctx, sv_structure)
-
-    # ---------------------------------------------------------------------------------
-
-    def systemTFCall2Aplan(
-        self,
-        ctx: SystemVerilogParser.System_tf_callContext,
-        destination_node_array: NodeArray | None = None,
-        sv_structure: Structure | None = None,
-    ):
-        from translator.task_and_function.build_in_functions.system_tf import (
-            systemTF2AplanImpl,
-        )
-
-        systemTF2AplanImpl(self, ctx, destination_node_array, sv_structure)
-
-    # =================================IDENTIFIER===================================
-
-    def identifier2Aplan(
-        self,
-        ctx: SystemVerilogParser.IdentifierContext,
-        destination_node_array: NodeArray,
-    ):
-        from translator.expression.expression_node import identifier2AplanImpl
-
-        identifier2AplanImpl(self, ctx, destination_node_array)
-
-    # =================================NUMBER===================================
-
-    def number2Aplan(
-        self,
-        ctx: SystemVerilogParser.NumberContext,
-        destination_node_array: NodeArray,
-    ):
-        from translator.expression.expression_node import number2AplanImpl
-
-        number2AplanImpl(self, ctx, destination_node_array)
-
-    # =================================BIT SELECTION==============================
-    def bitSelection2Aplan(
-        self,
-        ctx: (
-            SystemVerilogParser.Bit_selectContext
-            | SystemVerilogParser.Constant_bit_selectContext
-        ),
-        destination_node_array: NodeArray,
-    ):
-        from translator.expression.expression_node import bitSelection2AplanImpl
-
-        bitSelection2AplanImpl(self, ctx, destination_node_array)
-
-    def unpackedDimention2Aplan(
-        self,
-        ctx: SystemVerilogParser.Unpacked_dimensionContext,
-        destination_node_array: NodeArray,
-    ):
-        from translator.expression.expression_node import unpackedDimention2AplanImpl
-
-        unpackedDimention2AplanImpl(self, ctx, destination_node_array)
-
-    # =================================RANGE SELECTION============================
-    def rangeSelection2Aplan(
-        self,
-        ctx: SystemVerilogParser.Bit_selectContext,
-        destination_node_array: NodeArray,
-    ):
-        from translator.expression.expression_node import rangeSelection2AplanImpl
-
-        rangeSelection2AplanImpl(self, ctx, destination_node_array)
-
-    # =================================OPERATOR===================================
-
-    # ==================================================================================
-
-    def loop2Aplan(
-        self,
-        ctx: (
-            SystemVerilogParser.Loop_generate_constructContext
-            | SystemVerilogParser.Loop_statementContext
-        ),
-    ):
-        from translator.loops.loop import loop2AplanImpl
-        from translator.loops.repeat import repeat2AplanImpl
-        from translator.classes.structures.loops.forever import forever2AplanImpl
-        from translator.classes.structures.loops.while_stmt import while2AplanImpl
-
-        if ctx.REPEAT():
-            repeat2AplanImpl(self, ctx)
-        elif ctx.FOREVER():
-            forever2AplanImpl(self, ctx)
-        elif ctx.WHILE():
-            while2AplanImpl(self, ctx)
-        else:
-            loop2AplanImpl(self, ctx)
-
-    def taskOrFunctionDeclaration2Aplan(
-        self,
-        ctx: (
-            SystemVerilogParser.Task_declarationContext
-            | SystemVerilogParser.Function_declarationContext
-            | SystemVerilogParser.Class_constructor_declarationContext
-        ),
-    ):
-        from translator.task_and_function.task_function import (
-            taskOrFunctionDeclaration2AplanImpl,
-        )
-
-        taskOrFunctionDeclaration2AplanImpl(self, ctx)
-
-
-from program.program import Program
 
 
 class Translator:
@@ -320,6 +152,7 @@ class Translator:
         "typedef",
         "task_body_decl",
         "task_call",
+        "system_task_call",
         "method_call",
         "class_new",
         "dynamic_array_new",
@@ -327,6 +160,22 @@ class Translator:
         "return",
         "param_call",
         "range_select",
+        "number",
+        "unpkt_dmntn",
+        "bit_select",
+        "identifyer",
+        "protocol",
+        "ceil",
+        "floor",
+        "modf",
+        "size",
+        "pow",
+        "sqrt",
+        "declaration",
+        "parametr_array",
+        "class_decl",
+        "array",
+        "push_back",
     ]
 
     _translators: dict[str, type] = {
@@ -366,6 +215,7 @@ class Translator:
         "typedef": TypedefDeclTranslator,
         "task_body_decl": TaskBodyDeclTranslator,
         "task_call": TaskCallTranslator,
+        "system_task_call": SystemTaskCallTranslator,
         "method_call": MethodCallTranslator,
         "class_new": ClassNewTranslator,
         "dynamic_array_new": DynamicArrayNewTranslator,
@@ -373,11 +223,67 @@ class Translator:
         "return": ReturnTranslator,
         "param_call": ParametrsCallTranslator,
         "range_select": RangeSelectionTranslator,
+        "number": NumberTranslator,
+        "unpkt_dmntn": UnpackedDimentionTranslator,
+        "bit_select": BitSelectionTranslator,
+        "identifyer": IdentifierTranslator,
+        "protocol": ProtocolTranslator,
+        "ceil": CeilTranslator,
+        "floor": FloorTranslator,
+        "modf": ModfTranslator,
+        "size": SizeTranslator,
+        "pow": PowTranslator,
+        "sqrt": SqrtTranslator,
+        "declaration": DeclarationTranslator,
+        "parametr_array": ParametrArrayTranslator,
+        "class_decl": ClassDeclTranslator,
+        "array": ArrayTranslator,
+        "push_back": PushBackTranslator,
     }
 
     def __init__(self):
         pass
 
+    @overload
+    def getTranslator(self, key: Literal["push_back"]) -> PushBackTranslator: ...
+    @overload
+    def getTranslator(
+        self, key: Literal["system_task_call"]
+    ) -> SystemTaskCallTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["sqrt"]) -> SqrtTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["pow"]) -> PowTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["size"]) -> SizeTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["modf"]) -> ModfTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["array"]) -> ArrayTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["class_decl"]) -> ClassDeclTranslator: ...
+    @overload
+    def getTranslator(
+        self, key: Literal["parametr_array"]
+    ) -> ParametrArrayTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["declaration"]) -> DeclarationTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["floor"]) -> FloorTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["ceil"]) -> CeilTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["protocol"]) -> ProtocolTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["identifyer"]) -> IdentifierTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["bit_select"]) -> BitSelectionTranslator: ...
+    @overload
+    def getTranslator(
+        self, key: Literal["unpkt_dmntn"]
+    ) -> UnpackedDimentionTranslator: ...
+    @overload
+    def getTranslator(self, key: Literal["number"]) -> NumberTranslator: ...
     @overload
     def getTranslator(
         self, key: Literal["range_select"]
@@ -560,23 +466,25 @@ class Translator:
             #    self.assertInBlock2Aplan(child, sv_structure)
             # ---------------------------------------------------------------------------
             if type(child) is SystemVerilogParser.System_tf_callContext:
-                self.systemTFCall2Aplan(child, destination_node_array, sv_structure)
+                self.translate(
+                    "system_task_call", child, destination_node_array, sv_structure
+                )
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.IdentifierContext:
-                self.identifier2Aplan(child, destination_node_array)
+                self.translate("identifyer", child, destination_node_array)
             # ---------------------------------------------------------------------------
             elif (
                 type(child) is SystemVerilogParser.Bit_selectContext
                 or type(child) is SystemVerilogParser.Constant_bit_selectContext
             ):
-                self.bitSelection2Aplan(child, destination_node_array)
+                self.translate("bit_select", child, destination_node_array)
             elif type(child) is SystemVerilogParser.Unpacked_dimensionContext:
-                self.unpackedDimention2Aplan(child, destination_node_array)
+                self.translate("unpkt_dmntn", child, destination_node_array)
             elif type(child) is SystemVerilogParser.Part_select_rangeContext:
                 self.translate("range_select", child, destination_node_array)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.NumberContext:
-                self.number2Aplan(child, destination_node_array)
+                self.translate("number", child, destination_node_array)
             # ---------------------------------------------------------------------------
             elif type(child) is SystemVerilogParser.Jump_statementContext:
                 if child.RETURN and child.expression():

@@ -1,9 +1,7 @@
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
-from classes.module import Module
 from translator.classes.base_translator import BaseTranslator
-from translator.utils import module_call_resolve
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
     dataTypeToStr,

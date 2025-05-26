@@ -110,10 +110,8 @@ class DataDeclTranslator(BaseTranslator):
                                     elem.getSourceInterval(),
                                 )
 
-                                size_expression = self._translator_ptr.getTranslator(
-                                    "struct_decl"
-                                ).createArrayStruct(
-                                    self,
+                                size_expression = self._translator_ptr.translate(
+                                    "array",
                                     original_identifier,
                                     DeclTypes.INT,
                                     elem.getSourceInterval(),
@@ -162,7 +160,8 @@ class DataDeclTranslator(BaseTranslator):
                                     assign_name,
                                     source_interval,
                                     uniq_action,
-                                ) = self.expression2Aplan(
+                                ) = self._translator_ptr.translate(
+                                    "expr",
                                     elem,
                                     ElementsTypes.ASSIGN_ELEMENT,
                                     sv_structure=stmt,
@@ -182,7 +181,8 @@ class DataDeclTranslator(BaseTranslator):
                                         assign_name,
                                         source_interval,
                                         uniq_action,
-                                    ) = self.expression2Aplan(
+                                    ) = self._translator_ptr.translate(
+                                        "expr",
                                         elem,
                                         ElementsTypes.ASSIGN_ELEMENT,
                                         sv_structure=stmt,

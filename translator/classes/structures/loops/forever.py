@@ -38,7 +38,7 @@ class ForeverStructTranslator(BaseTranslator):
         if not isinstance(forever_stmt, ForeverStmt):
             return
 
-        self.body2Aplan(ctx.statement_or_null(), forever_stmt)
+        self._translator_ptr.body2Aplan(ctx.statement_or_null(), forever_stmt)
 
 
 class ForeverIterationTranslator(BaseTranslator):

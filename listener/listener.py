@@ -37,6 +37,9 @@ class SVToAplanListener(SystemVerilogParserListener):
     ):
         self.translator.translate("package_decl", ctx)
 
+    def enterClass_declaration(self, ctx: SystemVerilogParser.Class_declarationContext):
+        self.translator.translate("class_decl", ctx)
+
     def exitGenvar_declaration(
         self, ctx: SystemVerilogParser.Genvar_declarationContext
     ):
@@ -75,7 +78,7 @@ class SVToAplanListener(SystemVerilogParserListener):
     # CALLS
     # =========================================================================================
     def enterSystem_tf_call(self, ctx: SystemVerilogParser.System_tf_callContext):
-        self.translator.systemTFCall2Aplan(ctx)
+        self.translator.translate("system_task_call", ctx)
 
     def exitModule_instantiation(
         self, ctx: SystemVerilogParser.Module_instantiationContext

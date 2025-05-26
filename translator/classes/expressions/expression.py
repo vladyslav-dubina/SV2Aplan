@@ -308,7 +308,7 @@ class ExpressionTranslator(BaseTranslator):
             )
             self.taskAssignIfPosible(self, ctx, action.postcondition)
             postcondition: NodeArray = NodeArray(ElementsTypes.POSTCONDITION_ELEMENT)
-            self.body2Aplan(
+            self._translator_ptr.body2Aplan(
                 ctx,
                 sv_structure=stmt,
                 destination_node_array=postcondition,
@@ -324,7 +324,7 @@ class ExpressionTranslator(BaseTranslator):
                     Node("1", (0, 0), ElementsTypes.NUMBER_ELEMENT)
                 )
             precondition: NodeArray = NodeArray(ElementsTypes.PRECONDITION_ELEMENT)
-            self.body2Aplan(
+            self._translator_ptr.body2Aplan(
                 ctx,
                 sv_structure=stmt,
                 destination_node_array=precondition,
