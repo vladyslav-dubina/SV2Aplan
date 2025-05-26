@@ -1,3 +1,4 @@
+import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.element_types import ElementsTypes
 from classes.node import Node, NodeArray, RangeTypes
@@ -5,9 +6,11 @@ from translator.classes.base_translator import BaseTranslator
 
 
 class RangeSelectionTranslator(BaseTranslator):
-    from translator.translator import Translator
+    if typing.TYPE_CHECKING:
 
-    def __init__(self, translator: Translator):
+       from translator.translator import Translator
+
+    def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
     def translate(

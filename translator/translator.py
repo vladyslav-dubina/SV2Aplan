@@ -95,6 +95,68 @@ from translator.classes.structures.loops.while_stmt import WhileStructTranslator
 from utils.utils import Counters_Object
 
 
+TRANSLATOR_NAMES = Literal[
+    "interface_decl",
+    "interface_call",
+    "module_decl",
+    "module_call",
+    "package_decl",
+    "genvar_decl",
+    "struct_decl",
+    "data_decl",
+    "net_decl",
+    "obj_decl",
+    "ansi_port_decl",
+    "package_import_decl",
+    "expr",
+    "net_assign",
+    "in_block_assign",
+    "params_assign",
+    "generate_struct",
+    "alaways_struct",
+    "if_seq_block",
+    "if_stmt",
+    "if_cond_predicate",
+    "case_stmt",
+    "case_item",
+    "case_item_expr",
+    "assert_property",
+    "assert_block",
+    "initial",
+    "repeat",
+    "forever",
+    "forever_iteration",
+    "loop",
+    "loop_iteration",
+    "while",
+    "typedef",
+    "task_body_decl",
+    "task_call",
+    "system_task_call",
+    "method_call",
+    "class_new",
+    "dynamic_array_new",
+    "operator",
+    "return",
+    "param_call",
+    "range_select",
+    "number",
+    "unpkt_dmntn",
+    "bit_select",
+    "identifyer",
+    "protocol",
+    "ceil",
+    "floor",
+    "modf",
+    "size",
+    "pow",
+    "sqrt",
+    "declaration",
+    "parametr_array",
+    "class_decl",
+    "array",
+    "push_back",
+]
 
 
 class Translator:
@@ -114,69 +176,6 @@ class Translator:
     @current_genvar_value.setter
     def current_genvar_value(self, value: Tuple[str, int] | None):
         self._current_genvar_value = value
-
-    TranslatorName = Literal[
-        "interface_decl",
-        "interface_call",
-        "module_decl",
-        "module_call",
-        "package_decl",
-        "genvar_decl",
-        "struct_decl",
-        "data_decl",
-        "net_decl",
-        "obj_decl",
-        "ansi_port_decl",
-        "package_import_decl",
-        "expr",
-        "net_assign",
-        "in_block_assign",
-        "params_assign",
-        "generate_struct",
-        "alaways_struct",
-        "if_seq_block",
-        "if_stmt",
-        "if_cond_predicate",
-        "case_stmt",
-        "case_item",
-        "case_item_expr",
-        "assert_property",
-        "assert_block",
-        "initial",
-        "repeat",
-        "forever",
-        "forever_iteration",
-        "loop",
-        "loop_iteration",
-        "while",
-        "typedef",
-        "task_body_decl",
-        "task_call",
-        "system_task_call",
-        "method_call",
-        "class_new",
-        "dynamic_array_new",
-        "operator",
-        "return",
-        "param_call",
-        "range_select",
-        "number",
-        "unpkt_dmntn",
-        "bit_select",
-        "identifyer",
-        "protocol",
-        "ceil",
-        "floor",
-        "modf",
-        "size",
-        "pow",
-        "sqrt",
-        "declaration",
-        "parametr_array",
-        "class_decl",
-        "array",
-        "push_back",
-    ]
 
     _translators: dict[str, type] = {
         "interface_decl": InterfaceDeclTranslator,
@@ -407,18 +406,18 @@ class Translator:
     @overload
     def getTranslator(self, key: Literal["initial"]) -> InitialStructTranslator: ...
 
-    def getTranslator(self, key: TranslatorName):
-        cls = self._selectTranlator(name)
+    def getTranslator(self, key: TRANSLATOR_NAMES):
+        cls = self._selectTranlator(key)
         if key not in self._cache:
             self._cache[key] = cls(self)
         return self._cache[key]
 
-    def _selectTranlator(self, name: TranslatorName):
+    def _selectTranlator(self, name: TRANSLATOR_NAMES):
         if name not in self._translators:
             raise ValueError(f"Unknown translator name: {name}")
         return self._translators[name]
 
-    def translate(self, trnslt_name: TranslatorName, *args, **kwargs):
+    def translate(self, trnslt_name: TRANSLATOR_NAMES, *args, **kwargs):
         translator = self.getTranslator(trnslt_name)
         return translator.translate(*args, **kwargs)
 

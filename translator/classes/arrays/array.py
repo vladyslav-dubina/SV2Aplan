@@ -1,4 +1,5 @@
 from typing import Tuple
+import typing
 from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.typedef import Typedef
@@ -7,10 +8,13 @@ from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import Counters_Object
 
 
-class ArrayTranslator(BaseTranslator):
+if typing.TYPE_CHECKING:
     from translator.translator import Translator
 
-    def __init__(self, translator: Translator):
+
+class ArrayTranslator(BaseTranslator):
+
+    def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
     def translate(
@@ -63,4 +67,3 @@ class ArrayTranslator(BaseTranslator):
             decl_unique, decl_index = self._program.typedefs.addElement(typedef)
 
         return unique_identifier
-

@@ -1,3 +1,4 @@
+import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.actions import Action
 from classes.counters import CounterTypes
@@ -15,9 +16,11 @@ from utils.utils import Counters_Object
 
 
 class PackageImportDeclTranslator(BaseTranslator):
-    from translator.translator import Translator
+    if typing.TYPE_CHECKING:
 
-    def __init__(self, translator: Translator):
+       from translator.translator import Translator
+
+    def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
     def translate(self, ctx: SystemVerilogParser.Package_import_declarationContext) -> None:
@@ -32,6 +35,7 @@ class PackageImportDeclTranslator(BaseTranslator):
                         self._program.file_path, f"{package_identifier}.sv"
                     )
                     file_data = self._program.readFileData(file_path)
+                    
                     translation_mngr = TranslationManager()
                     translation_mngr.setUp(file_data)
                     translation_mngr.startTranslate()

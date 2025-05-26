@@ -1,4 +1,5 @@
 from typing import Tuple
+import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.actions import Action
 from classes.declarations import Declaration
@@ -11,9 +12,11 @@ from utils.utils import Counters_Object
 
 
 class PushBackTranslator(BaseTranslator):
-    from translator.translator import Translator
+    if typing.TYPE_CHECKING:
 
-    def __init__(self, translator: Translator):
+        from translator.translator import Translator
+
+    def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
     def translate(

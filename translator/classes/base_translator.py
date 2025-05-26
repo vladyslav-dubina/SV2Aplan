@@ -47,6 +47,10 @@ class BaseTranslator:
     def module(self) -> Module:
         return self._translator_ptr._module
 
+    @module.setter
+    def module(self, value: Module):
+        self._translator_ptr._module = value
+
     @property
     def structure_pointer_list(self) -> StructureArray:
         return self._translator_ptr._structure_pointer_list

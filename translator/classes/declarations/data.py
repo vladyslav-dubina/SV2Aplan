@@ -1,11 +1,10 @@
+import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from classes.protocols import BodyElement
 from classes.structure import Structure
 from translator.classes.base_translator import BaseTranslator
-from translator.classes.expressions.expression import ExpressionTranslator
-from translator.declarations.struct_declaration import createArrayStruct
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
     dataTypeToStr,
@@ -16,9 +15,11 @@ from utils.utils import (
 
 
 class DataDeclTranslator(BaseTranslator):
-    from translator.translator import Translator
+    if typing.TYPE_CHECKING:
 
-    def __init__(self, translator: Translator):
+       from translator.translator import Translator
+
+    def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
     def translate(self, ctx: SystemVerilogParser.Data_declarationContext) -> None:

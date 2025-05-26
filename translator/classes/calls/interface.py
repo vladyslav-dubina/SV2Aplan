@@ -1,3 +1,4 @@
+import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.module_call import ModuleCall
 from classes.parametrs import Parametr
@@ -7,9 +8,11 @@ from utils.string_formating import replace_filename
 
 
 class InterfaceCallTranslator(BaseTranslator):
-    from translator.translator import Translator
+    if typing.TYPE_CHECKING:
 
-    def __init__(self, translator: Translator):
+        from translator.translator import Translator
+
+    def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
     def translate(self, ctx: SystemVerilogParser.Ansi_port_declarationContext) -> None:

@@ -1,3 +1,4 @@
+import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
 from classes.element_types import ElementsTypes
@@ -8,11 +9,13 @@ from utils.string_formating import parallelAssignment2Assignment
 
 
 class OperatorTranslator(BaseTranslator):
-    from translator.translator import Translator
+    if typing.TYPE_CHECKING:
+
+       from translator.translator import Translator
 
     _unused_operators = "inputoutputbeginend[];intwirereg"
 
-    def __init__(self, translator: Translator):
+    def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
     def translate(

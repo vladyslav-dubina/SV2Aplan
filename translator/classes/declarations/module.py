@@ -1,15 +1,18 @@
+import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.module import Module
 from translator.classes.base_translator import BaseTranslator
 
 
 class ModuleDeclTranslator(BaseTranslator):
-    from translator.translator import Translator
+    if typing.TYPE_CHECKING:
 
-    def __init__(self, translator: Translator):
+        from translator.translator import Translator
+
+    def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
-    def translate(self, ctx: SystemVerilogParser.Module_declarationContext) -> Module:
+    def translate(self, ctx: SystemVerilogParser.Module_declarationContext) -> None:
         if ctx.module_ansi_header() is not None:
             identifier = ctx.module_ansi_header().module_identifier().getText()
         elif ctx.module_nonansi_header() is not None:
@@ -23,6 +26,4 @@ class ModuleDeclTranslator(BaseTranslator):
         index = self.modules.addElement(
             Module(identifier, ctx.getSourceInterval(), uniq_name)
         )
-        module = self.modules.getElementByIndex(index)
-
-        return module
+        self.module = self.modules.getElementByIndex(index)

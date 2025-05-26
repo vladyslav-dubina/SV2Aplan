@@ -1,3 +1,4 @@
+import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.element_types import ElementsTypes
 from classes.module import Module
@@ -5,14 +6,16 @@ from translator.classes.base_translator import BaseTranslator
 
 
 class InterfaceDeclTranslator(BaseTranslator):
-    from translator.translator import Translator
+    if typing.TYPE_CHECKING:
 
-    def __init__(self, translator: Translator):
+       from translator.translator import Translator
+
+    def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
     def translate(
         self, ctx: SystemVerilogParser.Interface_declarationContext
-    ) -> Module:
+    ) -> None:
         identifier = ctx.interface_ansi_header().interface_identifier().getText()
         (identifier, uniq_name) = self._translator_ptr.getTranslator(
             "module_call"
@@ -25,6 +28,4 @@ class InterfaceDeclTranslator(BaseTranslator):
                 ElementsTypes.INTERFACE_ELEMENT,
             )
         )
-        module = self.modules.getElementByIndex(index)
-
-        return module
+        self.module = self.modules.getElementByIndex(index)

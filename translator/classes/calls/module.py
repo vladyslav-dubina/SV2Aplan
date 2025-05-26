@@ -1,4 +1,5 @@
 from typing import List, Tuple
+import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.action_precondition import ActionPreconditionArray
 from classes.counters import CounterTypes
@@ -10,15 +11,17 @@ from classes.parametrs import Parametr, ParametrArray
 from classes.protocols import BodyElement, Protocol
 from program.program import Program
 from translator.classes.base_translator import BaseTranslator
-from translator.translation_mngr import TranslationManager
 from utils.string_formating import replace_filename
 from utils.utils import Color, Counters_Object, printWithColor
+from translator.translation_mngr import TranslationManager
 
 
 class ModuleCallTranslator(BaseTranslator):
-    from translator.translator import Translator
+    if typing.TYPE_CHECKING:
 
-    def __init__(self, translator: Translator):
+        from translator.translator import Translator
+
+    def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
     def translate(self, ctx: SystemVerilogParser.Module_instantiationContext) -> None:

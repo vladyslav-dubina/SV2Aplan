@@ -1,4 +1,5 @@
 from typing import List, Tuple
+import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.action_precondition import ActionPreconditionArray
 from classes.actions import Action
@@ -9,18 +10,27 @@ from classes.parametrs import ParametrArray
 from classes.protocols import BodyElement, Protocol
 from classes.structure import Structure
 from translator.classes.base_translator import BaseTranslator
-from translator.expression.expression import taskAssignIfPosible
-from utils.string_formating import addSpacesAroundOperators, notConcreteIndex2AplanStandart, replaceValueParametrsCalls, valuesToAplanStandart, vectorSizes2AplanStandart
+from utils.string_formating import (
+    addSpacesAroundOperators,
+    notConcreteIndex2AplanStandart,
+    replaceValueParametrsCalls,
+    valuesToAplanStandart,
+    vectorSizes2AplanStandart,
+)
 from utils.utils import Counters_Object, containsOperator, isNumericString
 
 
 class ExpressionTranslator(BaseTranslator):
-    from translator.translator import Translator
+    if typing.TYPE_CHECKING:
 
-    def __init__(self, translator: Translator):
+        from translator.translator import Translator
+
+    def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
-    def getNamePartAndCounter(element_type: ElementsTypes) -> Tuple[str, CounterTypes]:
+    def getNamePartAndCounter(
+        self, element_type: ElementsTypes
+    ) -> Tuple[str, CounterTypes]:
         name_part = ""
         counter_type = CounterTypes.NONE_COUNTER
 
@@ -58,6 +68,7 @@ class ExpressionTranslator(BaseTranslator):
                 )
 
     def findAssociatedAction(
+        self,
         protocol: Protocol | None,
         element_type: ElementsTypes,
         name_part: str,
@@ -81,7 +92,7 @@ class ExpressionTranslator(BaseTranslator):
 
         return (last_element, previus_action, action_name)
 
-    def copyToAssociatedAction(last_element: Action, action: Action) -> Action:
+    def copyToAssociatedAction(self, last_element: Action, action: Action) -> Action:
         if last_element:
             previous_action: Action = last_element.pointer_to_related
             previous_action.description_end += action.description_end
@@ -102,11 +113,8 @@ class ExpressionTranslator(BaseTranslator):
             action = previous_action
 
         return action
-    
-    def prepareExpressionString(
-        self,
-        expression: str
-    ):
+
+    def prepareExpressionString(self, expression: str):
         expression = valuesToAplanStandart(expression)
         expression = addSpacesAroundOperators(expression)
         expression_with_replaced_names = vectorSizes2AplanStandart(expression)
@@ -127,11 +135,14 @@ class ExpressionTranslator(BaseTranslator):
         source_interval: Tuple[int, int],
         element_type: ElementsTypes,
         input_parametrs: (
-            Tuple[str | None, ParametrArray | None, ActionPreconditionArray | None] | None
+            Tuple[str | None, ParametrArray | None, ActionPreconditionArray | None]
+            | None
         ) = None,
     ):
         (name_part, counter_type) = self.getNamePartAndCounter(element_type)
-        action_name = "{0}_{1}".format(name_part, Counters_Object.getCounter(counter_type))
+        action_name = "{0}_{1}".format(
+            name_part, Counters_Object.getCounter(counter_type)
+        )
 
         stmt: Structure | None = self.structure_pointer_list.getLastElement()
 
@@ -158,7 +169,9 @@ class ExpressionTranslator(BaseTranslator):
             or element_type == ElementsTypes.REPEAT_ELEMENT
             or element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
         ):
-            action.precondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
+            action.precondition.addElement(
+                Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)
+            )
             for element in node_str:
                 node_element_type = ElementsTypes.IDENTIFIER_ELEMENT
                 if isNumericString(element):
@@ -208,7 +221,9 @@ class ExpressionTranslator(BaseTranslator):
                     body_start = f"{obj_def}"
 
                 else:
-                    body_start = f"{self.module.identifier}#{self.module.ident_uniq_name}"
+                    body_start = (
+                        f"{self.module.identifier}#{self.module.ident_uniq_name}"
+                    )
 
                 action.description_start.append(body_start)
                 action.description_action_name = name_part
@@ -253,7 +268,9 @@ class ExpressionTranslator(BaseTranslator):
                 if decl:
                     node.module_name = self.module.ident_uniq_name
 
-            action.postcondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
+            action.postcondition.addElement(
+                Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)
+            )
 
         (
             action_pointer,
@@ -306,7 +323,7 @@ class ExpressionTranslator(BaseTranslator):
             action.precondition.addElement(
                 Node("1", (0, 0), ElementsTypes.NUMBER_ELEMENT)
             )
-            self.taskAssignIfPosible(self, ctx, action.postcondition)
+            self.taskAssignIfPosible(ctx, action.postcondition)
             postcondition: NodeArray = NodeArray(ElementsTypes.POSTCONDITION_ELEMENT)
             self._translator_ptr.body2Aplan(
                 ctx,
@@ -438,7 +455,9 @@ class ExpressionTranslator(BaseTranslator):
         return (action_pointer, action_name, source_interval, uniq)
 
     def createSizeExpression(self, identifier, size, source_interval: Tuple[int, int]):
-        (name_part, counter_type) = self.getNamePartAndCounter(ElementsTypes.ASSIGN_ELEMENT)
+        (name_part, counter_type) = self.getNamePartAndCounter(
+            ElementsTypes.ASSIGN_ELEMENT
+        )
         action_name = "{0}_{1}".format(
             name_part, Counters_Object.getCounter(counter_type)
         )

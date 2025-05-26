@@ -1,12 +1,15 @@
 from typing import List
+import typing
 from classes.parametrs import Parametr, ParametrArray
 from translator.classes.base_translator import BaseTranslator
 
 
 class ParametrArrayTranslator(BaseTranslator):
-    from translator.translator import Translator
+    if typing.TYPE_CHECKING:
 
-    def __init__(self, translator: Translator):
+       from translator.translator import Translator
+
+    def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
     def translate(

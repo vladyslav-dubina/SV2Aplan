@@ -2,7 +2,6 @@ from antlr4_verilog.systemverilog import (
     SystemVerilogParserListener,
     SystemVerilogParser,
 )
-
 from classes.counters import CounterTypes
 from classes.module import Module
 from classes.module_call import ModuleCall

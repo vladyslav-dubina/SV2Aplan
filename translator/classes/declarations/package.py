@@ -1,3 +1,4 @@
+import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.element_types import ElementsTypes
 from classes.module import Module
@@ -5,15 +6,14 @@ from translator.classes.base_translator import BaseTranslator
 
 
 class PackageDeclTranslator(BaseTranslator):
-    from translator.translator import Translator
+    if typing.TYPE_CHECKING:
 
-    def __init__(self, translator: Translator):
+        from translator.translator import Translator
+
+    def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
-    def translate(
-        self, ctx: SystemVerilogParser.Package_declarationContext
-    ) -> Module | None:
-        module = None
+    def translate(self, ctx: SystemVerilogParser.Package_declarationContext) -> None:
 
         for element in ctx.package_identifier():
             identifier = element.getText()
@@ -28,5 +28,4 @@ class PackageDeclTranslator(BaseTranslator):
                     ElementsTypes.PACKAGE_ELEMENT,
                 )
             )
-            module = self.modules.getElementByIndex(index)
-        return module
+            self.module = self.modules.getElementByIndex(index)
