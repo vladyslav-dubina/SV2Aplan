@@ -75,7 +75,7 @@ class SqrtTranslator(BaseTranslator):
             "declaration",
             "sqrt_obj",
             DeclTypes.STRUCT,
-            CounterTypes.UNIQ_NAMES_COUNTER,
+            CounterTypes.STRUCT_COUNTER,
             ctx.getSourceInterval(),
             "sqrt_struct",
         )

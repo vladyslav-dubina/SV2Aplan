@@ -16,7 +16,7 @@ from utils.utils import Color, Counters_Object, printWithColor
 class CaseItemExprTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -48,9 +48,7 @@ class CaseItemExprTranslator(BaseTranslator):
             Counters_Object.getCounter(CounterTypes.CASE_COUNTER)
         )
         case_action = Action(
-            "case_{0}".format(
-                Counters_Object.getCounter(CounterTypes.CASE_COUNTER),
-            ),
+            action_name,
             ctx.getSourceInterval(),
             element_type=ElementsTypes.CASE_ELEMENT,
         )
@@ -164,7 +162,7 @@ class CaseItemExprTranslator(BaseTranslator):
         )
 
         Counters_Object.incrieseCounter(CounterTypes.BODY_COUNTER)
-        Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+        Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
 
         case_stmt.case_count -= 1
         return
@@ -173,7 +171,7 @@ class CaseItemExprTranslator(BaseTranslator):
 class CaseItemTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -198,7 +196,7 @@ class CaseItemTranslator(BaseTranslator):
 class CaseStmtTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)

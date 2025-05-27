@@ -12,7 +12,7 @@ from utils.utils import Counters_Object
 class AssertPropertyTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -33,10 +33,11 @@ class AssertPropertyTranslator(BaseTranslator):
                 ElementsTypes.ASSERT_ELEMENT,
             )
             if assert_name is not None:
-                Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+
                 assert_b = "ASSERT_B_{}".format(
-                    Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                    Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER)
                 )
+                Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
                 struct_assert = Protocol(
                     assert_b,
                     ctx.getSourceInterval(),
@@ -54,7 +55,7 @@ class AssertPropertyTranslator(BaseTranslator):
 class AssertInBlockTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -62,30 +63,30 @@ class AssertInBlockTranslator(BaseTranslator):
     def translate(
         self, ctx: SystemVerilogParser.Simple_immediate_assert_statementContext
     ) -> None:
-        sv_structure: Structure | None = self.structure_pointer_list.getLastElement()
+        last_struct: Structure | None = self.structure_pointer_list.getLastElement()
         action_pointer, assert_name, source_interval, uniq_action = (
             self._translator_ptr.translate(
-                "expr",
-                ctx.expression(),
-                ElementsTypes.ASSERT_ELEMENT,
-                sv_structure=sv_structure,
+                "expr", ctx.expression(), ElementsTypes.ASSERT_ELEMENT
             )
         )
         if assert_name is not None:
-            Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+
             protocol_params = ""
             if self.inside_the_task == True:
                 task = self.module.tasks.getLastTask()
                 if task is not None:
                     protocol_params = "({0})".format(task.parametrs)
-            assert_b = "ASSERT_B_{0}{1}".format(
-                Counters_Object.getCounter(CounterTypes.B_COUNTER), protocol_params
+            assert_b = "ASSERT_B_{0}_{1}{2}".format(
+                last_struct.number,
+                Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
+                protocol_params,
             )
-            beh_index = sv_structure.addProtocol(
+            Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
+            beh_index = last_struct.addProtocol(
                 assert_b,
                 inside_the_task=(self.inside_the_task or self.inside_the_function),
             )
-            sv_structure.behavior[beh_index].addBody(
+            last_struct.behavior[beh_index].addBody(
                 BodyElement(
                     "{0}.Delta + !{0}.0".format(assert_name),
                     action_pointer,
@@ -93,7 +94,7 @@ class AssertInBlockTranslator(BaseTranslator):
                 )
             )
             if beh_index != 0:
-                sv_structure.behavior[beh_index - 1].addBody(
+                last_struct.behavior[beh_index - 1].addBody(
                     BodyElement(
                         assert_b, action_pointer, ElementsTypes.PROTOCOL_ELEMENT
                     )

@@ -17,59 +17,57 @@ from utils.utils import Color, Counters_Object, printWithColor
 class IfSequenceBlockTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
     def translate(self, ctx: SystemVerilogParser.Seq_blockContext) -> None:
-        sv_structure: Structure | None = self.structure_pointer_list.getLastElement()
-        if isinstance(sv_structure, IfStmt):
-            if (
-                sv_structure.cond_predicate_count == 1
-                and sv_structure.init_predicate_count > 1
-            ):
+        if_stmt: Structure | None = self.structure_pointer_list.getLastElement()
+
+        if isinstance(if_stmt, IfStmt):
+            if if_stmt.if_count > 1 and if_stmt.step == if_stmt.if_count:
                 protocol_params = self.getProtocolParams()
-                sv_structure.addProtocol(
-                    "ELSE_BODY_{0}".format(
-                        Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER)
-                    ),
+
+                if_stmt.addProtocol(
+                    "ELSE_BODY_{0}_{1}".format(if_stmt.number, if_stmt.step),
                     element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
                     parametrs=protocol_params,
                     inside_the_task=(self.inside_the_task or self.inside_the_function),
                 )
-                Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
-                sv_structure.cond_predicate_count -= 1
+
                 return
 
 
 class IfStmtTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
     def translate(self, ctx: SystemVerilogParser.Conditional_statementContext) -> None:
-        self.createStatement("IF_STATEMENT", ElementsTypes.IF_STATEMENT_ELEMENT)
+        self.createStatement(
+            "IF_STATEMENT",
+            ElementsTypes.IF_STATEMENT_ELEMENT,
+        )
         if_stmt: Structure | None = self.structure_pointer_list.getLastElement()
         if not isinstance(if_stmt, IfStmt):
             return
 
-        statements = ctx.statement_or_null()
-        if_stmt.setCondPredicateCount(len(statements))
+        if_stmt.setCondCount(len(ctx.IF()), len(ctx.ELSE()))
 
 
 class IfCondPredicateTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
-    def translate(self, ctx: SystemVerilogParser.Conditional_statementContext) -> None:
+    def translate(self, ctx: SystemVerilogParser.Cond_predicateContext) -> None:
         if_stmt: Structure | None = self.structure_pointer_list.getLastElement()
         if not isinstance(if_stmt, IfStmt):
             printWithColor(
@@ -86,14 +84,18 @@ class IfCondPredicateTranslator(BaseTranslator):
             )
             return
 
-        Counters_Object.incrieseCounter(CounterTypes.IF_COUNTER)
-        action_name = "if_{0}".format(Counters_Object.getCounter(CounterTypes.IF_COUNTER))
+        action_name = "if_{0}_{1}".format(
+            if_stmt.number,
+            if_stmt.step,
+        )
         if_action = Action(
             action_name,
             ctx.getSourceInterval(),
             element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
         )
-        self._translator_ptr.body2Aplan(ctx, destination_node_array=if_action.precondition)
+        self._translator_ptr.body2Aplan(
+            ctx, destination_node_array=if_action.precondition
+        )
 
         if_action.description_start.append(
             f"{self.module.identifier}#{self.module.ident_uniq_name}"
@@ -101,7 +103,9 @@ class IfCondPredicateTranslator(BaseTranslator):
         if_action.description_action_name = "if"
         if_action.description_end.append(f"{valuesToAplanStandart(ctx.getText())}")
 
-        if_action.postcondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
+        if_action.postcondition.addElement(
+            Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)
+        )
 
         (
             action_pointer,
@@ -116,21 +120,19 @@ class IfCondPredicateTranslator(BaseTranslator):
 
         protocol_params = self.getProtocolParams()
 
-        body = "{0}.IF_BODY_{1}".format(
+        body = "{0}.IF_BODY_{1}_{2}".format(
             action_name,
-            Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
+            if_stmt.number,
+            if_stmt.step,
         )
 
-        if if_stmt.cond_predicate_count != if_stmt.init_predicate_count:
+        if if_stmt.step != 1 and if_stmt.step != if_stmt.if_count:
             beh_index = if_stmt.addProtocol(
-                "ELSE_BODY_{0}".format(
-                    Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER)
-                ),
+                "ELSE_BODY_{0}_{1}".format(if_stmt.number, if_stmt.step),
                 element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
                 parametrs=protocol_params,
                 inside_the_task=(self.inside_the_task or self.inside_the_function),
             )
-            Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
 
         if_stmt.behavior[beh_index].addBody(
             BodyElement(
@@ -142,13 +144,14 @@ class IfCondPredicateTranslator(BaseTranslator):
         )
 
         continuation_flag = False
-        if if_stmt.cond_predicate_count - 2 >= 0:
+        if if_stmt.step != if_stmt.if_count:
             continuation_flag = True
 
         if continuation_flag == True:
-            body = "!{0}.ELSE_BODY_{1}".format(
+            body = "!{0}.ELSE_BODY_{1}_{2}".format(
                 action_name,
-                Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER),
+                if_stmt.number,
+                if_stmt.step + 1,
             )
             if_stmt.behavior[beh_index].addBody(
                 BodyElement(
@@ -169,12 +172,10 @@ class IfCondPredicateTranslator(BaseTranslator):
             )
 
         if_stmt.addProtocol(
-            "IF_BODY_{0}".format(Counters_Object.getCounter(CounterTypes.BODY_COUNTER)),
+            "IF_BODY_{0}_{1}".format(if_stmt.number, if_stmt.step),
             element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
             parametrs=protocol_params,
             inside_the_task=(self.inside_the_task or self.inside_the_function),
         )
-        Counters_Object.incrieseCounter(CounterTypes.BODY_COUNTER)
-        Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
 
-        if_stmt.cond_predicate_count -= 1
+        if_stmt.step += 1

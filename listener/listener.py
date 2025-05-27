@@ -34,7 +34,7 @@ class SVToAplanListener(SystemVerilogParserListener):
     ):
         self.translator.translate("module_decl", ctx)
         # body_run(ctx)
-        Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)  # ???
+        Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)  # ???
 
     def enterPackage_declaration(
         self, ctx: SystemVerilogParser.Package_declarationContext

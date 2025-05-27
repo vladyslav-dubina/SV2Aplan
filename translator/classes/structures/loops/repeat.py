@@ -28,7 +28,7 @@ class RepeatStructTranslator(BaseTranslator):
         if not isinstance(stmt, Structure):
             return
         identifier = "repeat_var_{0}".format(
-            Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+            Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER)
         )
         expression = ctx.expression().getText()
         expression_source_interval = ctx.expression().getSourceInterval()
@@ -84,7 +84,7 @@ class RepeatStructTranslator(BaseTranslator):
             return
 
         repeat_iteration = "REPEAT_ITERATION_{}".format(
-            Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+            Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER)
         )
 
         condition_expr = "{0} < {1}".format(decl.identifier, expression)
@@ -111,7 +111,7 @@ class RepeatStructTranslator(BaseTranslator):
         )
 
         repeat_iteration = "REPEAT_ITERATION_{}".format(
-            Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+            Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER)
         )
 
         increase_expr = "{0} = {0} + 1".format(identifier)

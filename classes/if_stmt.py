@@ -16,12 +16,14 @@ class IfStmt(Structure):
             element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
             name_space_level=name_space_level,
         )
-        self.init_predicate_count = 0
-        self.cond_predicate_count = 0
+        self.else_count = 0
+        self.if_count = 0
+        self.step = 1
 
-    def setCondPredicateCount(self, count: int):
-        self.init_predicate_count = count
-        self.cond_predicate_count = count
+    def setCondCount(self, if_count: int, else_count:int):
+        self.else_count = else_count
+        self.if_count = if_count
+        self.step = 1
 
     def __repr__(self):
         return f"\IfStmt({self.identifier!r}, {self.sequence!r})\n"

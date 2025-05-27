@@ -22,7 +22,7 @@ class WhileStructTranslator(BaseTranslator):
     ) -> None:
 
         self.createStatement(
-            "WHILE_LOOP", ElementsTypes.WHILE_ELEMENT, None, CounterTypes.LOOP_COUNTER
+            "WHILE_LOOP", ElementsTypes.WHILE_ELEMENT
         )
         while_stmt: Structure | None = self.structure_pointer_list.getLastElement()
         if not isinstance(while_stmt, WhileStmt):

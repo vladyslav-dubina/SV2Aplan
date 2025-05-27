@@ -442,7 +442,7 @@ class Translator:
             self._structure_pointer_list.removeElementByIndex(
                 self._structure_pointer_list.getLen() - 1
             )
-            # Counters_Object.decrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+            # Counters_Object.decrieseCounter(CounterTypes.STRUCT_COUNTER)
 
     def body2Aplan(
         self,
@@ -524,8 +524,8 @@ class Translator:
         name,
         element_type: ElementsTypes,
         sensetive: str | None = None,
-        counter_type: CounterTypes = CounterTypes.UNIQ_NAMES_COUNTER,
     ):
+        counter_type: CounterTypes = CounterTypes.STRUCT_COUNTER
         sv_structure: Structure | None = self._structure_pointer_list.getLastElement()
 
         if sv_structure:

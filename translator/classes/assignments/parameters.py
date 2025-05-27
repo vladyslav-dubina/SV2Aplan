@@ -9,7 +9,7 @@ from utils.utils import isNumericString
 class ParametrsAssignmentTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -44,7 +44,7 @@ class ParametrsAssignmentTranslator(BaseTranslator):
             else:
                 expression = "0"
 
-            self.createParametr(self, identifier, expression, ctx.getSourceInterval())
+            self.createParametr(identifier, expression, ctx.getSourceInterval())
 
     def createParametr(
         self,

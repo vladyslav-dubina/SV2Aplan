@@ -46,7 +46,6 @@ class InBlockAssignmentTranslator(BaseTranslator):
                         )
                     )
                 else:
-                    Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
                     b_index = structure.addProtocol(
                         "B_{0}".format(action_pointer.getName()),
                         inside_the_task=(
@@ -60,10 +59,10 @@ class InBlockAssignmentTranslator(BaseTranslator):
                         )
                     )
             else:
-                Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
                 assign_b = "ASSIGN_B_{}".format(
-                    Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                    Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER)
                 )
+                Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
                 struct_assign: Protocol = Protocol(
                     assign_b,
                     ctx.getSourceInterval(),

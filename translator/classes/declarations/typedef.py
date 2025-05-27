@@ -29,13 +29,14 @@ class TypedefDeclTranslator(BaseTranslator):
             if data_type.ENUM() or data_type.struct_union():
                 for type_identifier in type_declaration.type_identifier():
                     enum_type_identifier = "{0}".format(type_identifier.getText())
+                    
                     unique_identifier = "{0}_{1}".format(
                         enum_type_identifier,
-                        Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+                        Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
                     )
-                    Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+                    Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
                     decl_type = DeclTypes.ENUM_TYPE
-
+                    
                     if data_type.struct_union():
                         decl_type = DeclTypes.STRUCT_TYPE
 

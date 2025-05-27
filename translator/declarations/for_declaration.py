@@ -39,10 +39,7 @@ def loopVars2AplanImpl(
     source_interval_list: List[Tuple[int, int]] = []
     for index_variable_identifier in ctx.index_variable_identifier():
         original_identifier = index_variable_identifier.identifier().getText()
-        identifier = (
-            original_identifier
-            + f"_{self.getLastNameSpaceLevel()}"
-        )
+        identifier = original_identifier + f"_{self.getLastNameSpaceLevel()}"
         data_type = "int"
         size_expression = data_type
         packages = self.module.packages_and_objects.getElementsIE(
@@ -252,11 +249,8 @@ def forInitialization2ApanImpl(
     expression = ctx.for_variable_declaration(0)
     if expression is not None:
         original_identifier = expression.variable_identifier(0).getText()
-        identifier = (
-            original_identifier
-            + f"_{self.getLastNameSpaceLevel()}"
-        )
-        Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+        identifier = original_identifier + f"_{self.getLastNameSpaceLevel()}"
+        Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
         data_type = expression.data_type().getText()
         size_expression = data_type
         packages = self.module.packages_and_objects.getElementsIE(
@@ -281,7 +275,6 @@ def forInitialization2ApanImpl(
 
         declaration = self.module.declarations.getElementByIndex(decl_index)
         sv_structure.elements.addElement(declaration)
-
 
         return identifier
     return None

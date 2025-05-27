@@ -26,11 +26,8 @@ class BaseTranslator:
         name,
         element_type: ElementsTypes,
         sensetive: str | None = None,
-        counter_type: CounterTypes = CounterTypes.UNIQ_NAMES_COUNTER,
     ):
-        self._translator_ptr.createStatement(
-            name, element_type, sensetive, counter_type
-        )
+        self._translator_ptr.createStatement(name, element_type, sensetive)
 
     def extractSensetive(self, ctx):
         return self._translator_ptr.extractSensetive(ctx)

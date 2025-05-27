@@ -60,6 +60,12 @@ class ValueParametrArray(BasicArray):
             new_aray.addElement(element.copy())
         return new_aray
 
+    def getElementByIndex(
+        self,
+        index,
+    ) -> ValueParametr:
+        return super().getElementByIndex(index)
+
     def getElementsIE(
         self,
         include: ElementsTypes | None = None,
@@ -119,11 +125,6 @@ class ValueParametrArray(BasicArray):
             expression = evaluateExpression(expression)
             parametr.value = expression
         return expression
-
-    @overload
-    def getElementByIndex(self, index) -> ValueParametr: ...
-    @overload
-    def findElement(self, identifier: str) -> ValueParametr | None: ...
 
     def __repr__(self):
         return f"ParametrsArray(\n{self.elements!r}\n)"

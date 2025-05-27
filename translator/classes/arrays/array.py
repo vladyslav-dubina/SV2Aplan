@@ -26,9 +26,9 @@ class ArrayTranslator(BaseTranslator):
         enum_type_identifier = "{0}".format(identifier)
         unique_identifier = "{0}_{1}".format(
             enum_type_identifier,
-            Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+            Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
         )
-        Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+        Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
         typedef = Typedef(
             enum_type_identifier,
             unique_identifier,

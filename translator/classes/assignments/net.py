@@ -10,7 +10,7 @@ from utils.utils import Counters_Object
 class NetAssignmentTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -29,10 +29,10 @@ class NetAssignmentTranslator(BaseTranslator):
             )
             if assign_name is not None:
                 if source_interval != ctx.getSourceInterval():
-                    Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
                     assign_b = "ASSIGN_B_{}".format(
-                        Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                        Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER)
                     )
+                    Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
                     struct_assign = Protocol(
                         assign_b,
                         ctx.getSourceInterval(),

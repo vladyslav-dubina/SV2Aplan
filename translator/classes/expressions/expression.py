@@ -314,12 +314,13 @@ class ExpressionTranslator(BaseTranslator):
 
         expression = ctx.getText()
         expression = valuesToAplanStandart(expression)
+        last_struct: Structure | None = self.structure_pointer_list.getLastElement()
         if (
             element_type == ElementsTypes.ASSIGN_ELEMENT
             or element_type == ElementsTypes.REPEAT_ELEMENT
             or element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
         ):
-            stmt: Structure | None = self.structure_pointer_list.getLastElement()
+
             action.precondition.addElement(
                 Node("1", (0, 0), ElementsTypes.NUMBER_ELEMENT)
             )
@@ -327,7 +328,7 @@ class ExpressionTranslator(BaseTranslator):
             postcondition: NodeArray = NodeArray(ElementsTypes.POSTCONDITION_ELEMENT)
             self._translator_ptr.body2Aplan(
                 ctx,
-                sv_structure=stmt,
+                sv_structure=last_struct,
                 destination_node_array=postcondition,
             )
             if postcondition.getLen() == 0:
@@ -343,7 +344,7 @@ class ExpressionTranslator(BaseTranslator):
             precondition: NodeArray = NodeArray(ElementsTypes.PRECONDITION_ELEMENT)
             self._translator_ptr.body2Aplan(
                 ctx,
-                sv_structure=stmt,
+                sv_structure=last_struct,
                 destination_node_array=precondition,
             )
             if precondition.getLen() == 0:
@@ -365,10 +366,10 @@ class ExpressionTranslator(BaseTranslator):
 
         if not remove_association:
 
-            if stmt is not None:
-                beh_index = stmt.getLastBehaviorIndex()
+            if last_struct is not None:
+                beh_index = last_struct.getLastBehaviorIndex()
                 if beh_index is not None:
-                    protocol = stmt.behavior[beh_index]
+                    protocol = last_struct.behavior[beh_index]
                     while True:
                         if isinstance(protocol, Structure):
                             protocol = protocol.behavior[
@@ -426,13 +427,13 @@ class ExpressionTranslator(BaseTranslator):
                 uniq = True
                 index = self.module.actions.addElement(action)
                 action_pointer = self.module.actions.getElementByIndex(index)
-                if stmt is not None:
-                    stmt.elements.addElement(action)
+                if last_struct is not None:
+                    last_struct.elements.addElement(action)
             else:
                 Counters_Object.decrieseCounter(counter_type)
                 action_name = action_check_result
-                if stmt is not None:
-                    stmt.elements.addElement(action_pointer)
+                if last_struct is not None:
+                    last_struct.elements.addElement(action_pointer)
 
             if element_type != ElementsTypes.REPEAT_ELEMENT:
                 Counters_Object.incrieseCounter(counter_type)

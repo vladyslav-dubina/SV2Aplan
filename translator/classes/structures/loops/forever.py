@@ -65,7 +65,7 @@ class ForeverIterationTranslator(BaseTranslator):
         protocol_params = self.getProtocolParams()
 
         forever_iteration = "FOREVER_ITERATION_{0}".format(
-            Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+            Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
         )
 
         forever_stmt.behavior[0].addBody(
@@ -93,4 +93,4 @@ class ForeverIterationTranslator(BaseTranslator):
             )
         )
 
-        Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+        Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)

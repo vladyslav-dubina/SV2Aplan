@@ -14,12 +14,13 @@ class CounterTypes(Enum):
     CONDITION_COUNTER = auto()
     NONE_COUNTER = auto()
     SEQUENCE_COUNTER = auto()
-    UNIQ_NAMES_COUNTER = auto()
+    STRUCT_COUNTER = auto()
     REPEAT_COUNTER = auto()
     FOREVER_COUNTER = auto()
     TASK_COUNTER = auto()
     ENUM_COUNTER = auto()
     OBJECT_COUNTER = auto()
+    
 
 
 class Counters:
@@ -34,7 +35,7 @@ class Counters:
         self.loop_counter = 1
         self.cond_counter = 1
         self.sequence = 0
-        self.uniq_names_counter = 1
+        self.struct_counter = 0
         self.repeat_counter = 1
         self.case_counter = 0
         self.forever_counter = 1
@@ -63,8 +64,8 @@ class Counters:
             self.cond_counter += 1
         if counter_type is CounterTypes.SEQUENCE_COUNTER:
             self.sequence += 1
-        if counter_type is CounterTypes.UNIQ_NAMES_COUNTER:
-            self.uniq_names_counter += 1
+        if counter_type is CounterTypes.STRUCT_COUNTER:
+            self.struct_counter += 1
         if counter_type is CounterTypes.REPEAT_COUNTER:
             self.repeat_counter += 1
         if counter_type is CounterTypes.CASE_COUNTER:
@@ -99,8 +100,8 @@ class Counters:
             self.cond_counter -= 1
         if counter_type is CounterTypes.SEQUENCE_COUNTER:
             self.sequence -= 1
-        if counter_type is CounterTypes.UNIQ_NAMES_COUNTER:
-            self.uniq_names_counter -= 1
+        if counter_type is CounterTypes.STRUCT_COUNTER:
+            self.struct_counter -= 1
         if counter_type is CounterTypes.REPEAT_COUNTER:
             self.repeat_counter -= 1
         if counter_type is CounterTypes.CASE_COUNTER:
@@ -136,8 +137,8 @@ class Counters:
         if counter_type is CounterTypes.SEQUENCE_COUNTER:
             self.incrieseCounter(CounterTypes.SEQUENCE_COUNTER)
             return self.sequence
-        if counter_type is CounterTypes.UNIQ_NAMES_COUNTER:
-            return self.uniq_names_counter
+        if counter_type is CounterTypes.STRUCT_COUNTER:
+            return self.struct_counter
         if counter_type is CounterTypes.REPEAT_COUNTER:
             return self.repeat_counter
         if counter_type is CounterTypes.CASE_COUNTER:
@@ -158,7 +159,7 @@ class Counters:
     def countersDeinit(self):
         self.module_counter = 1
         self.assignment_counter = 1
-        self.if_counter = 0
+        self.if_counter = 1
         self.assert_counter = 1
         self.b_counter = 0
         self.body_counter = 1
@@ -166,7 +167,7 @@ class Counters:
         self.loop_counter = 1
         self.cond_counter = 1
         self.sequence = 0
-        self.uniq_names_counter = 1
+        self.struct_counter = 1
         self.repeat_counter = 1
         self.case_counter = 1
         self.forever_counter = 1

@@ -52,7 +52,7 @@ class FloorTranslator(BaseTranslator):
             "declaration",
             "floor_obj",
             DeclTypes.STRUCT,
-            CounterTypes.UNIQ_NAMES_COUNTER,
+            CounterTypes.STRUCT_COUNTER,
             ctx.getSourceInterval(),
             "floor_struct",
         )

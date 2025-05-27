@@ -58,8 +58,6 @@ class WhileStmt(Structure):
 
         self.is_while = True
 
-    def addInitProtocol(self):
-        super().addInitProtocol(CounterTypes.LOOP_COUNTER)
 
     def __repr__(self):
         return f"\While({self.identifier!r}, {self.sequence!r})\n"

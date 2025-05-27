@@ -54,7 +54,7 @@ class PowTranslator(BaseTranslator):
         result_pow = self._translator_ptr.translate(
             "pow_obj",
             DeclTypes.STRUCT,
-            CounterTypes.UNIQ_NAMES_COUNTER,
+            CounterTypes.STRUCT_COUNTER,
             ctx.getSourceInterval(),
             "pow_struct",
         )

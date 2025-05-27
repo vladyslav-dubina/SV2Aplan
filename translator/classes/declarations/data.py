@@ -1,5 +1,6 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
+from classes.counters import CounterTypes
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from classes.protocols import BodyElement
@@ -7,6 +8,7 @@ from classes.structure import Structure
 from translator.classes.base_translator import BaseTranslator
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
+    Counters_Object,
     dataTypeToStr,
     extractDimentionSize,
     extractVectorSize,
@@ -192,5 +194,4 @@ class DataDeclTranslator(BaseTranslator):
                                     declaration.action = action_pointer
 
         else:
-
             self._translator_ptr.translate("typedef", ctx)

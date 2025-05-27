@@ -38,13 +38,13 @@ class AlwaysStructureTranslator(BaseTranslator):
         always_name = (
             always_keyword.upper()
             + "_"
-            + str(Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER))
+            + str(Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER))
         )
         always = Always(
             always_keyword.upper(),
             sensetive,
             ctx.getSourceInterval(),
-            Counters_Object.getCounter(CounterTypes.UNIQ_NAMES_COUNTER),
+            Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
         )
         if self.module.input_parametrs is not None:
             always.parametrs += self.module.input_parametrs
@@ -55,4 +55,4 @@ class AlwaysStructureTranslator(BaseTranslator):
 
         self.module.structures.addElement(always)
         self.structure_pointer_list.addElement(always)
-        Counters_Object.incrieseCounter(CounterTypes.UNIQ_NAMES_COUNTER)
+        Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
