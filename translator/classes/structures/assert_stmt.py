@@ -63,7 +63,7 @@ class AssertInBlockTranslator(BaseTranslator):
     def translate(
         self, ctx: SystemVerilogParser.Simple_immediate_assert_statementContext
     ) -> None:
-        
+
         self.findStruct()
         action_pointer, assert_name, source_interval, uniq_action = (
             self._translator_ptr.translate(
@@ -85,7 +85,7 @@ class AssertInBlockTranslator(BaseTranslator):
             Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
             beh_index = self.last_struct.addProtocol(
                 assert_b,
-                inside_the_task=(self.inside_the_task or self.inside_the_function),
+                inside_the_task=self.inside_the_task,
             )
             self.last_struct.behavior[beh_index].addBody(
                 BodyElement(

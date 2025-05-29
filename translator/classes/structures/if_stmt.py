@@ -26,14 +26,19 @@ class IfSequenceBlockTranslator(BaseTranslator):
         self.findStruct()
 
         if isinstance(self.last_struct, IfStmt):
-            if self.last_struct.if_count > 1 and self.last_struct.step == self.last_struct.if_count:
+            if (
+                self.last_struct.if_count > 1
+                and self.last_struct.step == self.last_struct.if_count
+            ):
                 protocol_params = self.getProtocolParams()
 
                 self.last_struct.addProtocol(
-                    "ELSE_BODY_{0}_{1}".format(self.last_struct.number, self.last_struct.step),
+                    "ELSE_BODY_{0}_{1}".format(
+                        self.last_struct.number, self.last_struct.step
+                    ),
                     element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
                     parametrs=protocol_params,
-                    inside_the_task=(self.inside_the_task or self.inside_the_function),
+                    inside_the_task=self.inside_the_task,
                 )
 
                 return
@@ -126,12 +131,17 @@ class IfCondPredicateTranslator(BaseTranslator):
             self.last_struct.step,
         )
 
-        if self.last_struct.step != 1 and self.last_struct.step != self.last_struct.if_count:
+        if (
+            self.last_struct.step != 1
+            and self.last_struct.step != self.last_struct.if_count
+        ):
             beh_index = self.last_struct.addProtocol(
-                "ELSE_BODY_{0}_{1}".format(self.last_struct.number, self.last_struct.step),
+                "ELSE_BODY_{0}_{1}".format(
+                    self.last_struct.number, self.last_struct.step
+                ),
                 element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
                 parametrs=protocol_params,
-                inside_the_task=(self.inside_the_task or self.inside_the_function),
+                inside_the_task=self.inside_the_task,
             )
 
         self.last_struct.behavior[beh_index].addBody(
@@ -175,7 +185,7 @@ class IfCondPredicateTranslator(BaseTranslator):
             "IF_BODY_{0}_{1}".format(self.last_struct.number, self.last_struct.step),
             element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
             parametrs=protocol_params,
-            inside_the_task=(self.inside_the_task or self.inside_the_function),
+            inside_the_task=self.inside_the_task,
         )
 
         self.last_struct.step += 1

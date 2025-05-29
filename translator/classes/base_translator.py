@@ -19,7 +19,6 @@ class BaseTranslator:
         self._translator_ptr = translator
         self._program = Program()
         self.inside_the_task = False
-        self.inside_the_function = False
         self.last_struct: Structure | None = None
 
     def translate(self, ctx) -> None:
@@ -35,6 +34,7 @@ class BaseTranslator:
             self.inside_the_task = True
         else:
             self.inside_the_task = False
+
 
     def createStatement(
         self,

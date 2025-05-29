@@ -44,7 +44,7 @@ class ProtocolTranslator(BaseTranslator):
                 Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
                 b_index = sv_structure.addProtocol(
                     "B_{0}".format(action_pointer.getName()),
-                    inside_the_task=(self.inside_the_task or self.inside_the_function),
+                    inside_the_task=self.inside_the_task,
                     parametrs=action_pointer.parametrs,
                 )
                 sv_structure.behavior[b_index].addBody(

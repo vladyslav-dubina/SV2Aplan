@@ -10,7 +10,7 @@ from utils.utils import Counters_Object
 class AlwaysStructureTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -50,7 +50,7 @@ class AlwaysStructureTranslator(BaseTranslator):
             always.parametrs += self.module.input_parametrs
         always.addProtocol(
             always_name,
-            inside_the_task=(self.inside_the_task or self.inside_the_function),
+            inside_the_task=self.inside_the_task,
         )
 
         self.module.structures.addElement(always)

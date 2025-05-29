@@ -57,9 +57,7 @@ class TaskBodyDeclTranslator(BaseTranslator):
             Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
         )
 
-        task_structure.inside_the_task = (
-            self.inside_the_task or self.inside_the_function
-        )
+        task_structure.inside_the_task = self.inside_the_task
 
         if self.module.input_parametrs is not None:
             task.parametrs += self.module.input_parametrs
@@ -84,7 +82,6 @@ class TaskBodyDeclTranslator(BaseTranslator):
             names_for_change += self._translator_ptr.body2Aplan(
                 body_element, task_structure
             )
-
 
         Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
 

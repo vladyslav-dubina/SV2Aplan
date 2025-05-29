@@ -68,7 +68,7 @@ def loop2AplanImpl(
             Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
             protocol_params,
         ),
-        inside_the_task=(self.inside_the_task or self.inside_the_function),
+        inside_the_task=self.inside_the_task,
     )
 
     sv_structure.behavior[beh_index].addBody(
@@ -87,7 +87,7 @@ def loop2AplanImpl(
         "LOOP_MAIN_{0}{1}".format(
             Counters_Object.getCounter(CounterTypes.LOOP_COUNTER), protocol_params
         ),
-        inside_the_task=(self.inside_the_task or self.inside_the_function),
+        inside_the_task=self.inside_the_task,
     )
 
     # LOOP CONDITION
@@ -186,7 +186,7 @@ def loop2AplanImpl(
             "LOOP_INIT_{0}{1}".format(
                 Counters_Object.getCounter(CounterTypes.LOOP_COUNTER), protocol_params
             ),
-            inside_the_task=(self.inside_the_task or self.inside_the_function),
+            inside_the_task=self.inside_the_task,
         )
         if ctx.FOREACH():
             for index, element in enumerate(action_names_list):
@@ -246,7 +246,7 @@ def loop2AplanImpl(
                 Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
                 protocol_params,
             ),
-            inside_the_task=(self.inside_the_task or self.inside_the_function),
+            inside_the_task=self.inside_the_task,
         )
         if ctx.FOREACH():
             for index, element in enumerate(action_names_list):
@@ -268,7 +268,7 @@ def loop2AplanImpl(
             Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
             protocol_params,
         ),
-        inside_the_task=(self.inside_the_task or self.inside_the_function),
+        inside_the_task=self.inside_the_task,
     )
     names_for_change = for_decl_identifier
     if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:

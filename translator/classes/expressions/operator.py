@@ -11,7 +11,7 @@ from utils.string_formating import parallelAssignment2Assignment
 class OperatorTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     _unused_operators = "inputoutputbeginend[];intwirereg"
 
@@ -41,7 +41,7 @@ class OperatorTranslator(BaseTranslator):
             if decl:
                 node.module_name = self.module.ident_uniq_name
             if "=" in operator:
-                if self.inside_the_function:
+                if self.inside_the_task:
                     previus_node = destination_node_array.getElementByIndex(index - 1)
                     task = self.module.tasks.getLastTask()
                     if previus_node.identifier == task.identifier:

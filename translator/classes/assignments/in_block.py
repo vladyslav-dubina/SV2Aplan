@@ -48,9 +48,7 @@ class InBlockAssignmentTranslator(BaseTranslator):
                 else:
                     b_index = self.last_struct.addProtocol(
                         "B_{0}".format(action_pointer.getName()),
-                        inside_the_task=(
-                            self.inside_the_task or self.inside_the_function
-                        ),
+                        inside_the_task=self.inside_the_task,
                         parametrs=protocol_params,
                     )
                     self.last_struct.behavior[b_index].addBody(

@@ -423,7 +423,7 @@ class ExpressionTranslator(BaseTranslator):
 
         if self.module.input_parametrs is not None:
             params_for_finding += self.module.input_parametrs
-        print(params_for_finding)
+
         action.findParametrInBodyAndSetParametrs(params_for_finding)
 
         uniq = False

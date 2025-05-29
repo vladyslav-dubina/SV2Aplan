@@ -48,7 +48,7 @@ class GenerateStructTranslator(BaseTranslator):
         self.last_struct.addProtocol(
             generate_name,
             ElementsTypes.GENERATE_ELEMENT,
-            inside_the_task=(self.inside_the_task or self.inside_the_function),
+            inside_the_task=self.inside_the_task,
         )
         initialization = ctx.genvar_initialization().getText()
         initialization = self.prepareGenerateExpression(initialization)

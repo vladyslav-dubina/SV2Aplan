@@ -15,7 +15,7 @@ from translator.classes.base_translator import BaseTranslator
 class RepeatStructTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -129,11 +129,13 @@ class RepeatStructTranslator(BaseTranslator):
         )
 
         sensetive = self.extractSensetive(ctx.statement_or_null())
-        protocol_call = "Sensetive({0}, {1})".format(self.last_struct.getName(), sensetive)
+        protocol_call = "Sensetive({0}, {1})".format(
+            self.last_struct.getName(), sensetive
+        )
 
         beh_index = self.last_struct.addProtocol(
             repeat_iteration,
-            inside_the_task=(self.inside_the_task or self.inside_the_function),
+            inside_the_task=self.inside_the_task,
         )
 
         self.last_struct.behavior[beh_index].addBody(
@@ -145,7 +147,9 @@ class RepeatStructTranslator(BaseTranslator):
         )
 
         copy = self.last_struct.behavior[beh_index].copy()
-        self.last_struct.behavior[beh_index] = self.last_struct.behavior[beh_index - 1].copy()
+        self.last_struct.behavior[beh_index] = self.last_struct.behavior[
+            beh_index - 1
+        ].copy()
         self.last_struct.behavior[beh_index - 1] = copy
 
         self._translator_ptr.body2Aplan(ctx.statement_or_null(), self.last_struct)

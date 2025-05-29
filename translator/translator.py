@@ -164,8 +164,6 @@ class Translator:
     module_call: ModuleCall | None = None
     _module: Module | None = None
     _structure_pointer_list: StructureArray = StructureArray()
-    _inside_the_task = False
-    _inside_the_function = False
     _cache = {}
 
     _current_genvar_value: Tuple[str, int] | None = None
@@ -528,7 +526,8 @@ class Translator:
     ):
         counter_type: CounterTypes = CounterTypes.STRUCT_COUNTER
         sv_structure: Structure | None = self._structure_pointer_list.getLastElement()
-
+ 
+        
         if sv_structure:
             protocol_params = self.getProtocolParams()
             beh_index = sv_structure.getLastBehaviorIndex()
@@ -558,7 +557,11 @@ class Translator:
                     )
 
             tmp: ParametrArray = ParametrArray()
-            if (self._inside_the_task or self._inside_the_function) is False:
+            if isinstance(sv_structure, TaskStmt):
+                inside_the_task = True
+            else:
+                inside_the_task = False
+            if (inside_the_task) is False:
                 if sv_structure.parametrs is not None:
                     tmp += sv_structure.parametrs
                 if protocol_params is not None:
@@ -609,7 +612,7 @@ class Translator:
 
             struct.addInitProtocol()
             struct.parametrs = tmp
-            struct.inside_the_task = self._inside_the_task or self._inside_the_function
+            struct.inside_the_task = inside_the_task
             sv_structure.behavior.append(struct)
             self._structure_pointer_list.addElement(struct)
             Counters_Object.incrieseCounter(counter_type)

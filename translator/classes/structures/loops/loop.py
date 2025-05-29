@@ -11,7 +11,7 @@ from utils.utils import Counters_Object
 class LoopStructTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -54,7 +54,7 @@ class LoopStructTranslator(BaseTranslator):
 
         beh_index = loop_stmt.addProtocol(
             iteration_name,
-            inside_the_task=(self.inside_the_task or self.inside_the_function),
+            inside_the_task=self.inside_the_task,
         )
 
         (
@@ -81,14 +81,14 @@ class LoopStructTranslator(BaseTranslator):
 
         beh_index = loop_stmt.addProtocol(
             body_name,
-            inside_the_task=(self.inside_the_task or self.inside_the_function),
+            inside_the_task=self.inside_the_task,
         )
 
 
 class LoopIterationTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)

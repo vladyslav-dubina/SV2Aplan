@@ -25,7 +25,7 @@ def extractCondition(self, ctx: SystemVerilogParser.Statement_or_nullContext):
 class ForeverStructTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -47,7 +47,7 @@ class ForeverStructTranslator(BaseTranslator):
 class ForeverIterationTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -78,7 +78,7 @@ class ForeverIterationTranslator(BaseTranslator):
 
         beh_index = self.last_struct.addProtocol(
             forever_iteration,
-            inside_the_task=(self.inside_the_task or self.inside_the_function),
+            inside_the_task=self.inside_the_task,
         )
 
         forever_sensetive_name = "Sensetive({0}, {1})".format(

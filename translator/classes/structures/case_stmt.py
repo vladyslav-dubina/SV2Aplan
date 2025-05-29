@@ -113,7 +113,7 @@ class CaseItemExprTranslator(BaseTranslator):
                 ),
                 element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
                 parametrs=protocol_params,
-                inside_the_task=(self.inside_the_task or self.inside_the_function),
+                inside_the_task=self.inside_the_task,
             )
 
         self.last_struct.behavior[beh_index].addBody(
@@ -160,7 +160,7 @@ class CaseItemExprTranslator(BaseTranslator):
             ),
             element_type=ElementsTypes.CASE_STATEMENT_ELEMENT,
             parametrs=protocol_params,
-            inside_the_task=(self.inside_the_task or self.inside_the_function),
+            inside_the_task=self.inside_the_task,
         )
 
         Counters_Object.incrieseCounter(CounterTypes.BODY_COUNTER)
@@ -193,7 +193,7 @@ class CaseItemTranslator(BaseTranslator):
                     ),
                     element_type=ElementsTypes.CASE_STATEMENT_ELEMENT,
                     parametrs=protocol_params,
-                    inside_the_task=(self.inside_the_task or self.inside_the_function),
+                    inside_the_task=self.inside_the_task,
                 )
 
                 self.last_struct.case_count -= 1

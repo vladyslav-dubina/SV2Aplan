@@ -15,7 +15,7 @@ from utils.utils import Counters_Object
 class TaskCallTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -54,7 +54,7 @@ class TaskCallTranslator(BaseTranslator):
                 return
         else:
             task_identifier = ps_or_hierarchical_tf.getText()
-
+        print(ctx.getText())
         (
             argument_list,
             argument_list_with_replaced_names,
@@ -123,9 +123,7 @@ class TaskCallTranslator(BaseTranslator):
                     task_call = "B_{0}".format(task.structure.identifier)
                     b_index = sv_structure.addProtocol(
                         task_call,
-                        inside_the_task=(
-                            self.inside_the_task or self.inside_the_function
-                        ),
+                        inside_the_task=self.inside_the_task,
                     )
                     sv_structure.behavior[b_index].addBody(
                         BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
@@ -191,9 +189,7 @@ class TaskCallTranslator(BaseTranslator):
                     task_call = "B_{0}".format(task.structure.identifier)
                     b_index = sv_structure.addProtocol(
                         task_call,
-                        inside_the_task=(
-                            self.inside_the_task or self.inside_the_function
-                        ),
+                        inside_the_task=self.inside_the_task,
                     )
                     sv_structure.behavior[b_index].addBody(
                         BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
