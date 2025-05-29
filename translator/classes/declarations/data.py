@@ -152,12 +152,10 @@ class DataDeclTranslator(BaseTranslator):
 
                         if expression is not None:
                             expression = expression.getText()
-                            stmt: Structure | None = (
-                                self.structure_pointer_list.getLastElement()
-                            )
-                            if stmt is not None:
-                                stmt.elements.addElement(declaration)
-                                beh_index = stmt.getLastBehaviorIndex()
+                            self.findStruct()
+                            if self.last_struct is not None:
+                                self.last_struct.elements.addElement(declaration)
+                                beh_index = self.last_struct.getLastBehaviorIndex()
                                 (
                                     action_pointer,
                                     assign_name,
@@ -167,10 +165,10 @@ class DataDeclTranslator(BaseTranslator):
                                     "expr",
                                     elem,
                                     ElementsTypes.ASSIGN_ELEMENT,
-                                    sv_structure=stmt,
+                                    sv_structure=self.last_struct,
                                 )
                                 if beh_index is not None and assign_name is not None:
-                                    stmt.behavior[beh_index].addBody(
+                                    self.last_struct.behavior[beh_index].addBody(
                                         BodyElement(
                                             assign_name,
                                             action_pointer,
@@ -188,7 +186,7 @@ class DataDeclTranslator(BaseTranslator):
                                         "expr",
                                         elem,
                                         ElementsTypes.ASSIGN_ELEMENT,
-                                        sv_structure=stmt,
+                                        sv_structure=self.last_struct,
                                     )
                                     declaration.expression = assign_name
                                     declaration.action = action_pointer

@@ -292,6 +292,9 @@ class ModuleArray(BasicArray):
     def getElements(self) -> List[Module]:
         return self.elements
 
+    def getElementByIndex(self, index) ->Module:
+        return super().getElementByIndex(index) 
+    
     def getElementsIE(
         self,
         include: ElementsTypes | None = None,

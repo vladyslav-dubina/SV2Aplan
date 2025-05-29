@@ -70,8 +70,12 @@ class SVToAplanListener(SystemVerilogParserListener):
     ):
         self.translator.translate("task_body_decl", ctx)
 
-    def exitTask_declaration(self, ctx: SystemVerilogParser.Task_declarationContext):
+    def enterTask_declaration(self, ctx: SystemVerilogParser.Task_declarationContext):
         self.translator.translate("task_body_decl", ctx.task_body_declaration())
+
+
+    def exitTask_declaration(self, ctx: SystemVerilogParser.Task_declarationContext):
+        self.translator.removeLastStructPointer()
 
     def exitFunction_declaration(
         self, ctx: SystemVerilogParser.Function_declarationContext
@@ -135,7 +139,7 @@ class SVToAplanListener(SystemVerilogParserListener):
     ):
         self.translator.translate("generate_struct", ctx)
 
-    def enterLoop_generate_construct(
+    def exitLoop_generate_construct(
         self, ctx: SystemVerilogParser.Loop_generate_constructContext
     ):
         self.translator.removeLastStructPointer()

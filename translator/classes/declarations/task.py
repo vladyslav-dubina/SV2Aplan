@@ -2,18 +2,20 @@ from typing import List
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 
+from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.parametrs import Parametr
 from classes.protocols import Protocol
 from classes.structure import Structure
-from classes.tasks import Task
+from classes.tasks import Task, TaskStmt
 from translator.classes.base_translator import BaseTranslator
+from utils.utils import Counters_Object
 
 
 class TaskBodyDeclTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -45,14 +47,20 @@ class TaskBodyDeclTranslator(BaseTranslator):
                         "var",
                     )
                 )
-
         task_name = "{0}".format(identifier.upper())
 
         task_call_name = f"{task_name}"
 
-        task_structure = Structure(
-            task_name, ctx.getSourceInterval(), ElementsTypes.TASK_ELEMENT
+        task_structure = TaskStmt(
+            task_call_name,
+            (0, 0),
+            Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
         )
+
+        task_structure.inside_the_task = (
+            self.inside_the_task or self.inside_the_function
+        )
+
         if self.module.input_parametrs is not None:
             task.parametrs += self.module.input_parametrs
 
@@ -60,26 +68,25 @@ class TaskBodyDeclTranslator(BaseTranslator):
 
         task.structure = task_structure
 
-        task_protocol = Protocol(task_call_name, ElementsTypes.TASK_ELEMENT)
+        task_protocol = Protocol(
+            "{0}_{1}".format(task_call_name, task_structure.number),
+            ElementsTypes.TASK_ELEMENT,
+        )
         task_protocol.parametrs = task.parametrs
 
         task_structure.behavior.append(task_protocol)
         self.module.tasks.addElement(task)
+        task_structure.inside_the_task
         names_for_change = []
-        self.inside_the_task = True
 
-        if isinstance(ctx, SystemVerilogParser.Function_body_declarationContext):
-            self.inside_the_function = True
-
+        self._translator_ptr._structure_pointer_list.addElement(task_structure)
         for body_element in body:
             names_for_change += self._translator_ptr.body2Aplan(
-                body_element, task_structure, ElementsTypes.TASK_ELEMENT
+                body_element, task_structure
             )
 
-        self.inside_the_task = False
 
-        if isinstance(ctx, SystemVerilogParser.Function_body_declarationContext):
-            self.inside_the_function = False
+        Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
 
         self.module.structures.addElement(task_structure)
 

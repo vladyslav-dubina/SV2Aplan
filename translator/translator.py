@@ -13,6 +13,7 @@ from classes.structure import Structure, StructureArray
 from classes.module import Module
 from classes.element_types import ElementsTypes
 from typing import Literal, Tuple, overload
+from classes.tasks import TaskStmt
 from translator.classes.arrays.array import ArrayTranslator
 from translator.classes.arrays.methods.push_back import PushBackTranslator
 from translator.classes.arrays.parametr import ParametrArrayTranslator
@@ -598,7 +599,6 @@ class Translator:
                     (0, 0),
                     Counters_Object.getCounter(counter_type),
                 )
-
             else:
                 struct = Structure(
                     name,

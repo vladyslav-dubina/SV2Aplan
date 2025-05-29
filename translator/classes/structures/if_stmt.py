@@ -23,14 +23,14 @@ class IfSequenceBlockTranslator(BaseTranslator):
         super().__init__(translator)
 
     def translate(self, ctx: SystemVerilogParser.Seq_blockContext) -> None:
-        if_stmt: Structure | None = self.structure_pointer_list.getLastElement()
+        self.findStruct()
 
-        if isinstance(if_stmt, IfStmt):
-            if if_stmt.if_count > 1 and if_stmt.step == if_stmt.if_count:
+        if isinstance(self.last_struct, IfStmt):
+            if self.last_struct.if_count > 1 and self.last_struct.step == self.last_struct.if_count:
                 protocol_params = self.getProtocolParams()
 
-                if_stmt.addProtocol(
-                    "ELSE_BODY_{0}_{1}".format(if_stmt.number, if_stmt.step),
+                self.last_struct.addProtocol(
+                    "ELSE_BODY_{0}_{1}".format(self.last_struct.number, self.last_struct.step),
                     element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
                     parametrs=protocol_params,
                     inside_the_task=(self.inside_the_task or self.inside_the_function),
@@ -52,11 +52,11 @@ class IfStmtTranslator(BaseTranslator):
             "IF_STATEMENT",
             ElementsTypes.IF_STATEMENT_ELEMENT,
         )
-        if_stmt: Structure | None = self.structure_pointer_list.getLastElement()
-        if not isinstance(if_stmt, IfStmt):
+        self.findStruct()
+        if not isinstance(self.last_struct, IfStmt):
             return
 
-        if_stmt.setCondCount(len(ctx.IF()), len(ctx.ELSE()))
+        self.last_struct.setCondCount(len(ctx.IF()), len(ctx.ELSE()))
 
 
 class IfCondPredicateTranslator(BaseTranslator):
@@ -68,15 +68,15 @@ class IfCondPredicateTranslator(BaseTranslator):
         super().__init__(translator)
 
     def translate(self, ctx: SystemVerilogParser.Cond_predicateContext) -> None:
-        if_stmt: Structure | None = self.structure_pointer_list.getLastElement()
-        if not isinstance(if_stmt, IfStmt):
+        self.findStruct()
+        if not isinstance(self.last_struct, IfStmt):
             printWithColor(
-                f"WARNING: if_stmt is not IfStmt ({type(if_stmt)}) in conditionalPredecate2AplanImpl.",
+                f"WARNING: if_stmt is not IfStmt ({type(self.last_struct)}) in conditionalPredecate2AplanImpl.",
                 Color.YELLOW,
             )
             return
 
-        beh_index = if_stmt.getLastBehaviorIndex()
+        beh_index = self.last_struct.getLastBehaviorIndex()
         if beh_index is None:
             printWithColor(
                 f"WARNING: beh_index is None in conditionalPredecate2AplanImpl.",
@@ -85,8 +85,8 @@ class IfCondPredicateTranslator(BaseTranslator):
             return
 
         action_name = "if_{0}_{1}".format(
-            if_stmt.number,
-            if_stmt.step,
+            self.last_struct.number,
+            self.last_struct.step,
         )
         if_action = Action(
             action_name,
@@ -122,19 +122,19 @@ class IfCondPredicateTranslator(BaseTranslator):
 
         body = "{0}.IF_BODY_{1}_{2}".format(
             action_name,
-            if_stmt.number,
-            if_stmt.step,
+            self.last_struct.number,
+            self.last_struct.step,
         )
 
-        if if_stmt.step != 1 and if_stmt.step != if_stmt.if_count:
-            beh_index = if_stmt.addProtocol(
-                "ELSE_BODY_{0}_{1}".format(if_stmt.number, if_stmt.step),
+        if self.last_struct.step != 1 and self.last_struct.step != self.last_struct.if_count:
+            beh_index = self.last_struct.addProtocol(
+                "ELSE_BODY_{0}_{1}".format(self.last_struct.number, self.last_struct.step),
                 element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
                 parametrs=protocol_params,
                 inside_the_task=(self.inside_the_task or self.inside_the_function),
             )
 
-        if_stmt.behavior[beh_index].addBody(
+        self.last_struct.behavior[beh_index].addBody(
             BodyElement(
                 body,
                 action_pointer,
@@ -144,16 +144,16 @@ class IfCondPredicateTranslator(BaseTranslator):
         )
 
         continuation_flag = False
-        if if_stmt.step != if_stmt.if_count:
+        if self.last_struct.step != self.last_struct.if_count:
             continuation_flag = True
 
         if continuation_flag == True:
             body = "!{0}.ELSE_BODY_{1}_{2}".format(
                 action_name,
-                if_stmt.number,
-                if_stmt.step + 1,
+                self.last_struct.number,
+                self.last_struct.step + 1,
             )
-            if_stmt.behavior[beh_index].addBody(
+            self.last_struct.behavior[beh_index].addBody(
                 BodyElement(
                     body,
                     action_pointer,
@@ -162,7 +162,7 @@ class IfCondPredicateTranslator(BaseTranslator):
                 )
             )
         else:
-            if_stmt.behavior[beh_index].addBody(
+            self.last_struct.behavior[beh_index].addBody(
                 BodyElement(
                     f"!{action_name}",
                     action_pointer,
@@ -171,11 +171,11 @@ class IfCondPredicateTranslator(BaseTranslator):
                 )
             )
 
-        if_stmt.addProtocol(
-            "IF_BODY_{0}_{1}".format(if_stmt.number, if_stmt.step),
+        self.last_struct.addProtocol(
+            "IF_BODY_{0}_{1}".format(self.last_struct.number, self.last_struct.step),
             element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
             parametrs=protocol_params,
             inside_the_task=(self.inside_the_task or self.inside_the_function),
         )
 
-        if_stmt.step += 1
+        self.last_struct.step += 1

@@ -22,15 +22,15 @@ class CaseItemExprTranslator(BaseTranslator):
         super().__init__(translator)
 
     def translate(self, ctx: SystemVerilogParser.Case_item_expressionContext) -> None:
-        case_stmt: Structure | None = self.structure_pointer_list.getLastElement()
-        if not isinstance(case_stmt, CaseStmt):
+        self.findStruct()
+        if not isinstance(self.last_struct, CaseStmt):
             printWithColor(
-                f"WARNING: case_stmt is not CaseStmt ({type(case_stmt)}) in caseItemExpr2AplanImpl.",
+                f"WARNING: case_stmt is not CaseStmt ({type(self.last_struct)}) in caseItemExpr2AplanImpl.",
                 Color.YELLOW,
             )
             return
 
-        beh_index = case_stmt.getLastBehaviorIndex()
+        beh_index = self.last_struct.getLastBehaviorIndex()
         if beh_index is None:
             printWithColor(
                 f"WARNING: beh_index is None in caseItemExpr2AplanImpl.",
@@ -39,12 +39,12 @@ class CaseItemExprTranslator(BaseTranslator):
             return
 
         condition_txt = "({0}) == ({1})".format(
-            case_stmt.expression.getText(), ctx.getText()
+            self.last_struct.expression.getText(), ctx.getText()
         )
 
         action_name = "case_{0}_{1}".format(
-            case_stmt.number,
-            case_stmt.init_case_count - case_stmt.case_count,
+            self.last_struct.number,
+            self.last_struct.init_case_count - self.last_struct.case_count,
         )
         case_action = Action(
             action_name,
@@ -56,7 +56,7 @@ class CaseItemExprTranslator(BaseTranslator):
             Node("(", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
         )
         self._translator_ptr.body2Aplan(
-            case_stmt.expression, destination_node_array=case_action.precondition
+            self.last_struct.expression, destination_node_array=case_action.precondition
         )
         case_action.precondition.addElement(
             Node(")", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
@@ -101,22 +101,22 @@ class CaseItemExprTranslator(BaseTranslator):
 
         body = "{0}.CASE_BODY_{1}_{2}".format(
             action_name,
-            case_stmt.number,
-            case_stmt.init_case_count - case_stmt.case_count,
+            self.last_struct.number,
+            self.last_struct.init_case_count - self.last_struct.case_count,
         )
 
-        if case_stmt.case_count != case_stmt.init_case_count:
-            beh_index = case_stmt.addProtocol(
+        if self.last_struct.case_count != self.last_struct.init_case_count:
+            beh_index = self.last_struct.addProtocol(
                 "ELSE_BODY_{0}_{1}".format(
-                    case_stmt.number,
-                    case_stmt.init_case_count - case_stmt.case_count,
+                    self.last_struct.number,
+                    self.last_struct.init_case_count - self.last_struct.case_count,
                 ),
                 element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
                 parametrs=protocol_params,
                 inside_the_task=(self.inside_the_task or self.inside_the_function),
             )
 
-        case_stmt.behavior[beh_index].addBody(
+        self.last_struct.behavior[beh_index].addBody(
             BodyElement(
                 body,
                 action_pointer,
@@ -126,16 +126,16 @@ class CaseItemExprTranslator(BaseTranslator):
         )
 
         continuation_flag = False
-        if case_stmt.case_count - 2 >= 0:
+        if self.last_struct.case_count - 2 >= 0:
             continuation_flag = True
 
         if continuation_flag == True:
             body = "!{0}.ELSE_BODY_{1}_{2}".format(
                 action_name,
-                case_stmt.number,
-                case_stmt.init_case_count - case_stmt.case_count + 1,
+                self.last_struct.number,
+                self.last_struct.init_case_count - self.last_struct.case_count + 1,
             )
-            case_stmt.behavior[beh_index].addBody(
+            self.last_struct.behavior[beh_index].addBody(
                 BodyElement(
                     body,
                     action_pointer,
@@ -144,7 +144,7 @@ class CaseItemExprTranslator(BaseTranslator):
                 )
             )
         else:
-            case_stmt.behavior[beh_index].addBody(
+            self.last_struct.behavior[beh_index].addBody(
                 BodyElement(
                     f"!{action_name}",
                     action_pointer,
@@ -153,10 +153,10 @@ class CaseItemExprTranslator(BaseTranslator):
                 )
             )
 
-        case_stmt.addProtocol(
+        self.last_struct.addProtocol(
             "CASE_BODY_{0}_{1}".format(
-                case_stmt.number,
-                case_stmt.init_case_count - case_stmt.case_count,
+                self.last_struct.number,
+                self.last_struct.init_case_count - self.last_struct.case_count,
             ),
             element_type=ElementsTypes.CASE_STATEMENT_ELEMENT,
             parametrs=protocol_params,
@@ -166,7 +166,7 @@ class CaseItemExprTranslator(BaseTranslator):
         Counters_Object.incrieseCounter(CounterTypes.BODY_COUNTER)
         Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
 
-        case_stmt.case_count -= 1
+        self.last_struct.case_count -= 1
         return
 
 
@@ -179,21 +179,24 @@ class CaseItemTranslator(BaseTranslator):
         super().__init__(translator)
 
     def translate(self, ctx: SystemVerilogParser.Case_itemContext) -> None:
-        case_stmt: Structure | None = self.structure_pointer_list.getLastElement()
-        if isinstance(case_stmt, CaseStmt):
-            if case_stmt.case_count == 1 and case_stmt.init_case_count > 1:
+        self.findStruct()
+        if isinstance(self.last_struct, CaseStmt):
+            if (
+                self.last_struct.case_count == 1
+                and self.last_struct.init_case_count > 1
+            ):
                 protocol_params = self.getProtocolParams()
-                case_stmt.addProtocol(
+                self.last_struct.addProtocol(
                     "ELSE_BODY_{0}_{1}".format(
-                        case_stmt.number,
-                        case_stmt.init_case_count - case_stmt.case_count,
+                        self.last_struct.number,
+                        self.last_struct.init_case_count - self.last_struct.case_count,
                     ),
                     element_type=ElementsTypes.CASE_STATEMENT_ELEMENT,
                     parametrs=protocol_params,
                     inside_the_task=(self.inside_the_task or self.inside_the_function),
                 )
 
-                case_stmt.case_count -= 1
+                self.last_struct.case_count -= 1
 
 
 class CaseStmtTranslator(BaseTranslator):
@@ -206,9 +209,9 @@ class CaseStmtTranslator(BaseTranslator):
 
     def translate(self, ctx: SystemVerilogParser.Case_statementContext) -> None:
         self.createStatement("CASE_STATEMENT", ElementsTypes.CASE_STATEMENT_ELEMENT)
-        case_stmt: Structure | None = self.structure_pointer_list.getLastElement()
-        if not isinstance(case_stmt, CaseStmt):
+        self.findStruct()
+        if not isinstance(self.last_struct, CaseStmt):
             return
         case_item_list = ctx.case_item()
-        case_stmt.setCaseCount(len(case_item_list))
-        case_stmt.expression = ctx.case_expression()
+        self.last_struct.setCaseCount(len(case_item_list))
+        self.last_struct.expression = ctx.case_expression()

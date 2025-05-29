@@ -11,7 +11,7 @@ from utils.utils import Counters_Object
 class ObjectDeclTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -22,10 +22,10 @@ class ObjectDeclTranslator(BaseTranslator):
         identifier: str,
         source_interval: Tuple[int, int],
     ) -> None:
-        class_module = self._programmodules.findElement(class_name.upper())
+        class_module = self.modules.findElement(class_name.upper())
         class_module = class_module.copyPart()
-        index = self._programmodules.addElement(class_module)
-        object = self._programmodules.getElementByIndex(index)
+        index = self.modules.addElement(class_module)
+        object = self.modules.getElementByIndex(index)
         object.element_type = ElementsTypes.OBJECT_ELEMENT
         object.identifier = class_name.upper()
         object.identifier_upper = object.identifier

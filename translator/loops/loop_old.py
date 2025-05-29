@@ -273,7 +273,7 @@ def loop2AplanImpl(
     names_for_change = for_decl_identifier
     if type(ctx) is SystemVerilogParser.Loop_generate_constructContext:
         names_for_change += self._translator_ptr.body2Aplan(
-            ctx.generate_block(), sv_structure, ElementsTypes.LOOP_ELEMENT
+            ctx.generate_block(), sv_structure
         )
     elif type(ctx) is SystemVerilogParser.Loop_statementContext:
         if ctx.FOREACH():
@@ -281,8 +281,7 @@ def loop2AplanImpl(
         else:
             body_statement = ctx.statement_or_null()
         names_for_change += self._translator_ptr.body2Aplan(
-            body_statement, sv_structure, ElementsTypes.LOOP_ELEMENT
+            body_statement, sv_structure
         )
 
     Counters_Object.incrieseCounter(CounterTypes.LOOP_COUNTER)
-

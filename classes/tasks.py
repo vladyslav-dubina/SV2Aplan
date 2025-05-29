@@ -130,3 +130,22 @@ class TaskArray(BasicArray):
 
     def __repr__(self):
         return f"TaskArray(\n{self.elements!r}\t)"
+
+
+class TaskStmt(Structure):
+    def __init__(
+        self,
+        identifier: str,
+        source_interval: Tuple[int, int],
+        name_space_level: int,
+    ):
+        super().__init__(
+            identifier,
+            source_interval,
+            element_type=ElementsTypes.TASK_ELEMENT,
+            name_space_level=name_space_level,
+        )
+
+
+    def __repr__(self):
+        return f"\IfStmt({self.identifier!r}, {self.sequence!r})\n"

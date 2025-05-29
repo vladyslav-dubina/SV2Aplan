@@ -34,18 +34,18 @@ class GenerateStructTranslator(BaseTranslator):
         )
 
         self.createStatement("GENERATE_LOOP", ElementsTypes.LOOP_ELEMENT)
-        generate_struct: Structure | None = self.structure_pointer_list.getLastElement()
-        if not isinstance(generate_struct, LoopStmt):
+        self.findStruct()
+        if not isinstance(self.last_struct, LoopStmt):
             return
 
         generate_name = "{0}_{1}".format(
-            generate_struct.identifier,
+            self.last_struct.identifier,
             Counters_Object.getCounter(CounterTypes.LOOP_COUNTER) - 1,
         )
 
         if self.module.input_parametrs is not None:
-            generate_struct.parametrs += self.module.input_parametrs
-        generate_struct.addProtocol(
+            self.last_struct.parametrs += self.module.input_parametrs
+        self.last_struct.addProtocol(
             generate_name,
             ElementsTypes.GENERATE_ELEMENT,
             inside_the_task=(self.inside_the_task or self.inside_the_function),
@@ -65,12 +65,12 @@ class GenerateStructTranslator(BaseTranslator):
             self.generateBodyToAplan(
                 self,
                 ctx.generate_block(),
-                generate_struct,
+                self.last_struct,
                 init_var_name,
                 current_value,
             )
             exec(iteration)
-        self.module.structures.addElement(generate_struct)
+        self.module.structures.addElement(self.last_struct)
 
     def generateBodyToAplan(
         self,

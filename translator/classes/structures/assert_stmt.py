@@ -63,7 +63,8 @@ class AssertInBlockTranslator(BaseTranslator):
     def translate(
         self, ctx: SystemVerilogParser.Simple_immediate_assert_statementContext
     ) -> None:
-        last_struct: Structure | None = self.structure_pointer_list.getLastElement()
+        
+        self.findStruct()
         action_pointer, assert_name, source_interval, uniq_action = (
             self._translator_ptr.translate(
                 "expr", ctx.expression(), ElementsTypes.ASSERT_ELEMENT
@@ -77,16 +78,16 @@ class AssertInBlockTranslator(BaseTranslator):
                 if task is not None:
                     protocol_params = "({0})".format(task.parametrs)
             assert_b = "ASSERT_B_{0}_{1}{2}".format(
-                last_struct.number,
+                self.last_struct.number,
                 Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
                 protocol_params,
             )
             Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
-            beh_index = last_struct.addProtocol(
+            beh_index = self.last_struct.addProtocol(
                 assert_b,
                 inside_the_task=(self.inside_the_task or self.inside_the_function),
             )
-            last_struct.behavior[beh_index].addBody(
+            self.last_struct.behavior[beh_index].addBody(
                 BodyElement(
                     "{0}.Delta + !{0}.0".format(assert_name),
                     action_pointer,
@@ -94,7 +95,7 @@ class AssertInBlockTranslator(BaseTranslator):
                 )
             )
             if beh_index != 0:
-                last_struct.behavior[beh_index - 1].addBody(
+                self.last_struct.behavior[beh_index - 1].addBody(
                     BodyElement(
                         assert_b, action_pointer, ElementsTypes.PROTOCOL_ELEMENT
                     )

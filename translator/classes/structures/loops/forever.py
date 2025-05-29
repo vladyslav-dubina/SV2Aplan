@@ -37,11 +37,11 @@ class ForeverStructTranslator(BaseTranslator):
         condition = extractCondition(ctx.statement_or_null())
         sensetive = self.extractSensetive(condition)
         self.createStatement("FOREVER_LOOP", ElementsTypes.FOREVER_ELEMENT, sensetive)
-        forever_stmt: Structure | None = self.structure_pointer_list.getLastElement()
-        if not isinstance(forever_stmt, ForeverStmt):
+        self.findStruct()
+        if not isinstance(self.last_struct, ForeverStmt):
             return
 
-        self._translator_ptr.body2Aplan(ctx.statement_or_null(), forever_stmt)
+        self._translator_ptr.body2Aplan(ctx.statement_or_null(), self.last_struct)
 
 
 class ForeverIterationTranslator(BaseTranslator):
@@ -56,8 +56,8 @@ class ForeverIterationTranslator(BaseTranslator):
         self,
         ctx: SystemVerilogParser.Loop_statementContext,
     ) -> None:
-        forever_stmt: Structure | None = self.structure_pointer_list.getLastElement()
-        if not isinstance(forever_stmt, ForeverStmt):
+        self.findStruct()
+        if not isinstance(self.last_struct, ForeverStmt):
             return
         condition = extractCondition(ctx.statement_or_null())
         sensetive = self.extractSensetive(condition)
@@ -68,7 +68,7 @@ class ForeverIterationTranslator(BaseTranslator):
             Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
         )
 
-        forever_stmt.behavior[0].addBody(
+        self.last_struct.behavior[0].addBody(
             BodyElement(
                 identifier=forever_iteration,
                 element_type=ElementsTypes.PROTOCOL_ELEMENT,
@@ -76,17 +76,17 @@ class ForeverIterationTranslator(BaseTranslator):
             )
         )
 
-        beh_index = forever_stmt.addProtocol(
+        beh_index = self.last_struct.addProtocol(
             forever_iteration,
             inside_the_task=(self.inside_the_task or self.inside_the_function),
         )
 
         forever_sensetive_name = "Sensetive({0}, {1})".format(
-            forever_stmt.behavior[0].getName(),
+            self.last_struct.behavior[0].getName(),
             sensetive,
         )
 
-        forever_stmt.behavior[beh_index].addBody(
+        self.last_struct.behavior[beh_index].addBody(
             BodyElement(
                 identifier=forever_sensetive_name,
                 element_type=ElementsTypes.PROTOCOL_ELEMENT,

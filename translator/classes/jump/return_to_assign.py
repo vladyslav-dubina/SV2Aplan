@@ -21,10 +21,9 @@ class ReturnTranslator(BaseTranslator):
         ctx: SystemVerilogParser.ExpressionContext,
         sv_structure: Structure | None = None,
     ) -> None:
-
         action_pointer, action_name, source_interval, uniq_action = (
             self._translator_ptr.translate(
-                "expr", ctx, ElementsTypes.ASSIGN_ELEMENT, sv_structure=sv_structure
+                "expr", ctx, ElementsTypes.ASSIGN_ELEMENT
             )
         )
 

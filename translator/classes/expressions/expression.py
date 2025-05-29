@@ -139,17 +139,18 @@ class ExpressionTranslator(BaseTranslator):
             | None
         ) = None,
     ):
+        
+        self.findStruct()
         (name_part, counter_type) = self.getNamePartAndCounter(element_type)
         action_name = "{0}_{1}".format(
             name_part, Counters_Object.getCounter(counter_type)
         )
 
-        stmt: Structure | None = self.structure_pointer_list.getLastElement()
 
-        if stmt:
-            beh_index = stmt.getLastBehaviorIndex()
-            if stmt and beh_index is not None:
-                protocol = stmt.behavior[beh_index]
+        if self.last_struct:
+            beh_index = self.last_struct.getLastBehaviorIndex()
+            if self.last_struct and beh_index is not None:
+                protocol = self.last_struct.behavior[beh_index]
                 if len(protocol.body) > 0:
                     last_element = protocol.body[len(protocol.body) - 1]
                     if last_element.element_type == ElementsTypes.ACTION_ELEMENT:
@@ -283,13 +284,13 @@ class ExpressionTranslator(BaseTranslator):
             uniq = True
             index = self.module.actions.addElement(action)
             action_pointer = self.module.actions.getElementByIndex(index)
-            if stmt is not None:
-                stmt.elements.addElement(action)
+            if self.last_struct is not None:
+                self.last_struct.elements.addElement(action)
         else:
             Counters_Object.decrieseCounter(counter_type)
             action_name = action_check_result
-            if stmt is not None:
-                stmt.elements.addElement(action_pointer)
+            if self.last_struct is not None:
+                self.last_struct.elements.addElement(action_pointer)
 
         if element_type != ElementsTypes.REPEAT_ELEMENT:
             Counters_Object.incrieseCounter(counter_type)
@@ -299,7 +300,7 @@ class ExpressionTranslator(BaseTranslator):
     def translate(
         self, ctx, element_type: ElementsTypes, remove_association: bool = False
     ) -> Tuple[Action, str, Tuple[int, int], bool]:
-
+        self.findStruct()
         previus_action = False
         (name_part, counter_type) = self.getNamePartAndCounter(element_type)
 
@@ -314,7 +315,8 @@ class ExpressionTranslator(BaseTranslator):
 
         expression = ctx.getText()
         expression = valuesToAplanStandart(expression)
-        last_struct: Structure | None = self.structure_pointer_list.getLastElement()
+        
+        
         if (
             element_type == ElementsTypes.ASSIGN_ELEMENT
             or element_type == ElementsTypes.REPEAT_ELEMENT
@@ -328,7 +330,7 @@ class ExpressionTranslator(BaseTranslator):
             postcondition: NodeArray = NodeArray(ElementsTypes.POSTCONDITION_ELEMENT)
             self._translator_ptr.body2Aplan(
                 ctx,
-                sv_structure=last_struct,
+                sv_structure=self.last_struct,
                 destination_node_array=postcondition,
             )
             if postcondition.getLen() == 0:
@@ -344,7 +346,7 @@ class ExpressionTranslator(BaseTranslator):
             precondition: NodeArray = NodeArray(ElementsTypes.PRECONDITION_ELEMENT)
             self._translator_ptr.body2Aplan(
                 ctx,
-                sv_structure=last_struct,
+                sv_structure=self.last_struct,
                 destination_node_array=precondition,
             )
             if precondition.getLen() == 0:
@@ -366,19 +368,20 @@ class ExpressionTranslator(BaseTranslator):
 
         if not remove_association:
 
-            if last_struct is not None:
-                beh_index = last_struct.getLastBehaviorIndex()
+            if self.last_struct is not None:
+                beh_index = self.last_struct.getLastBehaviorIndex()
                 if beh_index is not None:
-                    protocol = last_struct.behavior[beh_index]
+                    protocol = self.last_struct.behavior[beh_index]
+                    
                     while True:
                         if isinstance(protocol, Structure):
+                            
                             protocol = protocol.behavior[
                                 protocol.getLastBehaviorIndex()
                             ]
                             continue
                         else:
                             break
-
                     last_element, previus_action, action_name = (
                         self.findAssociatedAction(
                             protocol,
@@ -388,7 +391,7 @@ class ExpressionTranslator(BaseTranslator):
                             previus_action,
                             action_name,
                         )
-                    )
+                    )      
             elif out_block_len > 0:
                 protocol: Protocol = (
                     self.module.out_of_block_elements.getElementByIndex(
@@ -414,11 +417,13 @@ class ExpressionTranslator(BaseTranslator):
             ) = self.module.actions.isUniqAction(action)
         params_for_finding: ParametrArray = ParametrArray()
         if self.inside_the_task == True:
+            
             task = self.module.tasks.getLastTask()
             params_for_finding += task.parametrs
 
         if self.module.input_parametrs is not None:
             params_for_finding += self.module.input_parametrs
+        print(params_for_finding)
         action.findParametrInBodyAndSetParametrs(params_for_finding)
 
         uniq = False
@@ -427,13 +432,13 @@ class ExpressionTranslator(BaseTranslator):
                 uniq = True
                 index = self.module.actions.addElement(action)
                 action_pointer = self.module.actions.getElementByIndex(index)
-                if last_struct is not None:
-                    last_struct.elements.addElement(action)
+                if self.last_struct is not None:
+                    self.last_struct.elements.addElement(action)
             else:
                 Counters_Object.decrieseCounter(counter_type)
                 action_name = action_check_result
-                if last_struct is not None:
-                    last_struct.elements.addElement(action_pointer)
+                if self.last_struct is not None:
+                    self.last_struct.elements.addElement(action_pointer)
 
             if element_type != ElementsTypes.REPEAT_ELEMENT:
                 Counters_Object.incrieseCounter(counter_type)

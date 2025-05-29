@@ -24,8 +24,8 @@ class RepeatStructTranslator(BaseTranslator):
         self,
         ctx: SystemVerilogParser.Loop_statementContext,
     ) -> None:
-        stmt: Structure | None = self.structure_pointer_list.getLastElement()
-        if not isinstance(stmt, Structure):
+        self.findStruct()
+        if not isinstance(self.last_struct, Structure):
             return
         identifier = "repeat_var_{0}".format(
             Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER)
@@ -61,26 +61,26 @@ class RepeatStructTranslator(BaseTranslator):
             assing_expr,
             ctx.getSourceInterval(),
             ElementsTypes.ASSIGN_ELEMENT,
-            sv_structure=stmt,
+            sv_structure=self.last_struct,
         )
 
         decl = self.module.declarations.getElementByIndex(decl_index)
 
         decl.action = action_pointer
 
-        stmt.elements.addElement(decl)
+        self.last_struct.elements.addElement(decl)
 
-        beh_index = stmt.getLastBehaviorIndex()
+        beh_index = self.last_struct.getLastBehaviorIndex()
         if beh_index is not None:
-            stmt.behavior[beh_index].addBody(
+            self.last_struct.behavior[beh_index].addBody(
                 BodyElement(assign_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
             )
         else:
             raise ValueError("sv_structure is empty")
 
         self.createStatement("REPEAT_LOOP", ElementsTypes.LOOP_ELEMENT)
-        repeat_stmt: Structure | None = self.structure_pointer_list.getLastElement()
-        if not isinstance(repeat_stmt, LoopStmt):
+        self.findStruct()
+        if not isinstance(self.last_struct, LoopStmt):
             return
 
         repeat_iteration = "REPEAT_ITERATION_{}".format(
@@ -98,11 +98,11 @@ class RepeatStructTranslator(BaseTranslator):
             condition_expr,
             expression_source_interval,
             ElementsTypes.CONDITION_ELEMENT,
-            sv_structure=repeat_stmt,
+            sv_structure=self.last_struct,
         )
 
-        beh_index = repeat_stmt.getLastBehaviorIndex()
-        repeat_stmt.behavior[beh_index].addBody(
+        beh_index = self.last_struct.getLastBehaviorIndex()
+        self.last_struct.behavior[beh_index].addBody(
             BodyElement(
                 "{0}.{1} + !{0}".format(assign_name, repeat_iteration),
                 action_pointer,
@@ -125,18 +125,18 @@ class RepeatStructTranslator(BaseTranslator):
             increase_expr,
             ctx.getSourceInterval(),
             ElementsTypes.REPEAT_ELEMENT,
-            sv_structure=repeat_stmt,
+            sv_structure=self.last_struct,
         )
 
         sensetive = self.extractSensetive(ctx.statement_or_null())
-        protocol_call = "Sensetive({0}, {1})".format(repeat_stmt.getName(), sensetive)
+        protocol_call = "Sensetive({0}, {1})".format(self.last_struct.getName(), sensetive)
 
-        beh_index = repeat_stmt.addProtocol(
+        beh_index = self.last_struct.addProtocol(
             repeat_iteration,
             inside_the_task=(self.inside_the_task or self.inside_the_function),
         )
 
-        repeat_stmt.behavior[beh_index].addBody(
+        self.last_struct.behavior[beh_index].addBody(
             BodyElement(
                 "{0}.{1}".format(assign_name, protocol_call),
                 action_pointer,
@@ -144,8 +144,8 @@ class RepeatStructTranslator(BaseTranslator):
             )
         )
 
-        copy = repeat_stmt.behavior[beh_index].copy()
-        repeat_stmt.behavior[beh_index] = repeat_stmt.behavior[beh_index - 1].copy()
-        repeat_stmt.behavior[beh_index - 1] = copy
+        copy = self.last_struct.behavior[beh_index].copy()
+        self.last_struct.behavior[beh_index] = self.last_struct.behavior[beh_index - 1].copy()
+        self.last_struct.behavior[beh_index - 1] = copy
 
-        self._translator_ptr.body2Aplan(ctx.statement_or_null(), repeat_stmt)
+        self._translator_ptr.body2Aplan(ctx.statement_or_null(), self.last_struct)

@@ -27,7 +27,7 @@ class InBlockAssignmentTranslator(BaseTranslator):
             | SystemVerilogParser.ExpressionContext
         ),
     ) -> None:
-        structure: Structure | None = self.structure_pointer_list.getLastElement()
+        self.findStruct()
         element_type = ElementsTypes.ASSIGN_ELEMENT
         if type(ctx) is SystemVerilogParser.Nonblocking_assignmentContext:
             element_type = ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
@@ -36,24 +36,24 @@ class InBlockAssignmentTranslator(BaseTranslator):
         )
         if action_name is not None:
             protocol_params = self.getProtocolParams()
-            if structure:
-                beh_index = structure.getLastBehaviorIndex()
+            if self.last_struct:
+                beh_index = self.last_struct.getLastBehaviorIndex()
 
                 if beh_index is not None:
-                    structure.behavior[beh_index].addBody(
+                    self.last_struct.behavior[beh_index].addBody(
                         BodyElement(
                             action_name, action_pointer, ElementsTypes.ACTION_ELEMENT
                         )
                     )
                 else:
-                    b_index = structure.addProtocol(
+                    b_index = self.last_struct.addProtocol(
                         "B_{0}".format(action_pointer.getName()),
                         inside_the_task=(
                             self.inside_the_task or self.inside_the_function
                         ),
                         parametrs=protocol_params,
                     )
-                    structure.behavior[b_index].addBody(
+                    self.last_struct.behavior[b_index].addBody(
                         BodyElement(
                             action_name, action_pointer, ElementsTypes.ACTION_ELEMENT
                         )

@@ -2,7 +2,8 @@ import typing
 
 from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
-from classes.structure import StructureArray
+from classes.structure import Structure, StructureArray
+from classes.tasks import TaskStmt
 
 if typing.TYPE_CHECKING:
     from translator.translator import Translator
@@ -17,9 +18,23 @@ class BaseTranslator:
 
         self._translator_ptr = translator
         self._program = Program()
+        self.inside_the_task = False
+        self.inside_the_function = False
+        self.last_struct: Structure | None = None
 
     def translate(self, ctx) -> None:
         raise TypeError("Run base translator")
+
+    def findStruct(
+        self,
+    ) -> None:
+        self.last_struct: Structure | None = (
+            self.structure_pointer_list.getLastElement()
+        )
+        if isinstance(self.last_struct, TaskStmt):
+            self.inside_the_task = True
+        else:
+            self.inside_the_task = False
 
     def createStatement(
         self,
@@ -52,31 +67,11 @@ class BaseTranslator:
     def structure_pointer_list(self) -> StructureArray:
         return self._translator_ptr._structure_pointer_list
 
-    @property
-    def inside_the_function(self) -> bool:
-        return self._translator_ptr._inside_the_function
-
-    @inside_the_function.setter
-    def inside_the_function(self, value: bool):
-        self._translator_ptr._inside_the_function = value
-
-    @property
-    def inside_the_task(self) -> bool:
-        return self._translator_ptr._inside_the_task
-
-    @inside_the_task.setter
-    def inside_the_task(self, value: bool):
-        self._translator_ptr._inside_the_task = value
-
     def getLastNameSpaceLevel(self) -> bool:
         return self._translator_ptr.getLastNameSpaceLevel()
 
     def getProtocolParams(self):
         return self._translator_ptr.getProtocolParams()
-
-    @inside_the_task.setter
-    def inside_the_task(self, value: bool):
-        self._translator_ptr._inside_the_task = value
 
     @property
     def current_genvar_value(self) -> bool:
