@@ -2,6 +2,7 @@ import re
 from typing import Tuple, List
 from classes.parametrs import ParametrArray
 from classes.basic import Basic, BasicArray
+
 from utils.string_formating import removeTrailingComma
 from classes.element_types import ElementsTypes
 from utils.utils import extractFunctionName
@@ -21,7 +22,9 @@ class BodyElement(Basic):
         self.pointer_to_related = pointer_to_related
 
     def copy(self):
-        element = BodyElement(self.identifier, self.pointer_to_related, self.element_type, self.parametrs)
+        element = BodyElement(
+            self.identifier, self.pointer_to_related, self.element_type, self.parametrs
+        )
 
         return element
 
@@ -113,7 +116,7 @@ class Protocol(Basic):
                         protocol_element = True
                         body_to_str += ";"
 
-            if body_element.pointer_to_related is not None:
+            if body_element.pointer_to_related is not None:             
                 element_str = re.sub(
                     r"\b{}\b".format(
                         re.escape(body_element.pointer_to_related.identifier)

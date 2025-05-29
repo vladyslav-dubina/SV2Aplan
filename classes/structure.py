@@ -103,14 +103,14 @@ class Structure(Basic):
     def getBehLen(self):
         return len(self.behavior)
 
-    def getName(self):
-        identifier = self.identifier
-        if self.number:
-            identifier = "{0}_{1}".format(identifier, self.number)
-        if self.parametrs.getLen() > 0:
-            identifier = "{0}({1})".format(identifier, str(self.parametrs))
+    # def getName(self):
+    #     identifier = self.identifier
+    #     if self.number:
+    #         identifier = "{0}_{1}".format(identifier, self.number)
+    #     if self.parametrs.getLen() > 0:
+    #         identifier = "{0}({1})".format(identifier, str(self.parametrs))
 
-        return identifier
+    #     return identifier
 
     def __str__(self):
         result = ""

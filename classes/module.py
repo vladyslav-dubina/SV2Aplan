@@ -95,14 +95,14 @@ class Module(Basic):
             ident_uniq = "object_pointer"
         else:
             ident_uniq = self.ident_uniq_name
-
+    
         for elem in self.declarations.getElements():
             input = re.sub(
                 r"\b{}\b".format(re.escape(elem.identifier)),
-                "{}.{}".format(ident_uniq, elem.identifier),
+                "{}.{}".format(ident_uniq, elem.getName()),
                 input,
             )
-
+        
         if packages is not None:
             for package in packages:
                 if self.element_type is ElementsTypes.CLASS_ELEMENT:

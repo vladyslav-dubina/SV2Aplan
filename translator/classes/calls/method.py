@@ -37,10 +37,6 @@ class MethodCallTranslator(BaseTranslator):
             argument_list
         )
 
-        argument_list_with_replaced_names = self.module.declarations.replaseDeclNames(
-            argument_list_with_replaced_names
-        )
-
         argument_list_with_replaced_names = (
             self.module.findAndChangeNamesToAgentAttrCall(
                 argument_list_with_replaced_names

@@ -9,5 +9,5 @@ assign_2(x, y, z) = (
 assign_3 = (
 		(1)->
 		("TASK_EXAMPLE#task_example:action 'assign (a=10; b=5)';")
-		(task_example.a = 10;
-		 task_example.b = 5))
+		(task_example.a_0 = 10;
+		 task_example.b_0 = 5))

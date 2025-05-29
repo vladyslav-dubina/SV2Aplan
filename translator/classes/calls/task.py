@@ -24,9 +24,9 @@ class TaskCallTranslator(BaseTranslator):
     def translate(
         self,
         ctx: SystemVerilogParser.Tf_callContext,
-        sv_structure: Structure,
         destination_node_array: NodeArray | None = None,
     ) -> None:
+        self.findStruct()
         ps_or_hierarchical_tf: (
             SystemVerilogParser.Ps_or_hierarchical_tf_identifierContext
         ) = ctx.ps_or_hierarchical_tf_identifier()
@@ -45,7 +45,7 @@ class TaskCallTranslator(BaseTranslator):
             if task_identifier == "push_back":
                 self._translator_ptr.translate(
                     "push_back",
-                    sv_structure,
+                    self.last_struct,
                     task_identifier,
                     object_identifier,
                     ctx.list_of_arguments(),
@@ -54,16 +54,12 @@ class TaskCallTranslator(BaseTranslator):
                 return
         else:
             task_identifier = ps_or_hierarchical_tf.getText()
-        print(ctx.getText())
+
         (
             argument_list,
             argument_list_with_replaced_names,
         ) = self._translator_ptr.getTranslator("expr").prepareExpressionString(
-            argument_list, ElementsTypes.TASK_ELEMENT
-        )
-
-        argument_list_with_replaced_names = self.module.declarations.replaseDeclNames(
-            argument_list_with_replaced_names
+            argument_list
         )
 
         argument_list_with_replaced_names = (
@@ -88,9 +84,8 @@ class TaskCallTranslator(BaseTranslator):
                     task = element.tasks.findElement(task_identifier)
                     if task is not None:
                         break
-        self._translator_ptr.getTranslator("task_call").createCall(
+        self.createCall(
             task,
-            sv_structure,
             destination_node_array,
             object_identifier,
             argument_list_with_replaced_names,
@@ -101,33 +96,37 @@ class TaskCallTranslator(BaseTranslator):
     def createCall(
         self,
         task: Task | None,
-        sv_structure: Structure,
         destination_node_array: NodeArray | None = None,
         object_identifier: str | None = None,
         arguments: str = "",
         source_interval: Tuple[int, int] = (0, 0),
     ) -> None:
         if task is not None:
+            self.findStruct()
+
             if task.element_type == ElementsTypes.TASK_ELEMENT:
                 task_call = "{0}".format(task.structure.identifier)
 
-                beh_index = sv_structure.getLastBehaviorIndex()
+                beh_index = self.last_struct.getLastBehaviorIndex()
                 copy = task.structure.copy()
                 copy.additional_params = arguments
+
                 if beh_index is not None:
-                    sv_structure.behavior[beh_index].addBody(
+                    self.last_struct.behavior[beh_index].addBody(
                         BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
                     )
+
                 else:
                     Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
                     task_call = "B_{0}".format(task.structure.identifier)
-                    b_index = sv_structure.addProtocol(
+                    beh_index = self.last_struct.addProtocol(
                         task_call,
                         inside_the_task=self.inside_the_task,
                     )
-                    sv_structure.behavior[b_index].addBody(
+                    self.last_struct.behavior[beh_index].addBody(
                         BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
                     )
+
             elif task.element_type == ElementsTypes.FUNCTION_ELEMENT:
 
                 function_result_var = None
@@ -159,7 +158,7 @@ class TaskCallTranslator(BaseTranslator):
                         0,
                         source_interval,
                     )
-                    sv_structure.elements.addElement(new_decl)
+                    self.last_struct.elements.addElement(new_decl)
                     decl_unique, decl_index = self.module.declarations.addElement(
                         new_decl
                     )
@@ -177,21 +176,21 @@ class TaskCallTranslator(BaseTranslator):
                     )
 
                 task_call = "{0}".format(task.structure.identifier)
-                beh_index = sv_structure.getLastBehaviorIndex()
+                beh_index = sv_struself.last_structcture.getLastBehaviorIndex()
                 copy = task.structure.copy()
                 copy.additional_params = arguments
                 if beh_index is not None:
-                    sv_structure.behavior[beh_index].addBody(
+                    self.last_struct.behavior[beh_index].addBody(
                         BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
                     )
                 else:
                     Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
                     task_call = "B_{0}".format(task.structure.identifier)
-                    b_index = sv_structure.addProtocol(
+                    b_index = self.last_struct.addProtocol(
                         task_call,
                         inside_the_task=self.inside_the_task,
                     )
-                    sv_structure.behavior[b_index].addBody(
+                    self.last_struct.behavior[b_index].addBody(
                         BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
                     )
 

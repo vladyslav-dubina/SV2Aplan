@@ -420,9 +420,16 @@ class Translator:
         translator = self.getTranslator(trnslt_name)
         return translator.translate(*args, **kwargs)
 
+    def isInsideTheTask(self):
+        structure: Structure | None = self._structure_pointer_list.getLastElement()
+        if isinstance(structure, TaskStmt):
+            return True
+
+        return False
+
     def getProtocolParams(self):
         protocol_params = None
-        if self._inside_the_task == True:
+        if self.isInsideTheTask() == True:
             task = self._module.tasks.getLastTask()
             if task is not None:
                 protocol_params = task.parametrs
@@ -489,8 +496,8 @@ class Translator:
                     self.translate("return", child.expression(), sv_structure)
             # ---------------------------------------------------------------------------
             # Task and function handler
-            elif type(child) is SystemVerilogParser.Tf_callContext:
-                self.translate("task_call", child, sv_structure, destination_node_array)
+           # elif type(child) is SystemVerilogParser.Tf_callContext:
+             #   self.translate("task_call", child, sv_structure, destination_node_array)
             # ---------------------------------------------------------------------------
             # Dynamic_array new[] handler
             elif type(child) is SystemVerilogParser.Dynamic_array_newContext:
@@ -526,8 +533,7 @@ class Translator:
     ):
         counter_type: CounterTypes = CounterTypes.STRUCT_COUNTER
         sv_structure: Structure | None = self._structure_pointer_list.getLastElement()
- 
-        
+
         if sv_structure:
             protocol_params = self.getProtocolParams()
             beh_index = sv_structure.getLastBehaviorIndex()

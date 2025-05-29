@@ -304,11 +304,11 @@ class DeclarationArray(BasicArray):
                 break
 
         return expression, decl
-    
+
     def replaseDeclNames(self, expression):
         for element in self.elements:
             pattern = r"\b" + re.escape(element.identifier) + r"\b"
-            expression = re.subn(pattern, element.getName(), expression)
+            (expression, count) = re.subn(pattern, element.getName(), expression)
 
         return expression
 

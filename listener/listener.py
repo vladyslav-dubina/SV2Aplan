@@ -73,6 +73,14 @@ class SVToAplanListener(SystemVerilogParserListener):
     def enterTask_declaration(self, ctx: SystemVerilogParser.Task_declarationContext):
         self.translator.translate("task_body_decl", ctx.task_body_declaration())
 
+        # Enter a parse tree produced by SystemVerilogParser#tf_call.
+
+    def enterTf_call(self, ctx: SystemVerilogParser.Tf_callContext):
+        self.translator.translate("task_call", ctx)
+
+    # Exit a parse tree produced by SystemVerilogParser#tf_call.
+    def exitTf_call(self, ctx: SystemVerilogParser.Tf_callContext):
+        pass
 
     def exitTask_declaration(self, ctx: SystemVerilogParser.Task_declarationContext):
         self.translator.removeLastStructPointer()

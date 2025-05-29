@@ -9,7 +9,7 @@ from translator.classes.base_translator import BaseTranslator
 class ClassNewTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -35,10 +35,6 @@ class ClassNewTranslator(BaseTranslator):
             argument_list_with_replaced_names,
         ) = self._translator_ptr.getTranslator("expr").prepareExpressionString(
             argument_list, ElementsTypes.TASK_ELEMENT
-        )
-
-        argument_list_with_replaced_names = self.module.declarations.replaseDeclNames(
-            argument_list_with_replaced_names
         )
 
         argument_list_with_replaced_names = (
