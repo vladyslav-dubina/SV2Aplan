@@ -42,10 +42,9 @@ class CaseItemExprTranslator(BaseTranslator):
             case_stmt.expression.getText(), ctx.getText()
         )
 
-        Counters_Object.incrieseCounter(CounterTypes.CASE_COUNTER)
-
-        action_name = "case_{0}".format(
-            Counters_Object.getCounter(CounterTypes.CASE_COUNTER)
+        action_name = "case_{0}_{1}".format(
+            case_stmt.number,
+            case_stmt.init_case_count - case_stmt.case_count,
         )
         case_action = Action(
             action_name,
@@ -100,21 +99,22 @@ class CaseItemExprTranslator(BaseTranslator):
 
         protocol_params = self.getProtocolParams()
 
-        body = "{0}.CASE_BODY_{1}".format(
+        body = "{0}.CASE_BODY_{1}_{2}".format(
             action_name,
-            Counters_Object.getCounter(CounterTypes.BODY_COUNTER),
+            case_stmt.number,
+            case_stmt.init_case_count - case_stmt.case_count,
         )
 
         if case_stmt.case_count != case_stmt.init_case_count:
             beh_index = case_stmt.addProtocol(
-                "ELSE_BODY_{0}".format(
-                    Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER)
+                "ELSE_BODY_{0}_{1}".format(
+                    case_stmt.number,
+                    case_stmt.init_case_count - case_stmt.case_count,
                 ),
                 element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
                 parametrs=protocol_params,
                 inside_the_task=(self.inside_the_task or self.inside_the_function),
             )
-            Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
 
         case_stmt.behavior[beh_index].addBody(
             BodyElement(
@@ -130,9 +130,10 @@ class CaseItemExprTranslator(BaseTranslator):
             continuation_flag = True
 
         if continuation_flag == True:
-            body = "!{0}.ELSE_BODY_{1}".format(
+            body = "!{0}.ELSE_BODY_{1}_{2}".format(
                 action_name,
-                Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER),
+                case_stmt.number,
+                case_stmt.init_case_count - case_stmt.case_count + 1,
             )
             case_stmt.behavior[beh_index].addBody(
                 BodyElement(
@@ -153,8 +154,9 @@ class CaseItemExprTranslator(BaseTranslator):
             )
 
         case_stmt.addProtocol(
-            "CASE_BODY_{0}".format(
-                Counters_Object.getCounter(CounterTypes.BODY_COUNTER)
+            "CASE_BODY_{0}_{1}".format(
+                case_stmt.number,
+                case_stmt.init_case_count - case_stmt.case_count,
             ),
             element_type=ElementsTypes.CASE_STATEMENT_ELEMENT,
             parametrs=protocol_params,
@@ -182,14 +184,15 @@ class CaseItemTranslator(BaseTranslator):
             if case_stmt.case_count == 1 and case_stmt.init_case_count > 1:
                 protocol_params = self.getProtocolParams()
                 case_stmt.addProtocol(
-                    "ELSE_BODY_{0}".format(
-                        Counters_Object.getCounter(CounterTypes.ELSE_BODY_COUNTER)
+                    "ELSE_BODY_{0}_{1}".format(
+                        case_stmt.number,
+                        case_stmt.init_case_count - case_stmt.case_count,
                     ),
                     element_type=ElementsTypes.CASE_STATEMENT_ELEMENT,
                     parametrs=protocol_params,
                     inside_the_task=(self.inside_the_task or self.inside_the_function),
                 )
-                Counters_Object.incrieseCounter(CounterTypes.ELSE_BODY_COUNTER)
+
                 case_stmt.case_count -= 1
 
 
