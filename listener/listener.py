@@ -49,16 +49,33 @@ class SVToAplanListener(SystemVerilogParserListener):
     ):
         self.translator.translate("genvar_decl", ctx)
 
-    def exitData_declaration(self, ctx: SystemVerilogParser.Data_declarationContext):
+    def enterData_declaration(self, ctx: SystemVerilogParser.Data_declarationContext):
         self.translator.translate("data_decl", ctx)
+
+    # Enter a parse tree produced by SystemVerilogParser#variable_decl_assignment.
+    def enterVariable_decl_assignment(
+        self, ctx: SystemVerilogParser.Variable_decl_assignmentContext
+    ):
+        self.translator.translate("var_decl", ctx)
+
+    # Exit a parse tree produced by SystemVerilogParser#variable_decl_assignment.
+    def exitVariable_decl_assignment(
+        self, ctx: SystemVerilogParser.Variable_decl_assignmentContext
+    ):
+        pass
 
     def exitNet_declaration(self, ctx: SystemVerilogParser.Net_declarationContext):
         self.translator.translate("net_decl", ctx)
 
-    def exitAnsi_port_declaration(
+    def enterAnsi_port_declaration(
         self, ctx: SystemVerilogParser.Ansi_port_declarationContext
     ):
         self.translator.translate("ansi_port_decl", ctx)
+
+    def exitAnsi_port_declaration(
+        self, ctx: SystemVerilogParser.Ansi_port_declarationContext
+    ):
+        self.translator.getTranslator("ansi_port_decl").exit()
 
     def exitPackage_import_declaration(
         self, ctx: SystemVerilogParser.Package_import_declarationContext
@@ -73,22 +90,32 @@ class SVToAplanListener(SystemVerilogParserListener):
     def enterTask_declaration(self, ctx: SystemVerilogParser.Task_declarationContext):
         self.translator.translate("task_body_decl", ctx.task_body_declaration())
 
-        # Enter a parse tree produced by SystemVerilogParser#tf_call.
-
-    def enterTf_call(self, ctx: SystemVerilogParser.Tf_callContext):
-        self.translator.translate("task_call", ctx)
-
-    # Exit a parse tree produced by SystemVerilogParser#tf_call.
-    def exitTf_call(self, ctx: SystemVerilogParser.Tf_callContext):
-        pass
-
     def exitTask_declaration(self, ctx: SystemVerilogParser.Task_declarationContext):
         self.translator.removeLastStructPointer()
+
+    def enterFunction_declaration(
+        self, ctx: SystemVerilogParser.Function_declarationContext
+    ):
+        self.translator.translate("task_body_decl", ctx.function_body_declaration())
 
     def exitFunction_declaration(
         self, ctx: SystemVerilogParser.Function_declarationContext
     ):
-        self.translator.translate("task_body_decl", ctx.function_body_declaration())
+        self.translator.removeLastStructPointer()
+
+    def enterNumber(self, ctx: SystemVerilogParser.NumberContext):
+        self.translator.translate("number", ctx)
+
+    def exitNumber(self, ctx: SystemVerilogParser.NumberContext):
+        pass
+
+    # =========================================================================================
+    # JUMP
+    # =========================================================================================
+
+    def enterJump_statement(self, ctx: SystemVerilogParser.Jump_statementContext):
+        if ctx.RETURN and ctx.expression():
+            self.translator.translate("return", ctx.expression())
 
     # =========================================================================================
     # CALLS

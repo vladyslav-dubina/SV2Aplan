@@ -1,5 +1,5 @@
 B_TASK_EXAMPLE = {TASK_EXAMPLE_INITITAL},
-ADD(x, y, z) = assign_1(x, y, z),
-SUBTRACT(x, y, z) = assign_2(x, y, z),
-CALCULATE(in_a, in_b, out_result_add, out_result_sub) = ADD(in_a, in_b, task_example.temp_sum_1);(SUBTRACT(in_a, in_b, out_result_sub));(assign_3(out_result_add)),
-TASK_EXAMPLE_INITITAL = assign_4.CALCULATE(task_example.a, task_example.b, task_example.result_add, task_example.result_sub)
+ADD_1(x, y, z) = assign_1(x, y, z),
+SUBTRACT_2(x, y, z) = assign_2(x, y, z),
+CALCULATE_3(in_a, in_b, out_result_add, out_result_sub) = ADD_1(in_a, in_b, task_example.temp_sum_3);(SUBTRACT_2(in_a, in_b, out_result_sub));(assign_3(out_result_add)),
+TASK_EXAMPLE_INITITAL = assign_4.CALCULATE_3(task_example.a_0, task_example.b_0, task_example.result_add_0, task_example.result_sub_0)

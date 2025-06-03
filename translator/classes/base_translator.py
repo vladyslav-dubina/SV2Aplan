@@ -1,7 +1,9 @@
 import typing
 
 from classes.counters import CounterTypes
+from classes.declarations import DeclType, DeclTypeArray
 from classes.element_types import ElementsTypes
+from classes.node import NodeArray
 from classes.structure import Structure, StructureArray
 from classes.tasks import TaskStmt
 
@@ -20,9 +22,23 @@ class BaseTranslator:
         self._program = Program()
         self.inside_the_task = False
         self.last_struct: Structure | None = None
+        self.last_node_array: NodeArray | None = None
+        self.expression_translate = False
 
     def translate(self, ctx) -> None:
         raise TypeError("Run base translator")
+
+    def exit(self) -> None:
+        raise TypeError("Run base exit")
+
+    def findNodeArray(self) -> None:
+        self.last_node_array: NodeArray | None = None
+        length = len(self.node_array_pointer_list)
+        if length > 0:
+            self.last_node_array = self.node_array_pointer_list[length - 1]
+
+    def removeNodeArrayPointer(self):
+        self._translator_ptr.removeNodeArrayPointer()
 
     def findStruct(
         self,
@@ -30,11 +46,11 @@ class BaseTranslator:
         self.last_struct: Structure | None = (
             self.structure_pointer_list.getLastElement()
         )
-        if isinstance(self.last_struct, TaskStmt):
-            self.inside_the_task = True
-        else:
-            self.inside_the_task = False
-
+        if self.last_struct:
+            if isinstance(self.last_struct, TaskStmt):
+                self.inside_the_task = True
+            else:
+                self.inside_the_task = self.last_struct.inside_the_task
 
     def createStatement(
         self,
@@ -64,14 +80,28 @@ class BaseTranslator:
         self._translator_ptr._module = value
 
     @property
+    def node_array_pointer_list(self) -> typing.List[NodeArray]:
+        return self._translator_ptr._node_array_pointer_list
+
+    @property
     def structure_pointer_list(self) -> StructureArray:
         return self._translator_ptr._structure_pointer_list
+
+    @property
+    def decl_type(self) -> DeclType:
+        return self._translator_ptr._decl_type
+
+    @decl_type.setter
+    def decl_type(self, value: DeclType | None):
+        self._translator_ptr._decl_type = value
 
     def getLastNameSpaceLevel(self) -> bool:
         return self._translator_ptr.getLastNameSpaceLevel()
 
     def getProtocolParams(self):
-        return self._translator_ptr.getProtocolParams()
+        self.findStruct()
+        if self.last_struct:
+            return self.last_struct.parametrs
 
     @property
     def current_genvar_value(self) -> bool:

@@ -15,7 +15,7 @@ from utils.utils import (
 class AnsiPortDeclTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -106,3 +106,8 @@ class AnsiPortDeclTranslator(BaseTranslator):
             declaration = self.module.declarations.getElementByIndex(decl_index)
             declaration.expression = assign_name
             declaration.action = action_pointer
+            self.expression_translate = True
+
+    def exit(self) -> None:
+        if self.expression_translate:
+            self.removeNodeArrayPointer()

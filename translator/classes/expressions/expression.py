@@ -77,8 +77,8 @@ class ExpressionTranslator(BaseTranslator):
         action_name: str,
     ):
         last_element = None
-        if protocol and len(protocol.body) > 0:
-            last_element = protocol.body[len(protocol.body) - 1]
+        if protocol and protocol.body.getLen() > 0:
+            last_element = protocol.body.getElementByIndex(protocol.body.getLen() - 1)
             if (
                 last_element.element_type == ElementsTypes.ACTION_ELEMENT
                 and last_element.pointer_to_related
@@ -139,13 +139,12 @@ class ExpressionTranslator(BaseTranslator):
             | None
         ) = None,
     ):
-        
+
         self.findStruct()
         (name_part, counter_type) = self.getNamePartAndCounter(element_type)
         action_name = "{0}_{1}".format(
             name_part, Counters_Object.getCounter(counter_type)
         )
-
 
         if self.last_struct:
             beh_index = self.last_struct.getLastBehaviorIndex()
@@ -301,6 +300,7 @@ class ExpressionTranslator(BaseTranslator):
         self, ctx, element_type: ElementsTypes, remove_association: bool = False
     ) -> Tuple[Action, str, Tuple[int, int], bool]:
         self.findStruct()
+
         previus_action = False
         (name_part, counter_type) = self.getNamePartAndCounter(element_type)
 
@@ -315,8 +315,7 @@ class ExpressionTranslator(BaseTranslator):
 
         expression = ctx.getText()
         expression = valuesToAplanStandart(expression)
-        
-        
+
         if (
             element_type == ElementsTypes.ASSIGN_ELEMENT
             or element_type == ElementsTypes.REPEAT_ELEMENT
@@ -328,6 +327,7 @@ class ExpressionTranslator(BaseTranslator):
             )
             self.taskAssignIfPosible(ctx, action.postcondition)
             postcondition: NodeArray = NodeArray(ElementsTypes.POSTCONDITION_ELEMENT)
+            self.node_array_pointer_list.append(postcondition)
             self._translator_ptr.body2Aplan(
                 ctx,
                 sv_structure=self.last_struct,
@@ -372,10 +372,10 @@ class ExpressionTranslator(BaseTranslator):
                 beh_index = self.last_struct.getLastBehaviorIndex()
                 if beh_index is not None:
                     protocol = self.last_struct.behavior[beh_index]
-                    
+
                     while True:
                         if isinstance(protocol, Structure):
-                            
+
                             protocol = protocol.behavior[
                                 protocol.getLastBehaviorIndex()
                             ]
@@ -391,7 +391,7 @@ class ExpressionTranslator(BaseTranslator):
                             previus_action,
                             action_name,
                         )
-                    )      
+                    )
             elif out_block_len > 0:
                 protocol: Protocol = (
                     self.module.out_of_block_elements.getElementByIndex(
@@ -417,7 +417,7 @@ class ExpressionTranslator(BaseTranslator):
             ) = self.module.actions.isUniqAction(action)
         params_for_finding: ParametrArray = ParametrArray()
         if self.inside_the_task == True:
-            
+
             task = self.module.tasks.getLastTask()
             params_for_finding += task.parametrs
 

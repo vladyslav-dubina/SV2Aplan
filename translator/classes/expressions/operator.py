@@ -21,6 +21,7 @@ class OperatorTranslator(BaseTranslator):
     def translate(
         self, ctx: Tree.TerminalNodeImpl, destination_node_array: NodeArray
     ) -> None:
+        self.findStruct()
         if destination_node_array is not None:
             operator = ctx.getText()
             if self.isNotUsedOperator(operator):

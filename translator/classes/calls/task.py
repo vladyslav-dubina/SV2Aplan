@@ -74,6 +74,7 @@ class TaskCallTranslator(BaseTranslator):
             )
             task = object.tasks.findElement(task_identifier)
         else:
+
             task = self.module.tasks.findElement(task_identifier)
             if task is None:
                 packages = self.module.packages_and_objects.getElementsIE(
@@ -84,6 +85,7 @@ class TaskCallTranslator(BaseTranslator):
                     task = element.tasks.findElement(task_identifier)
                     if task is not None:
                         break
+
         self.createCall(
             task,
             destination_node_array,
@@ -130,11 +132,9 @@ class TaskCallTranslator(BaseTranslator):
             elif task.element_type == ElementsTypes.FUNCTION_ELEMENT:
 
                 function_result_var = None
-
                 if task.findReturnParam():
-                    function_result_var = "{0}_call_result_{1}".format(
-                        task.identifier,
-                        Counters_Object.getCounter(CounterTypes.TASK_COUNTER),
+                    function_result_var = "{0}_{1}_call_result".format(
+                        task.identifier, task.number
                     )
                     if destination_node_array:
                         node_index = destination_node_array.addElement(
@@ -176,7 +176,7 @@ class TaskCallTranslator(BaseTranslator):
                     )
 
                 task_call = "{0}".format(task.structure.identifier)
-                beh_index = sv_struself.last_structcture.getLastBehaviorIndex()
+                beh_index = self.last_struct.getLastBehaviorIndex()
                 copy = task.structure.copy()
                 copy.additional_params = arguments
                 if beh_index is not None:
@@ -193,5 +193,3 @@ class TaskCallTranslator(BaseTranslator):
                     self.last_struct.behavior[b_index].addBody(
                         BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
                     )
-
-                Counters_Object.incrieseCounter(CounterTypes.TASK_COUNTER)

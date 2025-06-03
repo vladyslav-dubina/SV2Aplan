@@ -38,63 +38,45 @@ class BodyElement(Basic):
             return self.identifier
 
 
-class Protocol(Basic):
-    def __init__(
-        self,
-        identifier: str,
-        source_interval: Tuple[int, int],
-        element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT,
-        parametrs: ParametrArray | None = None,
-    ):
-        super().__init__(identifier, source_interval, element_type)
-        self.body: List[BodyElement] = []
-        self.parametrs: ParametrArray = ParametrArray()
-        if parametrs is not None:
-            self.parametrs = parametrs
+class BodyElementArray(BasicArray):
+    def __init__(self, element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT):
+        super().__init__(BodyElement)
+        self.element_type = element_type
 
     def copy(self):
-        protocol = Protocol(self.identifier, self.source_interval, self.element_type)
-        for element in self.body:
-            protocol.body.append(element)
-        protocol.parametrs = self.parametrs.copy()
-        protocol.number = self.number
-        return protocol
+        new_aray: BodyElementArray = BodyElementArray(BodyElement)
+        for element in self.getElements():
+            new_aray.addElement(element.copy())
+        new_aray.element_type = self.element_type
+        return new_aray
 
-    def addBody(self, body: BodyElement):
-        self.body.append(body)
+    def getElementByIndex(self, index) -> BodyElement:
+        return self.elements[index]
 
-    def getName(self):
-        identifier = self.identifier
-        if self.number:
-            identifier = "{0}_{1}".format(identifier, self.number)
-        if self.parametrs.getLen() > 0:
-            identifier = "{0}({1})".format(identifier, str(self.parametrs))
+    def addElement(self, new_element: BodyElement):
+        self.elements.append(new_element)
+        return self.getLen() - 1
 
-        return identifier
+    def getElements(self):
+        return self.elements
 
-    def updateLinks(self, module):
-        for index, element in enumerate(self.body):
-            func_name = extractFunctionName(element.identifier)
-            if func_name:
-                action = module.actions.findElement(func_name)
-                if action:
-                    self.body[index] = (
-                        action,
-                        element.element_type,
-                        element.element_type,
-                    )
+    def getLen(self):
+        return len(self.elements)
 
     def __str__(self):
+        return self.toStr()
+
+    def toStr(self, last_coma=True):
         body_to_str = ""
         brackets = False
-        for index, body_element in enumerate(self.body):
+        for index, body_element in enumerate(self.elements):
             element_str = body_element.getName()
             protocol_element = False
             if index != 0:
                 if self.element_type == ElementsTypes.GENERATE_ELEMENT:
                     body_to_str += " || "
                 else:
-                    prev_body_element = self.body[index - 1]
+                    prev_body_element = self.getElementByIndex(index - 1)
                     if body_element.element_type == ElementsTypes.FOREVER_ELEMENT:
                         body_to_str += ";"
                     elif (
@@ -116,14 +98,17 @@ class Protocol(Basic):
                         protocol_element = True
                         body_to_str += ";"
 
-            if body_element.pointer_to_related is not None:             
-                element_str = re.sub(
-                    r"\b{}\b".format(
-                        re.escape(body_element.pointer_to_related.identifier)
-                    ),
-                    body_element.pointer_to_related.getName(),
-                    element_str,
-                )
+            if body_element.pointer_to_related:
+                if not isinstance(body_element.pointer_to_related, BodyElementArray):
+                    element_str = re.sub(
+                        r"\b{}\b".format(
+                            re.escape(body_element.pointer_to_related.identifier)
+                        ),
+                        body_element.pointer_to_related.getName(),
+                        element_str,
+                    )
+                else:
+                    element_str = body_element.pointer_to_related.toStr(False)
 
             if body_element.element_type == ElementsTypes.FOREVER_ELEMENT:
                 body_to_str += "{" + element_str + "}"
@@ -131,7 +116,6 @@ class Protocol(Basic):
                 body_to_str += element_str
             else:
                 if body_element.element_type == ElementsTypes.IF_CONDITION_LEFT:
-
                     brackets = True
                     body_to_str += "(" + element_str
                 else:
@@ -142,12 +126,63 @@ class Protocol(Basic):
                     body_to_str += element_str + ")"
                     brackets = False
 
-            if index == len(self.body) - 1:
+            if index == len(self.elements) - 1 and last_coma:
                 body_to_str += ","
+
+        return body_to_str
+
+
+class Protocol(Basic):
+    def __init__(
+        self,
+        identifier: str,
+        source_interval: Tuple[int, int],
+        element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT,
+        parametrs: ParametrArray | None = None,
+    ):
+        super().__init__(identifier, source_interval, element_type)
+        self.body: BodyElementArray = BodyElementArray()
+        self.parametrs: ParametrArray = ParametrArray()
+        if parametrs is not None:
+            self.parametrs = parametrs
+
+    def copy(self):
+        protocol = Protocol(self.identifier, self.source_interval, self.element_type)
+        for element in self.body.getElements():
+            protocol.body.addElement(element)
+        protocol.parametrs = self.parametrs.copy()
+        protocol.number = self.number
+        return protocol
+
+    def addBody(self, body: BodyElement):
+        self.body.addElement(body)
+
+    def getName(self):
+        identifier = self.identifier
+        if self.number:
+            identifier = "{0}_{1}".format(identifier, self.number)
+        if self.parametrs.getLen() > 0:
+            identifier = "{0}({1})".format(identifier, str(self.parametrs))
+
+        return identifier
+
+    def updateLinks(self, module):
+        for index, element in enumerate(self.body.getElements()):
+            func_name = extractFunctionName(element.identifier)
+            if func_name:
+                action = module.actions.findElement(func_name)
+                if action:
+                    self.body[index] = (
+                        action,
+                        element.element_type,
+                        element.element_type,
+                    )
+
+    def __str__(self):
 
         return "{0} = {1}".format(
             self.getName(),
-            body_to_str,
+            str(self.body),
         )
 
     def __repr__(self):

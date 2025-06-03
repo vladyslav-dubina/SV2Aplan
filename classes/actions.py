@@ -59,6 +59,7 @@ class Action(Basic):
 
         return action
 
+    
     def getNameWithParams(self):
         if self.parametrs:
             if self.parametrs.getLen() == 0:

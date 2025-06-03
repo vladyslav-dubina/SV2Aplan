@@ -3,7 +3,6 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.element_types import ElementsTypes
 from classes.parametrs import Parametr
 from classes.protocols import BodyElement
-from classes.structure import Structure
 from translator.classes.base_translator import BaseTranslator
 from utils.string_formating import parallelAssignment2Assignment
 
@@ -11,7 +10,7 @@ from utils.string_formating import parallelAssignment2Assignment
 class ReturnTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -19,12 +18,11 @@ class ReturnTranslator(BaseTranslator):
     def translate(
         self,
         ctx: SystemVerilogParser.ExpressionContext,
-        sv_structure: Structure | None = None,
+        # sv_structure: Structure | None = None,
     ) -> None:
+        self.findStruct()
         action_pointer, action_name, source_interval, uniq_action = (
-            self._translator_ptr.translate(
-                "expr", ctx, ElementsTypes.ASSIGN_ELEMENT
-            )
+            self._translator_ptr.translate("expr", ctx, ElementsTypes.ASSIGN_ELEMENT)
         )
 
         task = self.module.tasks.getLastTask()
@@ -51,7 +49,7 @@ class ReturnTranslator(BaseTranslator):
         action_parametrs_count = action_pointer.parametrs.getLen()
         action_name = f"{action_pointer.identifier}{action_pointer.parametrs.getIdentifiersListString(action_parametrs_count)}"
 
-        beh_index = sv_structure.getLastBehaviorIndex()
-        sv_structure.behavior[beh_index].addBody(
+        beh_index = self.last_struct.getLastBehaviorIndex()
+        self.last_struct.behavior[beh_index].addBody(
             BodyElement(action_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
         )

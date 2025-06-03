@@ -3,6 +3,7 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
 from classes.case_stmt import CaseStmt
 from classes.counters import CounterTypes
+from classes.declarations import DeclType, DeclTypeArray
 from classes.if_stmt import IfStmt
 from classes.loop_stmt import ForeverStmt, LoopStmt, WhileStmt
 from classes.module_call import ModuleCall
@@ -12,7 +13,7 @@ from classes.protocols import BodyElement
 from classes.structure import Structure, StructureArray
 from classes.module import Module
 from classes.element_types import ElementsTypes
-from typing import Literal, Tuple, overload
+from typing import List, Literal, Tuple, overload
 from classes.tasks import TaskStmt
 from translator.classes.arrays.array import ArrayTranslator
 from translator.classes.arrays.methods.push_back import PushBackTranslator
@@ -51,6 +52,7 @@ from translator.classes.declarations.struct import StructDeclTranslator
 from translator.classes.declarations.task import TaskBodyDeclTranslator
 from translator.classes.declarations.typedef import TypedefDeclTranslator
 from translator.classes.arrays.dynamic import DynamicArrayNewTranslator
+from translator.classes.declarations.variable import VariableDeclTranslator
 from translator.classes.expressions.bit_selection import BitSelectionTranslator
 from translator.classes.expressions.expression import ExpressionTranslator
 from translator.classes.assignments.parameters import (
@@ -157,6 +159,7 @@ TRANSLATOR_NAMES = Literal[
     "class_decl",
     "array",
     "push_back",
+    "var_decl"
 ]
 
 
@@ -164,7 +167,9 @@ class Translator:
     module_call: ModuleCall | None = None
     _module: Module | None = None
     _structure_pointer_list: StructureArray = StructureArray()
+    _node_array_pointer_list: List[NodeArray] = []
     _cache = {}
+    _decl_type: DeclType | None = None
 
     _current_genvar_value: Tuple[str, int] | None = None
 
@@ -237,11 +242,14 @@ class Translator:
         "class_decl": ClassDeclTranslator,
         "array": ArrayTranslator,
         "push_back": PushBackTranslator,
+        "var_decl":VariableDeclTranslator
     }
 
     def __init__(self):
         pass
 
+    @overload
+    def getTranslator(self, key: Literal["var_decl"]) -> VariableDeclTranslator: ...
     @overload
     def getTranslator(self, key: Literal["push_back"]) -> PushBackTranslator: ...
     @overload
@@ -443,8 +451,15 @@ class Translator:
         else:
             return self._module.number
 
+    def removeNodeArrayPointer(self):
+        if len(self._node_array_pointer_list) > 0:
+            index = len(self._node_array_pointer_list) - 1
+            element = self._node_array_pointer_list[index]
+            self._node_array_pointer_list.remove(element)
+
     def removeLastStructPointer(self):
         if self._structure_pointer_list.getLen() > 0:
+
             self._structure_pointer_list.removeElementByIndex(
                 self._structure_pointer_list.getLen() - 1
             )
@@ -487,17 +502,16 @@ class Translator:
                 self.translate("unpkt_dmntn", child, destination_node_array)
             elif type(child) is SystemVerilogParser.Part_select_rangeContext:
                 self.translate("range_select", child, destination_node_array)
+
             # ---------------------------------------------------------------------------
-            elif type(child) is SystemVerilogParser.NumberContext:
-                self.translate("number", child, destination_node_array)
-            # ---------------------------------------------------------------------------
-            elif type(child) is SystemVerilogParser.Jump_statementContext:
-                if child.RETURN and child.expression():
-                    self.translate("return", child.expression(), sv_structure)
+            # elif type(child) is SystemVerilogParser.Jump_statementContext:
+            #     if child.RETURN and child.expression():
+            #         self.translate("return", child.expression(), sv_structure)
             # ---------------------------------------------------------------------------
             # Task and function handler
-           # elif type(child) is SystemVerilogParser.Tf_callContext:
-             #   self.translate("task_call", child, sv_structure, destination_node_array)
+            elif type(child) is SystemVerilogParser.Tf_callContext:
+                #   print(child.getText())
+                self.translate("task_call", child, destination_node_array)
             # ---------------------------------------------------------------------------
             # Dynamic_array new[] handler
             elif type(child) is SystemVerilogParser.Dynamic_array_newContext:
@@ -616,9 +630,10 @@ class Translator:
                     Counters_Object.getCounter(counter_type),
                 )
 
-            struct.addInitProtocol()
             struct.parametrs = tmp
             struct.inside_the_task = inside_the_task
+            struct.addInitProtocol()
+
             sv_structure.behavior.append(struct)
             self._structure_pointer_list.addElement(struct)
             Counters_Object.incrieseCounter(counter_type)

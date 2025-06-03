@@ -29,7 +29,7 @@ class CaseItemExprTranslator(BaseTranslator):
                 Color.YELLOW,
             )
             return
-
+        protocol_params = self.getProtocolParams()
         beh_index = self.last_struct.getLastBehaviorIndex()
         if beh_index is None:
             printWithColor(
@@ -46,11 +46,15 @@ class CaseItemExprTranslator(BaseTranslator):
             self.last_struct.number,
             self.last_struct.init_case_count - self.last_struct.case_count,
         )
+
         case_action = Action(
             action_name,
             ctx.getSourceInterval(),
             element_type=ElementsTypes.CASE_ELEMENT,
         )
+
+        if self.last_struct.parametrs:
+            case_action.parametrs = protocol_params
 
         case_action.precondition.addElement(
             Node("(", (0, 0), ElementsTypes.OPERATOR_ELEMENT)

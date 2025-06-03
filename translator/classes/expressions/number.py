@@ -17,15 +17,15 @@ class NumberTranslator(BaseTranslator):
     def translate(
         self,
         ctx: SystemVerilogParser.NumberContext,
-        destination_node_array: NodeArray,
+      #  destination_node_array: NodeArray,
     ) -> None:
-
-        if destination_node_array is not None:
+        self.findNodeArray()
+        if self.last_node_array is not None:
             value = valuesToAplanStandart(ctx.getText())
-            index = destination_node_array.addElement(
+            index = self.last_node_array.addElement(
                 Node(value, ctx.getSourceInterval(), ElementsTypes.NUMBER_ELEMENT)
             )
-            node = destination_node_array.getElementByIndex(index)
+            node = self.last_node_array.getElementByIndex(index)
             decl = self.module.declarations.getElement(node.identifier)
             if decl:
                 node.module_name = self.module.ident_uniq_name

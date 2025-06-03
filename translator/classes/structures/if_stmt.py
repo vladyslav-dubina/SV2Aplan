@@ -7,7 +7,7 @@ from classes.counters import CounterTypes
 from classes.element_types import ElementsTypes
 from classes.if_stmt import IfStmt
 from classes.node import Node
-from classes.protocols import BodyElement
+from classes.protocols import BodyElement, BodyElementArray
 from classes.structure import Structure
 from translator.classes.base_translator import BaseTranslator
 from utils.string_formating import valuesToAplanStandart
@@ -30,6 +30,7 @@ class IfSequenceBlockTranslator(BaseTranslator):
                 self.last_struct.if_count > 1
                 and self.last_struct.step == self.last_struct.if_count
             ):
+
                 protocol_params = self.getProtocolParams()
 
                 self.last_struct.addProtocol(
@@ -89,15 +90,19 @@ class IfCondPredicateTranslator(BaseTranslator):
             )
             return
 
+        protocol_params = self.getProtocolParams()
+
         action_name = "if_{0}_{1}".format(
-            self.last_struct.number,
-            self.last_struct.step,
+            self.last_struct.number, self.last_struct.step
         )
         if_action = Action(
             action_name,
             ctx.getSourceInterval(),
             element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
         )
+        if self.last_struct.parametrs:
+            if_action.parametrs = protocol_params
+
         self._translator_ptr.body2Aplan(
             ctx, destination_node_array=if_action.precondition
         )
@@ -117,19 +122,12 @@ class IfCondPredicateTranslator(BaseTranslator):
             if_check_result,
             source_interval,
         ) = self.module.actions.isUniqAction(if_action)
+
         if if_check_result is None:
             self.module.actions.addElement(if_action)
         else:
             Counters_Object.decrieseCounter(CounterTypes.IF_COUNTER)
             action_name = if_check_result
-
-        protocol_params = self.getProtocolParams()
-
-        body = "{0}.IF_BODY_{1}_{2}".format(
-            action_name,
-            self.last_struct.number,
-            self.last_struct.step,
-        )
 
         if (
             self.last_struct.step != 1
@@ -144,12 +142,33 @@ class IfCondPredicateTranslator(BaseTranslator):
                 inside_the_task=self.inside_the_task,
             )
 
-        self.last_struct.behavior[beh_index].addBody(
+        self.last_struct.left_cond.addElement(
+            BodyElement(
+                if_action.identifier,
+                action_pointer,
+                ElementsTypes.ACTION_ELEMENT,
+                parametrs=protocol_params,
+            )
+        )
+
+        body = "IF_BODY_{0}_{1}".format(
+            self.last_struct.number,
+            self.last_struct.step,
+        )
+        self.last_struct.left_cond.addElement(
             BodyElement(
                 body,
                 action_pointer,
-                ElementsTypes.IF_CONDITION_LEFT,
+                ElementsTypes.PROTOCOL_ELEMENT,
                 parametrs=protocol_params,
+            )
+        )
+
+        self.last_struct.behavior[beh_index].addBody(
+            BodyElement(
+                "",
+                self.last_struct.left_cond,
+                ElementsTypes.IF_CONDITION_LEFT,
             )
         )
 
@@ -158,23 +177,37 @@ class IfCondPredicateTranslator(BaseTranslator):
             continuation_flag = True
 
         if continuation_flag == True:
-            body = "!{0}.ELSE_BODY_{1}_{2}".format(
-                action_name,
+            self.last_struct.right_cond.addElement(
+                BodyElement(
+                    f"!{if_action.identifier}",
+                    action_pointer,
+                    ElementsTypes.ACTION_ELEMENT,
+                    parametrs=protocol_params,
+                )
+            )
+            body = "ELSE_BODY_{0}_{1}".format(
                 self.last_struct.number,
                 self.last_struct.step + 1,
             )
-            self.last_struct.behavior[beh_index].addBody(
+            self.last_struct.right_cond.addElement(
                 BodyElement(
                     body,
                     action_pointer,
-                    ElementsTypes.IF_CONDITION_RIGTH,
+                    ElementsTypes.PROTOCOL_ELEMENT,
                     parametrs=protocol_params,
+                )
+            )
+            self.last_struct.behavior[beh_index].addBody(
+                BodyElement(
+                    "",
+                    self.last_struct.right_cond,
+                    ElementsTypes.IF_CONDITION_RIGTH,
                 )
             )
         else:
             self.last_struct.behavior[beh_index].addBody(
                 BodyElement(
-                    f"!{action_name}",
+                    f"!{if_action.identifier}",
                     action_pointer,
                     ElementsTypes.IF_CONDITION_RIGTH,
                     parametrs=protocol_params,

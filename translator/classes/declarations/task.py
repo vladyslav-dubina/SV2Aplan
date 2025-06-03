@@ -29,7 +29,12 @@ class TaskBodyDeclTranslator(BaseTranslator):
         ),
     ) -> None:
         (body, identifier, task_Type) = self._getBody(ctx)
-        task = Task(identifier, ctx.getSourceInterval(), task_Type)
+        task = Task(
+            identifier,
+            ctx.getSourceInterval(),
+            Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
+            task_Type,
+        )
         if self.module.element_type is ElementsTypes.CLASS_ELEMENT:
             task.parametrs.addElement(
                 Parametr(
@@ -70,15 +75,19 @@ class TaskBodyDeclTranslator(BaseTranslator):
             "{0}_{1}".format(task_call_name, task_structure.number),
             ElementsTypes.TASK_ELEMENT,
         )
+
         task_protocol.parametrs = task.parametrs
 
         task_structure.behavior.append(task_protocol)
+
         self.module.tasks.addElement(task)
         task_structure.inside_the_task
         names_for_change = []
 
         self._translator_ptr._structure_pointer_list.addElement(task_structure)
+
         for body_element in body:
+           # print("start")
             names_for_change += self._translator_ptr.body2Aplan(
                 body_element, task_structure
             )

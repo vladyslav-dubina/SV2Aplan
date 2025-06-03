@@ -72,6 +72,46 @@ class AplanDeclType(Enum):
     NONE = auto()
 
 
+class DeclType:
+    def __init__(
+        self,
+        data_type: DeclTypes,
+        size_expression: str,
+        size: int,
+        name_space_level: int,
+    ):
+        self.data_type = data_type
+        self.size_expression = size_expression
+        self.size = size
+        self.name_space_level = name_space_level
+
+
+class DeclTypeArray:
+
+    def __init__(self):
+        self.elements: List[DeclType] = []
+
+    def getElements(self):
+        return self.elements
+
+    def addElement(self, new_element: DeclType):
+        self.elements.append(new_element)
+
+    def getLen(self):
+        return len(self.elements)
+
+    def getLastElement(self) -> Basic | None:
+        if self.getLen() > 0:
+            return self.elements[self.getLen() - 1]
+        else:
+            return None
+
+    def removeLastElement(self):
+        element = self.getLastElement()
+        if element:
+            self.elements.remove(element)
+
+
 class Declaration(Basic):
     def __init__(
         self,

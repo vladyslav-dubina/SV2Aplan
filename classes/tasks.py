@@ -12,6 +12,7 @@ class Task(Basic):
         self,
         identifier: str,
         source_interval: Tuple[int, int],
+        name_space_level: int,
         element_type: ElementsTypes = ElementsTypes.TASK_ELEMENT,
     ):
         super().__init__(identifier, source_interval, element_type)
@@ -19,6 +20,7 @@ class Task(Basic):
         self.structure: Structure | None = None
         self.postcondition: ActionParts = ActionParts()
         self.parametrs: ParametrArray = ParametrArray()
+        self.number = name_space_level
 
     def findReturnParam(self):
         retunr_var = f"return_{self.identifier}"
@@ -27,13 +29,18 @@ class Task(Basic):
                 return True
 
     def copy(self):
-        task = Task(self.identifier, self.source_interval, self.element_type)
+        task = Task(
+            self.identifier, self.source_interval, self.number, self.element_type
+        )
         task.initial_parametrs = self.initial_parametrs.copy()
         task.structure = self.structure.copy()
         task.postcondition = self.postcondition.copy()
         task.parametrs = self.parametrs.copy()
         task.number = self.number
         return task
+
+    def getName(self):
+        return self.identifier
 
     def __str__(self):
         return "{0}({1}),".format(self.structure.identifier, self.parametrs)
@@ -51,6 +58,13 @@ class TaskArray(BasicArray):
         for element in self.getElements():
             new_aray.addElement(element.copy())
         return new_aray
+
+    def findElement(
+        self,
+        identifier: str,
+    ) -> Task | None:
+       
+        return super().findElement(identifier)
 
     def getElementsIE(
         self,
@@ -145,7 +159,6 @@ class TaskStmt(Structure):
             element_type=ElementsTypes.TASK_ELEMENT,
             name_space_level=name_space_level,
         )
-
 
     def __repr__(self):
         return f"\IfStmt({self.identifier!r}, {self.sequence!r})\n"
