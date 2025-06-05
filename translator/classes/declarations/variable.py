@@ -15,6 +15,9 @@ from utils.utils import (
 
 
 class VariableDeclTranslator(BaseTranslator):
+    decl_index = None
+    decl_unique = None
+
     if typing.TYPE_CHECKING:
 
         from translator.translator import Translator
@@ -25,7 +28,6 @@ class VariableDeclTranslator(BaseTranslator):
     def translate(
         self, ctx: SystemVerilogParser.Variable_decl_assignmentContext
     ) -> None:
-        print(ctx.getText(), type(ctx))
 
         original_identifier = ctx.variable_identifier().identifier().getText()
         unpacked_dimention = ctx.variable_dimension(0)
@@ -62,11 +64,10 @@ class VariableDeclTranslator(BaseTranslator):
                     ctx.getSourceInterval(),
                 )
 
-        assign_name = ""
         new_decl = Declaration(
             self.decl_type.data_type,
             original_identifier,
-            assign_name,
+            "",
             self.decl_type.size_expression,
             self.decl_type.size[0],
             dimension_size_expression,
@@ -74,32 +75,43 @@ class VariableDeclTranslator(BaseTranslator):
             ctx.getSourceInterval(),
             name_space_level=self.decl_type.name_space_level,
         )
-
-        decl_unique, decl_index = self.module.declarations.addElement(new_decl)
+        self.decl_unique, self.decl_index = self.module.declarations.addElement(
+            new_decl
+        )
 
         expression = ctx.expression()
-
-        declaration = self.module.declarations.getElementByIndex(decl_index)
 
         if not expression:
             return
 
-        expression = expression.getText()
+        self._translator_ptr.translate(
+            "expr",
+            ctx,
+            ElementsTypes.ASSIGN_ELEMENT,
+        )
+
+    def exit(self, ctx: SystemVerilogParser.Variable_decl_assignmentContext):
+        expression = ctx.expression()
+
+        if not expression:
+            return
+        (
+            action_pointer,
+            assign_name,
+            source_interval,
+            uniq_action,
+        ) = self._translator_ptr.getTranslator("expr").exit(
+            ElementsTypes.ASSIGN_ELEMENT
+        )
+
+        declaration = self.module.declarations.getElementByIndex(self.decl_index)
+
         self.findStruct()
+
         if self.last_struct is not None:
             self.last_struct.elements.addElement(declaration)
             beh_index = self.last_struct.getLastBehaviorIndex()
-            (
-                action_pointer,
-                assign_name,
-                source_interval,
-                uniq_action,
-            ) = self._translator_ptr.translate(
-                "expr",
-                ctx,
-                ElementsTypes.ASSIGN_ELEMENT,
-            )
-            self.expression_translate = True
+
             if beh_index is not None and assign_name is not None:
                 self.last_struct.behavior[beh_index].addBody(
                     BodyElement(
@@ -109,17 +121,6 @@ class VariableDeclTranslator(BaseTranslator):
                     )
                 )
         else:
-            if decl_unique:
-                (
-                    action_pointer,
-                    assign_name,
-                    source_interval,
-                    uniq_action,
-                ) = self._translator_ptr.translate(
-                    "expr",
-                    ctx,
-                    ElementsTypes.ASSIGN_ELEMENT,
-                )
+            if self.decl_unique:
                 declaration.expression = assign_name
                 declaration.action = action_pointer
-                self.expression_translate = True

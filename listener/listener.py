@@ -3,22 +3,93 @@ from antlr4_verilog.systemverilog import (
     SystemVerilogParser,
 )
 from classes.counters import CounterTypes
-from classes.module import Module
 from classes.module_call import ModuleCall
-from translator.translator import Translator
+from listener.base import BaseListener
 from utils.utils import Counters_Object
 
 
-class SVToAplanListener(SystemVerilogParserListener):
-
-    translator = Translator()
-
-    @property
-    def module(self) -> Module:
-        return self.translator._module
-
+class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def __init__(self, module_call: ModuleCall | None = None):
-        self.translator.module_call = module_call
+        BaseListener().__init__(module_call)
+
+    # =========================================================================================
+    # OPERATORS
+    # =========================================================================================
+
+    # Enter a parse tree produced by SystemVerilogParser#polarity_operator.
+    def enterPolarity_operator(self, ctx: SystemVerilogParser.Polarity_operatorContext):
+        self.translator.translate("operator", ctx)
+
+    # Exit a parse tree produced by SystemVerilogParser#polarity_operator.
+    def exitPolarity_operator(self, ctx: SystemVerilogParser.Polarity_operatorContext):
+        pass
+
+    # Enter a parse tree produced by SystemVerilogParser#stream_operator.
+    def enterStream_operator(self, ctx: SystemVerilogParser.Stream_operatorContext):
+        self.translator.translate("operator", ctx)
+
+    # Exit a parse tree produced by SystemVerilogParser#stream_operator.
+    def exitStream_operator(self, ctx: SystemVerilogParser.Stream_operatorContext):
+        pass
+
+    # Enter a parse tree produced by SystemVerilogParser#unary_operator.
+    def enterUnary_operator(self, ctx: SystemVerilogParser.Unary_operatorContext):
+        self.translator.translate("operator", ctx)
+
+    # Exit a parse tree produced by SystemVerilogParser#unary_operator.
+    def exitUnary_operator(self, ctx: SystemVerilogParser.Unary_operatorContext):
+        pass
+
+    # Enter a parse tree produced by SystemVerilogParser#binary_operator.
+    def enterBinary_operator(self, ctx: SystemVerilogParser.Binary_operatorContext):
+        self.translator.translate("operator", ctx)
+
+    # Exit a parse tree produced by SystemVerilogParser#binary_operator.
+    def exitBinary_operator(self, ctx: SystemVerilogParser.Binary_operatorContext):
+        pass
+
+    # Enter a parse tree produced by SystemVerilogParser#inc_or_dec_operator.
+    def enterInc_or_dec_operator(
+        self, ctx: SystemVerilogParser.Inc_or_dec_operatorContext
+    ):
+        self.translator.translate("operator", ctx)
+
+    # Exit a parse tree produced by SystemVerilogParser#inc_or_dec_operator.
+    def exitInc_or_dec_operator(
+        self, ctx: SystemVerilogParser.Inc_or_dec_operatorContext
+    ):
+        pass
+
+    # Enter a parse tree produced by SystemVerilogParser#unary_module_path_operator.
+    def enterUnary_module_path_operator(
+        self, ctx: SystemVerilogParser.Unary_module_path_operatorContext
+    ):
+        self.translator.translate("operator", ctx)
+
+    # Exit a parse tree produced by SystemVerilogParser#unary_module_path_operator.
+    def exitUnary_module_path_operator(
+        self, ctx: SystemVerilogParser.Unary_module_path_operatorContext
+    ):
+        pass
+
+    # Enter a parse tree produced by SystemVerilogParser#binary_module_path_operator.
+    def enterBinary_module_path_operator(
+        self, ctx: SystemVerilogParser.Binary_module_path_operatorContext
+    ):
+        self.translator.translate("operator", ctx)
+
+    # Exit a parse tree produced by SystemVerilogParser#binary_module_path_operator.
+    def exitBinary_module_path_operator(
+        self, ctx: SystemVerilogParser.Binary_module_path_operatorContext
+    ):
+        pass
+
+    # Enter a parse tree produced by SystemVerilogParser#array_identifier.
+    def exitIdentifier(self, ctx: SystemVerilogParser.IdentifierContext):
+        self.translator.translate("identifyer", ctx)
+
+    def enterNumber(self, ctx: SystemVerilogParser.NumberContext):
+        self.translator.translate("number", ctx)
 
     # =========================================================================================
     # DECLARATIONS
@@ -58,11 +129,11 @@ class SVToAplanListener(SystemVerilogParserListener):
     ):
         self.translator.translate("var_decl", ctx)
 
-    # Exit a parse tree produced by SystemVerilogParser#variable_decl_assignment.
+    # Enter a parse tree produced by SystemVerilogParser#variable_decl_assignment.
     def exitVariable_decl_assignment(
         self, ctx: SystemVerilogParser.Variable_decl_assignmentContext
     ):
-        pass
+        self.translator.getTranslator("var_decl").exit(ctx)
 
     def exitNet_declaration(self, ctx: SystemVerilogParser.Net_declarationContext):
         self.translator.translate("net_decl", ctx)
@@ -75,7 +146,7 @@ class SVToAplanListener(SystemVerilogParserListener):
     def exitAnsi_port_declaration(
         self, ctx: SystemVerilogParser.Ansi_port_declarationContext
     ):
-        self.translator.getTranslator("ansi_port_decl").exit()
+        self.translator.getTranslator("ansi_port_decl").exit(ctx)
 
     def exitPackage_import_declaration(
         self, ctx: SystemVerilogParser.Package_import_declarationContext
@@ -103,12 +174,6 @@ class SVToAplanListener(SystemVerilogParserListener):
     ):
         self.translator.removeLastStructPointer()
 
-    def enterNumber(self, ctx: SystemVerilogParser.NumberContext):
-        self.translator.translate("number", ctx)
-
-    def exitNumber(self, ctx: SystemVerilogParser.NumberContext):
-        pass
-
     # =========================================================================================
     # JUMP
     # =========================================================================================
@@ -134,29 +199,44 @@ class SVToAplanListener(SystemVerilogParserListener):
     # def exitNet_assignment(self, ctx):
     #    self.translator.translate("net_assign", ctx)
 
-    def exitNet_assignment(self, ctx: SystemVerilogParser.Net_assignmentContext):
+    def enterNet_assignment(self, ctx: SystemVerilogParser.Net_assignmentContext):
         self.translator.translate("in_block_assign", ctx)
 
-    def exitVariable_decl_assignment(
-        self, ctx: SystemVerilogParser.Variable_decl_assignmentContext
+    def exitNet_assignment(self, ctx: SystemVerilogParser.Net_assignmentContext):
+        self.translator.getTranslator("in_block_assign").exit(ctx)
+
+    def enterNonblocking_assignment(
+        self, ctx: SystemVerilogParser.Nonblocking_assignmentContext
     ):
-        if ctx.expression():
-            self.translator.translate("in_block_assign", ctx)
+
+        self.translator.translate("in_block_assign", ctx)
 
     def exitNonblocking_assignment(
         self, ctx: SystemVerilogParser.Nonblocking_assignmentContext
+    ):
+        self.translator.getTranslator("in_block_assign").exit(ctx)
+
+    def enterVariable_assignment(
+        self, ctx: SystemVerilogParser.Variable_assignmentContext
     ):
         self.translator.translate("in_block_assign", ctx)
 
     def exitVariable_assignment(
         self, ctx: SystemVerilogParser.Variable_assignmentContext
     ):
+        self.translator.getTranslator("in_block_assign").exit(ctx)
+
+    def enterOperator_assignment(
+        self, ctx: SystemVerilogParser.Operator_assignmentContext
+    ):
+
         self.translator.translate("in_block_assign", ctx)
 
     def exitOperator_assignment(
         self, ctx: SystemVerilogParser.Operator_assignmentContext
     ):
-        self.translator.translate("in_block_assign", ctx)
+
+        self.translator.getTranslator("in_block_assign").exit(ctx)
 
     # =========================================================================================
     # PARAMETRS

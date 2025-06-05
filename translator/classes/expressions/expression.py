@@ -21,6 +21,9 @@ from utils.utils import Counters_Object, containsOperator, isNumericString
 
 
 class ExpressionTranslator(BaseTranslator):
+    _name_part = ""
+    _action: Action = None
+    _action_name = ""
     if typing.TYPE_CHECKING:
 
         from translator.translator import Translator
@@ -302,16 +305,18 @@ class ExpressionTranslator(BaseTranslator):
         self.findStruct()
 
         previus_action = False
-        (name_part, counter_type) = self.getNamePartAndCounter(element_type)
+        (self._name_part, self._counter_type) = self.getNamePartAndCounter(element_type)
 
-        action = None
+        self._action = None
         last_element = None
 
-        action_name = "{0}_{1}".format(
-            name_part, Counters_Object.getCounter(counter_type)
+        self._action_name = "{0}_{1}".format(
+            self._name_part, Counters_Object.getCounter(self._counter_type)
         )
 
-        action = Action(action_name, ctx.getSourceInterval(), element_type=element_type)
+        self._action = Action(
+            self._action_name, ctx.getSourceInterval(), element_type=element_type
+        )
 
         expression = ctx.getText()
         expression = valuesToAplanStandart(expression)
@@ -322,49 +327,40 @@ class ExpressionTranslator(BaseTranslator):
             or element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
         ):
 
-            action.precondition.addElement(
+            self._action.precondition.addElement(
                 Node("1", (0, 0), ElementsTypes.NUMBER_ELEMENT)
             )
-            self.taskAssignIfPosible(ctx, action.postcondition)
-            postcondition: NodeArray = NodeArray(ElementsTypes.POSTCONDITION_ELEMENT)
-            self.node_array_pointer_list.append(postcondition)
-            self._translator_ptr.body2Aplan(
-                ctx,
-                sv_structure=self.last_struct,
-                destination_node_array=postcondition,
-            )
-            if postcondition.getLen() == 0:
-                return (None, None, None, None)
-
-            action.postcondition += postcondition
+            self.taskAssignIfPosible(ctx, self._action.postcondition)
+            self.last_node_array = self._action.postcondition
 
         else:
             if not previus_action:
-                action.postcondition.addElement(
+                self._action.postcondition.addElement(
                     Node("1", (0, 0), ElementsTypes.NUMBER_ELEMENT)
                 )
-            precondition: NodeArray = NodeArray(ElementsTypes.PRECONDITION_ELEMENT)
-            self._translator_ptr.body2Aplan(
-                ctx,
-                sv_structure=self.last_struct,
-                destination_node_array=precondition,
-            )
-            if precondition.getLen() == 0:
-                return (None, None, None, None)
+            self.last_node_array = self._action.precondition
 
-            action.precondition = precondition
-
-        action.description_start.append(
+        self._action.description_start.append(
             f"{self.module.identifier}#{self.module.ident_uniq_name}"
         )
 
-        action.description_action_name = f"{name_part}"
+        self._action.description_action_name = f"{self._name_part}"
 
-        action.description_end.append(f"{expression}")
+        self._action.description_end.append(f"{expression}")
+        return
+
+    def exit(self, element_type: ElementsTypes, remove_association: bool = False):
+        if (
+            self._action.postcondition.getLen() == 0
+            or self._action.precondition.getLen() == 0
+        ):
+            return (None, None, None, None)
 
         action_pointer: Action = None
         last_element = None
         out_block_len = self.module.out_of_block_elements.getLen()
+
+        previus_action = False
 
         if not remove_association:
 
@@ -382,14 +378,14 @@ class ExpressionTranslator(BaseTranslator):
                             continue
                         else:
                             break
-                    last_element, previus_action, action_name = (
+                    last_element, previus_action, self._action_name = (
                         self.findAssociatedAction(
                             protocol,
                             element_type,
-                            name_part,
-                            action,
+                            self._name_part,
+                            self._action,
                             previus_action,
-                            action_name,
+                            self._action_name,
                         )
                     )
             elif out_block_len > 0:
@@ -398,23 +394,24 @@ class ExpressionTranslator(BaseTranslator):
                         out_block_len - 1
                     )
                 )
-                last_element, previus_action, action_name = self.findAssociatedAction(
-                    protocol,
-                    element_type,
-                    name_part,
-                    action,
-                    previus_action,
-                    action_name,
+                last_element, previus_action, self._action_name = (
+                    self.findAssociatedAction(
+                        protocol,
+                        element_type,
+                        self._name_part,
+                        self._action,
+                        previus_action,
+                        self._action_name,
+                    )
                 )
 
-        action = self.copyToAssociatedAction(last_element, action)
-
+        self._action = self.copyToAssociatedAction(last_element, self._action)
         if not previus_action:
             (
                 action_pointer,
                 action_check_result,
                 source_interval,
-            ) = self.module.actions.isUniqAction(action)
+            ) = self.module.actions.isUniqAction(self._action)
         params_for_finding: ParametrArray = ParametrArray()
         if self.inside_the_task == True:
 
@@ -424,41 +421,42 @@ class ExpressionTranslator(BaseTranslator):
         if self.module.input_parametrs is not None:
             params_for_finding += self.module.input_parametrs
 
-        action.findParametrInBodyAndSetParametrs(params_for_finding)
+        self._action.findParametrInBodyAndSetParametrs(params_for_finding)
 
         uniq = False
         if not previus_action:
             if action_check_result is None:
                 uniq = True
-                index = self.module.actions.addElement(action)
+                index = self.module.actions.addElement(self._action)
                 action_pointer = self.module.actions.getElementByIndex(index)
                 if self.last_struct is not None:
-                    self.last_struct.elements.addElement(action)
+                    self.last_struct.elements.addElement(self._action)
             else:
-                Counters_Object.decrieseCounter(counter_type)
-                action_name = action_check_result
+                Counters_Object.decrieseCounter(self._counter_type)
+                self._action_name = action_check_result
                 if self.last_struct is not None:
                     self.last_struct.elements.addElement(action_pointer)
 
             if element_type != ElementsTypes.REPEAT_ELEMENT:
-                Counters_Object.incrieseCounter(counter_type)
+                Counters_Object.incrieseCounter(self._counter_type)
 
-        if action_name is not None:
-            action_parametrs_count = action.parametrs.getLen()
-            action_identifier = action.identifier
+        if self._action_name is not None:
+            action_parametrs_count = self._action.parametrs.getLen()
+            action_identifier = self._action.identifier
             if action_pointer:
                 action_identifier = action_pointer.identifier
-            action_name = f"{action_identifier}{action.parametrs.getIdentifiersListString(action_parametrs_count)}"
+            self._action_name = f"{action_identifier}{self._action.parametrs.getIdentifiersListString(action_parametrs_count)}"
 
             if element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT:
-                action_name = f"Sensetive({action_name})"
+                self._action_name = f"Sensetive({self._action_name})"
             if last_element:
-                last_element.identifier = action_name
+                last_element.identifier = self._action_name
 
         if previus_action:
             return (None, None, None, None)
-
-        return (action_pointer, action_name, source_interval, uniq)
+        
+        self.last_node_array = None
+        return (action_pointer, self._action_name, source_interval, uniq)
 
     def createSizeExpression(self, identifier, size, source_interval: Tuple[int, int]):
         (name_part, counter_type) = self.getNamePartAndCounter(

@@ -19,7 +19,6 @@ class NumberTranslator(BaseTranslator):
         ctx: SystemVerilogParser.NumberContext,
       #  destination_node_array: NodeArray,
     ) -> None:
-        self.findNodeArray()
         if self.last_node_array is not None:
             value = valuesToAplanStandart(ctx.getText())
             index = self.last_node_array.addElement(

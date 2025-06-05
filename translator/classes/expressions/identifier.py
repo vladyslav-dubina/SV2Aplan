@@ -17,19 +17,18 @@ class IdentifierTranslator(BaseTranslator):
     def translate(
         self,
         ctx: SystemVerilogParser.IdentifierContext,
-        destination_node_array: NodeArray,
-    ) -> None:
-        if destination_node_array is not None:
+    ) -> None: 
+        if self.last_node_array is not None:
 
             identifier = ctx.getText()
-            index = destination_node_array.addElement(
+            index = self.last_node_array.addElement(
                 Node(
                     identifier,
                     ctx.getSourceInterval(),
                     ElementsTypes.IDENTIFIER_ELEMENT,
                 )
             )
-            node = destination_node_array.getElementByIndex(index)
+            node = self.last_node_array.getElementByIndex(index)
 
             identifier, decl = self.module.declarations.replaceDeclName(identifier)
 

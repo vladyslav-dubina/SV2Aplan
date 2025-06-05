@@ -94,5 +94,3 @@ class DataDeclTranslator(BaseTranslator):
             aplan_vector_size,
             self.getLastNameSpaceLevel(),
         )
-
-        print(self.decl_type)

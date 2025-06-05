@@ -9,6 +9,7 @@ from utils.utils import Counters_Object
 
 
 class InBlockAssignmentTranslator(BaseTranslator):
+    element_type = ElementsTypes.ASSIGN_ELEMENT
     if typing.TYPE_CHECKING:
 
         from translator.translator import Translator
@@ -27,13 +28,30 @@ class InBlockAssignmentTranslator(BaseTranslator):
             | SystemVerilogParser.ExpressionContext
         ),
     ) -> None:
-        self.findStruct()
-        element_type = ElementsTypes.ASSIGN_ELEMENT
+
+        self.element_type = ElementsTypes.ASSIGN_ELEMENT
         if type(ctx) is SystemVerilogParser.Nonblocking_assignmentContext:
-            element_type = ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
+            self.element_type = ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
+
+        self._translator_ptr.translate("expr", ctx, self.element_type)
+
+    def exit(
+        self,
+        ctx: (
+            SystemVerilogParser.Variable_decl_assignmentContext
+            | SystemVerilogParser.Nonblocking_assignmentContext
+            | SystemVerilogParser.Net_assignmentContext
+            | SystemVerilogParser.Variable_assignmentContext
+            | SystemVerilogParser.Operator_assignmentContext
+            | SystemVerilogParser.ExpressionContext
+        ),
+    ):
+        self.findStruct()
+
         action_pointer, action_name, source_interval, uniq_action = (
-            self._translator_ptr.translate("expr", ctx, element_type)
+            self._translator_ptr.getTranslator("expr").exit(self.element_type)
         )
+
         if action_name is not None:
             protocol_params = self.getProtocolParams()
             if self.last_struct:

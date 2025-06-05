@@ -22,23 +22,12 @@ class BaseTranslator:
         self._program = Program()
         self.inside_the_task = False
         self.last_struct: Structure | None = None
-        self.last_node_array: NodeArray | None = None
-        self.expression_translate = False
 
     def translate(self, ctx) -> None:
         raise TypeError("Run base translator")
 
     def exit(self) -> None:
         raise TypeError("Run base exit")
-
-    def findNodeArray(self) -> None:
-        self.last_node_array: NodeArray | None = None
-        length = len(self.node_array_pointer_list)
-        if length > 0:
-            self.last_node_array = self.node_array_pointer_list[length - 1]
-
-    def removeNodeArrayPointer(self):
-        self._translator_ptr.removeNodeArrayPointer()
 
     def findStruct(
         self,
@@ -80,10 +69,6 @@ class BaseTranslator:
         self._translator_ptr._module = value
 
     @property
-    def node_array_pointer_list(self) -> typing.List[NodeArray]:
-        return self._translator_ptr._node_array_pointer_list
-
-    @property
     def structure_pointer_list(self) -> StructureArray:
         return self._translator_ptr._structure_pointer_list
 
@@ -94,6 +79,14 @@ class BaseTranslator:
     @decl_type.setter
     def decl_type(self, value: DeclType | None):
         self._translator_ptr._decl_type = value
+
+    @property
+    def last_node_array(self) -> NodeArray:
+        return self._translator_ptr.last_node_array
+
+    @last_node_array.setter
+    def last_node_array(self, value: NodeArray | None):
+        self._translator_ptr.last_node_array = value
 
     def getLastNameSpaceLevel(self) -> bool:
         return self._translator_ptr.getLastNameSpaceLevel()

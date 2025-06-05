@@ -19,11 +19,13 @@ class OperatorTranslator(BaseTranslator):
         super().__init__(translator)
 
     def translate(
-        self, ctx: Tree.TerminalNodeImpl, destination_node_array: NodeArray
+        self, ctx
     ) -> None:
         self.findStruct()
-        if destination_node_array is not None:
+        
+        if self.last_node_array is not None:
             operator = ctx.getText()
+            
             if self.isNotUsedOperator(operator):
                 return
 
@@ -31,19 +33,19 @@ class OperatorTranslator(BaseTranslator):
             if "." in operator:
                 operator_type = ElementsTypes.DOT_ELEMENT
 
-            if destination_node_array.node_type == ElementsTypes.POSTCONDITION_ELEMENT:
+            if self.last_node_array.node_type == ElementsTypes.POSTCONDITION_ELEMENT:
                 operator = parallelAssignment2Assignment(operator)
 
-            index = destination_node_array.addElement(
+            index = self.last_node_array.addElement(
                 Node(operator, ctx.getSourceInterval(), operator_type)
             )
-            node = destination_node_array.getElementByIndex(index)
+            node = self.last_node_array.getElementByIndex(index)
             decl = self.module.declarations.getElement(node.identifier)
             if decl:
                 node.module_name = self.module.ident_uniq_name
             if "=" in operator:
                 if self.inside_the_task:
-                    previus_node = destination_node_array.getElementByIndex(index - 1)
+                    previus_node = self.last_node_array.getElementByIndex(index - 1)
                     task = self.module.tasks.getLastTask()
                     if previus_node.identifier == task.identifier:
                         return_var_name = f"return_{task.identifier}"

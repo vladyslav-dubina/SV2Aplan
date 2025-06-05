@@ -159,7 +159,7 @@ TRANSLATOR_NAMES = Literal[
     "class_decl",
     "array",
     "push_back",
-    "var_decl"
+    "var_decl",
 ]
 
 
@@ -167,10 +167,9 @@ class Translator:
     module_call: ModuleCall | None = None
     _module: Module | None = None
     _structure_pointer_list: StructureArray = StructureArray()
-    _node_array_pointer_list: List[NodeArray] = []
     _cache = {}
     _decl_type: DeclType | None = None
-
+    last_node_array: NodeArray | None = None
     _current_genvar_value: Tuple[str, int] | None = None
 
     @property
@@ -242,7 +241,7 @@ class Translator:
         "class_decl": ClassDeclTranslator,
         "array": ArrayTranslator,
         "push_back": PushBackTranslator,
-        "var_decl":VariableDeclTranslator
+        "var_decl": VariableDeclTranslator,
     }
 
     def __init__(self):
@@ -451,12 +450,6 @@ class Translator:
         else:
             return self._module.number
 
-    def removeNodeArrayPointer(self):
-        if len(self._node_array_pointer_list) > 0:
-            index = len(self._node_array_pointer_list) - 1
-            element = self._node_array_pointer_list[index]
-            self._node_array_pointer_list.remove(element)
-
     def removeLastStructPointer(self):
         if self._structure_pointer_list.getLen() > 0:
 
@@ -529,8 +522,8 @@ class Translator:
                 )
             # ---------------------------------------------------------------------------
 
-            elif type(child) is Tree.TerminalNodeImpl:
-                self.translate("operator", child, destination_node_array)
+            # elif type(child) is Tree.TerminalNodeImpl:
+            #    self.translate("operator", child, destination_node_array)
             # ---------------------------------------------------------------------------
             else:
                 names_for_change += self.body2Aplan(

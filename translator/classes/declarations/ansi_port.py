@@ -13,6 +13,8 @@ from utils.utils import (
 
 
 class AnsiPortDeclTranslator(BaseTranslator):
+    decl_index = None
+
     if typing.TYPE_CHECKING:
 
         from translator.translator import Translator
@@ -90,24 +92,30 @@ class AnsiPortDeclTranslator(BaseTranslator):
             ctx.getSourceInterval(),
             name_space_level=self.getLastNameSpaceLevel(),
         )
-        decl_unique, decl_index = self.module.declarations.addElement(port)
+        decl_unique, self.decl_index = self.module.declarations.addElement(port)
 
         constant_expression = ctx.constant_expression()
+        if constant_expression is None:
+            return
+        self._translator_ptr.translate(
+            "expr",
+            ctx,
+            ElementsTypes.ASSIGN_ELEMENT,
+        )
+
+    def exit(self, ctx: SystemVerilogParser.Ansi_port_declarationContext) -> None:
+        constant_expression = ctx.constant_expression()
         if constant_expression is not None:
-            expression = constant_expression.getText()
+
             (
                 action_pointer,
                 assign_name,
                 source_interval,
                 uniq_action,
-            ) = self._translator_ptr.translate(
-                "expr", ctx, ElementsTypes.ASSIGN_ELEMENT
+            ) = self._translator_ptr.getTranslator("expr").exit(
+                ElementsTypes.ASSIGN_ELEMENT
             )
-            declaration = self.module.declarations.getElementByIndex(decl_index)
+
+            declaration = self.module.declarations.getElementByIndex(self.decl_index)
             declaration.expression = assign_name
             declaration.action = action_pointer
-            self.expression_translate = True
-
-    def exit(self) -> None:
-        if self.expression_translate:
-            self.removeNodeArrayPointer()
