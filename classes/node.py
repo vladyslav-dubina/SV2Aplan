@@ -60,6 +60,19 @@ class NodeArray(BasicArray):
     def __init__(self, node_type: ElementsTypes):
         super().__init__(Node)
         self.node_type = node_type
+        self.action_type: ElementsTypes = ElementsTypes.NONE_ELEMENT
+
+    def isAssign(self) -> bool:
+        if (
+            self.action_type == ElementsTypes.ASSIGN_ELEMENT
+            or self.action_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
+        ):
+            return True
+        return False
+
+    def InitAssign(self):
+        if self.isAssign() and self.getLen() == 1:
+            self.elements.append(Node("=", (0, 0), ElementsTypes.OPERATOR_ELEMENT))
 
     def __str__(self) -> str:
         result = ""

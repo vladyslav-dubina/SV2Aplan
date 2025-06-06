@@ -331,6 +331,7 @@ class ExpressionTranslator(BaseTranslator):
                 Node("1", (0, 0), ElementsTypes.NUMBER_ELEMENT)
             )
             self.taskAssignIfPosible(ctx, self._action.postcondition)
+            self._action.postcondition.action_type = element_type
             self.last_node_array = self._action.postcondition
 
         else:
@@ -338,6 +339,7 @@ class ExpressionTranslator(BaseTranslator):
                 self._action.postcondition.addElement(
                     Node("1", (0, 0), ElementsTypes.NUMBER_ELEMENT)
                 )
+            self._action.precondition.action_type = element_type
             self.last_node_array = self._action.precondition
 
         self._action.description_start.append(
@@ -454,7 +456,7 @@ class ExpressionTranslator(BaseTranslator):
 
         if previus_action:
             return (None, None, None, None)
-        
+
         self.last_node_array = None
         return (action_pointer, self._action_name, source_interval, uniq)
 

@@ -503,7 +503,6 @@ class Translator:
             # ---------------------------------------------------------------------------
             # Task and function handler
             elif type(child) is SystemVerilogParser.Tf_callContext:
-                #   print(child.getText())
                 self.translate("task_call", child, destination_node_array)
             # ---------------------------------------------------------------------------
             # Dynamic_array new[] handler

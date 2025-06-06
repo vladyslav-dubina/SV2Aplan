@@ -18,14 +18,11 @@ class OperatorTranslator(BaseTranslator):
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
-    def translate(
-        self, ctx
-    ) -> None:
-        self.findStruct()
-        
+    def translate(self, ctx) -> None:
+
         if self.last_node_array is not None:
             operator = ctx.getText()
-            
+
             if self.isNotUsedOperator(operator):
                 return
 
@@ -43,19 +40,6 @@ class OperatorTranslator(BaseTranslator):
             decl = self.module.declarations.getElement(node.identifier)
             if decl:
                 node.module_name = self.module.ident_uniq_name
-            if "=" in operator:
-                if self.inside_the_task:
-                    previus_node = self.last_node_array.getElementByIndex(index - 1)
-                    task = self.module.tasks.getLastTask()
-                    if previus_node.identifier == task.identifier:
-                        return_var_name = f"return_{task.identifier}"
-                        previus_node.identifier = return_var_name
-                        task.parametrs.addElement(
-                            Parametr(
-                                f"{return_var_name}",
-                                "var",
-                            )
-                        )
 
     def isNotUsedOperator(self, operator: str):
         if operator in self._unused_operators:

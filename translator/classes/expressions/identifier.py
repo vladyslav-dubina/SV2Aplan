@@ -3,13 +3,14 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.declarations import DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from classes.node import Node, NodeArray
+from classes.parametrs import Parametr
 from translator.classes.base_translator import BaseTranslator
 
 
 class IdentifierTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -17,10 +18,23 @@ class IdentifierTranslator(BaseTranslator):
     def translate(
         self,
         ctx: SystemVerilogParser.IdentifierContext,
-    ) -> None: 
+    ) -> None:
         if self.last_node_array is not None:
-
             identifier = ctx.getText()
+            if self.last_node_array.isAssign():
+                self.findStruct()
+                if self.inside_the_task:
+                    task = self.module.tasks.getLastTask()
+                    if identifier == task.identifier:
+                        return_var_name = f"return_{task.identifier}"
+                        identifier = return_var_name
+                        task.parametrs.addElement(
+                            Parametr(
+                                f"{return_var_name}",
+                                "var",
+                            )
+                        )
+
             index = self.last_node_array.addElement(
                 Node(
                     identifier,
@@ -45,3 +59,5 @@ class IdentifierTranslator(BaseTranslator):
             node.identifier = self._translator_ptr.translate(
                 "param_call", node.identifier
             )
+
+            self.last_node_array.InitAssign()
