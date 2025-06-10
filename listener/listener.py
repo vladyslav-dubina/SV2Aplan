@@ -91,6 +91,31 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def enterNumber(self, ctx: SystemVerilogParser.NumberContext):
         self.translator.translate("number", ctx)
 
+        # Enter a parse tree produced by SystemVerilogParser#bit_select.
+
+    def enterBit_select(self, ctx: SystemVerilogParser.Bit_selectContext):
+        self.translator.translate("bit_select", ctx)
+
+    def enterConstant_bit_select(
+        self, ctx: SystemVerilogParser.Constant_bit_selectContext
+    ):
+        self.translator.translate("bit_select", ctx)
+
+    def enterUnpacked_dimension(
+        self, ctx: SystemVerilogParser.Unpacked_dimensionContext
+    ):
+        self.translator.translate("unpkt_dmntn", ctx)
+
+    def enterConstant_part_select_range(
+        self, ctx: SystemVerilogParser.Constant_part_select_rangeContext
+    ):
+        self.translator.translate("range_select", ctx)
+
+        # Enter a parse tree produced by SystemVerilogParser#dynamic_array_new.
+
+    def enterDynamic_array_new(self, ctx: SystemVerilogParser.Dynamic_array_newContext):
+        self.translator.translate("dynamic_array_new", ctx)
+
     # =========================================================================================
     # DECLARATIONS
     # =========================================================================================
@@ -153,11 +178,6 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     ):
         self.translator.translate("package_import_decl", ctx)
 
-    def exitClass_constructor_declaration(
-        self, ctx: SystemVerilogParser.Class_constructor_declarationContext
-    ):
-        self.translator.translate("task_body_decl", ctx)
-
     def enterTask_declaration(self, ctx: SystemVerilogParser.Task_declarationContext):
         self.translator.translate("task_body_decl", ctx.task_body_declaration())
 
@@ -189,13 +209,35 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     # =========================================================================================
     # CALLS
     # =========================================================================================
+
+    # Enter a parse tree produced by SystemVerilogParser#system_tf_call.
     def enterSystem_tf_call(self, ctx: SystemVerilogParser.System_tf_callContext):
         self.translator.translate("system_task_call", ctx)
+
+    # Exit a parse tree produced by SystemVerilogParser#system_tf_call.
+    def exitSystem_tf_call(self, ctx: SystemVerilogParser.System_tf_callContext):
+        pass
+
+    # Enter a parse tree produced by SystemVerilogParser#tf_call.
+    def enterTf_call(self, ctx: SystemVerilogParser.Tf_callContext):
+        self.translator.translate("task_call", ctx)
+
+    # Exit a parse tree produced by SystemVerilogParser#tf_call.
+    def exitTf_call(self, ctx: SystemVerilogParser.Tf_callContext):
+        pass
 
     def exitModule_instantiation(
         self, ctx: SystemVerilogParser.Module_instantiationContext
     ):
         self.translator.translate("module_call", ctx)
+
+    # Enter a parse tree produced by SystemVerilogParser#method_call_body.
+    def enterMethod_call_body(self, ctx: SystemVerilogParser.Method_call_bodyContext):
+        self.translator.translate("method_call", ctx)
+
+    # Exit a parse tree produced by SystemVerilogParser#method_call_body.
+    def exitMethod_call_body(self, ctx: SystemVerilogParser.Method_call_bodyContext):
+        pass
 
     # =========================================================================================
     # ASSIGNMENTS
@@ -355,3 +397,20 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def exitLoop_statement(self, ctx: SystemVerilogParser.Loop_statementContext):
         self.translator.translate("loop_iteration", ctx)
         self.translator.removeLastStructPointer()
+
+    # =========================================================================================
+    # Class
+    # =========================================================================================
+
+    def exitClass_constructor_declaration(
+        self, ctx: SystemVerilogParser.Class_constructor_declarationContext
+    ):
+        self.translator.translate("task_body_decl", ctx)
+
+    # Enter a parse tree produced by SystemVerilogParser#class_new.
+    def enterClass_new(self, ctx: SystemVerilogParser.Class_newContext):
+        self.translator.translate("class_new", ctx)
+
+    # Exit a parse tree produced by SystemVerilogParser#class_new.
+    def exitClass_new(self, ctx: SystemVerilogParser.Class_newContext):
+        pass

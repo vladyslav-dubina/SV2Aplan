@@ -13,7 +13,7 @@ from utils.utils import (
 class TypedefDeclTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -22,61 +22,61 @@ class TypedefDeclTranslator(BaseTranslator):
         type_declaration: SystemVerilogParser.Type_declarationContext | None = (
             ctx.type_declaration()
         )
-        if type_declaration is not None:
-            data_type: SystemVerilogParser.Data_typeContext | None = (
-                type_declaration.data_type()
+        if not type_declaration:
+            return
+        data_type: SystemVerilogParser.Data_typeContext | None = (
+            type_declaration.data_type()
+        )
+        
+        if not (data_type.ENUM() or data_type.struct_union()):
+            return
+
+        for type_identifier in type_declaration.type_identifier():
+            enum_type_identifier = "{0}".format(type_identifier.getText())
+
+            unique_identifier = "{0}_{1}".format(
+                enum_type_identifier,
+                Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
             )
-            if data_type.ENUM() or data_type.struct_union():
-                for type_identifier in type_declaration.type_identifier():
-                    enum_type_identifier = "{0}".format(type_identifier.getText())
-                    
-                    unique_identifier = "{0}_{1}".format(
-                        enum_type_identifier,
-                        Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
+            Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
+            decl_type = DeclTypes.ENUM_TYPE
+
+            if data_type.struct_union():
+                decl_type = DeclTypes.STRUCT_TYPE
+
+            typedef = Typedef(
+                enum_type_identifier,
+                unique_identifier,
+                type_identifier.getSourceInterval(),
+                self._program.file_path,
+                decl_type,
+            )
+
+            if data_type.ENUM():
+                for index, enum_name_decl in enumerate(
+                    data_type.enum_name_declaration()
+                ):
+                    identifier = enum_name_decl.enum_identifier().getText()
+                    new_decl = Declaration(
+                        DeclTypes.ENUM,
+                        identifier,
+                        "",
+                        "",
+                        0,
+                        "",
+                        0,
+                        enum_name_decl.getSourceInterval(),
                     )
-                    Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
-                    decl_type = DeclTypes.ENUM_TYPE
-                    
-                    if data_type.struct_union():
-                        decl_type = DeclTypes.STRUCT_TYPE
+                    typedef.declarations.addElement(new_decl)
+            elif data_type.struct_union():
+                self._translator_ptr.getTranslator(
+                    "struct_decl"
+                ).structMembersToDeclarations(self, data_type, typedef)
 
-                    typedef = Typedef(
-                        enum_type_identifier,
-                        unique_identifier,
-                        type_identifier.getSourceInterval(),
-                        self._program.file_path,
-                        decl_type,
-                    )
-
-                    if data_type.ENUM():
-                        for index, enum_name_decl in enumerate(
-                            data_type.enum_name_declaration()
-                        ):
-                            identifier = enum_name_decl.enum_identifier().getText()
-                            new_decl = Declaration(
-                                DeclTypes.ENUM,
-                                identifier,
-                                "",
-                                "",
-                                0,
-                                "",
-                                0,
-                                enum_name_decl.getSourceInterval(),
-                            )
-                            typedef.declarations.addElement(new_decl)
-                    elif data_type.struct_union():
-                        self._translator_ptr.getTranslator(
-                            "struct_decl"
-                        ).structMembersToDeclarations(self, data_type, typedef)
-
-                    if self.module:
-                        decl_unique, decl_index = self.module.typedefs.addElement(
-                            typedef
-                        )
-                    else:
-                        decl_unique, decl_index = self._program.typedefs.addElement(
-                            typedef
-                        )
+            if self.module:
+                decl_unique, decl_index = self.module.typedefs.addElement(typedef)
+            else:
+                decl_unique, decl_index = self._program.typedefs.addElement(typedef)
 
     def create(
         self,
