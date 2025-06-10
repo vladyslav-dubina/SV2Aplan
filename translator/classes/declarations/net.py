@@ -15,7 +15,7 @@ from utils.utils import (
 class NewDeclTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -124,3 +124,6 @@ class NewDeclTranslator(BaseTranslator):
                             )
                             declaration.expression = assign_name
                             declaration.action = action_pointer
+
+    def exit(self, ctx: SystemVerilogParser.Net_declarationContext) -> None:
+        pass

@@ -286,3 +286,10 @@ def dataTypeToStr(
     elif ctx.type_identifier() is not None:
         result = ctx.type_identifier().getText()
     return result
+
+
+def is_interval_contained(interval1, interval2):
+    start1, end1 = interval1
+    start2, end2 = interval2
+
+    return start1 >= start2 and end1 <= end2

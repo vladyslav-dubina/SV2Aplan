@@ -21,7 +21,9 @@ class ReturnTranslator(BaseTranslator):
         # sv_structure: Structure | None = None,
     ) -> None:
 
-        self._translator_ptr.translate("expr", ctx, ElementsTypes.ASSIGN_ELEMENT)
+        self.last_element_type = ElementsTypes.ASSIGN_ELEMENT
+        self.last_operator = "="
+        self._translator_ptr.translate("expr", ctx)
 
     def exit(
         self,
@@ -30,9 +32,7 @@ class ReturnTranslator(BaseTranslator):
     ) -> None:
         self.findStruct()
         action_pointer, action_name, source_interval, uniq_action = (
-            self._translator_ptr.getTranslator("expr").exit(
-                ElementsTypes.ASSIGN_ELEMENT
-            )
+            self._translator_ptr.getTranslator("expr").exit()
         )
 
         task = self.module.tasks.getLastTask()

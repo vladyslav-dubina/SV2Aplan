@@ -9,7 +9,7 @@ from utils.utils import Counters_Object
 
 
 class InBlockAssignmentTranslator(BaseTranslator):
-    element_type = ElementsTypes.ASSIGN_ELEMENT
+
     if typing.TYPE_CHECKING:
 
         from translator.translator import Translator
@@ -29,15 +29,19 @@ class InBlockAssignmentTranslator(BaseTranslator):
         ),
     ) -> None:
 
-        self.element_type = ElementsTypes.ASSIGN_ELEMENT
+        element_type = ElementsTypes.ASSIGN_ELEMENT
         type_c = type(ctx)
         if (
             type_c is SystemVerilogParser.Nonblocking_assignmentContext
             or type_c is SystemVerilogParser.Net_assignmentContext
         ):
-            self.element_type = ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
+            element_type = ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
 
-        self._translator_ptr.translate("expr", ctx, self.element_type)
+        self.last_element_type = element_type
+        self._translator_ptr.translate(
+            "expr",
+            ctx,
+        )
 
     def exit(
         self,
@@ -53,44 +57,44 @@ class InBlockAssignmentTranslator(BaseTranslator):
         self.findStruct()
 
         action_pointer, action_name, source_interval, uniq_action = (
-            self._translator_ptr.getTranslator("expr").exit(self.element_type)
+            self._translator_ptr.getTranslator("expr").exit()
         )
 
-        if action_name is not None:
-            protocol_params = self.getProtocolParams()
-            if self.last_struct:
-                beh_index = self.last_struct.getLastBehaviorIndex()
+        if not action_name:
+            return
 
-                if beh_index is not None:
-                    self.last_struct.behavior[beh_index].addBody(
-                        BodyElement(
-                            action_name, action_pointer, ElementsTypes.ACTION_ELEMENT
-                        )
-                    )
-                else:
-                    b_index = self.last_struct.addProtocol(
-                        "B_{0}".format(action_pointer.getName()),
-                        inside_the_task=self.inside_the_task,
-                        parametrs=protocol_params,
-                    )
-                    self.last_struct.behavior[b_index].addBody(
-                        BodyElement(
-                            action_name, action_pointer, ElementsTypes.ACTION_ELEMENT
-                        )
-                    )
-            else:
-                assign_b = "ASSIGN_B_{}".format(
-                    Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER)
-                )
-                Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
-                struct_assign: Protocol = Protocol(
-                    assign_b,
-                    ctx.getSourceInterval(),
-                    ElementsTypes.ASSIGN_OUT_OF_BLOCK_ELEMENT,
-                )
-                struct_assign.addBody(
+        protocol_params = self.getProtocolParams()
+        if self.last_struct:
+            beh_index = self.last_struct.getLastBehaviorIndex()
+
+            if beh_index is not None:
+                self.last_struct.behavior[beh_index].addBody(
                     BodyElement(
                         action_name, action_pointer, ElementsTypes.ACTION_ELEMENT
                     )
                 )
-                self.module.out_of_block_elements.addElement(struct_assign)
+            else:
+                b_index = self.last_struct.addProtocol(
+                    "B_{0}".format(action_pointer.getName()),
+                    inside_the_task=self.inside_the_task,
+                    parametrs=protocol_params,
+                )
+                self.last_struct.behavior[b_index].addBody(
+                    BodyElement(
+                        action_name, action_pointer, ElementsTypes.ACTION_ELEMENT
+                    )
+                )
+        else:
+            assign_b = "ASSIGN_B_{}".format(
+                Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER)
+            )
+            Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
+            struct_assign: Protocol = Protocol(
+                assign_b,
+                ctx.getSourceInterval(),
+                ElementsTypes.ASSIGN_OUT_OF_BLOCK_ELEMENT,
+            )
+            struct_assign.addBody(
+                BodyElement(action_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
+            )
+            self.module.out_of_block_elements.addElement(struct_assign)

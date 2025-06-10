@@ -20,18 +20,15 @@ class NetAssignmentTranslator(BaseTranslator):
         if not self.module.processed_elements.isInProcessedElementAlready(
             ctx.getSourceInterval()
         ):
-            self._translator_ptr.translate(
-                "expr", ctx, ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
-            )
+            self.last_element_type = ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
+            self._translator_ptr.translate("expr", ctx)
 
     def exit(self, ctx: SystemVerilogParser.Net_assignmentContext) -> None:
         if not self.module.processed_elements.isInProcessedElementAlready(
             ctx.getSourceInterval()
         ):
             action_pointer, action_name, source_interval, uniq_action = (
-                self._translator_ptr.getTranslator("expr").exit(
-                    ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
-                )
+                self._translator_ptr.getTranslator("expr").exit()
             )
 
             if action_name is not None:

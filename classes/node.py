@@ -3,7 +3,13 @@ from typing import Tuple
 from classes.basic import Basic, BasicArray
 from classes.element_types import ElementsTypes
 from utils.string_formating import addEqueToBGET
-from utils.utils import containsOnlyPipe, isNumericString
+from utils.utils import (
+    Color,
+    containsOnlyPipe,
+    is_interval_contained,
+    isNumericString,
+    printWithColor,
+)
 
 
 class RangeTypes(Enum):
@@ -70,9 +76,23 @@ class NodeArray(BasicArray):
             return True
         return False
 
-    def InitAssign(self):
-        if self.isAssign() and self.getLen() == 1:
-            self.elements.append(Node("=", (0, 0), ElementsTypes.OPERATOR_ELEMENT))
+    # def InitAssign(self):
+    #     if self.isAssign() and self.getLen() == 1:
+    #         self.elements.append(Node("=", (0, 0), ElementsTypes.OPERATOR_ELEMENT))
+
+    def addElement(self, new_element: Basic):
+        element = self.getLastElement()
+        if element:
+            if not self.checkSourceInteval(new_element.source_interval):
+                return self.getLen() - 1
+            
+        self.elements.append(new_element)
+        if not isinstance(new_element, Node):
+            printWithColor(
+                f"WARNING: Object should be of type {Node} but you passed an object of type {type(new_element)}. \n Object: {new_element}",
+                Color.YELLOW,
+            )
+        return self.getLen() - 1
 
     def __str__(self) -> str:
         result = ""

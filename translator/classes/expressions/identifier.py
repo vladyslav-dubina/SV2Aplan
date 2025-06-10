@@ -60,4 +60,3 @@ class IdentifierTranslator(BaseTranslator):
                 "param_call", node.identifier
             )
 
-            self.last_node_array.InitAssign()

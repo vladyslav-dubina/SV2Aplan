@@ -52,7 +52,7 @@ from translator.classes.declarations.struct import StructDeclTranslator
 from translator.classes.declarations.task import TaskBodyDeclTranslator
 from translator.classes.declarations.typedef import TypedefDeclTranslator
 from translator.classes.arrays.dynamic import DynamicArrayNewTranslator
-from translator.classes.declarations.variable import VariableDeclTranslator
+from translator.classes.assignments.variable import VariableDeclTranslator
 from translator.classes.expressions.bit_selection import BitSelectionTranslator
 from translator.classes.expressions.expression import ExpressionTranslator
 from translator.classes.assignments.parameters import (
@@ -171,6 +171,8 @@ class Translator:
     _decl_type: DeclType | None = None
     last_node_array: NodeArray | None = None
     _current_genvar_value: Tuple[str, int] | None = None
+    last_element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT
+    last_operator: str | None = None
 
     @property
     def current_genvar_value(self) -> bool:

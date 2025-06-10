@@ -91,8 +91,7 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def enterNumber(self, ctx: SystemVerilogParser.NumberContext):
         self.translator.translate("number", ctx)
 
-        # Enter a parse tree produced by SystemVerilogParser#bit_select.
-
+    # Enter a parse tree produced by SystemVerilogParser#bit_select.
     def enterBit_select(self, ctx: SystemVerilogParser.Bit_selectContext):
         self.translator.translate("bit_select", ctx)
 
@@ -160,8 +159,11 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     ):
         self.translator.getTranslator("var_decl").exit(ctx)
 
-    def exitNet_declaration(self, ctx: SystemVerilogParser.Net_declarationContext):
+    def enterNet_declaration(self, ctx: SystemVerilogParser.Net_declarationContext):
         self.translator.translate("net_decl", ctx)
+
+    def exitNet_declaration(self, ctx: SystemVerilogParser.Net_declarationContext):
+        self.translator.getTranslator("net_decl").exit(ctx)
 
     def enterAnsi_port_declaration(
         self, ctx: SystemVerilogParser.Ansi_port_declarationContext
@@ -243,44 +245,68 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     # ASSIGNMENTS
     # =========================================================================================
 
+    # Enter a parse tree produced by SystemVerilogParser#expression.
+    def enterExpression(self, ctx: SystemVerilogParser.ExpressionContext):
+        self.translator.getTranslator("expr").insertOperator()
+        pass
+
+    # for ansiport
+    def enterConstant_expression(
+        self, ctx: SystemVerilogParser.Constant_expressionContext
+    ):
+        self.translator.getTranslator("expr").insertOperator()
+        pass
+
     def enterNet_assignment(self, ctx: SystemVerilogParser.Net_assignmentContext):
-        self.translator.translate("in_block_assign", ctx)
+        # self.translator.translate("in_block_assign", ctx)
+        pass
 
     def exitNet_assignment(self, ctx: SystemVerilogParser.Net_assignmentContext):
-        self.translator.getTranslator("in_block_assign").exit(ctx)
+        # self.translator.getTranslator("in_block_assign").exit(ctx)
+        pass
 
+    # <= in always
     def enterNonblocking_assignment(
         self, ctx: SystemVerilogParser.Nonblocking_assignmentContext
     ):
-
         self.translator.translate("in_block_assign", ctx)
 
     def exitNonblocking_assignment(
         self, ctx: SystemVerilogParser.Nonblocking_assignmentContext
     ):
         self.translator.getTranslator("in_block_assign").exit(ctx)
+        pass
+
+    # = in always
+    def enterBlocking_assignment(
+        self, ctx: SystemVerilogParser.Blocking_assignmentContext
+    ):
+        print(ctx.getText(), "    blocting")
 
     def enterVariable_assignment(
         self, ctx: SystemVerilogParser.Variable_assignmentContext
     ):
-        self.translator.translate("in_block_assign", ctx)
+        # self.translator.translate("in_block_assign", ctx)
+        pass
 
     def exitVariable_assignment(
         self, ctx: SystemVerilogParser.Variable_assignmentContext
     ):
-        self.translator.getTranslator("in_block_assign").exit(ctx)
+        # self.translator.getTranslator("in_block_assign").exit(ctx)
+        pass
 
     def enterOperator_assignment(
         self, ctx: SystemVerilogParser.Operator_assignmentContext
     ):
-
-        self.translator.translate("in_block_assign", ctx)
+        # self.translator.translate("in_block_assign", ctx)
+        pass
 
     def exitOperator_assignment(
         self, ctx: SystemVerilogParser.Operator_assignmentContext
     ):
 
-        self.translator.getTranslator("in_block_assign").exit(ctx)
+        #  self.translator.getTranslator("in_block_assign").exit(ctx)
+        pass
 
     # =========================================================================================
     # PARAMETRS
@@ -330,7 +356,7 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     # =========================================================================================
     def enterCond_predicate(self, ctx: SystemVerilogParser.Cond_predicateContext):
         self.translator.translate("if_cond_predicate", ctx)
-    
+
     # =========================================================================================
     # SEQUENCE BLOCK CONTEXT
     # =========================================================================================

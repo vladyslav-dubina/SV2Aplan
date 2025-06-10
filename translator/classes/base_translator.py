@@ -88,6 +88,22 @@ class BaseTranslator:
     def last_node_array(self, value: NodeArray | None):
         self._translator_ptr.last_node_array = value
 
+    @property
+    def last_element_type(self) -> ElementsTypes:
+        return self._translator_ptr.last_element_type
+
+    @last_element_type.setter
+    def last_element_type(self, value: ElementsTypes | None):
+        self._translator_ptr.last_element_type = value
+
+    @property
+    def last_operator(self) -> str | None:
+        return self._translator_ptr.last_operator
+
+    @last_operator.setter
+    def last_operator(self, value: str | None):
+        self._translator_ptr.last_operator = value
+
     def getLastNameSpaceLevel(self) -> bool:
         return self._translator_ptr.getLastNameSpaceLevel()
 

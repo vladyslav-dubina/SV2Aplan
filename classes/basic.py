@@ -1,6 +1,6 @@
 from typing import List, Tuple
 from classes.element_types import ElementsTypes
-from utils.utils import Color, printWithColor
+from utils.utils import Color, is_interval_contained, printWithColor
 
 
 class Basic:
@@ -42,6 +42,12 @@ class BasicArray:
     def __init__(self, element_type: Basic):
         self.elements: List[Basic] = []
         self.element_type: Basic = element_type
+
+    def checkSourceInteval(self, source_interval: Tuple[int, int]):
+        for element in self.elements:
+            if is_interval_contained(source_interval, element.source_interval):
+                return False
+        return True
 
     def copy(self):
         new_aray: BasicArray = BasicArray(Basic)

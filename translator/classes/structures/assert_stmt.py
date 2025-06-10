@@ -23,7 +23,10 @@ class AssertPropertyTranslator(BaseTranslator):
         expression = ctx.property_spec()
         if not expression:
             return
-        self._translator_ptr.translate("expr", expression, ElementsTypes.ASSERT_ELEMENT)
+
+        self.last_element_type = ElementsTypes.ASSERT_ELEMENT
+        self.last_operator = None
+        self._translator_ptr.translate("expr")
 
     def exit(self, ctx: SystemVerilogParser.Assert_property_statementContext) -> None:
         expression = ctx.property_spec()
@@ -31,9 +34,7 @@ class AssertPropertyTranslator(BaseTranslator):
             return
 
         action_pointer, assert_name, source_interval, uniq_action = (
-            self._translator_ptr.getTranslator("expr").exit(
-                ElementsTypes.ASSERT_ELEMENT
-            )
+            self._translator_ptr.getTranslator("expr").exit()
         )
 
         if not assert_name:
@@ -82,7 +83,7 @@ class AssertInBlockTranslator(BaseTranslator):
                 ElementsTypes.ASSERT_ELEMENT
             )
         )
-        if not assert_name :
+        if not assert_name:
             return
 
         protocol_params = ""
@@ -109,7 +110,5 @@ class AssertInBlockTranslator(BaseTranslator):
         )
         if beh_index != 0:
             self.last_struct.behavior[beh_index - 1].addBody(
-                BodyElement(
-                    assert_b, action_pointer, ElementsTypes.PROTOCOL_ELEMENT
-                )
+                BodyElement(assert_b, action_pointer, ElementsTypes.PROTOCOL_ELEMENT)
             )

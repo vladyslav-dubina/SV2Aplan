@@ -6,11 +6,7 @@ from classes.protocols import BodyElement
 from translator.classes.base_translator import BaseTranslator
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
-    Counters_Object,
-    dataTypeToStr,
     extractDimentionSize,
-    extractVectorSize,
-    vectorSize2AplanVectorSize,
 )
 
 
@@ -84,10 +80,11 @@ class VariableDeclTranslator(BaseTranslator):
         if not expression:
             return
 
+        self.last_element_type = ElementsTypes.ASSIGN_ELEMENT
+        self.last_operator = "="
         self._translator_ptr.translate(
             "expr",
             ctx,
-            ElementsTypes.ASSIGN_ELEMENT,
         )
 
     def exit(self, ctx: SystemVerilogParser.Variable_decl_assignmentContext):
@@ -100,9 +97,7 @@ class VariableDeclTranslator(BaseTranslator):
             assign_name,
             source_interval,
             uniq_action,
-        ) = self._translator_ptr.getTranslator("expr").exit(
-            ElementsTypes.ASSIGN_ELEMENT
-        )
+        ) = self._translator_ptr.getTranslator("expr").exit()
 
         declaration = self.module.declarations.getElementByIndex(self.decl_index)
 

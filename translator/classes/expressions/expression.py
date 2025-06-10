@@ -300,12 +300,14 @@ class ExpressionTranslator(BaseTranslator):
         return (action_pointer, action_name, source_interval, uniq)
 
     def translate(
-        self, ctx, element_type: ElementsTypes, remove_association: bool = False
+        self, ctx, remove_association: bool = False
     ) -> Tuple[Action, str, Tuple[int, int], bool]:
         self.findStruct()
 
         previus_action = False
-        (self._name_part, self._counter_type) = self.getNamePartAndCounter(element_type)
+        (self._name_part, self._counter_type) = self.getNamePartAndCounter(
+            self.last_element_type
+        )
 
         self._action = None
         last_element = None
@@ -315,23 +317,25 @@ class ExpressionTranslator(BaseTranslator):
         )
 
         self._action = Action(
-            self._action_name, ctx.getSourceInterval(), element_type=element_type
+            self._action_name,
+            ctx.getSourceInterval(),
+            element_type=self.last_element_type,
         )
 
         expression = ctx.getText()
         expression = valuesToAplanStandart(expression)
 
         if (
-            element_type == ElementsTypes.ASSIGN_ELEMENT
-            or element_type == ElementsTypes.REPEAT_ELEMENT
-            or element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
+            self.last_element_type == ElementsTypes.ASSIGN_ELEMENT
+            or self.last_element_type == ElementsTypes.REPEAT_ELEMENT
+            or self.last_element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
         ):
 
             self._action.precondition.addElement(
                 Node("1", (0, 0), ElementsTypes.NUMBER_ELEMENT)
             )
             self.taskAssignIfPosible(ctx, self._action.postcondition)
-            self._action.postcondition.action_type = element_type
+            self._action.postcondition.action_type = self.last_element_type
             self.last_node_array = self._action.postcondition
 
         else:
@@ -339,7 +343,7 @@ class ExpressionTranslator(BaseTranslator):
                 self._action.postcondition.addElement(
                     Node("1", (0, 0), ElementsTypes.NUMBER_ELEMENT)
                 )
-            self._action.precondition.action_type = element_type
+            self._action.precondition.action_type = self.last_element_type
             self.last_node_array = self._action.precondition
 
         self._action.description_start.append(
@@ -351,11 +355,24 @@ class ExpressionTranslator(BaseTranslator):
         self._action.description_end.append(f"{expression}")
         return
 
-    def exit(self, element_type: ElementsTypes, remove_association: bool = False):
+    def insertOperator(self):
+        if not self.last_operator:
+            return
+
+        if not self.last_node_array:
+            return
+
+        self.last_node_array.addElement(
+            Node(self.last_operator, (0, 0), ElementsTypes.OPERATOR_ELEMENT)
+        )
+        self.last_operator = None
+
+    def exit(self, remove_association: bool = False):
         if (
             self._action.postcondition.getLen() == 0
             or self._action.precondition.getLen() == 0
         ):
+            self.last_node_array = None
             return (None, None, None, None)
 
         action_pointer: Action = None
@@ -383,7 +400,7 @@ class ExpressionTranslator(BaseTranslator):
                     last_element, previus_action, self._action_name = (
                         self.findAssociatedAction(
                             protocol,
-                            element_type,
+                            self.last_element_type,
                             self._name_part,
                             self._action,
                             previus_action,
@@ -399,7 +416,7 @@ class ExpressionTranslator(BaseTranslator):
                 last_element, previus_action, self._action_name = (
                     self.findAssociatedAction(
                         protocol,
-                        element_type,
+                        self.last_element_type,
                         self._name_part,
                         self._action,
                         previus_action,
@@ -439,7 +456,7 @@ class ExpressionTranslator(BaseTranslator):
                 if self.last_struct is not None:
                     self.last_struct.elements.addElement(action_pointer)
 
-            if element_type != ElementsTypes.REPEAT_ELEMENT:
+            if self.last_element_type != ElementsTypes.REPEAT_ELEMENT:
                 Counters_Object.incrieseCounter(self._counter_type)
 
         if self._action_name is not None:
@@ -449,12 +466,13 @@ class ExpressionTranslator(BaseTranslator):
                 action_identifier = action_pointer.identifier
             self._action_name = f"{action_identifier}{self._action.parametrs.getIdentifiersListString(action_parametrs_count)}"
 
-            if element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT:
+            if self.last_element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT:
                 self._action_name = f"Sensetive({self._action_name})"
             if last_element:
                 last_element.identifier = self._action_name
 
         if previus_action:
+            self.last_node_array = None
             return (None, None, None, None)
 
         self.last_node_array = None

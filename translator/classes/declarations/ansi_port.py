@@ -97,10 +97,12 @@ class AnsiPortDeclTranslator(BaseTranslator):
         constant_expression = ctx.constant_expression()
         if constant_expression is None:
             return
+
+        self.last_element_type = ElementsTypes.ASSIGN_ELEMENT
+        self.last_operator = "="
         self._translator_ptr.translate(
             "expr",
             ctx,
-            ElementsTypes.ASSIGN_ELEMENT,
         )
 
     def exit(self, ctx: SystemVerilogParser.Ansi_port_declarationContext) -> None:
@@ -112,10 +114,7 @@ class AnsiPortDeclTranslator(BaseTranslator):
                 assign_name,
                 source_interval,
                 uniq_action,
-            ) = self._translator_ptr.getTranslator("expr").exit(
-                ElementsTypes.ASSIGN_ELEMENT
-            )
-
+            ) = self._translator_ptr.getTranslator("expr").exit()
             declaration = self.module.declarations.getElementByIndex(self.decl_index)
             declaration.expression = assign_name
             declaration.action = action_pointer
