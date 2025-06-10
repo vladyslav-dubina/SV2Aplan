@@ -103,9 +103,7 @@ class IfCondPredicateTranslator(BaseTranslator):
         if self.last_struct.parametrs:
             if_action.parametrs = protocol_params
 
-        self._translator_ptr.body2Aplan(
-            ctx, destination_node_array=if_action.precondition
-        )
+        self.last_node_array = if_action.precondition
 
         if_action.description_start.append(
             f"{self.module.identifier}#{self.module.ident_uniq_name}"
@@ -142,7 +140,10 @@ class IfCondPredicateTranslator(BaseTranslator):
                 inside_the_task=self.inside_the_task,
             )
 
-        self.last_struct.left_cond.addElement(
+        left_cond = BodyElementArray()
+        
+
+        left_cond.addElement(
             BodyElement(
                 if_action.identifier,
                 action_pointer,
@@ -155,7 +156,7 @@ class IfCondPredicateTranslator(BaseTranslator):
             self.last_struct.number,
             self.last_struct.step,
         )
-        self.last_struct.left_cond.addElement(
+        left_cond.addElement(
             BodyElement(
                 body,
                 action_pointer,
@@ -167,17 +168,17 @@ class IfCondPredicateTranslator(BaseTranslator):
         self.last_struct.behavior[beh_index].addBody(
             BodyElement(
                 "",
-                self.last_struct.left_cond,
+                left_cond,
                 ElementsTypes.IF_CONDITION_LEFT,
             )
         )
-
         continuation_flag = False
         if self.last_struct.step != self.last_struct.if_count:
             continuation_flag = True
 
         if continuation_flag == True:
-            self.last_struct.right_cond.addElement(
+            right_cond = BodyElementArray()
+            right_cond.addElement(
                 BodyElement(
                     f"!{if_action.identifier}",
                     action_pointer,
@@ -189,7 +190,7 @@ class IfCondPredicateTranslator(BaseTranslator):
                 self.last_struct.number,
                 self.last_struct.step + 1,
             )
-            self.last_struct.right_cond.addElement(
+            right_cond.addElement(
                 BodyElement(
                     body,
                     action_pointer,
@@ -200,7 +201,7 @@ class IfCondPredicateTranslator(BaseTranslator):
             self.last_struct.behavior[beh_index].addBody(
                 BodyElement(
                     "",
-                    self.last_struct.right_cond,
+                    right_cond,
                     ElementsTypes.IF_CONDITION_RIGTH,
                 )
             )
@@ -222,3 +223,6 @@ class IfCondPredicateTranslator(BaseTranslator):
         )
 
         self.last_struct.step += 1
+
+    def exit(self, ctx: SystemVerilogParser.Cond_predicateContext) -> None:
+        self.last_node_array = None

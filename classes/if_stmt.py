@@ -21,8 +21,7 @@ class IfStmt(Structure):
         self.if_count = 0
         self.step = 1
 
-        self.left_cond = BodyElementArray()
-        self.right_cond = BodyElementArray()
+ 
 
     def setCondCount(self, if_count: int, else_count: int):
         self.else_count = else_count

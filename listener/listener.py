@@ -330,7 +330,7 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     # =========================================================================================
     def enterCond_predicate(self, ctx: SystemVerilogParser.Cond_predicateContext):
         self.translator.translate("if_cond_predicate", ctx)
-
+    
     # =========================================================================================
     # SEQUENCE BLOCK CONTEXT
     # =========================================================================================
