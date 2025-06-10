@@ -81,11 +81,13 @@ class NodeArray(BasicArray):
     #         self.elements.append(Node("=", (0, 0), ElementsTypes.OPERATOR_ELEMENT))
 
     def addElement(self, new_element: Basic):
-        element = self.getLastElement()
-        if element:
-            if not self.checkSourceInteval(new_element.source_interval):
-                return self.getLen() - 1
-            
+        if new_element.source_interval != (0, 0):
+            element = self.getLastElement()
+            if element:
+
+                if not self.checkSourceInteval(new_element.source_interval):
+                    return self.getLen() - 1
+
         self.elements.append(new_element)
         if not isinstance(new_element, Node):
             printWithColor(

@@ -8,7 +8,7 @@ from translator.classes.base_translator import BaseTranslator
 from utils.utils import Counters_Object
 
 
-class InBlockAssignmentTranslator(BaseTranslator):
+class AssignmentTranslator(BaseTranslator):
 
     if typing.TYPE_CHECKING:
 
@@ -20,8 +20,7 @@ class InBlockAssignmentTranslator(BaseTranslator):
     def translate(
         self,
         ctx: (
-            SystemVerilogParser.Variable_decl_assignmentContext
-            | SystemVerilogParser.Nonblocking_assignmentContext
+            SystemVerilogParser.Nonblocking_assignmentContext
             | SystemVerilogParser.Net_assignmentContext
             | SystemVerilogParser.Variable_assignmentContext
             | SystemVerilogParser.Operator_assignmentContext
@@ -38,6 +37,11 @@ class InBlockAssignmentTranslator(BaseTranslator):
             element_type = ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
 
         self.last_element_type = element_type
+
+        self.last_operator = "="
+        if type_c is SystemVerilogParser.Nonblocking_assignmentContext:
+            self.last_operator = "<="
+
         self._translator_ptr.translate(
             "expr",
             ctx,
@@ -46,8 +50,7 @@ class InBlockAssignmentTranslator(BaseTranslator):
     def exit(
         self,
         ctx: (
-            SystemVerilogParser.Variable_decl_assignmentContext
-            | SystemVerilogParser.Nonblocking_assignmentContext
+            SystemVerilogParser.Nonblocking_assignmentContext
             | SystemVerilogParser.Net_assignmentContext
             | SystemVerilogParser.Variable_assignmentContext
             | SystemVerilogParser.Operator_assignmentContext
@@ -89,11 +92,13 @@ class InBlockAssignmentTranslator(BaseTranslator):
                 Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER)
             )
             Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
+
             struct_assign: Protocol = Protocol(
                 assign_b,
                 ctx.getSourceInterval(),
                 ElementsTypes.ASSIGN_OUT_OF_BLOCK_ELEMENT,
             )
+
             struct_assign.addBody(
                 BodyElement(action_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
             )

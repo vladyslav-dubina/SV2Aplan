@@ -10,7 +10,7 @@ module code_patch_core
     );
 
     wire                    patch_enable;
-    reg [21:0]              no_pg[3] = 1;
+    reg [21:0]              no_pg[3];
     real real_val;
     int int_val;
     int val1 = 0;

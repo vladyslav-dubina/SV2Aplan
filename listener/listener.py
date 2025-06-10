@@ -258,54 +258,61 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
         pass
 
     def enterNet_assignment(self, ctx: SystemVerilogParser.Net_assignmentContext):
-        # self.translator.translate("in_block_assign", ctx)
+        self.translator.translate("assignment", ctx)
         pass
 
     def exitNet_assignment(self, ctx: SystemVerilogParser.Net_assignmentContext):
-        # self.translator.getTranslator("in_block_assign").exit(ctx)
+        self.translator.getTranslator("assignment").exit(ctx)
         pass
 
     # <= in always
     def enterNonblocking_assignment(
         self, ctx: SystemVerilogParser.Nonblocking_assignmentContext
     ):
-        self.translator.translate("in_block_assign", ctx)
+        self.translator.translate("assignment", ctx)
 
     def exitNonblocking_assignment(
         self, ctx: SystemVerilogParser.Nonblocking_assignmentContext
     ):
-        self.translator.getTranslator("in_block_assign").exit(ctx)
+        self.translator.getTranslator("assignment").exit(ctx)
         pass
 
     # = in always
     def enterBlocking_assignment(
         self, ctx: SystemVerilogParser.Blocking_assignmentContext
     ):
+        self.translator.translate("assignment", ctx)
+        print(ctx.getText(), "    blocting")
+
+    def exitBlocking_assignment(
+        self, ctx: SystemVerilogParser.Blocking_assignmentContext
+    ):
+        self.translator.getTranslator("assignment").exit(ctx)
         print(ctx.getText(), "    blocting")
 
     def enterVariable_assignment(
         self, ctx: SystemVerilogParser.Variable_assignmentContext
     ):
-        # self.translator.translate("in_block_assign", ctx)
+        self.translator.translate("assignment", ctx)
         pass
 
     def exitVariable_assignment(
         self, ctx: SystemVerilogParser.Variable_assignmentContext
     ):
-        # self.translator.getTranslator("in_block_assign").exit(ctx)
+        self.translator.getTranslator("assignment").exit(ctx)
         pass
 
     def enterOperator_assignment(
         self, ctx: SystemVerilogParser.Operator_assignmentContext
     ):
-        # self.translator.translate("in_block_assign", ctx)
+        # self.translator.translate("assignment", ctx)
         pass
 
     def exitOperator_assignment(
         self, ctx: SystemVerilogParser.Operator_assignmentContext
     ):
 
-        #  self.translator.getTranslator("in_block_assign").exit(ctx)
+        #  self.translator.getTranslator("assignment").exit(ctx)
         pass
 
     # =========================================================================================

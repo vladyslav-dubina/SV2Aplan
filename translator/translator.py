@@ -18,7 +18,7 @@ from classes.tasks import TaskStmt
 from translator.classes.arrays.array import ArrayTranslator
 from translator.classes.arrays.methods.push_back import PushBackTranslator
 from translator.classes.arrays.parametr import ParametrArrayTranslator
-from translator.classes.assignments.in_block import InBlockAssignmentTranslator
+from translator.classes.assignments.assignment import AssignmentTranslator
 from translator.classes.assignments.net import NetAssignmentTranslator
 from translator.classes.calls.build_in.mathematic.ceil import CeilTranslator
 from translator.classes.calls.build_in.mathematic.floor import FloorTranslator
@@ -113,7 +113,7 @@ TRANSLATOR_NAMES = Literal[
     "package_import_decl",
     "expr",
     "net_assign",
-    "in_block_assign",
+    "assignment",
     "params_assign",
     "generate_struct",
     "alaways_struct",
@@ -197,7 +197,7 @@ class Translator:
         "package_import_decl": PackageImportDeclTranslator,
         "expr": ExpressionTranslator,
         "net_assign": NetAssignmentTranslator,
-        "in_block_assign": InBlockAssignmentTranslator,
+        "assignment": AssignmentTranslator,
         "params_assign": ParametrsAssignmentTranslator,
         "generate_struct": GenerateStructTranslator,
         "alaways_struct": AlwaysStructureTranslator,
@@ -369,8 +369,8 @@ class Translator:
     def getTranslator(self, key: Literal["net_assign"]) -> NetAssignmentTranslator: ...
     @overload
     def getTranslator(
-        self, key: Literal["in_block_assign"]
-    ) -> InBlockAssignmentTranslator: ...
+        self, key: Literal["assignment"]
+    ) -> AssignmentTranslator: ...
     @overload
     def getTranslator(
         self, key: Literal["params_assign"]
