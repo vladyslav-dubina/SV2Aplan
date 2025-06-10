@@ -30,7 +30,11 @@ class InBlockAssignmentTranslator(BaseTranslator):
     ) -> None:
 
         self.element_type = ElementsTypes.ASSIGN_ELEMENT
-        if type(ctx) is SystemVerilogParser.Nonblocking_assignmentContext:
+        type_c = type(ctx)
+        if (
+            type_c is SystemVerilogParser.Nonblocking_assignmentContext
+            or type_c is SystemVerilogParser.Net_assignmentContext
+        ):
             self.element_type = ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
 
         self._translator_ptr.translate("expr", ctx, self.element_type)

@@ -182,6 +182,10 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
         if ctx.RETURN and ctx.expression():
             self.translator.translate("return", ctx.expression())
 
+    def exitJump_statement(self, ctx: SystemVerilogParser.Jump_statementContext):
+        if ctx.RETURN and ctx.expression():
+            self.translator.getTranslator("return").exit(ctx.expression())
+
     # =========================================================================================
     # CALLS
     # =========================================================================================
@@ -196,8 +200,6 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     # =========================================================================================
     # ASSIGNMENTS
     # =========================================================================================
-    # def exitNet_assignment(self, ctx):
-    #    self.translator.translate("net_assign", ctx)
 
     def enterNet_assignment(self, ctx: SystemVerilogParser.Net_assignmentContext):
         self.translator.translate("in_block_assign", ctx)
@@ -319,13 +321,21 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     # =========================================================================================
     # ASSERT
     # =========================================================================================
-    def exitAssert_property_statement(self, ctx):
+    def enterAssert_property_statement(self, ctx):
         self.translator.translate("assert_property", ctx)
+
+    def exitAssert_property_statement(self, ctx):
+        self.translator.getTranslator("assert_property").exit(ctx)
+
+    def enterSimple_immediate_assert_statement(
+        self, ctx: SystemVerilogParser.Simple_immediate_assert_statementContext
+    ):
+        self.translator.translate("assert_block", ctx)
 
     def exitSimple_immediate_assert_statement(
         self, ctx: SystemVerilogParser.Simple_immediate_assert_statementContext
     ):
-        self.translator.translate("assert_block", ctx)
+        self.translator.getTranslator("assert_block").exit(ctx)
 
     # =========================================================================================
     # INITIAL

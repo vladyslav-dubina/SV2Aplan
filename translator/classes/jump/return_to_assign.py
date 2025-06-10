@@ -20,9 +20,19 @@ class ReturnTranslator(BaseTranslator):
         ctx: SystemVerilogParser.ExpressionContext,
         # sv_structure: Structure | None = None,
     ) -> None:
+
+        self._translator_ptr.translate("expr", ctx, ElementsTypes.ASSIGN_ELEMENT)
+
+    def exit(
+        self,
+        ctx: SystemVerilogParser.ExpressionContext,
+        # sv_structure: Structure | None = None,
+    ) -> None:
         self.findStruct()
         action_pointer, action_name, source_interval, uniq_action = (
-            self._translator_ptr.translate("expr", ctx, ElementsTypes.ASSIGN_ELEMENT)
+            self._translator_ptr.getTranslator("expr").exit(
+                ElementsTypes.ASSIGN_ELEMENT
+            )
         )
 
         task = self.module.tasks.getLastTask()

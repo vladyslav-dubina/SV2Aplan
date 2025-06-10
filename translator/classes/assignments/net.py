@@ -16,18 +16,25 @@ class NetAssignmentTranslator(BaseTranslator):
         super().__init__(translator)
 
     def translate(self, ctx: SystemVerilogParser.Net_assignmentContext) -> None:
+
         if not self.module.processed_elements.isInProcessedElementAlready(
             ctx.getSourceInterval()
         ):
-            (
-                action_pointer,
-                assign_name,
-                source_interval,
-                uniq_action,
-            ) = self._translator_ptr.translate(
+            self._translator_ptr.translate(
                 "expr", ctx, ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
             )
-            if assign_name is not None:
+
+    def exit(self, ctx: SystemVerilogParser.Net_assignmentContext) -> None:
+        if not self.module.processed_elements.isInProcessedElementAlready(
+            ctx.getSourceInterval()
+        ):
+            action_pointer, action_name, source_interval, uniq_action = (
+                self._translator_ptr.getTranslator("expr").exit(
+                    ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
+                )
+            )
+
+            if action_name is not None:
                 if source_interval != ctx.getSourceInterval():
                     assign_b = "ASSIGN_B_{}".format(
                         Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER)
@@ -40,7 +47,7 @@ class NetAssignmentTranslator(BaseTranslator):
                     )
                     struct_assign.addBody(
                         BodyElement(
-                            assign_name, action_pointer, ElementsTypes.ACTION_ELEMENT
+                            action_name, action_pointer, ElementsTypes.ACTION_ELEMENT
                         )
                     )
                     self.module.out_of_block_elements.addElement(struct_assign)
