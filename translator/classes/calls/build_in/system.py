@@ -21,8 +21,6 @@ class SystemTaskCallTranslator(BaseTranslator):
     def translate(
         self,
         ctx: SystemVerilogParser.System_tf_callContext,
-        destination_node_array: NodeArray | None = None,
-        sv_structure: Structure | None = None,
     ) -> None:
         action = self.module.actions.isUniqActionBySourceInterval(
             ctx.getSourceInterval()

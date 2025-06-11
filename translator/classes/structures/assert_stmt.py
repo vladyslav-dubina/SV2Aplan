@@ -26,7 +26,7 @@ class AssertPropertyTranslator(BaseTranslator):
 
         self.last_element_type = ElementsTypes.ASSERT_ELEMENT
         self.last_operator = None
-        self._translator_ptr.translate("expr")
+        self._translator_ptr.translate("expr", expression)
 
     def exit(self, ctx: SystemVerilogParser.Assert_property_statementContext) -> None:
         expression = ctx.property_spec()

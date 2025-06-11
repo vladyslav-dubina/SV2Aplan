@@ -105,10 +105,8 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     ):
         self.translator.translate("unpkt_dmntn", ctx)
 
-    def enterConstant_part_select_range(
-        self, ctx: SystemVerilogParser.Constant_part_select_rangeContext
-    ):
-        self.translator.translate("range_select", ctx)
+    def enterConstant_range(self, ctx: SystemVerilogParser.Constant_rangeContext):
+        self.translator.translate("constant_range_select", ctx)
 
         # Enter a parse tree produced by SystemVerilogParser#dynamic_array_new.
 
@@ -370,7 +368,6 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def exitSeq_block(self, ctx: SystemVerilogParser.Seq_blockContext):
         self.translator.translate("if_seq_block", ctx)
 
-    
     # =========================================================================================
     # CASE STATEMENT
     # =========================================================================================

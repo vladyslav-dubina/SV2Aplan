@@ -186,9 +186,8 @@ class IfCondPredicateTranslator(BaseTranslator):
         else_protocol_flag = False
         if self.last_struct.step != self.last_struct.if_count:
             continuation_flag = True
-
-        if (
-            self.last_struct.if_count == self.last_struct.else_count
+        elif (
+            self.last_struct.last_step > 0
             and self.last_struct.step == self.last_struct.else_count
         ):
 

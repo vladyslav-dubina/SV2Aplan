@@ -61,7 +61,7 @@ from translator.classes.assignments.parameters import (
 from translator.classes.expressions.identifier import IdentifierTranslator
 from translator.classes.expressions.number import NumberTranslator
 from translator.classes.expressions.operator import OperatorTranslator
-from translator.classes.expressions.range import RangeSelectionTranslator
+from translator.classes.expressions.range import ConstantRangeSelectionTranslator
 from translator.classes.expressions.unpacked_dimention import (
     UnpackedDimentionTranslator,
 )
@@ -142,7 +142,7 @@ TRANSLATOR_NAMES = Literal[
     "operator",
     "return",
     "param_call",
-    "range_select",
+    "constant_range_select",
     "number",
     "unpkt_dmntn",
     "bit_select",
@@ -226,7 +226,7 @@ class Translator:
         "operator": OperatorTranslator,
         "return": ReturnTranslator,
         "param_call": ParametrsCallTranslator,
-        "range_select": RangeSelectionTranslator,
+        "constant_range_select": ConstantRangeSelectionTranslator,
         "number": NumberTranslator,
         "unpkt_dmntn": UnpackedDimentionTranslator,
         "bit_select": BitSelectionTranslator,
@@ -293,8 +293,8 @@ class Translator:
     def getTranslator(self, key: Literal["number"]) -> NumberTranslator: ...
     @overload
     def getTranslator(
-        self, key: Literal["range_select"]
-    ) -> RangeSelectionTranslator: ...
+        self, key: Literal["constant_range_select"]
+    ) -> ConstantRangeSelectionTranslator: ...
     @overload
     def getTranslator(self, key: Literal["param_call"]) -> ParametrsCallTranslator: ...
     @overload

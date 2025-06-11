@@ -21,8 +21,6 @@ class DynamicArrayNewTranslator(BaseTranslator):
     def translate(
         self,
         ctx: SystemVerilogParser.Dynamic_array_newContext,
-        sv_structure: Structure,
-        destination_node_array: NodeArray | None = None,
     ) -> None:
         size: str = ctx.getText()
         size = size.replace("new[", "[")

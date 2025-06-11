@@ -22,7 +22,6 @@ class BitSelectionTranslator(BaseTranslator):
             | SystemVerilogParser.Constant_bit_selectContext
         ),
     ) -> None:
-
         if not self.last_node_array:
             return
 

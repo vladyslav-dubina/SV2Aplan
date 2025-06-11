@@ -18,8 +18,6 @@ class MethodCallTranslator(BaseTranslator):
     def translate(
         self,
         ctx: SystemVerilogParser.Method_call_bodyContext,
-        sv_structure: Structure,
-        destination_node_array: NodeArray | None = None,
     ) -> None:
         task_identifier = ctx.method_identifier().getText()
         destination_node_array.removeElementByIndex(destination_node_array.getLen() - 1)
