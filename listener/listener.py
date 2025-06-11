@@ -370,6 +370,7 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def exitSeq_block(self, ctx: SystemVerilogParser.Seq_blockContext):
         self.translator.translate("if_seq_block", ctx)
 
+    
     # =========================================================================================
     # CASE STATEMENT
     # =========================================================================================

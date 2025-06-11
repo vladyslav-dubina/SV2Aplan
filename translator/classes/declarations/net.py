@@ -109,6 +109,7 @@ class NewDeclTranslator(BaseTranslator):
                     if elem.expression():
                         expression = elem.expression().getText()
                         if expression:
+                            raise Exception("Unhandled")
                             (
                                 action_pointer,
                                 assign_name,

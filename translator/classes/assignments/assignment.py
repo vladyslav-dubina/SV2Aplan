@@ -39,8 +39,6 @@ class AssignmentTranslator(BaseTranslator):
         self.last_element_type = element_type
 
         self.last_operator = "="
-        if type_c is SystemVerilogParser.Nonblocking_assignmentContext:
-            self.last_operator = "<="
 
         self._translator_ptr.translate(
             "expr",

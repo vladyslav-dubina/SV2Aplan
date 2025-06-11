@@ -19,6 +19,7 @@ class IfStmt(Structure):
         )
         self.else_count = 0
         self.if_count = 0
+        self.last_step = 0
         self.step = 1
 
  
@@ -26,6 +27,7 @@ class IfStmt(Structure):
     def setCondCount(self, if_count: int, else_count: int):
         self.else_count = else_count
         self.if_count = if_count
+        self.last_step = if_count + 1
         self.step = 1
 
     def __repr__(self):

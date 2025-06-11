@@ -15,6 +15,7 @@ from utils.utils import Color, Counters_Object, printWithColor
 
 
 class IfSequenceBlockTranslator(BaseTranslator):
+
     if typing.TYPE_CHECKING:
 
         from translator.translator import Translator
@@ -22,27 +23,36 @@ class IfSequenceBlockTranslator(BaseTranslator):
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
+    def generateElseBodyProtocol(self):
+        protocol_params = self.getProtocolParams()
+        self.last_struct.addProtocol(
+            "ELSE_BODY_{0}_{1}".format(self.last_struct.number, self.last_struct.step),
+            element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
+            parametrs=protocol_params,
+            inside_the_task=self.inside_the_task,
+        )
+
+    def isLastStep(self, else_count, if_count, last_step, crnt_step):
+        if else_count > 1 and crnt_step > if_count and crnt_step == last_step:
+            return True
+
     def translate(self, ctx: SystemVerilogParser.Seq_blockContext) -> None:
         self.findStruct()
-
         if isinstance(self.last_struct, IfStmt):
-            if (
-                self.last_struct.if_count > 1
-                and self.last_struct.step == self.last_struct.if_count
+
+            if self.last_struct.if_count > 1 and (
+                self.last_struct.step == self.last_struct.if_count
             ):
 
-                protocol_params = self.getProtocolParams()
-
-                self.last_struct.addProtocol(
-                    "ELSE_BODY_{0}_{1}".format(
-                        self.last_struct.number, self.last_struct.step
-                    ),
-                    element_type=ElementsTypes.IF_STATEMENT_ELEMENT,
-                    parametrs=protocol_params,
-                    inside_the_task=self.inside_the_task,
-                )
-
-                return
+                self.generateElseBodyProtocol()
+            elif self.isLastStep(
+                self.last_struct.else_count,
+                self.last_struct.if_count,
+                self.last_struct.last_step,
+                self.last_struct.step,
+            ):
+                self.generateElseBodyProtocol()
+                self.last_struct.step += 1
 
 
 class IfStmtTranslator(BaseTranslator):
@@ -61,8 +71,9 @@ class IfStmtTranslator(BaseTranslator):
         self.findStruct()
         if not isinstance(self.last_struct, IfStmt):
             return
-
-        self.last_struct.setCondCount(len(ctx.IF()), len(ctx.ELSE()))
+        if_cnt = len(ctx.IF())
+        else_cnt = len(ctx.ELSE())
+        self.last_struct.setCondCount(if_cnt, else_cnt)
 
 
 class IfCondPredicateTranslator(BaseTranslator):
@@ -141,7 +152,6 @@ class IfCondPredicateTranslator(BaseTranslator):
             )
 
         left_cond = BodyElementArray()
-        
 
         left_cond.addElement(
             BodyElement(
@@ -173,7 +183,15 @@ class IfCondPredicateTranslator(BaseTranslator):
             )
         )
         continuation_flag = False
+        else_protocol_flag = False
         if self.last_struct.step != self.last_struct.if_count:
+            continuation_flag = True
+
+        if (
+            self.last_struct.if_count == self.last_struct.else_count
+            and self.last_struct.step == self.last_struct.else_count
+        ):
+
             continuation_flag = True
 
         if continuation_flag == True:
