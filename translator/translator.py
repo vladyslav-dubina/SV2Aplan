@@ -48,7 +48,10 @@ from translator.classes.declarations.net import NewDeclTranslator
 from translator.classes.declarations.object import ObjectDeclTranslator
 from translator.classes.declarations.package import PackageDeclTranslator
 from translator.classes.declarations.package_import import PackageImportDeclTranslator
-from translator.classes.declarations.struct import StructDeclTranslator
+from translator.classes.declarations.struct import (
+    StructDeclTranslator,
+    StructUnionMemberContextTranlator,
+)
 from translator.classes.declarations.task import TaskBodyDeclTranslator
 from translator.classes.declarations.typedef import TypedefDeclTranslator
 from translator.classes.arrays.dynamic import DynamicArrayNewTranslator
@@ -106,6 +109,7 @@ TRANSLATOR_NAMES = Literal[
     "package_decl",
     "genvar_decl",
     "struct_decl",
+    "struct_union_member",
     "data_decl",
     "net_decl",
     "obj_decl",
@@ -168,7 +172,7 @@ class Translator:
     _module: Module | None = None
     _structure_pointer_list: StructureArray = StructureArray()
     _cache = {}
-    _decl_type: DeclType | None = None
+    decl_type_array: DeclTypeArray | None = DeclTypeArray()
     last_node_array: NodeArray | None = None
     _current_genvar_value: Tuple[str, int] | None = None
     last_element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT
@@ -190,6 +194,7 @@ class Translator:
         "package_decl": PackageDeclTranslator,
         "genvar_decl": GenvarDeclTranslator,
         "struct_decl": StructDeclTranslator,
+        "struct_union_member": StructUnionMemberContextTranlator,
         "data_decl": DataDeclTranslator,
         "net_decl": NewDeclTranslator,
         "obj_decl": ObjectDeclTranslator,
@@ -344,6 +349,10 @@ class Translator:
     @overload
     def getTranslator(self, key: Literal["genvar_decl"]) -> GenvarDeclTranslator: ...
     @overload
+    def getTranslator(
+        self, key: Literal["struct_union_member"]
+    ) -> StructUnionMemberContextTranlator: ...
+    @overload
     def getTranslator(self, key: Literal["struct_decl"]) -> StructDeclTranslator: ...
     @overload
     def getTranslator(self, key: Literal["data_decl"]) -> DataDeclTranslator: ...
@@ -368,9 +377,7 @@ class Translator:
     @overload
     def getTranslator(self, key: Literal["net_assign"]) -> NetAssignmentTranslator: ...
     @overload
-    def getTranslator(
-        self, key: Literal["assignment"]
-    ) -> AssignmentTranslator: ...
+    def getTranslator(self, key: Literal["assignment"]) -> AssignmentTranslator: ...
     @overload
     def getTranslator(
         self, key: Literal["params_assign"]

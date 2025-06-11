@@ -27,7 +27,7 @@ class TypedefDeclTranslator(BaseTranslator):
         data_type: SystemVerilogParser.Data_typeContext | None = (
             type_declaration.data_type()
         )
-        
+
         if not (data_type.ENUM() or data_type.struct_union()):
             return
 
@@ -73,10 +73,7 @@ class TypedefDeclTranslator(BaseTranslator):
                     "struct_decl"
                 ).structMembersToDeclarations(self, data_type, typedef)
 
-            if self.module:
-                decl_unique, decl_index = self.module.typedefs.addElement(typedef)
-            else:
-                decl_unique, decl_index = self._program.typedefs.addElement(typedef)
+            self.addTypedef(typedef)
 
     def create(
         self,
@@ -110,7 +107,4 @@ class TypedefDeclTranslator(BaseTranslator):
             )
             typedef.declarations.addElement(new_decl)
 
-        if self.module:
-            decl_unique, decl_index = self.module.typedefs.addElement(typedef)
-        else:
-            decl_unique, decl_index = self._program.typedefs.addElement(typedef)
+        self.addTypedef(typedef)

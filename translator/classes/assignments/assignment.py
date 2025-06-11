@@ -27,7 +27,6 @@ class AssignmentTranslator(BaseTranslator):
             | SystemVerilogParser.ExpressionContext
         ),
     ) -> None:
-
         element_type = ElementsTypes.ASSIGN_ELEMENT
         type_c = type(ctx)
         if (

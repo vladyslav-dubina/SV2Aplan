@@ -79,11 +79,13 @@ class DeclType:
         size_expression: str,
         size: int,
         name_space_level: int,
+        inside_the_struct: bool = False,
     ):
         self.data_type = data_type
         self.size_expression = size_expression
         self.size = size
         self.name_space_level = name_space_level
+        self.inside_the_struct = inside_the_struct
 
 
 class DeclTypeArray:
@@ -100,7 +102,7 @@ class DeclTypeArray:
     def getLen(self):
         return len(self.elements)
 
-    def getLastElement(self) -> Basic | None:
+    def getLastElement(self) -> DeclType | None:
         if self.getLen() > 0:
             return self.elements[self.getLen() - 1]
         else:

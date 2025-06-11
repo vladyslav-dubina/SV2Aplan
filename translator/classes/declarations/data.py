@@ -17,6 +17,7 @@ from utils.utils import (
 
 
 class DataDeclTranslator(BaseTranslator):
+    need_delete_type = False
     if typing.TYPE_CHECKING:
 
         from translator.translator import Translator
@@ -38,7 +39,6 @@ class DataDeclTranslator(BaseTranslator):
             return
 
         struct = None
-
         if data_type.struct_union():
             struct = self._translator_ptr.translate(
                 "struct_decl",
@@ -54,15 +54,20 @@ class DataDeclTranslator(BaseTranslator):
             data_check_type = DeclTypes.STRUCT
             size_expression = struct.unique_identifier
         else:
-            types = self.module.typedefs.getElementsIE().getElements()
-            packages = self.module.packages_and_objects.getElementsIE(
-                include=ElementsTypes.PACKAGE_ELEMENT
-            )
-            packages += self.module.packages_and_objects.getElementsIE(
-                include=ElementsTypes.OBJECT_ELEMENT
-            )
-            for package in packages.getElements():
-                types += package.typedefs.getElementsIE().getElements()
+            if self.module:
+                types = self.module.typedefs.getElementsIE().getElements()
+                packages = self.module.packages_and_objects.getElementsIE(
+                    include=ElementsTypes.PACKAGE_ELEMENT
+                )
+                packages += self.module.packages_and_objects.getElementsIE(
+                    include=ElementsTypes.OBJECT_ELEMENT
+                )
+                for package in packages.getElements():
+                    types += package.typedefs.getElementsIE().getElements()
+
+            else:
+                types = []
+
             data_check_type = DeclTypes.checkType(data_type_str, types)
 
         packed_dimension = data_type.packed_dimension(0)
@@ -80,17 +85,18 @@ class DataDeclTranslator(BaseTranslator):
             aplan_vector_size = vectorSize2AplanVectorSize(
                 vector_size[0], vector_size[1]
             )
-        if isinstance(ctx, SystemVerilogParser.Data_declarationContext):
-            list_of_variable_decl_assignments: (
-                SystemVerilogParser.List_of_variable_decl_assignmentsContext
-            ) = ctx.list_of_variable_decl_assignments()
-            declaration: SystemVerilogParser.Variable_decl_assignmentContext = (
-                list_of_variable_decl_assignments.variable_decl_assignment()
-            )
 
-        self.decl_type = DeclType(
-            data_check_type,
-            size_expression,
-            aplan_vector_size,
-            self.getLastNameSpaceLevel(),
+        self.decl_type_array.addElement(
+            DeclType(
+                data_check_type,
+                size_expression,
+                aplan_vector_size,
+                self.getLastNameSpaceLevel(),
+            )
         )
+        self.need_delete_type = True
+
+    def exit(self, ctx: SystemVerilogParser.Data_declarationContext) -> None:
+        if self.need_delete_type:
+            self.decl_type_array.removeLastElement()
+            self.need_delete_type = False

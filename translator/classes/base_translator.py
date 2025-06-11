@@ -6,6 +6,7 @@ from classes.element_types import ElementsTypes
 from classes.node import NodeArray
 from classes.structure import Structure, StructureArray
 from classes.tasks import TaskStmt
+from classes.typedef import Typedef
 
 if typing.TYPE_CHECKING:
     from translator.translator import Translator
@@ -73,12 +74,12 @@ class BaseTranslator:
         return self._translator_ptr._structure_pointer_list
 
     @property
-    def decl_type(self) -> DeclType:
-        return self._translator_ptr._decl_type
+    def decl_type_array(self) -> DeclTypeArray:
+        return self._translator_ptr.decl_type_array
 
-    @decl_type.setter
-    def decl_type(self, value: DeclType | None):
-        self._translator_ptr._decl_type = value
+    @decl_type_array.setter
+    def decl_type_array(self, value: DeclTypeArray | None):
+        self._translator_ptr.decl_type_array = value
 
     @property
     def last_node_array(self) -> NodeArray:
@@ -119,3 +120,19 @@ class BaseTranslator:
     @current_genvar_value.setter
     def current_genvar_value(self, value: typing.Tuple[str, int] | None):
         self._translator_ptr._current_genvar_value = value
+
+
+    def getLastTypedef(self) ->Typedef |None :
+        if self.module:
+            return self.module.typedefs.getLastElement()
+        else:
+            return self._program.typedefs.getLastElement()
+        
+
+    def addTypedef(self, typedef:Typedef):
+        if self.module:
+            return  self.module.typedefs.addElement(typedef)
+        else:
+            return  self._program.typedefs.addElement(typedef)
+
+        

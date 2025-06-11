@@ -64,6 +64,9 @@ class TypedefArray(BasicArray):
     def __init__(self):
         super().__init__(Typedef)
 
+    def getLastElement(self) -> Typedef | None:
+        return super().getLastElement()
+    
     def copy(self):
         new_aray: TypedefArray = TypedefArray()
         for element in self.getElements():

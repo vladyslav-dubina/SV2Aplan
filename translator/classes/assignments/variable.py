@@ -3,6 +3,7 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from classes.declarations import DeclType, DeclTypes, Declaration
 from classes.element_types import ElementsTypes
 from classes.protocols import BodyElement
+from classes.typedef import Typedef
 from translator.classes.base_translator import BaseTranslator
 from utils.string_formating import replaceValueParametrsCalls
 from utils.utils import (
@@ -32,6 +33,10 @@ class VariableDeclTranslator(BaseTranslator):
 
         dimension_size = 0
         dimension_size_expression = ""
+        decl_type = self.decl_type_array.getLastElement()
+        if not decl_type:
+            return
+
         if unpacked_dimention is not None:
             dimension = unpacked_dimention.getText()
             dimension_size_expression = dimension
@@ -44,8 +49,8 @@ class VariableDeclTranslator(BaseTranslator):
                 self.module.value_parametrs, str(dimension)
             )
             dimension_size = int(dimension_size)
-            if self.decl_type.data_type == DeclTypes.INT:
-                self.decl_type.data_type = DeclTypes.ARRAY
+            if decl_type.data_type == DeclTypes.INT:
+                decl_type.data_type = DeclTypes.ARRAY
 
                 self._translator_ptr.getTranslator("expr").createSizeExpression(
                     original_identifier,
@@ -53,7 +58,7 @@ class VariableDeclTranslator(BaseTranslator):
                     ctx.getSourceInterval(),
                 )
 
-                self.decl_type.size_expression = self._translator_ptr.translate(
+                decl_type.size_expression = self._translator_ptr.translate(
                     "array",
                     original_identifier,
                     DeclTypes.INT,
@@ -61,19 +66,25 @@ class VariableDeclTranslator(BaseTranslator):
                 )
 
         new_decl = Declaration(
-            self.decl_type.data_type,
+            decl_type.data_type,
             original_identifier,
             "",
-            self.decl_type.size_expression,
-            self.decl_type.size[0],
+            decl_type.size_expression,
+            decl_type.size[0],
             dimension_size_expression,
             dimension_size,
             ctx.getSourceInterval(),
-            name_space_level=self.decl_type.name_space_level,
+            name_space_level=decl_type.name_space_level,
         )
-        self.decl_unique, self.decl_index = self.module.declarations.addElement(
-            new_decl
-        )
+
+        if decl_type.inside_the_struct:
+            typedef: Typedef = self.getLastTypedef()
+            if typedef:
+                typedef.declarations.addElement(new_decl)
+        else:
+            self.decl_unique, self.decl_index = self.module.declarations.addElement(
+                new_decl
+            )
 
         expression = ctx.expression()
 

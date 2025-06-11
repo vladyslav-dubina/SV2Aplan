@@ -145,6 +145,22 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def enterData_declaration(self, ctx: SystemVerilogParser.Data_declarationContext):
         self.translator.translate("data_decl", ctx)
 
+    def exitData_declaration(self, ctx: SystemVerilogParser.Data_declarationContext):
+        self.translator.getTranslator("data_decl").exit(ctx)
+
+        # Enter a parse tree produced by SystemVerilogParser#struct_union_member.
+
+    def enterStruct_union_member(
+        self, ctx: SystemVerilogParser.Struct_union_memberContext
+    ):
+        self.translator.translate("struct_union_member", ctx)
+
+    # Exit a parse tree produced by SystemVerilogParser#struct_union_member.
+    def exitStruct_union_member(
+        self, ctx: SystemVerilogParser.Struct_union_memberContext
+    ):
+        self.translator.getTranslator("struct_union_member").exit(ctx)
+
     # Enter a parse tree produced by SystemVerilogParser#variable_decl_assignment.
     def enterVariable_decl_assignment(
         self, ctx: SystemVerilogParser.Variable_decl_assignmentContext
@@ -280,13 +296,11 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
         self, ctx: SystemVerilogParser.Blocking_assignmentContext
     ):
         self.translator.translate("assignment", ctx)
-        print(ctx.getText(), "    blocting")
 
     def exitBlocking_assignment(
         self, ctx: SystemVerilogParser.Blocking_assignmentContext
     ):
         self.translator.getTranslator("assignment").exit(ctx)
-        print(ctx.getText(), "    blocting")
 
     def enterVariable_assignment(
         self, ctx: SystemVerilogParser.Variable_assignmentContext

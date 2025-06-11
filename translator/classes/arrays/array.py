@@ -61,9 +61,7 @@ class ArrayTranslator(BaseTranslator):
         )
         typedef.declarations.addElement(new_decl)
 
-        if self.module:
-            decl_unique, decl_index = self.module.typedefs.addElement(typedef)
-        else:
-            decl_unique, decl_index = self._program.typedefs.addElement(typedef)
+
+        self.addTypedef(typedef)
 
         return unique_identifier
