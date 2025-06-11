@@ -1,8 +1,7 @@
 module repeat_example (
     input logic clk,
     input logic reset_n,
-    output logic done,
-    output reg [15:0] Data_out
+    output logic done
 );
 
   // Signal declaration
@@ -13,7 +12,6 @@ module repeat_example (
   initial begin
     done = 0;
     start = 0;
-    Data_out[0] <= Write_once_status;
   end
 
 
