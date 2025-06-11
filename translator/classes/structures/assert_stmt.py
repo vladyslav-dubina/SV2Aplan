@@ -72,7 +72,10 @@ class AssertInBlockTranslator(BaseTranslator):
         expression = ctx.expression()
         if not expression:
             return
-        self._translator_ptr.translate("expr", expression, ElementsTypes.ASSERT_ELEMENT)
+
+        self.last_element_type = ElementsTypes.ASSERT_ELEMENT
+        self.last_operator = None
+        self._translator_ptr.translate("expr", expression)
 
     def exit(
         self, ctx: SystemVerilogParser.Simple_immediate_assert_statementContext

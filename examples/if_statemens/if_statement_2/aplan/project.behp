@@ -1,4 +1,4 @@
-B_REGISTER_WRITE_ONCE_EXAMPLE = {Sensetive(ALWAYS_1, register_write_once_example.Clk || !register_write_once_example.ip_resetn)},
+B_REGISTER_WRITE_ONCE_EXAMPLE = {Sensetive(ALWAYS_1, register_write_once_example.Clk_0 || !register_write_once_example.ip_resetn_0)},
 ALWAYS_1 = IF_STATEMENT_2,
 IF_STATEMENT_2 = if_2_1.IF_BODY_2_1 + !if_2_1,
 IF_BODY_2_1 = Sensetive(assign_1)

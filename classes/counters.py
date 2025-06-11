@@ -151,8 +151,8 @@ class Counters:
             return self.enum_counter
         if counter_type is CounterTypes.OBJECT_COUNTER:
             return self.object_counter
-        printWithColor(
-            f"Counter for counter type {counter_type} not handled.", Color.RED
+        print(
+            f"Counter for counter type {counter_type} not handled."
         )
         exit(0)
 
