@@ -1,4 +1,4 @@
 B_MAIN = {MAIN_INITITAL},
-MAIN_INITITAL = assign_1.B_1,
-B_1 = if_1.IF_BODY_1 + !if_1,
-IF_BODY_1 = assign_2
+MAIN_INITITAL = assign_1.IF_STATEMENT_2,
+IF_STATEMENT_2 = if_2_1.IF_BODY_2_1 + !if_2_1,
+IF_BODY_2_1 = assign_2
