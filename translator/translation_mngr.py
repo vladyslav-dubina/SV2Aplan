@@ -1,37 +1,30 @@
 from antlr4_verilog import InputStream, CommonTokenStream, ParseTreeWalker
 
 from antlr4_verilog.systemverilog import SystemVerilogLexer, SystemVerilogParser
-from utils.utils import printWithColor, printWithColors, Color
-from program.program import Program
-from classes.module_call import ModuleCall
+from AppModule.app.translator.base_translator_mngr import BaseTranslationManager
+from AppModule.app.program.program import Program
+from AppModule.app.classes.module_call import ModuleCall
 
 
-class TranslationManager:
-    def setUp(self, data):
-        printWithColor("Set up translator environment \n", Color.ORANGE)
+class TranslationManager(BaseTranslationManager):
+    def setup(self, data):
+        self.logger.info("Set up translator environment \n", color="bold_yellow")
         lexer = SystemVerilogLexer(InputStream(data))
         stream = CommonTokenStream(lexer)
         parser = SystemVerilogParser(stream)
         self.tree = parser.source_text()
         self.walker = ParseTreeWalker()
 
-    def startTranslate(self, module_call: ModuleCall | None = None):
+    def translate(self, module_call: ModuleCall | None = None):
         from listener.listener import SVToAplanListener
-        printWithColor(f"Translation process start... \n", Color.ORANGE)
+
+        self.logger.info("Translation process start...", color="bold_yellow")
 
         listener: SVToAplanListener = SVToAplanListener(module_call)
         self.walker.walk(listener, self.tree)
         program = Program()
-        printWithColor(f"File tranlation process finished! \n", Color.ORANGE)
-        printWithColors(
-            [
-                ("File ", Color.ORANGE),
-                (f"{program.file_path}", Color.PURPLE),
-                (" tranlation process finished! \n", Color.ORANGE),
-            ]
+        self.logger.info(f"File tranlation process finished!", color="bold_yellow")
+        self.logger.info( f"File {program.file_path}  tranlation process finished!", color="bold_purple"
         )
-        printWithColor(
-            f"<<<------------------------------------------------------------------------->>>\n",
-            Color.BLUE,
-        )
+        self.logger.delimetr(color="blue")
         return listener.module.ident_uniq_name
