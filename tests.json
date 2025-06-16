@@ -1,237 +1,237 @@
 [
     {
         "file": "examples/initial/initial.sv",
-        "test_result_dir": "examples/initial/test_result",
+        "result_dir": "examples/initial/test_result",
         "aplan_dir": "examples/initial/aplan"
     },
     {
         "file": "examples/assigns/assign_1/assign_1.sv",
-        "test_result_dir": "examples/assigns/assign_1/test_result",
+        "result_dir": "examples/assigns/assign_1/test_result",
         "aplan_dir": "examples/assigns/assign_1/aplan"
     },
     {
         "file": "examples/struct/enum_1/enum_1.sv",
-        "test_result_dir": "examples/struct/enum_1/test_result",
+        "result_dir": "examples/struct/enum_1/test_result",
         "aplan_dir": "examples/struct/enum_1/aplan"
     },
     {
         "file": "examples/struct/enum_2/enum_2.sv",
-        "test_result_dir": "examples/struct/enum_2/test_result",
+        "result_dir": "examples/struct/enum_2/test_result",
         "aplan_dir": "examples/struct/enum_2/aplan"
     },
     {
         "file": "examples/struct/structure_1/struct_1.sv",
-        "test_result_dir": "examples/struct/structure_1/test_result",
+        "result_dir": "examples/struct/structure_1/test_result",
         "aplan_dir": "examples/struct/structure_1/aplan"
     },
     {
         "file": "examples/struct/structure_2/struct_2.sv",
-        "test_result_dir": "examples/struct/structure_2/test_result",
+        "result_dir": "examples/struct/structure_2/test_result",
         "aplan_dir": "examples/struct/structure_2/aplan"
     },
     {
         "file": "examples/struct/structure_3/struct_3.sv",
-        "test_result_dir": "examples/struct/structure_3/test_result",
+        "result_dir": "examples/struct/structure_3/test_result",
         "aplan_dir": "examples/struct/structure_3/aplan"
     },
     {
         "file": "examples/struct/structure_4/struct_4.sv",
-        "test_result_dir": "examples/struct/structure_4/test_result",
+        "result_dir": "examples/struct/structure_4/test_result",
         "aplan_dir": "examples/struct/structure_4/aplan"
     },
     {
         "file": "examples/struct/union_1/union_1.sv",
-        "test_result_dir": "examples/struct/union_1/test_result",
+        "result_dir": "examples/struct/union_1/test_result",
         "aplan_dir": "examples/struct/union_1/aplan"
     },
     {
         "file": "examples/struct/interface/my_interface.sv",
-        "test_result_dir": "examples/struct/interface/test_result",
+        "result_dir": "examples/struct/interface/test_result",
         "aplan_dir": "examples/struct/interface/aplan"
     },
     {
         "file": "examples/parametrs/parametrs_1/parametrs_1.sv",
-        "test_result_dir": "examples/parametrs/parametrs_1/test_result",
+        "result_dir": "examples/parametrs/parametrs_1/test_result",
         "aplan_dir": "examples/parametrs/parametrs_1/aplan"
     },
     {
         "file": "examples/assert/assert.sv",
-        "test_result_dir": "examples/assert/test_result",
+        "result_dir": "examples/assert/test_result",
         "aplan_dir": "examples/assert/aplan"
     },
     {
         "file": "examples/always/always_@*/always_@*.sv",
-        "test_result_dir": "examples/always/always_@*/test_result",
+        "result_dir": "examples/always/always_@*/test_result",
         "aplan_dir": "examples/always/always_@*/aplan"
     },
     {
         "file": "examples/always/always_without_sensetive/always_without_sensetive.sv",
-        "test_result_dir": "examples/always/always_without_sensetive/test_result",
+        "result_dir": "examples/always/always_without_sensetive/test_result",
         "aplan_dir": "examples/always/always_without_sensetive/aplan"
     },
     {
         "file": "examples/case/case.sv",
-        "test_result_dir": "examples/case/test_result",
+        "result_dir": "examples/case/test_result",
         "aplan_dir": "examples/case/aplan"
     },
     {
         "file": "examples/if_statemens/if_statement_1/if_statement_1.sv",
-        "test_result_dir": "examples/if_statemens/if_statement_1/test_result",
+        "result_dir": "examples/if_statemens/if_statement_1/test_result",
         "aplan_dir": "examples/if_statemens/if_statement_1/aplan"
     },
     {
         "file": "examples/if_statemens/if_statement_2/if_statement_2.sv",
-        "test_result_dir": "examples/if_statemens/if_statement_2/test_result",
+        "result_dir": "examples/if_statemens/if_statement_2/test_result",
         "aplan_dir": "examples/if_statemens/if_statement_2/aplan"
     },
     {
         "file": "examples/struct/enum_3/enum_3.sv",
-        "test_result_dir": "examples/struct/enum_3/test_result",
+        "result_dir": "examples/struct/enum_3/test_result",
         "aplan_dir": "examples/struct/enum_3/aplan"
     },
     {
         "file": "examples/loops/loop_1/loop_1.sv",
-        "test_result_dir": "examples/loops/loop_1/test_result",
+        "result_dir": "examples/loops/loop_1/test_result",
         "aplan_dir": "examples/loops/loop_1/aplan"
     },
     {
         "file": "examples/loops/loop_2/loop_2.sv",
-        "test_result_dir": "examples/loops/loop_2/test_result",
+        "result_dir": "examples/loops/loop_2/test_result",
         "aplan_dir": "examples/loops/loop_2/aplan"
     },
     {
         "file": "examples/loops/while_1/while_1.sv",
-        "test_result_dir": "examples/loops/while_1/test_result",
+        "result_dir": "examples/loops/while_1/test_result",
         "aplan_dir": "examples/loops/while_1/aplan"
     },
     {
         "file": "examples/loops/while_2/while_2.sv",
-        "test_result_dir": "examples/loops/while_2/test_result",
+        "result_dir": "examples/loops/while_2/test_result",
         "aplan_dir": "examples/loops/while_2/aplan"
     },
     {
         "file": "examples/loops/foreach/foreach.sv",
-        "test_result_dir": "examples/loops/foreach/test_result",
+        "result_dir": "examples/loops/foreach/test_result",
         "aplan_dir": "examples/loops/foreach/aplan"
     },
     {
         "file": "examples/loops/forever/forever.sv",
-        "test_result_dir": "examples/loops/forever/test_result",
+        "result_dir": "examples/loops/forever/test_result",
         "aplan_dir": "examples/loops/forever/aplan"
     },
     {
         "file": "examples/loops/repeat/repeat.sv",
-        "test_result_dir": "examples/loops/repeat/test_result",
+        "result_dir": "examples/loops/repeat/test_result",
         "aplan_dir": "examples/loops/repeat/aplan"
     },
     {
         "file": "examples/task_and_functions/task_1/task_1.sv",
-        "test_result_dir": "examples/task_and_functions/task_1/test_result",
+        "result_dir": "examples/task_and_functions/task_1/test_result",
         "aplan_dir": "examples/task_and_functions/task_1/aplan"
     },
     {
         "file": "examples/task_and_functions/task_2/task_2.sv",
-        "test_result_dir": "examples/task_and_functions/task_2/test_result",
+        "result_dir": "examples/task_and_functions/task_2/test_result",
         "aplan_dir": "examples/task_and_functions/task_2/aplan"
     },
     {
         "file": "examples/task_and_functions/function_1/function_1.sv",
-        "test_result_dir": "examples/task_and_functions/function_1/test_result",
+        "result_dir": "examples/task_and_functions/function_1/test_result",
         "aplan_dir": "examples/task_and_functions/function_1/aplan"
     },
     {
         "file": "examples/task_and_functions/function_2/function_2.sv",
-        "test_result_dir": "examples/task_and_functions/function_2/test_result",
+        "result_dir": "examples/task_and_functions/function_2/test_result",
         "aplan_dir": "examples/task_and_functions/function_2/aplan"
     },
     {
         "file": "examples/task_and_functions/function_3/function_3.sv",
-        "test_result_dir": "examples/task_and_functions/function_3/test_result",
+        "result_dir": "examples/task_and_functions/function_3/test_result",
         "aplan_dir": "examples/task_and_functions/function_3/aplan"
     },
     {
         "file": "examples/call/call_1/call_2.sv",
-        "test_result_dir": "examples/call/call_1/test_result",
+        "result_dir": "examples/call/call_1/test_result",
         "aplan_dir": "examples/call/call_1/aplan"
     },
     {
         "file": "examples/call/call_2/call_2.sv",
-        "test_result_dir": "examples/call/call_2/test_result",
+        "result_dir": "examples/call/call_2/test_result",
         "aplan_dir": "examples/call/call_2/aplan"
     },
     {
         "file": "examples/call/interface_object/interface_object.sv",
-        "test_result_dir": "examples/call/interface_object/test_result",
+        "result_dir": "examples/call/interface_object/test_result",
         "aplan_dir": "examples/call/interface_object/aplan"
     },
     {
         "file": "examples/call/interface_parametr/interface_parametr.sv",
-        "test_result_dir": "examples/call/interface_parametr/test_result",
+        "result_dir": "examples/call/interface_parametr/test_result",
         "aplan_dir": "examples/call/interface_parametr/aplan"
     },
     {
         "file": "examples/call/package_import_1/package_import_1.sv",
-        "test_result_dir": "examples/call/package_import_1/test_result",
+        "result_dir": "examples/call/package_import_1/test_result",
         "aplan_dir": "examples/call/package_import_1/aplan"
     },
     {
         "file": "examples/call/package_import_2/package_import_2.sv",
-        "test_result_dir": "examples/call/package_import_2/test_result",
+        "result_dir": "examples/call/package_import_2/test_result",
         "aplan_dir": "examples/call/package_import_2/aplan"
     },
     {
         "file": "examples/classes/class_1/class_1.sv",
-        "test_result_dir": "examples/classes/class_1/test_result",
+        "result_dir": "examples/classes/class_1/test_result",
         "aplan_dir": "examples/classes/class_1/aplan"
     },
     {
         "file": "examples/sv_example_1/sv_example_1.sv",
-        "test_result_dir": "examples/sv_example_1/test_result",
+        "result_dir": "examples/sv_example_1/test_result",
         "aplan_dir": "examples/sv_example_1/aplan"
     },
     {
         "file": "examples/sv_example_2/sv_example_2.sv",
-        "test_result_dir": "examples/sv_example_2/test_result",
+        "result_dir": "examples/sv_example_2/test_result",
         "aplan_dir": "examples/sv_example_2/aplan"
     },
     {
         "file": "examples/build_in_functions/finish/finish.sv",
-        "test_result_dir": "examples/build_in_functions/finish/test_result",
+        "result_dir": "examples/build_in_functions/finish/test_result",
         "aplan_dir": "examples/build_in_functions/finish/aplan"
     },
     {
         "file": "examples/build_in_functions/stop/stop.sv",
-        "test_result_dir": "examples/build_in_functions/stop/test_result",
+        "result_dir": "examples/build_in_functions/stop/test_result",
         "aplan_dir": "examples/build_in_functions/stop/aplan"
     },
     {
         "file": "examples/build_in_functions/size_1/size_1.sv",
-        "test_result_dir": "examples/build_in_functions/size_1/test_result",
+        "result_dir": "examples/build_in_functions/size_1/test_result",
         "aplan_dir": "examples/build_in_functions/size_1/aplan"
     },
     {
         "file": "examples/build_in_functions/size_2/size_2.sv",
-        "test_result_dir": "examples/build_in_functions/size_2/test_result",
+        "result_dir": "examples/build_in_functions/size_2/test_result",
         "aplan_dir": "examples/build_in_functions/size_2/aplan"
     },
     {
         "file": "examples/build_in_functions/ceil/ceil.sv",
-        "test_result_dir": "examples/build_in_functions/ceil/test_result",
+        "result_dir": "examples/build_in_functions/ceil/test_result",
         "aplan_dir": "examples/build_in_functions/ceil/aplan"
     },
     {
         "file": "examples/build_in_functions/floor/floor.sv",
-        "test_result_dir": "examples/build_in_functions/floor/test_result",
+        "result_dir": "examples/build_in_functions/floor/test_result",
         "aplan_dir": "examples/build_in_functions/floor/aplan"
     },
     {
         "file": "examples/build_in_functions/pow/pow.sv",
-        "test_result_dir": "examples/build_in_functions/pow/test_result",
+        "result_dir": "examples/build_in_functions/pow/test_result",
         "aplan_dir": "examples/build_in_functions/pow/aplan"
     },
     {
         "file": "examples/build_in_functions/sqrt/sqrt.sv",
-        "test_result_dir": "examples/build_in_functions/sqrt/test_result",
+        "result_dir": "examples/build_in_functions/sqrt/test_result",
         "aplan_dir": "examples/build_in_functions/sqrt/aplan"
     }
 ]

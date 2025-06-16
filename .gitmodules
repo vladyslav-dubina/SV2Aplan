@@ -1,0 +1,3 @@
+[submodule "App-Module"]
+	path = App-Module
+	url = https://github.com/AplanTranslators/App-Module
