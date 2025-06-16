@@ -119,7 +119,7 @@ class TaskCallTranslator(BaseTranslator):
                     )
 
                 else:
-                    Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+                    Counters_Object.incriese(CounterTypes.B_COUNTER)
                     task_call = "B_{0}".format(task.structure.identifier)
                     beh_index = self.last_struct.addProtocol(
                         task_call,
@@ -184,7 +184,7 @@ class TaskCallTranslator(BaseTranslator):
                         BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
                     )
                 else:
-                    Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+                    Counters_Object.incriese(CounterTypes.B_COUNTER)
                     task_call = "B_{0}".format(task.structure.identifier)
                     b_index = self.last_struct.addProtocol(
                         task_call,

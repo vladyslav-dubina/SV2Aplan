@@ -161,4 +161,4 @@ class PushBackTranslator(BaseTranslator):
 
             if not previus_action:
                 self.module.actions.addElement(action)
-                Counters_Object.incrieseCounter(counter_type)
+                Counters_Object.incriese(counter_type)

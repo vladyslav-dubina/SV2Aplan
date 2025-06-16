@@ -55,4 +55,4 @@ class AlwaysStructureTranslator(BaseTranslator):
 
         self.module.structures.addElement(always)
         self.structure_pointer_list.addElement(always)
-        Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
+        Counters_Object.incriese(CounterTypes.STRUCT_COUNTER)

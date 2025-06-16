@@ -289,13 +289,13 @@ class ExpressionTranslator(BaseTranslator):
             if self.last_struct is not None:
                 self.last_struct.elements.addElement(action)
         else:
-            Counters_Object.decrieseCounter(counter_type)
+            Counters_Object.decriese(counter_type)
             action_name = action_check_result
             if self.last_struct is not None:
                 self.last_struct.elements.addElement(action_pointer)
 
         if element_type != ElementsTypes.REPEAT_ELEMENT:
-            Counters_Object.incrieseCounter(counter_type)
+            Counters_Object.incriese(counter_type)
 
         return (action_pointer, action_name, source_interval, uniq)
 
@@ -451,13 +451,13 @@ class ExpressionTranslator(BaseTranslator):
                 if self.last_struct is not None:
                     self.last_struct.elements.addElement(self._action)
             else:
-                Counters_Object.decrieseCounter(self._counter_type)
+                Counters_Object.decriese(self._counter_type)
                 self._action_name = action_check_result
                 if self.last_struct is not None:
                     self.last_struct.elements.addElement(action_pointer)
 
             if self.last_element_type != ElementsTypes.REPEAT_ELEMENT:
-                Counters_Object.incrieseCounter(self._counter_type)
+                Counters_Object.incriese(self._counter_type)
 
         if self._action_name is not None:
             action_parametrs_count = self._action.parametrs.getLen()
@@ -570,4 +570,4 @@ class ExpressionTranslator(BaseTranslator):
 
         if not previus_action:
             self.module.actions.addElement(action)
-            Counters_Object.incrieseCounter(counter_type)
+            Counters_Object.incriese(counter_type)

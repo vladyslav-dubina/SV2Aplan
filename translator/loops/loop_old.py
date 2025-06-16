@@ -284,4 +284,4 @@ def loop2AplanImpl(
             body_statement, sv_structure
         )
 
-    Counters_Object.incrieseCounter(CounterTypes.LOOP_COUNTER)
+    Counters_Object.incriese(CounterTypes.LOOP_COUNTER)

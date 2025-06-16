@@ -38,7 +38,7 @@ class TypedefDeclTranslator(BaseTranslator):
                 enum_type_identifier,
                 Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
             )
-            Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
+            Counters_Object.incriese(CounterTypes.STRUCT_COUNTER)
             decl_type = DeclTypes.ENUM_TYPE
 
             if data_type.struct_union():

@@ -250,7 +250,7 @@ def forInitialization2ApanImpl(
     if expression is not None:
         original_identifier = expression.variable_identifier(0).getText()
         identifier = original_identifier + f"_{self.getLastNameSpaceLevel()}"
-        Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
+        Counters_Object.incriese(CounterTypes.STRUCT_COUNTER)
         data_type = expression.data_type().getText()
         size_expression = data_type
         packages = self.module.packages_and_objects.getElementsIE(

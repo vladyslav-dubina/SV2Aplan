@@ -74,7 +74,7 @@ class ModuleCallTranslator(BaseTranslator):
         if call_module.element_type != ElementsTypes.INTERFACE_ELEMENT:
             self._program.file_path = previous_file_path
             self.assign(ctx, call_module_name, destination_identifier)
-            Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+            Counters_Object.incriese(CounterTypes.B_COUNTER)
             call_b = "MODULE_CALL_B_{}".format(
                 Counters_Object.getCounter(CounterTypes.B_COUNTER)
             )
@@ -99,7 +99,7 @@ class ModuleCallTranslator(BaseTranslator):
             instance = hierarchical_instance.name_of_instance().getText()
             index = instance.find("core")
             if index != -1:
-                Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+                Counters_Object.incriese(CounterTypes.B_COUNTER)
                 call_assign_b = "MODULE_ASSIGN_B_{}".format(
                     Counters_Object.getCounter(CounterTypes.B_COUNTER)
                 )

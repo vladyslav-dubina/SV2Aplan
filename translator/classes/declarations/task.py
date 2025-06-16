@@ -92,7 +92,7 @@ class TaskBodyDeclTranslator(BaseTranslator):
                 body_element, task_structure
             )
 
-        Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
+        Counters_Object.incriese(CounterTypes.STRUCT_COUNTER)
 
         self.module.structures.addElement(task_structure)
 

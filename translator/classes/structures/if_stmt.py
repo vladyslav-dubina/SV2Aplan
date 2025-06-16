@@ -135,7 +135,7 @@ class IfCondPredicateTranslator(BaseTranslator):
         if if_check_result is None:
             self.module.actions.addElement(if_action)
         else:
-            Counters_Object.decrieseCounter(CounterTypes.IF_COUNTER)
+            Counters_Object.decriese(CounterTypes.IF_COUNTER)
             action_name = if_check_result
 
         if (

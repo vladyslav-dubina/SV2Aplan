@@ -465,7 +465,7 @@ class Translator:
             self._structure_pointer_list.removeElementByIndex(
                 self._structure_pointer_list.getLen() - 1
             )
-            # Counters_Object.decrieseCounter(CounterTypes.STRUCT_COUNTER)
+            # Counters_Object.decriese(CounterTypes.STRUCT_COUNTER)
 
     def createStatement(
         self,
@@ -564,7 +564,7 @@ class Translator:
 
             sv_structure.behavior.append(struct)
             self._structure_pointer_list.addElement(struct)
-            Counters_Object.incrieseCounter(counter_type)
+            Counters_Object.incriese(counter_type)
 
     def extractSensetive(self, ctx):
         res = ""

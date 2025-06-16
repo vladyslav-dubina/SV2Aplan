@@ -75,7 +75,7 @@ class PackageImportDeclTranslator(BaseTranslator):
                         )  # remove after take all needed elements
                     else:
                         if len(package.getBehInitProtocols()) > 0:
-                            Counters_Object.incrieseCounter(CounterTypes.B_COUNTER)
+                            Counters_Object.incriese(CounterTypes.B_COUNTER)
                             call_b = "PACKAGE_IMPORT_B_{}".format(
                                 Counters_Object.getCounter(CounterTypes.B_COUNTER)
                             )

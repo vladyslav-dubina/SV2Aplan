@@ -88,7 +88,7 @@ class AssignmentTranslator(BaseTranslator):
             assign_b = "ASSIGN_B_{}".format(
                 Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER)
             )
-            Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
+            Counters_Object.incriese(CounterTypes.STRUCT_COUNTER)
 
             struct_assign: Protocol = Protocol(
                 assign_b,

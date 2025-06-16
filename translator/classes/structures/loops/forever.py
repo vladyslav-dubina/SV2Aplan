@@ -93,4 +93,4 @@ class ForeverIterationTranslator(BaseTranslator):
             )
         )
 
-        Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
+        Counters_Object.incriese(CounterTypes.STRUCT_COUNTER)

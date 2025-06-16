@@ -33,4 +33,4 @@ class ObjectDeclTranslator(BaseTranslator):
         object.ident_uniq_name_upper = object.ident_uniq_name.upper()
         object.source_interval = source_interval
         self.module.packages_and_objects.addElement(object)
-        Counters_Object.incrieseCounter(CounterTypes.OBJECT_COUNTER)
+        Counters_Object.incriese(CounterTypes.OBJECT_COUNTER)

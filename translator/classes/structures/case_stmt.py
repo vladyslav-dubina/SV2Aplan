@@ -167,8 +167,8 @@ class CaseItemExprTranslator(BaseTranslator):
             inside_the_task=self.inside_the_task,
         )
 
-        Counters_Object.incrieseCounter(CounterTypes.BODY_COUNTER)
-        Counters_Object.incrieseCounter(CounterTypes.STRUCT_COUNTER)
+        Counters_Object.incriese(CounterTypes.BODY_COUNTER)
+        Counters_Object.incriese(CounterTypes.STRUCT_COUNTER)
 
         self.last_struct.case_count -= 1
         return

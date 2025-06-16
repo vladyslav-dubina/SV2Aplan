@@ -34,6 +34,6 @@ class DeclarationTranslator(BaseTranslator):
         )
         uniq, index = self.module.declarations.addElement(decl)
         if uniq:
-            Counters_Object.incrieseCounter(counter_type)
+            Counters_Object.incriese(counter_type)
 
         return self.module.declarations.getElementByIndex(index)
