@@ -1,11 +1,8 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.counters import CounterTypes
-from classes.element_types import ElementsTypes
-from classes.protocols import BodyElement, Protocol
-from classes.structure import Structure
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.protocols import BodyElement, Protocol
 from translator.classes.base_translator import BaseTranslator
-from utils.utils import Counters_Object
 
 
 class AssignmentTranslator(BaseTranslator):
@@ -86,9 +83,9 @@ class AssignmentTranslator(BaseTranslator):
                 )
         else:
             assign_b = "ASSIGN_B_{}".format(
-                Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER)
+                self.counters.get(self.counters.types.STRUCT_COUNTER)
             )
-            Counters_Object.incriese(CounterTypes.STRUCT_COUNTER)
+            self.counters.incriese(self.counters.types.STRUCT_COUNTER)
 
             struct_assign: Protocol = Protocol(
                 assign_b,

@@ -1,16 +1,12 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 
-from classes.actions import Action
-from classes.case_stmt import CaseStmt
-from classes.counters import CounterTypes
-from classes.element_types import ElementsTypes
-from classes.node import Node
-from classes.protocols import BodyElement
-from classes.structure import Structure
+from AppModule.app.classes.actions import Action
+from AppModule.app.classes.case_stmt import CaseStmt
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.node import Node
+from AppModule.app.classes.protocols import BodyElement
 from translator.classes.base_translator import BaseTranslator
-from utils.string_formating import valuesToAplanStandart
-from utils.utils import Color, Counters_Object, printWithColor
 
 
 class CaseItemExprTranslator(BaseTranslator):
@@ -24,18 +20,14 @@ class CaseItemExprTranslator(BaseTranslator):
     def translate(self, ctx: SystemVerilogParser.Case_item_expressionContext) -> None:
         self.findStruct()
         if not isinstance(self.last_struct, CaseStmt):
-            printWithColor(
-                f"WARNING: case_stmt is not CaseStmt ({type(self.last_struct)}) in caseItemExpr2AplanImpl.",
-                Color.YELLOW,
+            self.logger.warning(
+                "case_stmt is not CaseStmt ({type(self.last_struct)}) in caseItemExpr2AplanImpl."
             )
             return
         protocol_params = self.getProtocolParams()
         beh_index = self.last_struct.getLastBehaviorIndex()
         if beh_index is None:
-            printWithColor(
-                f"WARNING: beh_index is None in caseItemExpr2AplanImpl.",
-                Color.YELLOW,
-            )
+            self.logger.warning(" beh_index is None in caseItemExpr2AplanImpl.")
             return
 
         condition_txt = "({0}) == ({1})".format(
@@ -79,7 +71,7 @@ class CaseItemExprTranslator(BaseTranslator):
             Node(")", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
         )
 
-        condition_txt = valuesToAplanStandart(condition_txt)
+        condition_txt = self.str_formater.valuesToAplanStandart(condition_txt)
 
         case_action.description_start.append(
             f"{self.module.identifier}#{self.module.ident_uniq_name}"
@@ -166,9 +158,6 @@ class CaseItemExprTranslator(BaseTranslator):
             parametrs=protocol_params,
             inside_the_task=self.inside_the_task,
         )
-
-        Counters_Object.incriese(CounterTypes.BODY_COUNTER)
-        Counters_Object.incriese(CounterTypes.STRUCT_COUNTER)
 
         self.last_struct.case_count -= 1
         return

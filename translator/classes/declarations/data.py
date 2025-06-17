@@ -1,19 +1,8 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.counters import CounterTypes
-from classes.declarations import DeclType, DeclTypes, Declaration
-from classes.element_types import ElementsTypes
-from classes.protocols import BodyElement
-from classes.structure import Structure
+from AppModule.app.classes.declarations import DeclType, DeclTypes
+from AppModule.app.classes.element_types import ElementsTypes
 from translator.classes.base_translator import BaseTranslator
-from utils.string_formating import replaceValueParametrsCalls
-from utils.utils import (
-    Counters_Object,
-    dataTypeToStr,
-    extractDimentionSize,
-    extractVectorSize,
-    vectorSize2AplanVectorSize,
-)
 
 
 class DataDeclTranslator(BaseTranslator):
@@ -45,7 +34,7 @@ class DataDeclTranslator(BaseTranslator):
                 ctx,
             )
 
-        data_type_str = dataTypeToStr(data_type)
+        data_type_str = self.utils.dataTypeToStr(data_type)
         if len(data_type_str) <= 0:
             return
 
@@ -75,14 +64,14 @@ class DataDeclTranslator(BaseTranslator):
         if packed_dimension is not None:
             vector_size = packed_dimension.getText()
             size_expression = vector_size
-            vector_size = replaceValueParametrsCalls(
+            vector_size = self.str_formater.replaceValueParametrsCalls(
                 self.module.value_parametrs, vector_size
             )
-            vector_size = extractVectorSize(vector_size)
+            vector_size = self.utils.extractVectorSize(vector_size)
 
         aplan_vector_size = [0]
         if vector_size is not None:
-            aplan_vector_size = vectorSize2AplanVectorSize(
+            aplan_vector_size = self.utils.vectorSize2AplanVectorSize(
                 vector_size[0], vector_size[1]
             )
 

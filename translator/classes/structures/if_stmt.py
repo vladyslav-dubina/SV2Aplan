@@ -1,17 +1,12 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 
-from classes.actions import Action
-from classes.always import Always
-from classes.counters import CounterTypes
-from classes.element_types import ElementsTypes
-from classes.if_stmt import IfStmt
-from classes.node import Node
-from classes.protocols import BodyElement, BodyElementArray
-from classes.structure import Structure
+from AppModule.app.classes.actions import Action
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.if_stmt import IfStmt
+from AppModule.app.classes.node import Node
+from AppModule.app.classes.protocols import BodyElement, BodyElementArray
 from translator.classes.base_translator import BaseTranslator
-from utils.string_formating import valuesToAplanStandart
-from utils.utils import Color, Counters_Object, printWithColor
 
 
 class IfSequenceBlockTranslator(BaseTranslator):
@@ -87,18 +82,14 @@ class IfCondPredicateTranslator(BaseTranslator):
     def translate(self, ctx: SystemVerilogParser.Cond_predicateContext) -> None:
         self.findStruct()
         if not isinstance(self.last_struct, IfStmt):
-            printWithColor(
-                f"WARNING: if_stmt is not IfStmt ({type(self.last_struct)}) in conditionalPredecate2AplanImpl.",
-                Color.YELLOW,
+            self.logger.warning(
+                "if_stmt is not IfStmt ({type(self.last_struct)}) in conditionalPredecate2AplanImpl."
             )
             return
 
         beh_index = self.last_struct.getLastBehaviorIndex()
         if beh_index is None:
-            printWithColor(
-                f"WARNING: beh_index is None in conditionalPredecate2AplanImpl.",
-                Color.YELLOW,
-            )
+            self.logger.warning("beh_index is None in conditionalPredecate2AplanImpl.")
             return
 
         protocol_params = self.getProtocolParams()
@@ -120,7 +111,7 @@ class IfCondPredicateTranslator(BaseTranslator):
             f"{self.module.identifier}#{self.module.ident_uniq_name}"
         )
         if_action.description_action_name = "if"
-        if_action.description_end.append(f"{valuesToAplanStandart(ctx.getText())}")
+        if_action.description_end.append(f"{self.str_formater.valuesToAplanStandart(ctx.getText())}")
 
         if_action.postcondition.addElement(
             Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)
@@ -135,7 +126,6 @@ class IfCondPredicateTranslator(BaseTranslator):
         if if_check_result is None:
             self.module.actions.addElement(if_action)
         else:
-            Counters_Object.decriese(CounterTypes.IF_COUNTER)
             action_name = if_check_result
 
         if (

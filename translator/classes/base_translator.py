@@ -1,22 +1,33 @@
 import typing
 
-from classes.counters import CounterTypes
-from classes.declarations import DeclType, DeclTypeArray
-from classes.element_types import ElementsTypes
-from classes.node import NodeArray
-from classes.structure import Structure, StructureArray
-from classes.tasks import TaskStmt
-from classes.typedef import Typedef
+from AppModule.app.utils.counters import Counters
+from AppModule.app.utils.file_manager import FilesMngr
+from AppModule.app.utils.logger import Logger
+from AppModule.app.utils.string_formater import StringFormater
+from AppModule.app.utils.unsorted import UnsortedUnils
+
+from AppModule.app.classes.declarations import DeclType, DeclTypeArray
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.node import NodeArray
+from AppModule.app.classes.structure import Structure, StructureArray
+from AppModule.app.classes.tasks import TaskStmt
+from AppModule.app.classes.typedef import Typedef
+
+from AppModule.app.classes.module import Module, ModuleArray
+from AppModule.app.program.program import Program
+from AppModule.app.classes.module_call import ModuleCall
 
 if typing.TYPE_CHECKING:
     from translator.translator import Translator
 
-from classes.module import Module, ModuleArray
-from program.program import Program
-from classes.module_call import ModuleCall
-
 
 class BaseTranslator:
+    counters = Counters()
+    str_formater = StringFormater()
+    utils = UnsortedUnils()
+    file_mngr = FilesMngr()
+    logger = Logger()
+
     def __init__(self, translator: "Translator"):
 
         self._translator_ptr = translator
@@ -121,18 +132,14 @@ class BaseTranslator:
     def current_genvar_value(self, value: typing.Tuple[str, int] | None):
         self._translator_ptr._current_genvar_value = value
 
-
-    def getLastTypedef(self) ->Typedef |None :
+    def getLastTypedef(self) -> Typedef | None:
         if self.module:
             return self.module.typedefs.getLastElement()
         else:
             return self._program.typedefs.getLastElement()
-        
 
-    def addTypedef(self, typedef:Typedef):
+    def addTypedef(self, typedef: Typedef):
         if self.module:
-            return  self.module.typedefs.addElement(typedef)
+            return self.module.typedefs.addElement(typedef)
         else:
-            return  self._program.typedefs.addElement(typedef)
-
-        
+            return self._program.typedefs.addElement(typedef)

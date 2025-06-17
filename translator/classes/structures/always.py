@@ -1,10 +1,8 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 
-from classes.always import Always
-from classes.counters import CounterTypes
+from AppModule.app.classes.always import Always
 from translator.classes.base_translator import BaseTranslator
-from utils.utils import Counters_Object
 
 
 class AlwaysStructureTranslator(BaseTranslator):
@@ -38,13 +36,13 @@ class AlwaysStructureTranslator(BaseTranslator):
         always_name = (
             always_keyword.upper()
             + "_"
-            + str(Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER))
+            + str(self.counters.get(self.counters.types.STRUCT_COUNTER))
         )
         always = Always(
             always_keyword.upper(),
             sensetive,
             ctx.getSourceInterval(),
-            Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
+            self.counters.get(self.counters.types.STRUCT_COUNTER),
         )
         if self.module.input_parametrs is not None:
             always.parametrs += self.module.input_parametrs
@@ -55,4 +53,4 @@ class AlwaysStructureTranslator(BaseTranslator):
 
         self.module.structures.addElement(always)
         self.structure_pointer_list.addElement(always)
-        Counters_Object.incriese(CounterTypes.STRUCT_COUNTER)
+        self.counters.incriese(self.counters.types.STRUCT_COUNTER)

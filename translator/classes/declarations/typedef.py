@@ -1,13 +1,9 @@
 from typing import List, Tuple
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.counters import CounterTypes
-from classes.declarations import DeclTypes, Declaration
-from classes.typedef import Typedef
+from AppModule.app.classes.declarations import DeclTypes, Declaration
+from AppModule.app.classes.typedef import Typedef
 from translator.classes.base_translator import BaseTranslator
-from utils.utils import (
-    Counters_Object,
-)
 
 
 class TypedefDeclTranslator(BaseTranslator):
@@ -36,9 +32,9 @@ class TypedefDeclTranslator(BaseTranslator):
 
             unique_identifier = "{0}_{1}".format(
                 enum_type_identifier,
-                Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
+                self.counters.get(self.counters.types.STRUCT_COUNTER),
             )
-            Counters_Object.incriese(CounterTypes.STRUCT_COUNTER)
+            self.counters.incriese(self.counters.types.STRUCT_COUNTER)
             decl_type = DeclTypes.ENUM_TYPE
 
             if data_type.struct_union():

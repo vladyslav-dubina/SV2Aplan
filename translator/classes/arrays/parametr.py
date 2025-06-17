@@ -1,13 +1,12 @@
 from typing import List
 import typing
-from classes.parametrs import Parametr, ParametrArray
+from AppModule.app.classes.parametrs import Parametr, ParametrArray
 from translator.classes.base_translator import BaseTranslator
 
 
 class ParametrArrayTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)

@@ -1,10 +1,9 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.element_types import ElementsTypes
-from classes.parametrs import Parametr
-from classes.protocols import BodyElement
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.parametrs import Parametr
+from AppModule.app.classes.protocols import BodyElement
 from translator.classes.base_translator import BaseTranslator
-from utils.string_formating import parallelAssignment2Assignment
 
 
 class ReturnTranslator(BaseTranslator):

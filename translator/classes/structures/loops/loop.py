@@ -1,11 +1,9 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.counters import CounterTypes
-from classes.element_types import ElementsTypes
-from classes.protocols import BodyElement
-from classes.structure import Structure
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.protocols import BodyElement
+from AppModule.app.classes.structure import Structure
 from translator.classes.base_translator import BaseTranslator
-from utils.utils import Counters_Object
 
 
 class LoopStructTranslator(BaseTranslator):
@@ -38,7 +36,7 @@ class LoopStructTranslator(BaseTranslator):
 
         loop_identifier = "{0}_{1}".format(
             loop_stmt.identifier,
-            Counters_Object.getCounter(CounterTypes.LOOP_COUNTER) - 1,
+            self.counters.get(self.counters.types.LOOP_COUNTER) - 1,
         )
         iteration_name = "{0}_ITERATION".format(loop_identifier)
 

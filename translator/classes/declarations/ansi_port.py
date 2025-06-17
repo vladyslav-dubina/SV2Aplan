@@ -1,15 +1,8 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.declarations import DeclTypes, Declaration
-from classes.element_types import ElementsTypes
+from AppModule.app.classes.declarations import DeclTypes, Declaration
+from AppModule.app.classes.element_types import ElementsTypes
 from translator.classes.base_translator import BaseTranslator
-from utils.string_formating import replaceValueParametrsCalls
-from utils.utils import (
-    dataTypeToStr,
-    extractDimentionSize,
-    extractVectorSize,
-    vectorSize2AplanVectorSize,
-)
 
 
 class AnsiPortDeclTranslator(BaseTranslator):
@@ -30,10 +23,10 @@ class AnsiPortDeclTranslator(BaseTranslator):
         if unpacked_dimention is not None:
             dimension = unpacked_dimention.getText()
             dimension_size_expression = dimension
-            dimension = replaceValueParametrsCalls(
+            dimension = self.str_formater.replaceValueParametrsCalls(
                 self.module.value_parametrs, dimension
             )
-            dimension_size = extractDimentionSize(dimension)
+            dimension_size = self.utils.extractDimentionSize(dimension)
 
         data_type = DeclTypes.INPORT
         if header.OUTPUT():
@@ -49,7 +42,7 @@ class AnsiPortDeclTranslator(BaseTranslator):
         port_dimention = None
         vector_size = None
         if port_data_type is not None:
-            if DeclTypes.checkType(dataTypeToStr(port_data_type), []) == DeclTypes.NONE:
+            if DeclTypes.checkType(self.utils.dataTypeToStr(port_data_type), []) == DeclTypes.NONE:
                 self._translator_ptr.translate("interface_call", ctx)
                 return
 
@@ -67,15 +60,15 @@ class AnsiPortDeclTranslator(BaseTranslator):
         size_expression = ""
         if vector_size is not None:
             size_expression = vector_size
-            vector_size = replaceValueParametrsCalls(
+            vector_size = self.str_formater.replaceValueParametrsCalls(
                 self.module.value_parametrs, vector_size
             )
-            vector_size = extractVectorSize(vector_size)
+            vector_size = self.utils.extractVectorSize(vector_size)
 
         aplan_vector_size = [0]
 
         if vector_size is not None:
-            aplan_vector_size = vectorSize2AplanVectorSize(
+            aplan_vector_size = self.utils.vectorSize2AplanVectorSize(
                 vector_size[0], vector_size[1]
             )
 

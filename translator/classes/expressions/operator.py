@@ -1,11 +1,9 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
-from classes.element_types import ElementsTypes
-from classes.node import Node, NodeArray
-from classes.parametrs import Parametr
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.node import Node
 from translator.classes.base_translator import BaseTranslator
-from utils.string_formating import parallelAssignment2Assignment
 
 
 class OperatorTranslator(BaseTranslator):
@@ -31,7 +29,7 @@ class OperatorTranslator(BaseTranslator):
                 operator_type = ElementsTypes.DOT_ELEMENT
 
             if self.last_node_array.node_type == ElementsTypes.POSTCONDITION_ELEMENT:
-                operator = parallelAssignment2Assignment(operator)
+                operator = self.str_formater.parallelAssignment2Assignment(operator)
 
             index = self.last_node_array.addElement(
                 Node(operator, ctx.getSourceInterval(), operator_type)

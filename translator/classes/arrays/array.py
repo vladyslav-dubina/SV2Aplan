@@ -1,11 +1,9 @@
 from typing import Tuple
 import typing
-from classes.counters import CounterTypes
-from classes.declarations import DeclTypes, Declaration
-from classes.typedef import Typedef
+
+from AppModule.app.classes.declarations import DeclTypes, Declaration
+from AppModule.app.classes.typedef import Typedef
 from translator.classes.base_translator import BaseTranslator
-from utils.string_formating import replaceValueParametrsCalls
-from utils.utils import Counters_Object
 
 
 if typing.TYPE_CHECKING:
@@ -26,9 +24,9 @@ class ArrayTranslator(BaseTranslator):
         enum_type_identifier = "{0}".format(identifier)
         unique_identifier = "{0}_{1}".format(
             enum_type_identifier,
-            Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
+            self.counters.get(self.counters.types.STRUCT_COUNTER),
         )
-        Counters_Object.incriese(CounterTypes.STRUCT_COUNTER)
+        self.counters.incriese(self.counters.types.STRUCT_COUNTER)
         typedef = Typedef(
             enum_type_identifier,
             unique_identifier,
@@ -60,7 +58,6 @@ class ArrayTranslator(BaseTranslator):
             (0, 1),
         )
         typedef.declarations.addElement(new_decl)
-
 
         self.addTypedef(typedef)
 

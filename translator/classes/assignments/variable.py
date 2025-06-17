@@ -1,14 +1,10 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.declarations import DeclType, DeclTypes, Declaration
-from classes.element_types import ElementsTypes
-from classes.protocols import BodyElement
-from classes.typedef import Typedef
+from AppModule.app.classes.declarations import DeclType, DeclTypes, Declaration
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.protocols import BodyElement
+from AppModule.app.classes.typedef import Typedef
 from translator.classes.base_translator import BaseTranslator
-from utils.string_formating import replaceValueParametrsCalls
-from utils.utils import (
-    extractDimentionSize,
-)
 
 
 class VariableDeclTranslator(BaseTranslator):
@@ -41,11 +37,11 @@ class VariableDeclTranslator(BaseTranslator):
             dimension = unpacked_dimention.getText()
             dimension_size_expression = dimension
 
-            dimension = extractDimentionSize(dimension)
+            dimension = self.utils.extractDimentionSize(dimension)
             if dimension == None:
                 dimension = 0
 
-            dimension_size = replaceValueParametrsCalls(
+            dimension_size = self.str_formater.replaceValueParametrsCalls(
                 self.module.value_parametrs, str(dimension)
             )
             dimension_size = int(dimension_size)

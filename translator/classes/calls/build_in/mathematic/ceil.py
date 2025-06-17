@@ -1,20 +1,19 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.declarations import DeclTypes, Declaration
-from classes.node import Node, NodeArray
-from utils.utils import isNumericString
-from classes.actions import Action
-from classes.element_types import ElementsTypes
-from classes.parametrs import Parametr, ParametrArray
-from classes.protocols import BodyElement, Protocol
-from classes.structure import Structure
+from AppModule.app.classes.declarations import DeclTypes, Declaration
+from AppModule.app.classes.node import Node, NodeArray
+from AppModule.app.classes.actions import Action
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.parametrs import Parametr, ParametrArray
+from AppModule.app.classes.protocols import BodyElement, Protocol
+from AppModule.app.classes.structure import Structure
 from translator.classes.base_translator import BaseTranslator
 
 
 class CeilTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -42,7 +41,7 @@ class CeilTranslator(BaseTranslator):
             )
         )
 
-        if isNumericString(input_var) is None:
+        if self.utils.isNumericString(input_var) is None:
             decl = self.module.declarations.findElement(input_var)
             if decl:
                 input_var = f"{self.module.ident_uniq_name}.{decl.identifier}"

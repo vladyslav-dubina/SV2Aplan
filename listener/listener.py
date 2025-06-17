@@ -2,10 +2,9 @@ from antlr4_verilog.systemverilog import (
     SystemVerilogParserListener,
     SystemVerilogParser,
 )
-from classes.counters import CounterTypes
-from classes.module_call import ModuleCall
+
+from AppModule.app.classes.module_call import ModuleCall
 from listener.base import BaseListener
-from utils.utils import Counters_Object
 
 
 class SVToAplanListener(BaseListener, SystemVerilogParserListener):
@@ -126,8 +125,8 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
         self, ctx: SystemVerilogParser.Module_declarationContext
     ):
         self.translator.translate("module_decl", ctx)
+        self.counters.incriese(self.counters.types.STRUCT_COUNTER)  # ???
         # body_run(ctx)
-        Counters_Object.incriese(CounterTypes.STRUCT_COUNTER)  # ???
 
     def enterPackage_declaration(
         self, ctx: SystemVerilogParser.Package_declarationContext

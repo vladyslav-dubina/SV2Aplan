@@ -1,9 +1,9 @@
 import re
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.declarations import Declaration
-from classes.element_types import ElementsTypes
-from classes.node import Node, NodeArray
+from AppModule.app.classes.declarations import Declaration
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.node import Node
 from translator.classes.base_translator import BaseTranslator
 
 

@@ -1,29 +1,28 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.actions import Action
-from classes.counters import CounterTypes
-from classes.declarations import Declaration
-from classes.element_types import ElementsTypes
-from classes.protocols import BodyElement, Protocol
-from classes.structure import Structure
-from classes.tasks import Task
-from classes.typedef import Typedef
-from classes.value_parametrs import ValueParametr
+from AppModule.app.classes.actions import Action
+from AppModule.app.classes.declarations import Declaration
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.protocols import BodyElement, Protocol
+from AppModule.app.classes.structure import Structure
+from AppModule.app.classes.tasks import Task
+from AppModule.app.classes.typedef import Typedef
+from AppModule.app.classes.value_parametrs import ValueParametr
 from translator.classes.base_translator import BaseTranslator
 from translator.translation_mngr import TranslationManager
-from utils.string_formating import replace_filename
-from utils.utils import Counters_Object
 
 
 class PackageImportDeclTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
-    def translate(self, ctx: SystemVerilogParser.Package_import_declarationContext) -> None:
+    def translate(
+        self, ctx: SystemVerilogParser.Package_import_declarationContext
+    ) -> None:
         for element in ctx.package_import_item():
             package_identifier = element.package_identifier()
             package_identifier = package_identifier.getText()
@@ -31,11 +30,11 @@ class PackageImportDeclTranslator(BaseTranslator):
                 package_program = self._program.modules.getElement(package_identifier)
                 if package_program is None:
                     previous_file_path = self._program.file_path
-                    file_path = replace_filename(
+                    file_path = self.file_mngr.replace_filename(
                         self._program.file_path, f"{package_identifier}.sv"
                     )
                     file_data = self._program.readFileData(file_path)
-                    
+
                     translation_mngr = TranslationManager()
                     translation_mngr.setUp(file_data)
                     translation_mngr.startTranslate()
@@ -63,7 +62,9 @@ class PackageImportDeclTranslator(BaseTranslator):
                             elif isinstance(module_element, Task):
                                 self.module.tasks.addElement(module_element)
                             elif isinstance(module_element, Protocol):
-                                self.module.out_of_block_elements.addElement(module_element)
+                                self.module.out_of_block_elements.addElement(
+                                    module_element
+                                )
                             elif isinstance(module_element, ValueParametr):
                                 self.module.value_parametrs.addElement(module_element)
                             elif isinstance(module_element, Typedef):
@@ -75,9 +76,9 @@ class PackageImportDeclTranslator(BaseTranslator):
                         )  # remove after take all needed elements
                     else:
                         if len(package.getBehInitProtocols()) > 0:
-                            Counters_Object.incriese(CounterTypes.B_COUNTER)
+                            self.counters.incriese(self.counters.types.B_COUNTER)
                             call_b = "PACKAGE_IMPORT_B_{}".format(
-                                Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                                self.counters.get(self.counters.types.B_COUNTER)
                             )
                             struct_call = Protocol(
                                 call_b,

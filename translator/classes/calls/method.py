@@ -1,8 +1,5 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.element_types import ElementsTypes
-from classes.node import NodeArray
-from classes.structure import Structure
 from translator.classes.base_translator import BaseTranslator
 
 
@@ -19,13 +16,12 @@ class MethodCallTranslator(BaseTranslator):
         self,
         ctx: SystemVerilogParser.Method_call_bodyContext,
     ) -> None:
+
         task_identifier = ctx.method_identifier().getText()
-        destination_node_array.removeElementByIndex(destination_node_array.getLen() - 1)
-        node = destination_node_array.getElementByIndex(
-            destination_node_array.getLen() - 1
-        )
+        self.last_node_array.removeElementByIndex(self.last_node_array.getLen() - 1)
+        node = self.last_node_array.getElementByIndex(self.last_node_array.getLen() - 1)
         object_identifier = node.identifier
-        destination_node_array.removeElementByIndex(destination_node_array.getLen() - 1)
+        self.last_node_array.removeElementByIndex(self.last_node_array.getLen() - 1)
         argument_list = ctx.list_of_arguments().getText()
 
         (
@@ -49,8 +45,6 @@ class MethodCallTranslator(BaseTranslator):
 
         self._translator_ptr.getTranslator("task_call").createCall(
             task,
-            sv_structure,
-            destination_node_array,
             object_identifier,
             argument_list_with_replaced_names,
             ctx.getSourceInterval(),

@@ -1,18 +1,17 @@
 from typing import List
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.actions import Action
-from classes.element_types import ElementsTypes
-from classes.node import Node, NodeArray
-from classes.parametrs import Parametr, ParametrArray
-from classes.structure import Structure
+from AppModule.app.classes.actions import Action
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.node import Node, NodeArray
+from AppModule.app.classes.parametrs import Parametr, ParametrArray
 from translator.classes.base_translator import BaseTranslator
 
 
 class SystemTaskCallTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -50,36 +49,16 @@ class SystemTaskCallTranslator(BaseTranslator):
             precondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
             body = f"goal {action_name}"
         elif system_tf_identifier == "$ceil":
-            self._translator_ptr.translate(
-                "ceil",
-                ctx,
-                sv_structure=sv_structure,
-                destination_node_array=destination_node_array,
-            )
+            self._translator_ptr.translate("ceil", ctx)
             return
         elif system_tf_identifier == "$floor":
-            self._translator_ptr.translate(
-                "floor",
-                ctx,
-                sv_structure=sv_structure,
-                destination_node_array=destination_node_array,
-            )
+            self._translator_ptr.translate("floor", ctx)
             return
         elif system_tf_identifier == "$pow":
-            self._translator_ptr.translate(
-                "pow",
-                ctx,
-                sv_structure=sv_structure,
-                destination_node_array=destination_node_array,
-            )
+            self._translator_ptr.translate("pow", ctx)
             return
         elif system_tf_identifier == "$sqrt":
-            self._translator_ptr.translate(
-                "sqrt",
-                ctx,
-                sv_structure=sv_structure,
-                destination_node_array=destination_node_array,
-            )
+            self._translator_ptr.translate("sqrt", ctx)
             return
         elif system_tf_identifier == "$size":
 
@@ -104,10 +83,10 @@ class SystemTaskCallTranslator(BaseTranslator):
                 postcondition,
             )
 
-            if destination_node_array:
+            if self.last_node_array:
                 node = Node("return_size", (0, 0), ElementsTypes.IDENTIFIER_ELEMENT)
                 node.module_name = self.module.ident_uniq_name
-                destination_node_array.addElement(node.copy())
+                self.last_node_array.addElement(node.copy())
 
         elif system_tf_identifier == "&pow":
             action_name = "pow"
@@ -144,5 +123,9 @@ class SystemTaskCallTranslator(BaseTranslator):
             self.module.actions.addElement(action)
 
         self._translator_ptr.translate(
-            "protocol", action_pointer, body, action_name, None, sv_structure
+            "protocol",
+            action_pointer,
+            body,
+            action_name,
+            None,
         )

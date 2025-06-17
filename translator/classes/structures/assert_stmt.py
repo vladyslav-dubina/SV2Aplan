@@ -1,12 +1,9 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 
-from classes.counters import CounterTypes
-from classes.element_types import ElementsTypes
-from classes.protocols import BodyElement, Protocol
-from classes.structure import Structure
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.protocols import BodyElement, Protocol
 from translator.classes.base_translator import BaseTranslator
-from utils.utils import Counters_Object
 
 
 class AssertPropertyTranslator(BaseTranslator):
@@ -41,9 +38,9 @@ class AssertPropertyTranslator(BaseTranslator):
             return
 
         assert_b = "ASSERT_B_{}".format(
-            Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER)
+            self.counters.get(self.counters.types.STRUCT_COUNTER)
         )
-        Counters_Object.incriese(CounterTypes.STRUCT_COUNTER)
+        self.counters.incriese(self.counters.types.STRUCT_COUNTER)
         struct_assert = Protocol(
             assert_b,
             ctx.getSourceInterval(),
@@ -96,10 +93,11 @@ class AssertInBlockTranslator(BaseTranslator):
                 protocol_params = "({0})".format(task.parametrs)
         assert_b = "ASSERT_B_{0}_{1}{2}".format(
             self.last_struct.number,
-            Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
+            self.counters.get(self.counters.types.STRUCT_COUNTER),
             protocol_params,
         )
-        Counters_Object.incriese(CounterTypes.STRUCT_COUNTER)
+
+        self.counters.incriese(self.counters.types.STRUCT_COUNTER)
         beh_index = self.last_struct.addProtocol(
             assert_b,
             inside_the_task=self.inside_the_task,

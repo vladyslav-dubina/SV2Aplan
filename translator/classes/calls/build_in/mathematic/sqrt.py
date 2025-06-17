@@ -1,15 +1,13 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.actions import Action
-from classes.counters import CounterTypes
-from classes.declarations import DeclTypes, Declaration
-from classes.element_types import ElementsTypes
-from classes.node import Node, NodeArray
-from classes.parametrs import ParametrArray
-from classes.protocols import BodyElement, Protocol
-from classes.structure import Structure
+from AppModule.app.classes.actions import Action
+from AppModule.app.classes.declarations import DeclTypes, Declaration
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.node import Node, NodeArray
+from AppModule.app.classes.parametrs import ParametrArray
+from AppModule.app.classes.protocols import BodyElement, Protocol
+from AppModule.app.classes.structure import Structure
 from translator.classes.base_translator import BaseTranslator
-from utils.utils import isNumericString
 
 """
 double sqrt(double x) {
@@ -34,7 +32,7 @@ double sqrt(double x) {
 class SqrtTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -52,7 +50,7 @@ class SqrtTranslator(BaseTranslator):
         input_value_element_type = ElementsTypes.NUMBER_ELEMENT
         input_value_type = DeclTypes.INT
 
-        if isNumericString(input_var) is None:
+        if self.utils.isNumericString(input_var) is None:
             decl: Declaration = self.module.declarations.findElement(input_var)
             if decl:
                 input_var = f"{self.module.ident_uniq_name}.{decl.identifier}"
@@ -75,7 +73,7 @@ class SqrtTranslator(BaseTranslator):
             "declaration",
             "sqrt_obj",
             DeclTypes.STRUCT,
-            CounterTypes.STRUCT_COUNTER,
+            self.counters.types.STRUCT_COUNTER,
             ctx.getSourceInterval(),
             "sqrt_struct",
         )

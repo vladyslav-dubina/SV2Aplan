@@ -2,14 +2,11 @@ from typing import List
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 
-from classes.counters import CounterTypes
-from classes.element_types import ElementsTypes
-from classes.parametrs import Parametr
-from classes.protocols import Protocol
-from classes.structure import Structure
-from classes.tasks import Task, TaskStmt
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.parametrs import Parametr
+from AppModule.app.classes.protocols import Protocol
+from AppModule.app.classes.tasks import Task, TaskStmt
 from translator.classes.base_translator import BaseTranslator
-from utils.utils import Counters_Object
 
 
 class TaskBodyDeclTranslator(BaseTranslator):
@@ -32,7 +29,7 @@ class TaskBodyDeclTranslator(BaseTranslator):
         task = Task(
             identifier,
             ctx.getSourceInterval(),
-            Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
+            self.counters.get(self.counters.types.STRUCT_COUNTER),
             task_Type,
         )
         if self.module.element_type is ElementsTypes.CLASS_ELEMENT:
@@ -59,7 +56,7 @@ class TaskBodyDeclTranslator(BaseTranslator):
         task_structure = TaskStmt(
             task_call_name,
             (0, 0),
-            Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
+            self.counters.get(self.counters.types.STRUCT_COUNTER),
         )
 
         task_structure.inside_the_task = self.inside_the_task
@@ -87,12 +84,12 @@ class TaskBodyDeclTranslator(BaseTranslator):
         self._translator_ptr._structure_pointer_list.addElement(task_structure)
 
         for body_element in body:
-           # print("start")
+            # print("start")
             names_for_change += self._translator_ptr.body2Aplan(
                 body_element, task_structure
             )
 
-        Counters_Object.incriese(CounterTypes.STRUCT_COUNTER)
+        self.counters.incriese(self.counters.types.STRUCT_COUNTER),
 
         self.module.structures.addElement(task_structure)
 

@@ -1,13 +1,13 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.structure import Structure
+from AppModule.app.classes.structure import Structure
 from translator.classes.base_translator import BaseTranslator
 
 
 class InitialStructTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)

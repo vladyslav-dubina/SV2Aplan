@@ -3,13 +3,10 @@ from antlr4.tree import Tree
 
 from antlr4_verilog.systemverilog import SystemVerilogParser
 
-from classes.counters import CounterTypes
-from classes.element_types import ElementsTypes
-from classes.loop_stmt import ForeverStmt
-from classes.protocols import BodyElement
-from classes.structure import Structure
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.loop_stmt import ForeverStmt
+from AppModule.app.classes.protocols import BodyElement
 from translator.classes.base_translator import BaseTranslator
-from utils.utils import Counters_Object
 
 
 def extractCondition(self, ctx: SystemVerilogParser.Statement_or_nullContext):
@@ -65,7 +62,7 @@ class ForeverIterationTranslator(BaseTranslator):
         protocol_params = self.getProtocolParams()
 
         forever_iteration = "FOREVER_ITERATION_{0}".format(
-            Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER),
+            self.counters.get(self.counters.types.STRUCT_COUNTER),
         )
 
         self.last_struct.behavior[0].addBody(
@@ -93,4 +90,4 @@ class ForeverIterationTranslator(BaseTranslator):
             )
         )
 
-        Counters_Object.incriese(CounterTypes.STRUCT_COUNTER)
+        self.counters.incriese(self.counters.types.STRUCT_COUNTER)

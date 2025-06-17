@@ -1,18 +1,16 @@
 import typing
-from classes.actions import Action
-from classes.counters import CounterTypes
-from classes.element_types import ElementsTypes
-from classes.parametrs import ParametrArray
-from classes.protocols import BodyElement, Protocol
-from classes.structure import Structure
+from AppModule.app.classes.actions import Action
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.parametrs import ParametrArray
+from AppModule.app.classes.protocols import BodyElement, Protocol
+from AppModule.app.classes.structure import Structure
 from translator.classes.base_translator import BaseTranslator
-from utils.utils import Counters_Object
 
 
 class ProtocolTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -41,7 +39,7 @@ class ProtocolTranslator(BaseTranslator):
                     )
                 )
             else:
-                Counters_Object.incriese(CounterTypes.B_COUNTER)
+                self.counters.incriese(self.counters.types.B_COUNTER)
                 b_index = sv_structure.addProtocol(
                     "B_{0}".format(action_pointer.getName()),
                     inside_the_task=self.inside_the_task,

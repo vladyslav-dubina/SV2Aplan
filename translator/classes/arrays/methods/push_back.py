@@ -1,14 +1,13 @@
 from typing import Tuple
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.actions import Action
-from classes.declarations import Declaration
-from classes.element_types import ElementsTypes
-from classes.node import Node
-from classes.protocols import BodyElement, Protocol
-from classes.structure import Structure
+from AppModule.app.classes.actions import Action
+from AppModule.app.classes.declarations import Declaration
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.node import Node
+from AppModule.app.classes.protocols import BodyElement, Protocol
+from AppModule.app.classes.structure import Structure
 from translator.classes.base_translator import BaseTranslator
-from utils.utils import Counters_Object
 
 
 class PushBackTranslator(BaseTranslator):
@@ -33,9 +32,7 @@ class PushBackTranslator(BaseTranslator):
             (name_part, counter_type) = self._translator_ptr.getTranslator(
                 "expr"
             ).getNamePartAndCounter(ElementsTypes.ASSIGN_ELEMENT)
-            action_name = "{0}_{1}".format(
-                name_part, Counters_Object.getCounter(counter_type)
-            )
+            action_name = "{0}_{1}".format(name_part, self.counters.get(counter_type))
             action = Action(
                 action_name,
                 source_interval,
@@ -161,4 +158,4 @@ class PushBackTranslator(BaseTranslator):
 
             if not previus_action:
                 self.module.actions.addElement(action)
-                Counters_Object.incriese(counter_type)
+                self.counters.incriese(counter_type)

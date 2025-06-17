@@ -1,10 +1,8 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.counters import CounterTypes
-from classes.element_types import ElementsTypes
-from classes.protocols import BodyElement, Protocol
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.protocols import BodyElement, Protocol
 from translator.classes.base_translator import BaseTranslator
-from utils.utils import Counters_Object
 
 
 class NetAssignmentTranslator(BaseTranslator):
@@ -31,20 +29,22 @@ class NetAssignmentTranslator(BaseTranslator):
                 self._translator_ptr.getTranslator("expr").exit()
             )
 
-            if action_name is not None:
-                if source_interval != ctx.getSourceInterval():
-                    assign_b = "ASSIGN_B_{}".format(
-                        Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER)
-                    )
-                    Counters_Object.incriese(CounterTypes.STRUCT_COUNTER)
-                    struct_assign = Protocol(
-                        assign_b,
-                        ctx.getSourceInterval(),
-                        ElementsTypes.ASSIGN_OUT_OF_BLOCK_ELEMENT,
-                    )
-                    struct_assign.addBody(
-                        BodyElement(
-                            action_name, action_pointer, ElementsTypes.ACTION_ELEMENT
-                        )
-                    )
-                    self.module.out_of_block_elements.addElement(struct_assign)
+            if action_name is None:
+                return
+
+            if source_interval == ctx.getSourceInterval():
+                return
+
+            assign_b = "ASSIGN_B_{}".format(
+                self.counters.get(self.counters.types.STRUCT_COUNTER)
+            )
+            self.counters.incriese(self.counters.types.STRUCT_COUNTER)
+            struct_assign = Protocol(
+                assign_b,
+                ctx.getSourceInterval(),
+                ElementsTypes.ASSIGN_OUT_OF_BLOCK_ELEMENT,
+            )
+            struct_assign.addBody(
+                BodyElement(action_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
+            )
+            self.module.out_of_block_elements.addElement(struct_assign)

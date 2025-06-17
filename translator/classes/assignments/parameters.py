@@ -1,9 +1,8 @@
 from typing import Tuple
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.value_parametrs import ValueParametr
+from AppModule.app.classes.value_parametrs import ValueParametr
 from translator.classes.base_translator import BaseTranslator
-from utils.utils import isNumericString
 
 
 class ParametrsAssignmentTranslator(BaseTranslator):
@@ -38,7 +37,9 @@ class ParametrsAssignmentTranslator(BaseTranslator):
 
         elif isinstance(ctx, SystemVerilogParser.Param_assignmentContext):
             identifier = ctx.parameter_identifier().getText()
-            expression = ctx.constant_param_expression()
+            expression: SystemVerilogParser.Constant_param_expressionContext = (
+                ctx.constant_param_expression()
+            )
             if expression is not None:
                 expression = expression.getText()
             else:
@@ -55,7 +56,7 @@ class ParametrsAssignmentTranslator(BaseTranslator):
         expression_str = ""
         value = 0
         if expression is not None:
-            numeric_string = isNumericString(expression)
+            numeric_string = self.utils.isNumericString(expression)
             if numeric_string is None:
                 expression_str = expression
             else:

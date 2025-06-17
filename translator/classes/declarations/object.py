@@ -1,11 +1,8 @@
 from typing import Tuple
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.counters import CounterTypes
-from classes.declarations import DeclTypes, Declaration
-from classes.element_types import ElementsTypes
+from AppModule.app.classes.element_types import ElementsTypes
 from translator.classes.base_translator import BaseTranslator
-from utils.utils import Counters_Object
 
 
 class ObjectDeclTranslator(BaseTranslator):
@@ -33,4 +30,4 @@ class ObjectDeclTranslator(BaseTranslator):
         object.ident_uniq_name_upper = object.ident_uniq_name.upper()
         object.source_interval = source_interval
         self.module.packages_and_objects.addElement(object)
-        Counters_Object.incriese(CounterTypes.OBJECT_COUNTER)
+        self.counters.incriese(self.counters.types.OBJECT_COUNTER)

@@ -1,20 +1,22 @@
 from os import name
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
-from classes.case_stmt import CaseStmt
-from classes.counters import CounterTypes
-from classes.declarations import DeclType, DeclTypeArray
-from classes.if_stmt import IfStmt
-from classes.loop_stmt import ForeverStmt, LoopStmt, WhileStmt
-from classes.module_call import ModuleCall
-from classes.node import NodeArray
-from classes.parametrs import ParametrArray
-from classes.protocols import BodyElement
-from classes.structure import Structure, StructureArray
-from classes.module import Module
-from classes.element_types import ElementsTypes
-from typing import List, Literal, Tuple, overload
-from classes.tasks import TaskStmt
+from typing import Literal, Tuple, overload
+
+from AppModule.app.classes.case_stmt import CaseStmt
+from AppModule.app.utils.counters import CounterTypes, Counters
+from AppModule.app.classes.declarations import DeclType, DeclTypeArray
+from AppModule.app.classes.if_stmt import IfStmt
+from AppModule.app.classes.loop_stmt import ForeverStmt, LoopStmt, WhileStmt
+from AppModule.app.classes.module_call import ModuleCall
+from AppModule.app.classes.node import NodeArray
+from AppModule.app.classes.parametrs import ParametrArray
+from AppModule.app.classes.protocols import BodyElement
+from AppModule.app.classes.structure import Structure, StructureArray
+from AppModule.app.classes.module import Module
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.tasks import TaskStmt
+
 from translator.classes.arrays.array import ArrayTranslator
 from translator.classes.arrays.methods.push_back import PushBackTranslator
 from translator.classes.arrays.parametr import ParametrArrayTranslator
@@ -98,7 +100,6 @@ from translator.classes.structures.loops.loop import (
 )
 from translator.classes.structures.loops.repeat import RepeatStructTranslator
 from translator.classes.structures.loops.while_stmt import WhileStructTranslator
-from utils.utils import Counters_Object
 
 
 TRANSLATOR_NAMES = Literal[
@@ -168,6 +169,7 @@ TRANSLATOR_NAMES = Literal[
 
 
 class Translator:
+    counters = Counters()
     module_call: ModuleCall | None = None
     _module: Module | None = None
     _structure_pointer_list: StructureArray = StructureArray()
@@ -473,7 +475,7 @@ class Translator:
         element_type: ElementsTypes,
         sensetive: str | None = None,
     ):
-        counter_type: CounterTypes = CounterTypes.STRUCT_COUNTER
+        counter_type: CounterTypes = self.counters.types.STRUCT_COUNTER
         sv_structure: Structure | None = self._structure_pointer_list.getLastElement()
 
         if sv_structure:
@@ -485,7 +487,7 @@ class Translator:
                         BodyElement(
                             identifier="Sensetive({0}_{1}, {2})".format(
                                 name,
-                                Counters_Object.getCounter(counter_type),
+                                self.counters.get(counter_type),
                                 sensetive,
                             ),
                             element_type=ElementsTypes.PROTOCOL_ELEMENT,
@@ -497,7 +499,7 @@ class Translator:
                         BodyElement(
                             identifier="{0}_{1}".format(
                                 name,
-                                Counters_Object.getCounter(counter_type),
+                                self.counters.get(counter_type),
                             ),
                             element_type=ElementsTypes.PROTOCOL_ELEMENT,
                             parametrs=protocol_params,
@@ -521,41 +523,41 @@ class Translator:
                 struct = CaseStmt(
                     name,
                     (0, 0),
-                    Counters_Object.getCounter(counter_type),
+                    self.counters.get(counter_type),
                 )
 
             elif element_type == ElementsTypes.IF_STATEMENT_ELEMENT:
                 struct = IfStmt(
                     name,
                     (0, 0),
-                    Counters_Object.getCounter(counter_type),
+                    self.counters.get(counter_type),
                 )
             elif element_type == ElementsTypes.FOREVER_ELEMENT:
                 struct = ForeverStmt(
                     name,
                     (0, 0),
-                    Counters_Object.getCounter(counter_type),
+                    self.counters.get(counter_type),
                 )
 
             elif element_type == ElementsTypes.WHILE_ELEMENT:
                 struct = WhileStmt(
                     name,
                     (0, 0),
-                    Counters_Object.getCounter(counter_type),
+                    self.counters.get(counter_type),
                 )
 
             elif element_type == ElementsTypes.LOOP_ELEMENT:
                 struct = LoopStmt(
                     name,
                     (0, 0),
-                    Counters_Object.getCounter(counter_type),
+                    self.counters.get(counter_type),
                 )
             else:
                 struct = Structure(
                     name,
                     (0, 0),
                     element_type,
-                    Counters_Object.getCounter(counter_type),
+                    self.counters.get(counter_type),
                 )
 
             struct.parametrs = tmp
@@ -564,7 +566,7 @@ class Translator:
 
             sv_structure.behavior.append(struct)
             self._structure_pointer_list.addElement(struct)
-            Counters_Object.incriese(counter_type)
+            self.counters.incriese(counter_type),
 
     def extractSensetive(self, ctx):
         res = ""

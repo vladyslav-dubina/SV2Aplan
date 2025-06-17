@@ -1,13 +1,10 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.counters import CounterTypes
-from classes.declarations import DeclTypes, Declaration
-from classes.element_types import ElementsTypes
-from classes.loop_stmt import LoopStmt
-from classes.protocols import BodyElement
-from classes.structure import Structure
-from utils.string_formating import replaceValueParametrsCalls
-from utils.utils import Counters_Object
+from AppModule.app.classes.declarations import DeclTypes, Declaration
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.loop_stmt import LoopStmt
+from AppModule.app.classes.protocols import BodyElement
+from AppModule.app.classes.structure import Structure
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from translator.classes.base_translator import BaseTranslator
 
@@ -28,11 +25,13 @@ class RepeatStructTranslator(BaseTranslator):
         if not isinstance(self.last_struct, Structure):
             return
         identifier = "repeat_var_{0}".format(
-            Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER)
+            self.counters.get(self.counters.types.STRUCT_COUNTER)
         )
         expression = ctx.expression().getText()
         expression_source_interval = ctx.expression().getSourceInterval()
-        expression = replaceValueParametrsCalls(self.module.value_parametrs, expression)
+        expression = self.str_formater.replaceValueParametrsCalls(
+            self.module.value_parametrs, expression
+        )
 
         assing_expr = "{0} = {1}".format(identifier, 0)
 
@@ -84,7 +83,7 @@ class RepeatStructTranslator(BaseTranslator):
             return
 
         repeat_iteration = "REPEAT_ITERATION_{}".format(
-            Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER)
+            self.counters.get(self.counters.types.STRUCT_COUNTER)
         )
 
         condition_expr = "{0} < {1}".format(decl.identifier, expression)
@@ -111,7 +110,7 @@ class RepeatStructTranslator(BaseTranslator):
         )
 
         repeat_iteration = "REPEAT_ITERATION_{}".format(
-            Counters_Object.getCounter(CounterTypes.STRUCT_COUNTER)
+            self.counters.get(self.counters.types.STRUCT_COUNTER)
         )
 
         increase_expr = "{0} = {0} + 1".format(identifier)

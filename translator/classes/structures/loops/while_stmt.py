@@ -1,9 +1,7 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.counters import CounterTypes
-from classes.element_types import ElementsTypes
-from classes.loop_stmt import WhileStmt
-from classes.structure import Structure
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.loop_stmt import WhileStmt
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from translator.classes.base_translator import BaseTranslator
 

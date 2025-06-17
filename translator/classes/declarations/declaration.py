@@ -1,15 +1,14 @@
 from typing import Tuple
 import typing
-from classes.counters import CounterTypes
-from classes.declarations import DeclTypes, Declaration
+from AppModule.app.classes.declarations import DeclTypes, Declaration
+from AppModule.app.utils.counters import CounterTypes
 from translator.classes.base_translator import BaseTranslator
-from utils.utils import Counters_Object
 
 
 class DeclarationTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -24,7 +23,7 @@ class DeclarationTranslator(BaseTranslator):
     ) -> None:
         decl = Declaration(
             type,
-            "{0}_{1}".format(name_part, Counters_Object.getCounter(counter_type)),
+            "{0}_{1}".format(name_part, self.counters.get(counter_type)),
             "",
             size_expression,
             0,
@@ -34,6 +33,6 @@ class DeclarationTranslator(BaseTranslator):
         )
         uniq, index = self.module.declarations.addElement(decl)
         if uniq:
-            Counters_Object.incriese(counter_type)
+            self.counters.incriese(counter_type)
 
         return self.module.declarations.getElementByIndex(index)

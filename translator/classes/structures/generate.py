@@ -1,24 +1,17 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.counters import CounterTypes
-from classes.element_types import ElementsTypes
-from classes.loop_stmt import LoopStmt
-from classes.processed import ProcessedElement
-from classes.protocols import BodyElement
-from classes.structure import Structure
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.loop_stmt import LoopStmt
+from AppModule.app.classes.processed import ProcessedElement
+from AppModule.app.classes.protocols import BodyElement
+from AppModule.app.classes.structure import Structure
 from translator.classes.base_translator import BaseTranslator
-from utils.string_formating import (
-    parallelAssignment2Assignment,
-    replace_cpp_operators,
-    replaceValueParametrsCalls,
-)
-from utils.utils import Counters_Object
 
 
 class GenerateStructTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -28,9 +21,7 @@ class GenerateStructTranslator(BaseTranslator):
     ) -> None:
 
         generate_name = (
-            "GENERATE"
-            + "_"
-            + str(Counters_Object.getCounter(CounterTypes.LOOP_COUNTER))
+            "GENERATE" + "_" + str(self.counters.get(self.counters.types.LOOP_COUNTER))
         )
 
         self.createStatement("GENERATE_LOOP", ElementsTypes.LOOP_ELEMENT)
@@ -40,7 +31,7 @@ class GenerateStructTranslator(BaseTranslator):
 
         generate_name = "{0}_{1}".format(
             self.last_struct.identifier,
-            Counters_Object.getCounter(CounterTypes.LOOP_COUNTER) - 1,
+            self.counters.get(self.counters.types.LOOP_COUNTER) - 1,
         )
 
         if self.module.input_parametrs is not None:
@@ -118,8 +109,10 @@ class GenerateStructTranslator(BaseTranslator):
                 self.generateBodyToAplan(child, structure, init_var_name, current_value)
 
     def prepareGenerateExpression(self, expression: str):
-        expression = replace_cpp_operators(expression)
-        expression = parallelAssignment2Assignment(expression)
-        expression = replaceValueParametrsCalls(self.module.value_parametrs, expression)
+        expression = self.str_formater.replace_cpp_operators(expression)
+        expression = self.str_formater.parallelAssignment2Assignment(expression)
+        expression = self.str_formater.replaceValueParametrsCalls(
+            self.module.value_parametrs, expression
+        )
 
         return expression

@@ -1,21 +1,9 @@
-from typing import Tuple
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.counters import CounterTypes
-from classes.declarations import DeclType, DeclTypes, Declaration
-from classes.element_types import ElementsTypes
-from classes.typedef import Typedef
+from AppModule.app.classes.declarations import DeclType, DeclTypes
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.typedef import Typedef
 from translator.classes.base_translator import BaseTranslator
-from utils.string_formating import replaceValueParametrsCalls
-from utils.utils import (
-    Color,
-    Counters_Object,
-    dataTypeToStr,
-    extractDimentionSize,
-    extractVectorSize,
-    printWithColor,
-    vectorSize2AplanVectorSize,
-)
 
 
 class StructUnionMemberContextTranlator(BaseTranslator):
@@ -40,7 +28,7 @@ class StructUnionMemberContextTranlator(BaseTranslator):
         if not data_type:
             return
 
-        data_type_str = dataTypeToStr(data_type)
+        data_type_str = self.utilsdataTypeToStr(data_type)
         if len(data_type_str) <= 0:
             return
 
@@ -66,14 +54,14 @@ class StructUnionMemberContextTranlator(BaseTranslator):
         if packed_dimension is not None:
             vector_size = packed_dimension.getText()
             size_expression = vector_size
-            vector_size = replaceValueParametrsCalls(
+            vector_size = self.str_formater.replaceValueParametrsCalls(
                 self.module.value_parametrs, vector_size
             )
-            vector_size = extractVectorSize(vector_size)
+            vector_size = self.utils.extractVectorSize(vector_size)
 
         aplan_vector_size = [0]
         if vector_size is not None:
-            aplan_vector_size = vectorSize2AplanVectorSize(
+            aplan_vector_size = self.utils.vectorSize2AplanVectorSize(
                 vector_size[0], vector_size[1]
             )
 

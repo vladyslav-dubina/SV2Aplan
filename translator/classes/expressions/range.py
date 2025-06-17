@@ -1,7 +1,7 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.element_types import ElementsTypes
-from classes.node import Node, NodeArray, RangeTypes
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.node import Node, RangeTypes
 from translator.classes.base_translator import BaseTranslator
 
 
@@ -36,7 +36,7 @@ class ConstantRangeSelectionTranslator(BaseTranslator):
                         ElementsTypes.OPERATOR_ELEMENT,
                     )
                 )
-            
+
             range = element.getText()
             node_index = self.last_node_array.addElement(
                 Node(range, element.getSourceInterval(), ElementsTypes.NUMBER_ELEMENT)

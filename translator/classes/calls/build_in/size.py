@@ -1,17 +1,17 @@
 from typing import List
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.declarations import DeclTypes, Declaration
-from classes.element_types import ElementsTypes
-from classes.node import Node, NodeArray
-from classes.parametrs import Parametr, ParametrArray
+from AppModule.app.classes.declarations import DeclTypes, Declaration
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.node import Node, NodeArray
+from AppModule.app.classes.parametrs import Parametr, ParametrArray
 from translator.classes.base_translator import BaseTranslator
 
 
 class SizeTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)

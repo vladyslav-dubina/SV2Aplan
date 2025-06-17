@@ -1,15 +1,13 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.element_types import ElementsTypes
-from classes.node import Node, NodeArray, RangeTypes
+from AppModule.app.classes.element_types import ElementsTypes
 from translator.classes.base_translator import BaseTranslator
-from utils.string_formating import replaceValueParametrsCalls
 
 
 class ParametrsCallTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -25,4 +23,4 @@ class ParametrsCallTranslator(BaseTranslator):
         for element in packages.getElements():
             parametrs_array += element.value_parametrs.copy()
 
-        return replaceValueParametrsCalls(parametrs_array, expression)
+        return self.str_formater.replaceValueParametrsCalls(parametrs_array, expression)

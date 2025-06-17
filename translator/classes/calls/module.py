@@ -1,18 +1,15 @@
 from typing import List, Tuple
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.action_precondition import ActionPreconditionArray
-from classes.counters import CounterTypes
-from classes.declarations import AplanDeclType
-from classes.element_types import ElementsTypes
-from classes.module_call import ModuleCall
-from classes.node import Node, NodeArray
-from classes.parametrs import Parametr, ParametrArray
-from classes.protocols import BodyElement, Protocol
-from program.program import Program
+from AppModule.app.classes.action_precondition import ActionPreconditionArray
+from AppModule.app.classes.declarations import AplanDeclType
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.module_call import ModuleCall
+from AppModule.app.classes.node import Node, NodeArray
+from AppModule.app.classes.parametrs import Parametr, ParametrArray
+from AppModule.app.classes.protocols import BodyElement, Protocol
+from AppModule.app.program.program import Program
 from translator.classes.base_translator import BaseTranslator
-from utils.string_formating import replace_filename
-from utils.utils import Color, Counters_Object, printWithColor
 from translator.translation_mngr import TranslationManager
 
 
@@ -55,13 +52,13 @@ class ModuleCallTranslator(BaseTranslator):
 
         try:
             previous_file_path = self._program.file_path
-            file_path = replace_filename(
+            file_path = self.file_mngr.replace_filename(
                 self._program.file_path, f"{destination_identifier}.sv"
             )
             file_data = self._program.readFileData(file_path)
             translation_mngr = TranslationManager()
-            translation_mngr.setUp(file_data)
-            translation_mngr.startTranslate(module_call)
+            translation_mngr.setup(file_data)
+            translation_mngr.translate(module_call)
         except Exception as e:
 
             self._program.module_calls.addElement(module_call)
@@ -74,9 +71,9 @@ class ModuleCallTranslator(BaseTranslator):
         if call_module.element_type != ElementsTypes.INTERFACE_ELEMENT:
             self._program.file_path = previous_file_path
             self.assign(ctx, call_module_name, destination_identifier)
-            Counters_Object.incriese(CounterTypes.B_COUNTER)
+            self.counters.incriese(self.counters.types.B_COUNTER)
             call_b = "MODULE_CALL_B_{}".format(
-                Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                self.counters.get(self.counters.types.B_COUNTER)
             )
             struct_call = Protocol(
                 call_b, ctx.getSourceInterval(), ElementsTypes.MODULE_CALL_ELEMENT
@@ -99,9 +96,9 @@ class ModuleCallTranslator(BaseTranslator):
             instance = hierarchical_instance.name_of_instance().getText()
             index = instance.find("core")
             if index != -1:
-                Counters_Object.incriese(CounterTypes.B_COUNTER)
+                self.counters.incriese(self.counters.types.B_COUNTER)
                 call_assign_b = "MODULE_ASSIGN_B_{}".format(
-                    Counters_Object.getCounter(CounterTypes.B_COUNTER)
+                    self.counters.get(self.counters.types.B_COUNTER)
                 )
                 struct_call_assign = Protocol(
                     call_assign_b,
@@ -114,7 +111,7 @@ class ModuleCallTranslator(BaseTranslator):
                 ) in (
                     hierarchical_instance.list_of_port_connections().ordered_port_connection()
                 ):
-                    printWithColor(f"Unhandled case for module call", Color.RED)
+                    self.logger.warning("Unhandled case for module call")
 
                 assign_str_list: List[str] = []
                 assign_arr_str_list: List[

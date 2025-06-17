@@ -1,10 +1,9 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.module_call import ModuleCall
-from classes.parametrs import Parametr
+from AppModule.app.classes.module_call import ModuleCall
+from AppModule.app.classes.parametrs import Parametr
 from translator.classes.base_translator import BaseTranslator
 from translator.translation_mngr import TranslationManager
-from utils.string_formating import replace_filename
 
 
 class InterfaceCallTranslator(BaseTranslator):
@@ -37,13 +36,13 @@ class InterfaceCallTranslator(BaseTranslator):
 
         try:
             previous_file_path = self._program.file_path
-            file_path = replace_filename(
+            file_path = self.file_mngrreplace_filename(
                 self._program.file_path, f"{destination_identifier}.sv"
             )
             file_data = self._program.readFileData(file_path)
             translation_mngr = TranslationManager()
-            translation_mngr.setUp(file_data)
-            translation_mngr.startTranslate(module_call)
+            translation_mngr.setup(file_data)
+            translation_mngr.translate(module_call)
         except Exception as e:
 
             self._program.module_calls.addElement(module_call)

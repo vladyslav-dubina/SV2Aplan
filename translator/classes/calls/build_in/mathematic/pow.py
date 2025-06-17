@@ -1,21 +1,19 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.actions import Action
-from classes.counters import CounterTypes
-from classes.declarations import DeclTypes, Declaration
-from classes.element_types import ElementsTypes
-from classes.node import Node, NodeArray
-from classes.parametrs import ParametrArray
-from classes.protocols import BodyElement, Protocol
-from classes.structure import Structure
+from AppModule.app.classes.actions import Action
+from AppModule.app.classes.declarations import DeclTypes, Declaration
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.node import Node, NodeArray
+from AppModule.app.classes.parametrs import ParametrArray
+from AppModule.app.classes.protocols import BodyElement, Protocol
+from AppModule.app.classes.structure import Structure
 from translator.classes.base_translator import BaseTranslator
-from utils.utils import isNumericString
 
 
 class PowTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
 
-       from translator.translator import Translator
+        from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
@@ -34,7 +32,7 @@ class PowTranslator(BaseTranslator):
         input_value_type = DeclTypes.INT
 
         input_var = inputs[0]
-        if isNumericString(inputs[0]) is None:
+        if self.utils.isNumericString(inputs[0]) is None:
             decl: Declaration = self.module.declarations.findElement(inputs[0])
             if decl:
                 input_var = f"{self.module.ident_uniq_name}.{decl.identifier}"
@@ -54,7 +52,7 @@ class PowTranslator(BaseTranslator):
         result_pow = self._translator_ptr.translate(
             "pow_obj",
             DeclTypes.STRUCT,
-            CounterTypes.STRUCT_COUNTER,
+            self.counters.types.STRUCT_COUNTER,
             ctx.getSourceInterval(),
             "pow_struct",
         )

@@ -1,15 +1,12 @@
 from typing import Tuple
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from classes.counters import CounterTypes
-from classes.declarations import DeclTypes, Declaration
-from classes.element_types import ElementsTypes
-from classes.node import Node, NodeArray
-from classes.protocols import BodyElement
-from classes.structure import Structure
-from classes.tasks import Task
+from AppModule.app.classes.declarations import DeclTypes, Declaration
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.node import Node, NodeArray
+from AppModule.app.classes.protocols import BodyElement
+from AppModule.app.classes.tasks import Task
 from translator.classes.base_translator import BaseTranslator
-from utils.utils import Counters_Object
 
 
 class TaskCallTranslator(BaseTranslator):
@@ -20,11 +17,9 @@ class TaskCallTranslator(BaseTranslator):
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
-    # TODO Change sv_structure to get struct from list and similar for dest_node
     def translate(
         self,
         ctx: SystemVerilogParser.Tf_callContext,
-        destination_node_array: NodeArray | None = None,
     ) -> None:
         self.findStruct()
         ps_or_hierarchical_tf: (
@@ -88,17 +83,14 @@ class TaskCallTranslator(BaseTranslator):
 
         self.createCall(
             task,
-            destination_node_array,
             object_identifier,
             argument_list_with_replaced_names,
             ctx.getSourceInterval(),
         )
 
-    # TODO Change sv_structure to get struct from list and similar for dest_node
     def createCall(
         self,
         task: Task | None,
-        destination_node_array: NodeArray | None = None,
         object_identifier: str | None = None,
         arguments: str = "",
         source_interval: Tuple[int, int] = (0, 0),
@@ -119,7 +111,7 @@ class TaskCallTranslator(BaseTranslator):
                     )
 
                 else:
-                    Counters_Object.incriese(CounterTypes.B_COUNTER)
+                    self.counters.incriese(self.counters.types.B_COUNTER)
                     task_call = "B_{0}".format(task.structure.identifier)
                     beh_index = self.last_struct.addProtocol(
                         task_call,
@@ -136,15 +128,15 @@ class TaskCallTranslator(BaseTranslator):
                     function_result_var = "{0}_{1}_call_result".format(
                         task.identifier, task.number
                     )
-                    if destination_node_array:
-                        node_index = destination_node_array.addElement(
+                    if self.last_node_array:
+                        node_index = self.last_node_array.addElement(
                             Node(
                                 function_result_var,
                                 (0, 0),
                                 ElementsTypes.IDENTIFIER_ELEMENT,
                             )
                         )
-                        node = destination_node_array.getElementByIndex(node_index)
+                        node = self.last_node_array.getElementByIndex(node_index)
                         node.module_name = self.module.ident_uniq_name
 
                 if function_result_var is not None:
@@ -184,7 +176,7 @@ class TaskCallTranslator(BaseTranslator):
                         BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
                     )
                 else:
-                    Counters_Object.incriese(CounterTypes.B_COUNTER)
+                    self.counters.incriese(self.counters.types.B_COUNTER)
                     task_call = "B_{0}".format(task.structure.identifier)
                     b_index = self.last_struct.addProtocol(
                         task_call,
