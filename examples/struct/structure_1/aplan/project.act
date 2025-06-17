@@ -1,5 +1,0 @@
-assign_1 = (
-		(1)->
-		("STRUCT_1#struct_1:action 'assign (person.id=1; person.age=30)';")
-		(struct_1.person_0 id = 1;
-		 struct_1.person_0 age = 30))

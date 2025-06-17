@@ -1,4 +1,0 @@
-events(
-	s_reset_n_0:obj(x1:bool);
-	s_clk_0:obj(x1:bool);
-);

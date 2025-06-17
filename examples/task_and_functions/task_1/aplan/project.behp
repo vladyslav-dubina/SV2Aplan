@@ -1,4 +1,0 @@
-B_TASK_EXAMPLE = {TASK_EXAMPLE_INITITAL},
-ADD_1(x, y, z) = assign_1(x, y, z),
-SUBTRACT_2(x, y, z) = assign_2(x, y, z),
-TASK_EXAMPLE_INITITAL = assign_3.ADD_1(task_example.a_0, task_example.b_0, task_example.result_add_0);(SUBTRACT_2(task_example.a_0, task_example.b_0, task_example.result_sub_0))

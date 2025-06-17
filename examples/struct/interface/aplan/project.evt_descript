@@ -1,3 +1,0 @@
-events(
-	s_clk_0:obj(x1:bool);
-);

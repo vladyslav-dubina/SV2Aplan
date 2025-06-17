@@ -1,4 +1,0 @@
-B_FUNCTION_EXAMPLE = {FUNCTION_EXAMPLE_INITITAL},
-ADD_1(x, y, return_add) = assign_1(x, y, return_add),
-MULTIPLY_2(x, y, return_multiply) = assign_2(x, y, return_multiply),
-FUNCTION_EXAMPLE_INITITAL = assign_3.ADD_1(function_example.a_0, function_example.b_0, function_example.add_1_call_result);(assign_4).MULTIPLY_2(function_example.a_0, function_example.b_0, function_example.multiply_2_call_result);(assign_5)
