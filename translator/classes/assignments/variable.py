@@ -12,16 +12,19 @@ class VariableDeclTranslator(BaseTranslator):
     decl_unique = None
 
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
+    def reset(self):
+        self.decl_index = None
+        self.decl_unique = None
+
     def translate(
         self, ctx: SystemVerilogParser.Variable_decl_assignmentContext
     ) -> None:
-
+        print(ctx.getText())
         original_identifier = ctx.variable_identifier().identifier().getText()
         unpacked_dimention = ctx.variable_dimension(0)
 
@@ -30,57 +33,56 @@ class VariableDeclTranslator(BaseTranslator):
         dimension_size = 0
         dimension_size_expression = ""
         decl_type = self.decl_type_array.getLastElement()
-        if not decl_type:
-            return
 
-        if unpacked_dimention is not None:
-            dimension = unpacked_dimention.getText()
-            dimension_size_expression = dimension
+        if decl_type:
+            if unpacked_dimention is not None:
+                dimension = unpacked_dimention.getText()
+                dimension_size_expression = dimension
 
-            dimension = self.utils.extractDimentionSize(dimension)
-            if dimension == None:
-                dimension = 0
+                dimension = self.utils.extractDimentionSize(dimension)
+                if dimension == None:
+                    dimension = 0
 
-            dimension_size = self.str_formater.replaceValueParametrsCalls(
-                self.module.value_parametrs, str(dimension)
-            )
-            dimension_size = int(dimension_size)
-            if decl_type.data_type == DeclTypes.INT:
-                decl_type.data_type = DeclTypes.ARRAY
-
-                self._translator_ptr.getTranslator("expr").createSizeExpression(
-                    original_identifier,
-                    dimension_size,
-                    ctx.getSourceInterval(),
+                dimension_size = self.str_formater.replaceValueParametrsCalls(
+                    self.module.value_parametrs, str(dimension)
                 )
+                dimension_size = int(dimension_size)
+                if decl_type.data_type == DeclTypes.INT:
+                    decl_type.data_type = DeclTypes.ARRAY
 
-                decl_type.size_expression = self._translator_ptr.translate(
-                    "array",
-                    original_identifier,
-                    DeclTypes.INT,
-                    ctx.getSourceInterval(),
-                )
+                    self._translator_ptr.getTranslator("expr").createSizeExpression(
+                        original_identifier,
+                        dimension_size,
+                        ctx.getSourceInterval(),
+                    )
 
-        new_decl = Declaration(
-            decl_type.data_type,
-            original_identifier,
-            "",
-            decl_type.size_expression,
-            decl_type.size[0],
-            dimension_size_expression,
-            dimension_size,
-            ctx.getSourceInterval(),
-            name_space_level=decl_type.name_space_level,
-        )
+                    decl_type.size_expression = self._translator_ptr.translate(
+                        "array",
+                        original_identifier,
+                        DeclTypes.INT,
+                        ctx.getSourceInterval(),
+                    )
 
-        if decl_type.inside_the_struct:
-            typedef: Typedef = self.getLastTypedef()
-            if typedef:
-                typedef.declarations.addElement(new_decl)
-        else:
-            self.decl_unique, self.decl_index = self.module.declarations.addElement(
-                new_decl
+            new_decl = Declaration(
+                decl_type.data_type,
+                original_identifier,
+                "",
+                decl_type.size_expression,
+                decl_type.size[0],
+                dimension_size_expression,
+                dimension_size,
+                ctx.getSourceInterval(),
+                name_space_level=decl_type.name_space_level,
             )
+
+            if decl_type.inside_the_struct:
+                typedef: Typedef = self.getLastTypedef()
+                if typedef:
+                    typedef.declarations.addElement(new_decl)
+            else:
+                self.decl_unique, self.decl_index = self.module.declarations.addElement(
+                    new_decl
+                )
 
         expression = ctx.expression()
 
@@ -106,6 +108,10 @@ class VariableDeclTranslator(BaseTranslator):
             uniq_action,
         ) = self._translator_ptr.getTranslator("expr").exit()
 
+        if self.decl_index is None:
+            self.reset()
+            return
+
         declaration = self.module.declarations.getElementByIndex(self.decl_index)
 
         self.findStruct()
@@ -126,3 +132,5 @@ class VariableDeclTranslator(BaseTranslator):
             if self.decl_unique:
                 declaration.expression = assign_name
                 declaration.action = action_pointer
+
+        self.reset()
