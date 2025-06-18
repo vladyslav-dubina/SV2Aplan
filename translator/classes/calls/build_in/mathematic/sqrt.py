@@ -31,7 +31,6 @@ double sqrt(double x) {
 
 class SqrtTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -43,7 +42,6 @@ class SqrtTranslator(BaseTranslator):
         sv_structure: Structure | None = None,
         destination_node_array: NodeArray | None = None,
     ):
-
         # PREPARE INPUT VAR
         input_var: str = ctx.list_of_arguments().getText()
 
@@ -51,7 +49,7 @@ class SqrtTranslator(BaseTranslator):
         input_value_type = DeclTypes.INT
 
         if self.utils.isNumericString(input_var) is None:
-            decl: Declaration = self.module.declarations.findElement(input_var)
+            decl: Declaration = self.module.declarations.getElement(input_var)
             if decl:
                 input_var = f"{self.module.ident_uniq_name}.{decl.identifier}"
                 input_value_element_type = ElementsTypes.IDENTIFIER_ELEMENT
@@ -117,7 +115,7 @@ class SqrtTranslator(BaseTranslator):
 
         sqrt_ltz_action, sqrt_nan_action = self.createStart(protocol_params)
 
-        sqrt_protocol.addBody(
+        sqrt_protocol.addBodyElement(
             BodyElement(
                 "{0}.{1}".format(
                     sqrt_ltz_action.getNameWithParams(),
@@ -133,7 +131,7 @@ class SqrtTranslator(BaseTranslator):
         sqrt_cond_action, sqrt_main_protocol = self.createAction(2, protocol_params)
         sqrt_result_action, sqrt_result_protocol = self.createAction(3, protocol_params)
 
-        sqrt_protocol.addBody(
+        sqrt_protocol.addBodyElement(
             BodyElement(
                 "!{0}.{1}.{2}".format(
                     sqrt_ltz_action.getNameWithParams(),
@@ -154,7 +152,7 @@ class SqrtTranslator(BaseTranslator):
         sqrt_main_protocol.body[0].identifier += "." + sqrt_main_protocol.getName()
         sqrt_main_protocol.body[0].parametrs = ParametrArray()
 
-        sqrt_main_protocol.addBody(
+        sqrt_main_protocol.addBodyElement(
             BodyElement(
                 f"!{sqrt_cond_action.getNameWithParams()}",
                 sqrt_cond_action,
@@ -172,7 +170,7 @@ class SqrtTranslator(BaseTranslator):
         if sv_structure:
             beh_index = sv_structure.getLastBehaviorIndex()
             if beh_index is not None:
-                sv_structure.behavior[beh_index].addBody(
+                sv_structure.behavior[beh_index].addBodyElement(
                     BodyElement(
                         identifier=beh_protocol_name,
                         element_type=ElementsTypes.PROTOCOL_ELEMENT,
@@ -268,7 +266,6 @@ class SqrtTranslator(BaseTranslator):
         type: int = 0,
         protocol_params: ParametrArray = ParametrArray(),
     ):
-
         name_part = "init"
         if type == 1:
             name_part = "loop_body"
@@ -523,7 +520,7 @@ class SqrtTranslator(BaseTranslator):
             )
 
         if type == 2:
-            protocol.addBody(
+            protocol.addBodyElement(
                 BodyElement(
                     action_name,
                     action,
@@ -532,7 +529,7 @@ class SqrtTranslator(BaseTranslator):
                 )
             )
         else:
-            protocol.addBody(
+            protocol.addBodyElement(
                 BodyElement(
                     action_name,
                     action,

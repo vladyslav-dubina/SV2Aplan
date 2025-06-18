@@ -15,7 +15,6 @@ from translator.translation_mngr import TranslationManager
 
 class ModuleCallTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -60,7 +59,6 @@ class ModuleCallTranslator(BaseTranslator):
             translation_mngr.setup(file_data)
             translation_mngr.translate(module_call)
         except Exception as e:
-
             self._program.module_calls.addElement(module_call)
 
         call_module = self._program.modules.findModuleByUniqIdentifier(call_module_name)
@@ -78,7 +76,7 @@ class ModuleCallTranslator(BaseTranslator):
             struct_call = Protocol(
                 call_b, ctx.getSourceInterval(), ElementsTypes.MODULE_CALL_ELEMENT
             )
-            struct_call.addBody(
+            struct_call.addBodyElement(
                 BodyElement(
                     identifier=f"B_{call_module_name.upper()}",
                     element_type=ElementsTypes.PROTOCOL_ELEMENT,
@@ -226,7 +224,7 @@ class ModuleCallTranslator(BaseTranslator):
                         action_2 += f".Sensetive({action_name_2})"
 
                 action_name = f"Sensetive({action_name}){action_2}"
-                struct_call_assign.addBody(
+                struct_call_assign.addBodyElement(
                     BodyElement(
                         action_name, action_pointer, ElementsTypes.ACTION_ELEMENT
                     )
@@ -240,7 +238,7 @@ class ModuleCallTranslator(BaseTranslator):
         if self.module_call is not None:
             local_module_call = self.module_call
         else:
-            local_module_call = Program().module_calls.findElement(identifier)
+            local_module_call = Program().module_calls.getElement(identifier)
         if local_module_call is not None:
             if identifier == local_module_call.identifier:
                 identifier = local_module_call.identifier

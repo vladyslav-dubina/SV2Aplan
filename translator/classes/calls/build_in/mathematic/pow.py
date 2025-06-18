@@ -12,7 +12,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class PowTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -33,7 +32,7 @@ class PowTranslator(BaseTranslator):
 
         input_var = inputs[0]
         if self.utils.isNumericString(inputs[0]) is None:
-            decl: Declaration = self.module.declarations.findElement(inputs[0])
+            decl: Declaration = self.module.declarations.getElement(inputs[0])
             if decl:
                 input_var = f"{self.module.ident_uniq_name}.{decl.identifier}"
                 input_value_element_type = ElementsTypes.IDENTIFIER_ELEMENT
@@ -115,7 +114,7 @@ class PowTranslator(BaseTranslator):
         pow_main_protocol.body[0].identifier += "." + pow_main_protocol.getName()
 
         parametrs = ParametrArray()
-        pow_main_protocol.addBody(
+        pow_main_protocol.addBodyElement(
             BodyElement(
                 f"!{pow_cond_action.getNameWithParams()}",
                 pow_cond_action,
@@ -125,7 +124,7 @@ class PowTranslator(BaseTranslator):
 
         beh_index = pow_structure.getLastBehaviorIndex()
         if beh_index is not None:
-            pow_structure.behavior[beh_index].addBody(
+            pow_structure.behavior[beh_index].addBodyElement(
                 BodyElement(
                     pow_init_action.identifier,
                     pow_init_action,
@@ -134,7 +133,7 @@ class PowTranslator(BaseTranslator):
                 )
             )
 
-            pow_structure.behavior[beh_index].addBody(
+            pow_structure.behavior[beh_index].addBodyElement(
                 BodyElement(
                     pow_main_protocol.identifier,
                     pow_main_protocol,
@@ -149,7 +148,7 @@ class PowTranslator(BaseTranslator):
         if sv_structure:
             beh_index = sv_structure.getLastBehaviorIndex()
             if beh_index is not None:
-                sv_structure.behavior[beh_index].addBody(
+                sv_structure.behavior[beh_index].addBodyElement(
                     BodyElement(
                         identifier=beh_protocol_name,
                         element_type=ElementsTypes.PROTOCOL_ELEMENT,
@@ -162,7 +161,6 @@ class PowTranslator(BaseTranslator):
         type: int = 0,
         protocol_params: ParametrArray = ParametrArray(),
     ):
-
         name_part = "init"
         if type == 1:
             name_part = "inc"
@@ -244,7 +242,6 @@ class PowTranslator(BaseTranslator):
                 Node("1", element_type=ElementsTypes.NUMBER_ELEMENT)
             )
         else:
-
             if type == 0:
                 action.postcondition.addElement(
                     Node(
@@ -307,7 +304,7 @@ class PowTranslator(BaseTranslator):
                 )
 
         if type == 3:
-            protocol.addBody(
+            protocol.addBodyElement(
                 BodyElement(
                     action_name,
                     action,
@@ -316,7 +313,7 @@ class PowTranslator(BaseTranslator):
                 )
             )
         else:
-            protocol.addBody(
+            protocol.addBodyElement(
                 BodyElement(
                     action_name,
                     action,

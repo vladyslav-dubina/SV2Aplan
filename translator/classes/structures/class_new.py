@@ -8,7 +8,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class ClassNewTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -21,12 +20,10 @@ class ClassNewTranslator(BaseTranslator):
         sv_structure: Structure,
         destination_node_array: NodeArray | None = None,
     ) -> None:
-        destination_node_array.removeElementByIndex(destination_node_array.getLen() - 1)
-        node = destination_node_array.getElementByIndex(
-            destination_node_array.getLen() - 1
-        )
+        destination_node_array.removeElementByIndex(len(destination_node_array) - 1)
+        node = destination_node_array.getElementByIndex(len(destination_node_array) - 1)
         object_identifier = node.identifier
-        destination_node_array.removeElementByIndex(destination_node_array.getLen() - 1)
+        destination_node_array.removeElementByIndex(len(destination_node_array) - 1)
         task_identifier = "new"
 
         argument_list = ctx.list_of_arguments().getText()
@@ -47,7 +44,7 @@ class ClassNewTranslator(BaseTranslator):
             object_identifier
         )
 
-        task = object.tasks.findElement(task_identifier)
+        task = object.tasks.getElement(task_identifier)
         self._translator_ptr.getTranslator("task_call").createCall(
             task,
             sv_structure,

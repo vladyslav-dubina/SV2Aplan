@@ -52,7 +52,7 @@ def loop2AplanImpl(
 
     beh_index = sv_structure.getLastBehaviorIndex()
     if beh_index is not None:
-        sv_structure.behavior[beh_index].addBody(
+        sv_structure.behavior[beh_index].addBodyElement(
             BodyElement(
                 identifier="LOOP_{0}{1}".format(
                     Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
@@ -71,7 +71,7 @@ def loop2AplanImpl(
         inside_the_task=self.inside_the_task,
     )
 
-    sv_structure.behavior[beh_index].addBody(
+    sv_structure.behavior[beh_index].addBodyElement(
         BodyElement(
             identifier="({0}LOOP_MAIN_{1}{2})".format(
                 loop_init,
@@ -130,7 +130,7 @@ def loop2AplanImpl(
                 name_space_element=ElementsTypes.LOOP_ELEMENT,
             )
 
-        sv_structure.behavior[beh_index].addBody(
+        sv_structure.behavior[beh_index].addBodyElement(
             BodyElement(
                 "{1}.(LOOP_BODY_{0}{3};{2}LOOP_MAIN_{0}{3}) + !{1}".format(
                     Counters_Object.getCounter(CounterTypes.LOOP_COUNTER),
@@ -166,7 +166,6 @@ def loop2AplanImpl(
             )
         else:
             if loop_init_flag == True:
-
                 initialization = ctx.for_initialization()
                 (
                     action_pointer,
@@ -190,7 +189,7 @@ def loop2AplanImpl(
         )
         if ctx.FOREACH():
             for index, element in enumerate(action_names_list):
-                sv_structure.behavior[beh_index].addBody(
+                sv_structure.behavior[beh_index].addBodyElement(
                     BodyElement(
                         element,
                         action_pointer_list[index],
@@ -198,7 +197,7 @@ def loop2AplanImpl(
                     )
                 )
         else:
-            sv_structure.behavior[beh_index].addBody(
+            sv_structure.behavior[beh_index].addBodyElement(
                 BodyElement(action_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
             )
 
@@ -250,7 +249,7 @@ def loop2AplanImpl(
         )
         if ctx.FOREACH():
             for index, element in enumerate(action_names_list):
-                sv_structure.behavior[beh_index].addBody(
+                sv_structure.behavior[beh_index].addBodyElement(
                     BodyElement(
                         element,
                         action_pointer_list[index],
@@ -258,7 +257,7 @@ def loop2AplanImpl(
                     )
                 )
         else:
-            sv_structure.behavior[beh_index].addBody(
+            sv_structure.behavior[beh_index].addBodyElement(
                 BodyElement(action_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
             )
 

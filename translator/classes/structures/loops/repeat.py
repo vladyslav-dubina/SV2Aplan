@@ -11,7 +11,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class RepeatStructTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -71,7 +70,7 @@ class RepeatStructTranslator(BaseTranslator):
 
         beh_index = self.last_struct.getLastBehaviorIndex()
         if beh_index is not None:
-            self.last_struct.behavior[beh_index].addBody(
+            self.last_struct.behavior[beh_index].addBodyElement(
                 BodyElement(assign_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
             )
         else:
@@ -101,7 +100,7 @@ class RepeatStructTranslator(BaseTranslator):
         )
 
         beh_index = self.last_struct.getLastBehaviorIndex()
-        self.last_struct.behavior[beh_index].addBody(
+        self.last_struct.behavior[beh_index].addBodyElement(
             BodyElement(
                 "{0}.{1} + !{0}".format(assign_name, repeat_iteration),
                 action_pointer,
@@ -137,7 +136,7 @@ class RepeatStructTranslator(BaseTranslator):
             inside_the_task=self.inside_the_task,
         )
 
-        self.last_struct.behavior[beh_index].addBody(
+        self.last_struct.behavior[beh_index].addBodyElement(
             BodyElement(
                 "{0}.{1}".format(assign_name, protocol_call),
                 action_pointer,

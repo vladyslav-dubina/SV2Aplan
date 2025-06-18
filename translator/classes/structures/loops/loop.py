@@ -8,7 +8,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class LoopStructTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -31,7 +30,6 @@ class LoopStructTranslator(BaseTranslator):
             loop2AplanImpl(self, ctx)
 
     def createBeh(self, loop_stmt: Structure, condition):
-
         protocol_params = self.getProtocolParams()
 
         loop_identifier = "{0}_{1}".format(
@@ -42,7 +40,7 @@ class LoopStructTranslator(BaseTranslator):
 
         body_name = "{0}_BODY".format(loop_identifier)
 
-        loop_stmt.behavior[0].addBody(
+        loop_stmt.behavior[0].addBodyElement(
             BodyElement(
                 identifier=iteration_name,
                 element_type=ElementsTypes.PROTOCOL_ELEMENT,
@@ -64,7 +62,7 @@ class LoopStructTranslator(BaseTranslator):
             "expr", condition, ElementsTypes.CONDITION_ELEMENT, loop_stmt
         )
 
-        loop_stmt.behavior[beh_index].addBody(
+        loop_stmt.behavior[beh_index].addBodyElement(
             BodyElement(
                 "{0}.({2}{1};{3}) + !{0}".format(
                     condition_name,
@@ -85,7 +83,6 @@ class LoopStructTranslator(BaseTranslator):
 
 class LoopIterationTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):

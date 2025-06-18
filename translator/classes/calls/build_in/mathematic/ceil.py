@@ -12,7 +12,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class CeilTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -42,7 +41,7 @@ class CeilTranslator(BaseTranslator):
         )
 
         if self.utils.isNumericString(input_var) is None:
-            decl = self.module.declarations.findElement(input_var)
+            decl = self.module.declarations.getElement(input_var)
             if decl:
                 input_var = f"{self.module.ident_uniq_name}.{decl.identifier}"
             node_type = ElementsTypes.IDENTIFIER_ELEMENT
@@ -86,7 +85,7 @@ class CeilTranslator(BaseTranslator):
         beh_index = ceil_structure.getLastBehaviorIndex()
         if beh_index is not None:
             body = f"{action_ceil_rtwp.identifier}"
-            ceil_structure.behavior[beh_index].addBody(
+            ceil_structure.behavior[beh_index].addBodyElement(
                 BodyElement(
                     body,
                     action_ceil_rtwp,
@@ -94,7 +93,7 @@ class CeilTranslator(BaseTranslator):
                 )
             )
             body = f"{action_ceil_rtfp.identifier}"
-            ceil_structure.behavior[beh_index].addBody(
+            ceil_structure.behavior[beh_index].addBodyElement(
                 BodyElement(
                     body,
                     action_ceil_rtfp,
@@ -114,7 +113,7 @@ class CeilTranslator(BaseTranslator):
             )
             beh_index = sv_structure.getLastBehaviorIndex()
             if beh_index is not None:
-                sv_structure.behavior[beh_index].addBody(
+                sv_structure.behavior[beh_index].addBodyElement(
                     BodyElement(
                         identifier=beh_protocol_name,
                         element_type=ElementsTypes.PROTOCOL_ELEMENT,

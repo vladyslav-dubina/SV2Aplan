@@ -12,7 +12,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class FloorTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -24,14 +23,13 @@ class FloorTranslator(BaseTranslator):
         sv_structure: Structure | None = None,
         destination_node_array: NodeArray | None = None,
     ):
-
         # PREPARE INPUT VAR
         input_var = ctx.list_of_arguments().getText()
         decl = None
         input_value_type = DeclTypes.INT
 
         if self.utils.isNumericString(input_var) is None:
-            decl = self.module.declarations.findElement(input_var)
+            decl = self.module.declarations.getElement(input_var)
             if decl:
                 input_var = f"{self.module.ident_uniq_name}.{decl.identifier}"
                 input_value_type = decl.data_type
@@ -106,7 +104,7 @@ class FloorTranslator(BaseTranslator):
             parametrs=protocol_params,
         )
 
-        floor_structure.behavior[0].addBody(
+        floor_structure.behavior[0].addBodyElement(
             BodyElement(
                 floor_civ_protocol.identifier,
                 floor_civ_protocol,
@@ -114,7 +112,7 @@ class FloorTranslator(BaseTranslator):
             )
         )
 
-        floor_structure.behavior[0].addBody(
+        floor_structure.behavior[0].addBodyElement(
             BodyElement(
                 action_floor_result.getNameWithParams(),
                 action_floor_result,
@@ -124,7 +122,7 @@ class FloorTranslator(BaseTranslator):
 
         floor_structure.behavior.append(floor_civ_protocol)
 
-        floor_civ_protocol.addBody(
+        floor_civ_protocol.addBodyElement(
             BodyElement(
                 identifier="{0}.{1}".format(
                     action_floor_check.getNameWithParams(),
@@ -142,7 +140,7 @@ class FloorTranslator(BaseTranslator):
             parametrs=protocol_params,
         )
 
-        floor_civ_protocol.addBody(
+        floor_civ_protocol.addBodyElement(
             BodyElement(
                 identifier="!{0}.{1}.{2}".format(
                     action_floor_check.getNameWithParams(),
@@ -154,7 +152,7 @@ class FloorTranslator(BaseTranslator):
             )
         )
 
-        floor_fp_protocol.addBody(
+        floor_fp_protocol.addBodyElement(
             BodyElement(
                 action_floor_check_fp.getNameWithParams(),
                 pointer_to_related=action_floor_check_fp,
@@ -162,7 +160,7 @@ class FloorTranslator(BaseTranslator):
             )
         )
 
-        floor_fp_protocol.addBody(
+        floor_fp_protocol.addBodyElement(
             BodyElement(
                 action_floor_body_fp.getNameWithParams(),
                 pointer_to_related=action_floor_check_fp,
@@ -178,7 +176,7 @@ class FloorTranslator(BaseTranslator):
         if sv_structure:
             beh_index = sv_structure.getLastBehaviorIndex()
             if beh_index is not None:
-                sv_structure.behavior[beh_index].addBody(
+                sv_structure.behavior[beh_index].addBodyElement(
                     BodyElement(
                         identifier=beh_protocol_name,
                         element_type=ElementsTypes.PROTOCOL_ELEMENT,
@@ -187,7 +185,6 @@ class FloorTranslator(BaseTranslator):
                 )
 
     def createAction(self, type: int, protocol_params: ParametrArray):
-
         if type == 0:
             name_part = "check"
         elif type == 1:

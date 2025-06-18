@@ -11,7 +11,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class CaseItemExprTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -112,7 +111,7 @@ class CaseItemExprTranslator(BaseTranslator):
                 inside_the_task=self.inside_the_task,
             )
 
-        self.last_struct.behavior[beh_index].addBody(
+        self.last_struct.behavior[beh_index].addBodyElement(
             BodyElement(
                 body,
                 action_pointer,
@@ -131,7 +130,7 @@ class CaseItemExprTranslator(BaseTranslator):
                 self.last_struct.number,
                 self.last_struct.init_case_count - self.last_struct.case_count + 1,
             )
-            self.last_struct.behavior[beh_index].addBody(
+            self.last_struct.behavior[beh_index].addBodyElement(
                 BodyElement(
                     body,
                     action_pointer,
@@ -140,7 +139,7 @@ class CaseItemExprTranslator(BaseTranslator):
                 )
             )
         else:
-            self.last_struct.behavior[beh_index].addBody(
+            self.last_struct.behavior[beh_index].addBodyElement(
                 BodyElement(
                     f"!{action_name}",
                     action_pointer,
@@ -165,7 +164,6 @@ class CaseItemExprTranslator(BaseTranslator):
 
 class CaseItemTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -194,7 +192,6 @@ class CaseItemTranslator(BaseTranslator):
 
 class CaseStmtTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):

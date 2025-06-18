@@ -12,7 +12,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class ModfTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -87,7 +86,7 @@ class ModfTranslator(BaseTranslator):
         beh_index = modf_structure.getLastBehaviorIndex()
         if beh_index is not None:
             body = f"{action_gtz.identifier}"
-            modf_structure.behavior[beh_index].addBody(
+            modf_structure.behavior[beh_index].addBodyElement(
                 BodyElement(
                     body,
                     action_gtz,
@@ -96,7 +95,7 @@ class ModfTranslator(BaseTranslator):
                 )
             )
             body = f"{action_ltz.identifier}"
-            modf_structure.behavior[beh_index].addBody(
+            modf_structure.behavior[beh_index].addBodyElement(
                 BodyElement(
                     body,
                     action_ltz,
@@ -110,7 +109,7 @@ class ModfTranslator(BaseTranslator):
         if sv_structure:
             beh_index = sv_structure.getLastBehaviorIndex()
             if beh_index is not None:
-                sv_structure.behavior[beh_index].addBody(
+                sv_structure.behavior[beh_index].addBodyElement(
                     BodyElement(
                         identifier=beh_protocol_name,
                         element_type=ElementsTypes.PROTOCOL_ELEMENT,

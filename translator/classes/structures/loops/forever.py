@@ -21,7 +21,6 @@ def extractCondition(self, ctx: SystemVerilogParser.Statement_or_nullContext):
 
 class ForeverStructTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -43,7 +42,6 @@ class ForeverStructTranslator(BaseTranslator):
 
 class ForeverIterationTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -65,7 +63,7 @@ class ForeverIterationTranslator(BaseTranslator):
             self.counters.get(self.counters.types.STRUCT_COUNTER),
         )
 
-        self.last_struct.behavior[0].addBody(
+        self.last_struct.behavior[0].addBodyElement(
             BodyElement(
                 identifier=forever_iteration,
                 element_type=ElementsTypes.PROTOCOL_ELEMENT,
@@ -83,7 +81,7 @@ class ForeverIterationTranslator(BaseTranslator):
             sensetive,
         )
 
-        self.last_struct.behavior[beh_index].addBody(
+        self.last_struct.behavior[beh_index].addBodyElement(
             BodyElement(
                 identifier=forever_sensetive_name,
                 element_type=ElementsTypes.PROTOCOL_ELEMENT,

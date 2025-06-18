@@ -9,7 +9,6 @@ class AnsiPortDeclTranslator(BaseTranslator):
     decl_index = None
 
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -35,42 +34,44 @@ class AnsiPortDeclTranslator(BaseTranslator):
         if header.INPUT():
             data_type = DeclTypes.INPORT
 
-        port_type = ctx.net_port_header().net_port_type()
+        port_type: SystemVerilogParser.Net_port_typeContext = (
+            ctx.net_port_header().net_port_type()
+        )
 
-        port_data_type = port_type.data_type_or_implicit().data_type()
-
+        implicit_data_type_ctx: SystemVerilogParser.Data_type_or_implicitContext = (
+            port_type.data_type_or_implicit()
+        )
+        port_data_type_ctx: SystemVerilogParser.Data_typeContext = (
+            implicit_data_type_ctx.data_type()
+        )
         port_dimention = None
-        vector_size = None
-        if port_data_type is not None:
-            if DeclTypes.checkType(self.utils.dataTypeToStr(port_data_type), []) == DeclTypes.NONE:
+
+        if port_data_type_ctx is not None:
+            if (
+                DeclTypes.checkType(self.utils.dataTypeToStr(port_data_type_ctx), [])
+                == DeclTypes.NONE
+            ):
                 self._translator_ptr.translate("interface_call", ctx)
                 return
 
-            port_dimention = port_data_type.packed_dimension(0)
-
-            if port_dimention is not None:
-                vector_size = port_dimention.getText()
-        else:
-            port_data_type = port_type.data_type_or_implicit().implicit_data_type()
-            if port_data_type is not None:
-                port_dimention = port_data_type.packed_dimension(0)
-                if port_dimention is not None:
-                    vector_size = port_dimention.getText()
-
-        size_expression = ""
-        if vector_size is not None:
-            size_expression = vector_size
-            vector_size = self.str_formater.replaceValueParametrsCalls(
-                self.module.value_parametrs, vector_size
+        # Визначаємо packed_dimension_ctx
+        packed_dimension_ctx = None
+        if port_data_type_ctx is not None:
+            packed_dimension_ctx = port_data_type_ctx.packed_dimension(0)
+        else:  # implicit_data_type може мати packed_dimension
+            implicit_data_type_ctx = (
+                port_type.data_type_or_implicit().implicit_data_type()
             )
-            vector_size = self.utils.extractVectorSize(vector_size)
+            if implicit_data_type_ctx is not None:
+                packed_dimension_ctx = implicit_data_type_ctx.packed_dimension(0)
 
-        aplan_vector_size = [0]
-
-        if vector_size is not None:
-            aplan_vector_size = self.utils.vectorSize2AplanVectorSize(
-                vector_size[0], vector_size[1]
-            )
+        (
+            size_expression,
+            aplan_vector_size,
+            dimension_size_expression,
+            dimension_size,
+            _,
+        ) = self._process_dimensions(ctx.unpacked_dimension(0), packed_dimension_ctx)
 
         assign_name = ""
         identifier = ctx.port_identifier().getText()
@@ -79,12 +80,13 @@ class AnsiPortDeclTranslator(BaseTranslator):
             identifier,
             assign_name,
             size_expression,
-            aplan_vector_size[0],
+            aplan_vector_size,
             dimension_size_expression,
             dimension_size,
             ctx.getSourceInterval(),
             name_space_level=self.getLastNameSpaceLevel(),
         )
+
         decl_unique, self.decl_index = self.module.declarations.addElement(port)
 
         constant_expression = ctx.constant_expression()
@@ -101,7 +103,6 @@ class AnsiPortDeclTranslator(BaseTranslator):
     def exit(self, ctx: SystemVerilogParser.Ansi_port_declarationContext) -> None:
         constant_expression = ctx.constant_expression()
         if constant_expression is not None:
-
             (
                 action_pointer,
                 assign_name,

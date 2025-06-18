@@ -10,9 +10,7 @@ from translator.classes.base_translator import BaseTranslator
 
 
 class IfSequenceBlockTranslator(BaseTranslator):
-
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -34,11 +32,9 @@ class IfSequenceBlockTranslator(BaseTranslator):
     def translate(self, ctx: SystemVerilogParser.Seq_blockContext) -> None:
         self.findStruct()
         if isinstance(self.last_struct, IfStmt):
-
             if self.last_struct.if_count > 1 and (
                 self.last_struct.step == self.last_struct.if_count
             ):
-
                 self.generateElseBodyProtocol()
             elif self.isLastStep(
                 self.last_struct.else_count,
@@ -52,7 +48,6 @@ class IfSequenceBlockTranslator(BaseTranslator):
 
 class IfStmtTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -73,7 +68,6 @@ class IfStmtTranslator(BaseTranslator):
 
 class IfCondPredicateTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -111,7 +105,9 @@ class IfCondPredicateTranslator(BaseTranslator):
             f"{self.module.identifier}#{self.module.ident_uniq_name}"
         )
         if_action.description_action_name = "if"
-        if_action.description_end.append(f"{self.str_formater.valuesToAplanStandart(ctx.getText())}")
+        if_action.description_end.append(
+            f"{self.str_formater.valuesToAplanStandart(ctx.getText())}"
+        )
 
         if_action.postcondition.addElement(
             Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)
@@ -165,7 +161,7 @@ class IfCondPredicateTranslator(BaseTranslator):
             )
         )
 
-        self.last_struct.behavior[beh_index].addBody(
+        self.last_struct.behavior[beh_index].addBodyElement(
             BodyElement(
                 "",
                 left_cond,
@@ -180,7 +176,6 @@ class IfCondPredicateTranslator(BaseTranslator):
             self.last_struct.last_step > 0
             and self.last_struct.step == self.last_struct.else_count
         ):
-
             continuation_flag = True
 
         if continuation_flag == True:
@@ -205,7 +200,7 @@ class IfCondPredicateTranslator(BaseTranslator):
                     parametrs=protocol_params,
                 )
             )
-            self.last_struct.behavior[beh_index].addBody(
+            self.last_struct.behavior[beh_index].addBodyElement(
                 BodyElement(
                     "",
                     right_cond,
@@ -213,7 +208,7 @@ class IfCondPredicateTranslator(BaseTranslator):
                 )
             )
         else:
-            self.last_struct.behavior[beh_index].addBody(
+            self.last_struct.behavior[beh_index].addBodyElement(
                 BodyElement(
                     f"!{if_action.identifier}",
                     action_pointer,

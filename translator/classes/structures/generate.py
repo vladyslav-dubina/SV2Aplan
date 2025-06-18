@@ -10,7 +10,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class GenerateStructTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -19,7 +18,6 @@ class GenerateStructTranslator(BaseTranslator):
     def translate(
         self, ctx: SystemVerilogParser.Loop_generate_constructContext
     ) -> None:
-
         generate_name = (
             "GENERATE" + "_" + str(self.counters.get(self.counters.types.LOOP_COUNTER))
         )
@@ -98,8 +96,7 @@ class GenerateStructTranslator(BaseTranslator):
 
                 self.current_genvar_value = None
                 if action_name:
-
-                    structure.behavior[0].addBody(
+                    structure.behavior[0].addBodyElement(
                         BodyElement(
                             action_name, action_pointer, ElementsTypes.ACTION_ELEMENT
                         )

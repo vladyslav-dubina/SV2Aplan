@@ -10,7 +10,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class SizeTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -48,7 +47,7 @@ class SizeTranslator(BaseTranslator):
         )
 
         array = ctx.list_of_arguments().getText()
-        decl = self.module.declarations.findElement(array)
+        decl = self.module.declarations.getElement(array)
         if decl is None:
             return
 

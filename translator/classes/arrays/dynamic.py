@@ -8,7 +8,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class DynamicArrayNewTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -32,9 +31,9 @@ class DynamicArrayNewTranslator(BaseTranslator):
             return
 
         elements = self.last_node_array.getElements()
-        node_array_len = self.last_node_array.getLen()
+        node_array_len = len(self.last_node_array)
         if node_array_len >= 2:
-            decl = self.module.declarations.findElement(
+            decl = self.module.declarations.getElement(
                 elements[node_array_len - 2].identifier
             )
 

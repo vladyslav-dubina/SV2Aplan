@@ -7,14 +7,12 @@ from translator.classes.base_translator import BaseTranslator
 
 class NetAssignmentTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
     def translate(self, ctx: SystemVerilogParser.Net_assignmentContext) -> None:
-
         if not self.module.processed_elements.isInProcessedElementAlready(
             ctx.getSourceInterval()
         ):
@@ -25,9 +23,12 @@ class NetAssignmentTranslator(BaseTranslator):
         if not self.module.processed_elements.isInProcessedElementAlready(
             ctx.getSourceInterval()
         ):
-            action_pointer, action_name, source_interval, uniq_action = (
-                self._translator_ptr.getTranslator("expr").exit()
-            )
+            (
+                action_pointer,
+                action_name,
+                source_interval,
+                uniq_action,
+            ) = self._translator_ptr.getTranslator("expr").exit()
 
             if action_name is None:
                 return
@@ -44,7 +45,7 @@ class NetAssignmentTranslator(BaseTranslator):
                 ctx.getSourceInterval(),
                 ElementsTypes.ASSIGN_OUT_OF_BLOCK_ELEMENT,
             )
-            struct_assign.addBody(
+            struct_assign.addBodyElement(
                 BodyElement(action_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
             )
             self.module.out_of_block_elements.addElement(struct_assign)

@@ -7,7 +7,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class ParametrsAssignmentTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -20,7 +19,6 @@ class ParametrsAssignmentTranslator(BaseTranslator):
             | SystemVerilogParser.Local_parameter_declarationContext
         ),
     ) -> None:
-
         if isinstance(ctx, SystemVerilogParser.Local_parameter_declarationContext):
             declaration = ctx.list_of_param_assignments().param_assignment()
             for elem in declaration:
@@ -71,7 +69,7 @@ class ParametrsAssignmentTranslator(BaseTranslator):
         )
         self.module.value_parametrs.evaluateParametrExpressionByIndex(parametr_index)
         if self.module_call is not None:
-            source_parametr = self.module_call.paramets.findElement(identifier)
+            source_parametr = self.module_call.paramets.getElement(identifier)
             if source_parametr is not None:
                 parametr = self.module.value_parametrs.getElementByIndex(parametr_index)
                 parametr.value = source_parametr.value

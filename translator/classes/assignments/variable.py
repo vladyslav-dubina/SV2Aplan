@@ -24,38 +24,32 @@ class VariableDeclTranslator(BaseTranslator):
     def translate(
         self, ctx: SystemVerilogParser.Variable_decl_assignmentContext
     ) -> None:
-        print(ctx.getText())
         original_identifier = ctx.variable_identifier().identifier().getText()
-        unpacked_dimention = ctx.variable_dimension(0)
-
-        element_type = ElementsTypes.NONE_ELEMENT
 
         dimension_size = 0
         dimension_size_expression = ""
         decl_type = self.decl_type_array.getLastElement()
 
         if decl_type:
-            if unpacked_dimention is not None:
-                dimension = unpacked_dimention.getText()
-                dimension_size_expression = dimension
+            (
+                size_expression,
+                aplan_vector_size,
+                dimension_size_expression,
+                dimension_size,
+                vector_size_tuple,
+            ) = self._process_dimensions(
+                ctx.variable_dimension(0),
+                None,
+            )
 
-                dimension = self.utils.extractDimentionSize(dimension)
-                if dimension == None:
-                    dimension = 0
-
-                dimension_size = self.str_formater.replaceValueParametrsCalls(
-                    self.module.value_parametrs, str(dimension)
-                )
-                dimension_size = int(dimension_size)
-                if decl_type.data_type == DeclTypes.INT:
-                    decl_type.data_type = DeclTypes.ARRAY
-
+            if dimension_size > 0 and decl_type.data_type == DeclTypes.INT:
+                decl_type.data_type = DeclTypes.ARRAY
+                if not decl_type.size_expression:
                     self._translator_ptr.getTranslator("expr").createSizeExpression(
                         original_identifier,
                         dimension_size,
                         ctx.getSourceInterval(),
                     )
-
                     decl_type.size_expression = self._translator_ptr.translate(
                         "array",
                         original_identifier,
@@ -121,7 +115,7 @@ class VariableDeclTranslator(BaseTranslator):
             beh_index = self.last_struct.getLastBehaviorIndex()
 
             if beh_index is not None and assign_name is not None:
-                self.last_struct.behavior[beh_index].addBody(
+                self.last_struct.behavior[beh_index].addBodyElement(
                     BodyElement(
                         assign_name,
                         action_pointer,

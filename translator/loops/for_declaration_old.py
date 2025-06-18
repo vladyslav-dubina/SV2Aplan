@@ -200,7 +200,7 @@ def loopVarsAndArrayIdentifierToCondition2AplanImpl(
     """
     array_identifier = ctx.hierarchical_array_identifier().getText()
     condition = ""
-    decl = self.module.declarations.findElement(array_identifier)
+    decl = self.module.declarations.getElement(array_identifier)
 
     for index, element in enumerate(vars_names):
         if index != 0:

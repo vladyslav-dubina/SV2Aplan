@@ -7,7 +7,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class ObjectDeclTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -19,7 +18,7 @@ class ObjectDeclTranslator(BaseTranslator):
         identifier: str,
         source_interval: Tuple[int, int],
     ) -> None:
-        class_module = self.modules.findElement(class_name.upper())
+        class_module = self.modules.getElement(class_name.upper())
         class_module = class_module.copyPart()
         index = self.modules.addElement(class_module)
         object = self.modules.getElementByIndex(index)

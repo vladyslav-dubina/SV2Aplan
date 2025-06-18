@@ -1,5 +1,5 @@
 import typing
-
+from antlr4_verilog.systemverilog import SystemVerilogParser
 from AppModule.app.utils.counters import Counters
 from AppModule.app.utils.file_manager import FilesMngr
 from AppModule.app.utils.logger import Logger
@@ -29,7 +29,6 @@ class BaseTranslator:
     logger = Logger()
 
     def __init__(self, translator: "Translator"):
-
         self._translator_ptr = translator
         self._program = Program()
         self.inside_the_task = False
@@ -143,3 +142,60 @@ class BaseTranslator:
             return self.module.typedefs.addElement(typedef)
         else:
             return self._program.typedefs.addElement(typedef)
+
+    def _process_dimensions(
+        self,
+        unpacked_dimension_ctx: typing.Optional[
+            SystemVerilogParser.Variable_dimensionContext
+        ],
+        packed_dimension_ctx: typing.Optional[
+            SystemVerilogParser.Packed_dimensionContext
+        ],
+    ) -> tuple[str, int, str, int, typing.List[int]]:
+        """
+        Обробляє контексти вимірів та повертає підготовлені дані для Declaration.
+        Повертає:
+            (size_expression, aplan_vector_size, dimension_size_expression, dimension_size, vector_size_tuple)
+        """
+        dimension_size = 0
+        dimension_size_expression = ""
+        size_expression = ""
+        aplan_vector_size = [0]
+        vector_size_tuple = None  # (msb, lsb)
+
+        # Обробка unpacked_dimension
+        if unpacked_dimension_ctx is not None:
+            dimension = unpacked_dimension_ctx.getText()
+            dimension_size_expression = dimension
+            # Заміна параметрів значень
+            dimension = self.str_formater.replaceValueParametrsCalls(
+                self.module.value_parametrs, dimension
+            )
+            dimension_size = self.utils.extractDimentionSize(dimension)
+            if (
+                dimension_size is None
+            ):  # Обробка випадку, коли extractDimentionSize може повернути None
+                dimension_size = 0
+
+        # Обробка packed_dimension (векторного розміру)
+        if packed_dimension_ctx is not None:
+            vector_size_text = packed_dimension_ctx.getText()
+            size_expression = vector_size_text
+            # Заміна параметрів значень
+            processed_vector_size = self.str_formater.replaceValueParametrsCalls(
+                self.module.value_parametrs, vector_size_text
+            )
+            vector_size_tuple = self.utils.extractVectorSize(processed_vector_size)
+
+            if vector_size_tuple is not None:
+                aplan_vector_size = self.utils.vectorSize2AplanVectorSize(
+                    vector_size_tuple[0], vector_size_tuple[1]
+                )
+
+        return (
+            size_expression,
+            aplan_vector_size[0],
+            dimension_size_expression,
+            dimension_size,
+            vector_size_tuple,
+        )

@@ -8,7 +8,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class AssertPropertyTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -30,9 +29,12 @@ class AssertPropertyTranslator(BaseTranslator):
         if not expression:
             return
 
-        action_pointer, assert_name, source_interval, uniq_action = (
-            self._translator_ptr.getTranslator("expr").exit()
-        )
+        (
+            action_pointer,
+            assert_name,
+            source_interval,
+            uniq_action,
+        ) = self._translator_ptr.getTranslator("expr").exit()
 
         if not assert_name:
             return
@@ -45,7 +47,8 @@ class AssertPropertyTranslator(BaseTranslator):
             assert_b,
             ctx.getSourceInterval(),
         )
-        struct_assert.addBody(
+
+        struct_assert.addBodyElement(
             BodyElement(
                 "{0}.Delta + !{0}.0".format(assert_name),
                 action_pointer,
@@ -57,7 +60,6 @@ class AssertPropertyTranslator(BaseTranslator):
 
 class AssertInBlockTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -78,10 +80,13 @@ class AssertInBlockTranslator(BaseTranslator):
         self, ctx: SystemVerilogParser.Simple_immediate_assert_statementContext
     ) -> None:
         self.findStruct()
-        action_pointer, assert_name, source_interval, uniq_action = (
-            self._translator_ptr.getTranslator("expr").exit(
-                ElementsTypes.ASSERT_ELEMENT
-            )
+        (
+            action_pointer,
+            assert_name,
+            source_interval,
+            uniq_action,
+        ) = self._translator_ptr.getTranslator("expr").exit(
+            ElementsTypes.ASSERT_ELEMENT
         )
         if not assert_name:
             return
@@ -102,7 +107,7 @@ class AssertInBlockTranslator(BaseTranslator):
             assert_b,
             inside_the_task=self.inside_the_task,
         )
-        self.last_struct.behavior[beh_index].addBody(
+        self.last_struct.behavior[beh_index].addBodyElement(
             BodyElement(
                 "{0}.Delta + !{0}.0".format(assert_name),
                 action_pointer,
@@ -110,6 +115,6 @@ class AssertInBlockTranslator(BaseTranslator):
             )
         )
         if beh_index != 0:
-            self.last_struct.behavior[beh_index - 1].addBody(
+            self.last_struct.behavior[beh_index - 1].addBodyElement(
                 BodyElement(assert_b, action_pointer, ElementsTypes.PROTOCOL_ELEMENT)
             )

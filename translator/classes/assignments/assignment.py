@@ -6,9 +6,7 @@ from translator.classes.base_translator import BaseTranslator
 
 
 class AssignmentTranslator(BaseTranslator):
-
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -53,9 +51,12 @@ class AssignmentTranslator(BaseTranslator):
     ):
         self.findStruct()
 
-        action_pointer, action_name, source_interval, uniq_action = (
-            self._translator_ptr.getTranslator("expr").exit()
-        )
+        (
+            action_pointer,
+            action_name,
+            source_interval,
+            uniq_action,
+        ) = self._translator_ptr.getTranslator("expr").exit()
 
         if not action_name:
             return
@@ -65,7 +66,7 @@ class AssignmentTranslator(BaseTranslator):
             beh_index = self.last_struct.getLastBehaviorIndex()
 
             if beh_index is not None:
-                self.last_struct.behavior[beh_index].addBody(
+                self.last_struct.behavior[beh_index].addBodyElement(
                     BodyElement(
                         action_name, action_pointer, ElementsTypes.ACTION_ELEMENT
                     )
@@ -76,7 +77,7 @@ class AssignmentTranslator(BaseTranslator):
                     inside_the_task=self.inside_the_task,
                     parametrs=protocol_params,
                 )
-                self.last_struct.behavior[b_index].addBody(
+                self.last_struct.behavior[b_index].addBodyElement(
                     BodyElement(
                         action_name, action_pointer, ElementsTypes.ACTION_ELEMENT
                     )
@@ -93,7 +94,7 @@ class AssignmentTranslator(BaseTranslator):
                 ElementsTypes.ASSIGN_OUT_OF_BLOCK_ELEMENT,
             )
 
-            struct_assign.addBody(
+            struct_assign.addBodyElement(
                 BodyElement(action_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
             )
             self.module.out_of_block_elements.addElement(struct_assign)

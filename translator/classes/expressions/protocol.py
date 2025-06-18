@@ -9,7 +9,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class ProtocolTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -23,14 +22,13 @@ class ProtocolTranslator(BaseTranslator):
         parametrs: ParametrArray = ParametrArray(),
         sv_structure: Structure | None = None,
     ):
-
         if sv_structure is not None:
             beh_index = sv_structure.getLastBehaviorIndex()
 
             sv_structure.elements.addElement(action_pointer)
 
             if beh_index is not None:
-                sv_structure.behavior[beh_index].addBody(
+                sv_structure.behavior[beh_index].addBodyElement(
                     BodyElement(
                         body,
                         action_pointer,
@@ -45,7 +43,7 @@ class ProtocolTranslator(BaseTranslator):
                     inside_the_task=self.inside_the_task,
                     parametrs=action_pointer.parametrs,
                 )
-                sv_structure.behavior[b_index].addBody(
+                sv_structure.behavior[b_index].addBodyElement(
                     BodyElement(
                         body,
                         action_pointer,
@@ -55,11 +53,11 @@ class ProtocolTranslator(BaseTranslator):
                 )
         else:
             protocol_name = "{0}".format(action_name.upper())
-            protocol: Protocol | None = self.module.out_of_block_elements.findElement(
+            protocol: Protocol | None = self.module.out_of_block_elements.getElement(
                 protocol_name
             )
             if isinstance(protocol, Protocol):
-                protocol.addBody(
+                protocol.addBodyElement(
                     BodyElement(
                         action_pointer.identifier,
                         action_pointer,
@@ -74,7 +72,7 @@ class ProtocolTranslator(BaseTranslator):
                     parametrs=action_pointer.parametrs,
                 )
 
-                protocol.addBody(
+                protocol.addBodyElement(
                     BodyElement(
                         action_pointer.identifier,
                         action_pointer,

@@ -11,7 +11,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class TaskCallTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -67,17 +66,16 @@ class TaskCallTranslator(BaseTranslator):
             object = self.module.packages_and_objects.findModuleByUniqIdentifier(
                 object_identifier
             )
-            task = object.tasks.findElement(task_identifier)
+            task = object.tasks.getElement(task_identifier)
         else:
-
-            task = self.module.tasks.findElement(task_identifier)
+            task = self.module.tasks.getElement(task_identifier)
             if task is None:
                 packages = self.module.packages_and_objects.getElementsIE(
                     include=ElementsTypes.PACKAGE_ELEMENT,
                     exclude_ident_uniq_name=self.module.ident_uniq_name,
                 )
                 for element in packages.getElements():
-                    task = element.tasks.findElement(task_identifier)
+                    task = element.tasks.getElement(task_identifier)
                     if task is not None:
                         break
 
@@ -106,7 +104,7 @@ class TaskCallTranslator(BaseTranslator):
                 copy.additional_params = arguments
 
                 if beh_index is not None:
-                    self.last_struct.behavior[beh_index].addBody(
+                    self.last_struct.behavior[beh_index].addBodyElement(
                         BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
                     )
 
@@ -117,12 +115,11 @@ class TaskCallTranslator(BaseTranslator):
                         task_call,
                         inside_the_task=self.inside_the_task,
                     )
-                    self.last_struct.behavior[beh_index].addBody(
+                    self.last_struct.behavior[beh_index].addBodyElement(
                         BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
                     )
 
             elif task.element_type == ElementsTypes.FUNCTION_ELEMENT:
-
                 function_result_var = None
                 if task.findReturnParam():
                     function_result_var = "{0}_{1}_call_result".format(
@@ -172,7 +169,7 @@ class TaskCallTranslator(BaseTranslator):
                 copy = task.structure.copy()
                 copy.additional_params = arguments
                 if beh_index is not None:
-                    self.last_struct.behavior[beh_index].addBody(
+                    self.last_struct.behavior[beh_index].addBodyElement(
                         BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
                     )
                 else:
@@ -182,6 +179,6 @@ class TaskCallTranslator(BaseTranslator):
                         task_call,
                         inside_the_task=self.inside_the_task,
                     )
-                    self.last_struct.behavior[b_index].addBody(
+                    self.last_struct.behavior[b_index].addBodyElement(
                         BodyElement(task_call, copy, ElementsTypes.PROTOCOL_ELEMENT)
                     )

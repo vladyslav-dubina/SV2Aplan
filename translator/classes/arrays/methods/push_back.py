@@ -12,7 +12,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class PushBackTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -26,8 +25,7 @@ class PushBackTranslator(BaseTranslator):
         arguments_list: SystemVerilogParser.List_of_argumentsContext,
         source_interval: Tuple[int, int],
     ):
-
-        decl = self.module.declarations.findElement(object_identifier)
+        decl = self.module.declarations.getElement(object_identifier)
         if isinstance(decl, Declaration):
             (name_part, counter_type) = self._translator_ptr.getTranslator(
                 "expr"
@@ -135,7 +133,7 @@ class PushBackTranslator(BaseTranslator):
 
                     if not previus_action:
                         sv_structure.elements.addElement(action_pointer)
-                        protocol.addBody(
+                        protocol.addBodyElement(
                             BodyElement(
                                 action_pointer.identifier,
                                 action_pointer,
@@ -147,7 +145,7 @@ class PushBackTranslator(BaseTranslator):
                         "B_{0}".format(action.getName()),
                         source_interval,
                     )
-                    struct.addBody(
+                    struct.addBodyElement(
                         BodyElement(
                             action.identifier,
                             action,

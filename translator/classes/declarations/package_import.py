@@ -14,7 +14,6 @@ from translator.translation_mngr import TranslationManager
 
 class PackageImportDeclTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -85,7 +84,7 @@ class PackageImportDeclTranslator(BaseTranslator):
                                 ctx.getSourceInterval(),
                                 ElementsTypes.MODULE_CALL_ELEMENT,
                             )
-                            struct_call.addBody(
+                            struct_call.addBodyElement(
                                 BodyElement(
                                     identifier=f"B_{package_identifier.upper()}",
                                     element_type=ElementsTypes.PROTOCOL_ELEMENT,

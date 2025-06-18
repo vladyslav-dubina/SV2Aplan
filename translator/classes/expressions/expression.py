@@ -17,7 +17,6 @@ class ExpressionTranslator(BaseTranslator):
     _action: Action = None
     _action_name = ""
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -72,8 +71,8 @@ class ExpressionTranslator(BaseTranslator):
         action_name: str,
     ):
         last_element = None
-        if protocol and protocol.body.getLen() > 0:
-            last_element = protocol.body.getElementByIndex(protocol.body.getLen() - 1)
+        if protocol and len(protocol.body) > 0:
+            last_element = protocol.body.getElementByIndex(len(protocol.body) - 1)
             if (
                 last_element.element_type == ElementsTypes.ACTION_ELEMENT
                 and last_element.pointer_to_related
@@ -325,7 +324,6 @@ class ExpressionTranslator(BaseTranslator):
             or self.last_element_type == ElementsTypes.REPEAT_ELEMENT
             or self.last_element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
         ):
-
             self._action.precondition.addElement(
                 Node("1", (0, 0), ElementsTypes.NUMBER_ELEMENT)
             )
@@ -363,21 +361,17 @@ class ExpressionTranslator(BaseTranslator):
         self.last_operator = None
 
     def exit(self, remove_association: bool = False):
-        if (
-            self._action.postcondition.getLen() == 0
-            or self._action.precondition.getLen() == 0
-        ):
+        if len(self._action.postcondition) == 0 or len(self._action.precondition) == 0:
             self.last_node_array = None
             return (None, None, None, None)
 
         action_pointer: Action = None
         last_element = None
-        out_block_len = self.module.out_of_block_elements.getLen()
+        out_block_len = len(self.module.out_of_block_elements)
 
         previus_action = False
 
         if not remove_association:
-
             if self.last_struct is not None:
                 beh_index = self.last_struct.getLastBehaviorIndex()
                 if beh_index is not None:
@@ -385,31 +379,17 @@ class ExpressionTranslator(BaseTranslator):
 
                     while True:
                         if isinstance(protocol, Structure):
-
                             protocol = protocol.behavior[
                                 protocol.getLastBehaviorIndex()
                             ]
                             continue
                         else:
                             break
-                    last_element, previus_action, self._action_name = (
-                        self.findAssociatedAction(
-                            protocol,
-                            self.last_element_type,
-                            self._name_part,
-                            self._action,
-                            previus_action,
-                            self._action_name,
-                        )
-                    )
-            elif out_block_len > 0:
-                protocol: Protocol = (
-                    self.module.out_of_block_elements.getElementByIndex(
-                        out_block_len - 1
-                    )
-                )
-                last_element, previus_action, self._action_name = (
-                    self.findAssociatedAction(
+                    (
+                        last_element,
+                        previus_action,
+                        self._action_name,
+                    ) = self.findAssociatedAction(
                         protocol,
                         self.last_element_type,
                         self._name_part,
@@ -417,6 +397,23 @@ class ExpressionTranslator(BaseTranslator):
                         previus_action,
                         self._action_name,
                     )
+            elif out_block_len > 0:
+                protocol: Protocol = (
+                    self.module.out_of_block_elements.getElementByIndex(
+                        out_block_len - 1
+                    )
+                )
+                (
+                    last_element,
+                    previus_action,
+                    self._action_name,
+                ) = self.findAssociatedAction(
+                    protocol,
+                    self.last_element_type,
+                    self._name_part,
+                    self._action,
+                    previus_action,
+                    self._action_name,
                 )
 
         self._action = self.copyToAssociatedAction(last_element, self._action)
@@ -428,7 +425,6 @@ class ExpressionTranslator(BaseTranslator):
             ) = self.module.actions.isUniqAction(self._action)
         params_for_finding: ParametrArray = ParametrArray()
         if self.inside_the_task == True:
-
             task = self.module.tasks.getLastTask()
             params_for_finding += task.parametrs
 
@@ -455,7 +451,7 @@ class ExpressionTranslator(BaseTranslator):
                 self.counters.incriese(self._counter_type)
 
         if self._action_name is not None:
-            action_parametrs_count = self._action.parametrs.getLen()
+            action_parametrs_count = len(self._action.parametrs)
             action_identifier = self._action.identifier
             if action_pointer:
                 action_identifier = action_pointer.identifier
@@ -465,7 +461,6 @@ class ExpressionTranslator(BaseTranslator):
                 self._action_name = f"Sensetive({self._action_name})"
             if last_element:
                 last_element.identifier = self._action_name
-
         if previus_action:
             self.last_node_array = None
             return (None, None, None, None)
@@ -510,7 +505,7 @@ class ExpressionTranslator(BaseTranslator):
 
         # PROTOCOL
         protocol_name = "ARRAY_INIT_{0}".format(self.module.ident_uniq_name_upper)
-        protocol = self.module.out_of_block_elements.findElement(protocol_name)
+        protocol = self.module.out_of_block_elements.getElement(protocol_name)
 
         previus_action = False
 
@@ -538,7 +533,7 @@ class ExpressionTranslator(BaseTranslator):
                 action_pointer.description_end += action.description_end
 
             if not previus_action:
-                protocol.addBody(
+                protocol.addBodyElement(
                     BodyElement(
                         action.identifier,
                         action,
@@ -552,7 +547,7 @@ class ExpressionTranslator(BaseTranslator):
                 source_interval,
             )
 
-            protocol.addBody(
+            protocol.addBodyElement(
                 BodyElement(
                     action.identifier,
                     action,
