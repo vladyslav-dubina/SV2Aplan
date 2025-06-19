@@ -1,3 +1,4 @@
+from antlr4 import FileStream
 from antlr4_verilog import InputStream, CommonTokenStream, ParseTreeWalker
 
 from antlr4_verilog.systemverilog import SystemVerilogLexer, SystemVerilogParser
@@ -7,9 +8,13 @@ from AppModule.app.classes.design_unit_call import DesignUnitCall
 
 
 class TranslationManager(BaseTranslationManager):
-    def setup(self, data):
+    program = Program()
+
+    def setup(self, file_name):
+        self.program.file_path = file_name
+        self.logger.delimetr(color="blue", text=f"Read file {file_name}")
         self.logger.info("Set up translator environment \n", color="bold_yellow")
-        lexer = SystemVerilogLexer(InputStream(data))
+        lexer = SystemVerilogLexer(FileStream(file_name))
         stream = CommonTokenStream(lexer)
         parser = SystemVerilogParser(stream)
         self.tree = parser.source_text()
@@ -22,10 +27,10 @@ class TranslationManager(BaseTranslationManager):
 
         listener: SVToAplanListener = SVToAplanListener(design_unit_call)
         self.walker.walk(listener, self.tree)
-        program = Program()
+
         self.logger.info(f"File tranlation process finished!", color="bold_yellow")
         self.logger.info(
-            f"File {program.file_path}  tranlation process finished!",
+            f"File {self.program.file_path}  tranlation process finished!",
             color="bold_purple",
         )
         self.logger.delimetr(color="blue")

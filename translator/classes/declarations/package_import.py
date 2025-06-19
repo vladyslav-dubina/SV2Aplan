@@ -34,11 +34,9 @@ class PackageImportDeclTranslator(BaseTranslator):
                     file_path = self.file_mngr.replace_filename(
                         self._program.file_path, f"{package_identifier}.sv"
                     )
-                    file_data = self._program.readFileData(file_path)
-
                     translation_mngr = TranslationManager()
-                    translation_mngr.setUp(file_data)
-                    translation_mngr.startTranslate()
+                    translation_mngr.setup(file_path)
+                    translation_mngr.translate()
 
                     self._program.file_path = previous_file_path
 

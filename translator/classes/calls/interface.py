@@ -38,9 +38,8 @@ class InterfaceCallTranslator(BaseTranslator):
             file_path = self.file_mngrreplace_filename(
                 self._program.file_path, f"{destination_identifier}.sv"
             )
-            file_data = self._program.readFileData(file_path)
             translation_mngr = TranslationManager()
-            translation_mngr.setup(file_data)
+            translation_mngr.setup(file_path)
             translation_mngr.translate(design_unit_call)
         except Exception as e:
             self._program.design_units_calls.addElement(design_unit_call)
