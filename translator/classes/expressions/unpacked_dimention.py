@@ -9,7 +9,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class UnpackedDimentionTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -19,7 +18,6 @@ class UnpackedDimentionTranslator(BaseTranslator):
         self,
         ctx: SystemVerilogParser.Unpacked_dimensionContext,
     ) -> None:
-
         expression = ctx.constant_expression()
         if not expression:
             return
@@ -33,10 +31,10 @@ class UnpackedDimentionTranslator(BaseTranslator):
         node = self.last_node_array.getElementByIndex(index)
         node.bit_selection = True
 
-        expression, decl = self.module.declarations.replaceDeclName(expression)
+        expression, decl = self.design_unit.declarations.replaceDeclName(expression)
         if isinstance(decl, Declaration):
             node.identifier = expression
-            node.module_name = self.module.ident_uniq_name
+            node.design_unit_name = self.design_unit.ident_uniq_name
 
         if self.current_genvar_value is not None:
             (genvar, value) = self.current_genvar_value

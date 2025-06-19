@@ -32,8 +32,8 @@ class GenerateStructTranslator(BaseTranslator):
             self.counters.get(self.counters.types.LOOP_COUNTER) - 1,
         )
 
-        if self.module.input_parametrs is not None:
-            self.last_struct.parametrs += self.module.input_parametrs
+        if self.design_unit.input_parametrs is not None:
+            self.last_struct.parametrs += self.design_unit.input_parametrs
         self.last_struct.addProtocol(
             generate_name,
             ElementsTypes.GENERATE_ELEMENT,
@@ -59,7 +59,7 @@ class GenerateStructTranslator(BaseTranslator):
                 current_value,
             )
             exec(iteration)
-        self.module.structures.addElement(self.last_struct)
+        self.design_unit.structures.addElement(self.last_struct)
 
     def generateBodyToAplan(
         self,
@@ -79,7 +79,7 @@ class GenerateStructTranslator(BaseTranslator):
                 or type(child) is SystemVerilogParser.Variable_assignmentContext
             ):
                 self.current_genvar_value = (init_var_name, current_value)
-                self.module.processed_elements.addElement(
+                self.design_unit.processed_elements.addElement(
                     ProcessedElement("action", child.getSourceInterval())
                 )
                 (
@@ -109,7 +109,7 @@ class GenerateStructTranslator(BaseTranslator):
         expression = self.str_formater.replace_cpp_operators(expression)
         expression = self.str_formater.parallelAssignment2Assignment(expression)
         expression = self.str_formater.replaceValueParametrsCalls(
-            self.module.value_parametrs, expression
+            self.design_unit.value_parametrs, expression
         )
 
         return expression

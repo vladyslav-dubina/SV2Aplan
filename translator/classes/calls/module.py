@@ -4,7 +4,7 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from AppModule.app.classes.action_precondition import ActionPreconditionArray
 from AppModule.app.classes.declarations import AplanDeclType
 from AppModule.app.classes.element_types import ElementsTypes
-from AppModule.app.classes.module_call import ModuleCall
+from AppModule.app.classes.design_unit_call import DesignUnitCall
 from AppModule.app.classes.node import Node, NodeArray
 from AppModule.app.classes.parametrs import Parametr, ParametrArray
 from AppModule.app.classes.protocols import BodyElement, Protocol
@@ -39,15 +39,15 @@ class ModuleCallTranslator(BaseTranslator):
         else:
             parametrs = ""
 
-        module_call = ModuleCall(
+        design_unit_call = DesignUnitCall(
             destination_identifier,
             object_name,
-            self.module.identifier,
+            self.design_unit.identifier,
             destination_identifier,
             parametrs,
-            self.module.value_parametrs,
+            self.design_unit.value_parametrs,
         )
-        call_module_name = object_name
+        call_design_unit_name = object_name
 
         try:
             previous_file_path = self._program.file_path
@@ -57,18 +57,22 @@ class ModuleCallTranslator(BaseTranslator):
             file_data = self._program.readFileData(file_path)
             translation_mngr = TranslationManager()
             translation_mngr.setup(file_data)
-            translation_mngr.translate(module_call)
+            translation_mngr.translate(design_unit_call)
         except Exception as e:
-            self._program.module_calls.addElement(module_call)
+            self._program.design_units_calls.addElement(design_unit_call)
 
-        call_module = self._program.modules.findModuleByUniqIdentifier(call_module_name)
-        if call_module is None:
-            call_module = self._program.module_calls.findModuleByUniqIdentifier(
-                call_module_name
+        call_design_unit = self._program.design_units.findModuleByUniqIdentifier(
+            call_design_unit_name
+        )
+        if call_design_unit is None:
+            call_design_unit = (
+                self._program.design_units_calls.findModuleByUniqIdentifier(
+                    call_design_unit_name
+                )
             )
-        if call_module.element_type != ElementsTypes.INTERFACE_ELEMENT:
+        if call_design_unit.element_type != ElementsTypes.INTERFACE_ELEMENT:
             self._program.file_path = previous_file_path
-            self.assign(ctx, call_module_name, destination_identifier)
+            self.assign(ctx, call_design_unit_name, destination_identifier)
             self.counters.incriese(self.counters.types.B_COUNTER)
             call_b = "MODULE_CALL_B_{}".format(
                 self.counters.get(self.counters.types.B_COUNTER)
@@ -78,16 +82,16 @@ class ModuleCallTranslator(BaseTranslator):
             )
             struct_call.addBodyElement(
                 BodyElement(
-                    identifier=f"B_{call_module_name.upper()}",
+                    identifier=f"B_{call_design_unit_name.upper()}",
                     element_type=ElementsTypes.PROTOCOL_ELEMENT,
                 )
             )
-            self.module.out_of_block_elements.addElement(struct_call)
+            self.design_unit.out_of_block_elements.addElement(struct_call)
 
     def assign(
         self,
         ctx: SystemVerilogParser.Module_instantiationContext,
-        destination_module_name: str,
+        destination_design_unit_name: str,
         destination_identifier: str,
     ):
         for hierarchical_instance in ctx.hierarchical_instance():
@@ -109,7 +113,7 @@ class ModuleCallTranslator(BaseTranslator):
                 ) in (
                     hierarchical_instance.list_of_port_connections().ordered_port_connection()
                 ):
-                    self.logger.warning("Unhandled case for module call")
+                    self.logger.warning("Unhandled case for design_unit call")
 
                 assign_str_list: List[str] = []
                 assign_arr_str_list: List[
@@ -129,12 +133,12 @@ class ModuleCallTranslator(BaseTranslator):
                     )
                     source_var_name = named_port_connection.expression().getText()
                     assign_str = "{0}.{1}={2}.{3}".format(
-                        destination_module_name,
+                        destination_design_unit_name,
                         destination_var_name,
-                        self.module.ident_uniq_name,
+                        self.design_unit.ident_uniq_name,
                         source_var_name,
                     )
-                    decl = self.module.declarations.findDeclWithDimentionByName(
+                    decl = self.design_unit.declarations.findDeclWithDimentionByName(
                         source_var_name
                     )
                     if decl is None:
@@ -176,9 +180,9 @@ class ModuleCallTranslator(BaseTranslator):
                             )
                         )
                         assign_str = "{0}.{1}[{4}] = {2}.{3}[{4}]".format(
-                            destination_module_name,
+                            destination_design_unit_name,
                             destination_var_name,
-                            self.module.ident_uniq_name,
+                            self.design_unit.ident_uniq_name,
                             source_var_name,
                             param.unique_identifier,
                         )
@@ -189,7 +193,7 @@ class ModuleCallTranslator(BaseTranslator):
                                 precond_array,
                             )
                         )
-                obj_def = f"{destination_identifier.upper()}#{destination_module_name};{self.module.identifier_upper}#{self.module.ident_uniq_name}"
+                obj_def = f"{destination_identifier.upper()}#{destination_design_unit_name};{self.design_unit.identifier_upper}#{self.design_unit.ident_uniq_name}"
                 (
                     action_pointer,
                     action_name,
@@ -230,18 +234,18 @@ class ModuleCallTranslator(BaseTranslator):
                     )
                 )
 
-                self.module.out_of_block_elements.addElement(struct_call_assign)
+                self.design_unit.out_of_block_elements.addElement(struct_call_assign)
 
     def resolve(self, identifier):
-        local_module_call: ModuleCall = None
+        local_design_unit_call: DesignUnitCall = None
         uniq_name = identifier
-        if self.module_call is not None:
-            local_module_call = self.module_call
+        if self.design_unit_call is not None:
+            local_design_unit_call = self.design_unit_call
         else:
-            local_module_call = Program().module_calls.getElement(identifier)
-        if local_module_call is not None:
-            if identifier == local_module_call.identifier:
-                identifier = local_module_call.identifier
-                uniq_name = local_module_call.object_name
+            local_design_unit_call = Program().design_units_calls.getElement(identifier)
+        if local_design_unit_call is not None:
+            if identifier == local_design_unit_call.identifier:
+                identifier = local_design_unit_call.identifier
+                uniq_name = local_design_unit_call.object_name
 
         return (identifier, uniq_name)

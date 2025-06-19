@@ -6,7 +6,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class GenvarDeclTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -16,7 +15,7 @@ class GenvarDeclTranslator(BaseTranslator):
         assign_name = ""
         for element in ctx.list_of_genvar_identifiers().genvar_identifier():
             identifier = element.identifier().getText()
-            self.module.declarations.addElement(
+            self.design_unit.declarations.addElement(
                 Declaration(
                     DeclTypes.INT,
                     identifier,

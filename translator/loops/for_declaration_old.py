@@ -15,7 +15,7 @@ def loopVars2AplanImpl(
     sv_structure: Structure,
 ):
     """This function processes loop variables in SystemVerilog code by generating unique identifiers and
-    adding declarations to the module.
+    adding declarations to the design_unit.
 
     Parameters
     ----------
@@ -42,15 +42,15 @@ def loopVars2AplanImpl(
         identifier = original_identifier + f"_{self.getLastNameSpaceLevel()}"
         data_type = "int"
         size_expression = data_type
-        packages = self.module.packages_and_objects.getElementsIE(
+        packages = self.design_unit.packages_and_objects.getElementsIE(
             include=ElementsTypes.PACKAGE_ELEMENT
         )
-        packages += self.module.packages_and_objects.getElementsIE(
+        packages += self.design_unit.packages_and_objects.getElementsIE(
             include=ElementsTypes.OBJECT_ELEMENT
         )
         data_type = DeclTypes.checkType(data_type, packages.getElements())
         assign_name = ""
-        decl_unique, decl_index = self.module.declarations.addElement(
+        decl_unique, decl_index = self.design_unit.declarations.addElement(
             Declaration(
                 data_type,
                 identifier,
@@ -63,7 +63,7 @@ def loopVars2AplanImpl(
             )
         )
 
-        declaration = self.module.declarations.getElementByIndex(decl_index)
+        declaration = self.design_unit.declarations.getElementByIndex(decl_index)
         sv_structure.elements.addElement(declaration)
 
         idenifier_list.append(identifier)
@@ -200,7 +200,7 @@ def loopVarsAndArrayIdentifierToCondition2AplanImpl(
     """
     array_identifier = ctx.hierarchical_array_identifier().getText()
     condition = ""
-    decl = self.module.declarations.getElement(array_identifier)
+    decl = self.design_unit.declarations.getElement(array_identifier)
 
     for index, element in enumerate(vars_names):
         if index != 0:
@@ -253,14 +253,14 @@ def forInitialization2ApanImpl(
         Counters_Object.incriese(CounterTypes.STRUCT_COUNTER)
         data_type = expression.data_type().getText()
         size_expression = data_type
-        packages = self.module.packages_and_objects.getElementsIE(
+        packages = self.design_unit.packages_and_objects.getElementsIE(
             include=ElementsTypes.PACKAGE_ELEMENT
         )
-        packages += self.module.packages_and_objects.getElementsIE(
+        packages += self.design_unit.packages_and_objects.getElementsIE(
             include=ElementsTypes.OBJECT_ELEMENT
         )
         data_type = DeclTypes.checkType(data_type, packages.getElements())
-        decl_unique, decl_index = self.module.declarations.addElement(
+        decl_unique, decl_index = self.design_unit.declarations.addElement(
             Declaration(
                 data_type,
                 identifier,
@@ -273,7 +273,7 @@ def forInitialization2ApanImpl(
             )
         )
 
-        declaration = self.module.declarations.getElementByIndex(decl_index)
+        declaration = self.design_unit.declarations.getElementByIndex(decl_index)
         sv_structure.elements.addElement(declaration)
 
         return identifier

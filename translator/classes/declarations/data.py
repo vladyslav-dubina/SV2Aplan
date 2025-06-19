@@ -8,7 +8,6 @@ from translator.classes.base_translator import BaseTranslator
 class DataDeclTranslator(BaseTranslator):
     need_delete_type = False
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -43,12 +42,12 @@ class DataDeclTranslator(BaseTranslator):
             data_check_type = DeclTypes.STRUCT
             size_expression = struct.unique_identifier
         else:
-            if self.module:
-                types = self.module.typedefs.getElementsIE().getElements()
-                packages = self.module.packages_and_objects.getElementsIE(
+            if self.design_unit:
+                types = self.design_unit.typedefs.getElementsIE().getElements()
+                packages = self.design_unit.packages_and_objects.getElementsIE(
                     include=ElementsTypes.PACKAGE_ELEMENT
                 )
-                packages += self.module.packages_and_objects.getElementsIE(
+                packages += self.design_unit.packages_and_objects.getElementsIE(
                     include=ElementsTypes.OBJECT_ELEMENT
                 )
                 for package in packages.getElements():
@@ -65,7 +64,7 @@ class DataDeclTranslator(BaseTranslator):
             vector_size = packed_dimension.getText()
             size_expression = vector_size
             vector_size = self.str_formater.replaceValueParametrsCalls(
-                self.module.value_parametrs, vector_size
+                self.design_unit.value_parametrs, vector_size
             )
             vector_size = self.utils.extractVectorSize(vector_size)
 

@@ -102,7 +102,7 @@ class IfCondPredicateTranslator(BaseTranslator):
         self.last_node_array = if_action.precondition
 
         if_action.description_start.append(
-            f"{self.module.identifier}#{self.module.ident_uniq_name}"
+            f"{self.design_unit.identifier}#{self.design_unit.ident_uniq_name}"
         )
         if_action.description_action_name = "if"
         if_action.description_end.append(
@@ -117,10 +117,10 @@ class IfCondPredicateTranslator(BaseTranslator):
             action_pointer,
             if_check_result,
             source_interval,
-        ) = self.module.actions.isUniqAction(if_action)
+        ) = self.design_unit.actions.isUniqAction(if_action)
 
         if if_check_result is None:
-            self.module.actions.addElement(if_action)
+            self.design_unit.actions.addElement(if_action)
         else:
             action_name = if_check_result
 

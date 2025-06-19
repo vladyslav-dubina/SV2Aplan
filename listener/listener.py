@@ -3,13 +3,13 @@ from antlr4_verilog.systemverilog import (
     SystemVerilogParser,
 )
 
-from AppModule.app.classes.module_call import ModuleCall
+from AppModule.app.classes.design_unit_call import DesignUnitCall
 from listener.base import BaseListener
 
 
 class SVToAplanListener(BaseListener, SystemVerilogParserListener):
-    def __init__(self, module_call: ModuleCall | None = None):
-        BaseListener().__init__(module_call)
+    def __init__(self, design_unit_call: DesignUnitCall | None = None):
+        BaseListener().__init__(design_unit_call)
 
     # =========================================================================================
     # OPERATORS
@@ -244,7 +244,7 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def exitModule_instantiation(
         self, ctx: SystemVerilogParser.Module_instantiationContext
     ):
-        self.translator.translate("module_call", ctx)
+        self.translator.translate("design_unit", ctx)
 
     # Enter a parse tree produced by SystemVerilogParser#method_call_body.
     def enterMethod_call_body(self, ctx: SystemVerilogParser.Method_call_bodyContext):
@@ -322,7 +322,6 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def exitOperator_assignment(
         self, ctx: SystemVerilogParser.Operator_assignmentContext
     ):
-
         #  self.translator.getTranslator("assignment").exit(ctx)
         pass
 

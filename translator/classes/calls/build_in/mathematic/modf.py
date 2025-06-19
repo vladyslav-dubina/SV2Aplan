@@ -30,7 +30,7 @@ class ModfTranslator(BaseTranslator):
         action_gtz: Action = self.createAction(True)
         action_ltz: Action = self.createAction(False)
 
-        self.module.declarations.addElement(
+        self.design_unit.declarations.addElement(
             Declaration(
                 DeclTypes.INT,
                 "integral_part",
@@ -44,7 +44,7 @@ class ModfTranslator(BaseTranslator):
         )
 
         source_interval = (source_interval[0], source_interval[1] + 1)
-        self.module.declarations.addElement(
+        self.design_unit.declarations.addElement(
             Declaration(
                 DeclTypes.REAL,
                 "fractional_part",
@@ -59,7 +59,7 @@ class ModfTranslator(BaseTranslator):
 
         if destination_node_array and not inside_method:
             node = Node("fractional_part", (0, 0), ElementsTypes.IDENTIFIER_ELEMENT)
-            node.module_name = self.module.ident_uniq_name
+            node.design_unit_name = self.design_unit.ident_uniq_name
             destination_node_array.addElement(node.copy())
 
         protocol_params: ParametrArray = ParametrArray()
@@ -104,7 +104,7 @@ class ModfTranslator(BaseTranslator):
                 )
             )
 
-        self.module.structures.addElement(modf_structure)
+        self.design_unit.structures.addElement(modf_structure)
 
         if sv_structure:
             beh_index = sv_structure.getLastBehaviorIndex()
@@ -133,7 +133,7 @@ class ModfTranslator(BaseTranslator):
         )
 
         action.description_start.append(
-            f"{self.module.identifier}#{self.module.ident_uniq_name}"
+            f"{self.design_unit.identifier}#{self.design_unit.ident_uniq_name}"
         )
         if grater_than_zero:
             action.description_end.append(f"integral_part = x - (x - (x / 1))")
@@ -165,7 +165,7 @@ class ModfTranslator(BaseTranslator):
             (0, 0),
             ElementsTypes.IDENTIFIER_ELEMENT,
         )
-        node.module_name = self.module.ident_uniq_name
+        node.design_unit_name = self.design_unit.ident_uniq_name
         action.postcondition.addElement(node.copy())
         action.postcondition.addElement(
             Node("=", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
@@ -217,7 +217,7 @@ class ModfTranslator(BaseTranslator):
             (0, 0),
             ElementsTypes.IDENTIFIER_ELEMENT,
         )
-        node.module_name = self.module.ident_uniq_name
+        node.design_unit_name = self.design_unit.ident_uniq_name
         action.postcondition.addElement(node.copy())
         action.postcondition.addElement(
             Node("=", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
@@ -233,17 +233,17 @@ class ModfTranslator(BaseTranslator):
             (0, 0),
             ElementsTypes.IDENTIFIER_ELEMENT,
         )
-        node.module_name = self.module.ident_uniq_name
+        node.design_unit_name = self.design_unit.ident_uniq_name
         action.postcondition.addElement(node.copy())
 
         (
             action_pointer,
             action_check_result,
             source_interval,
-        ) = self.module.actions.isUniqAction(action)
+        ) = self.design_unit.actions.isUniqAction(action)
 
         if action_check_result is None:
             action_pointer: Action = action
-            self.module.actions.addElement(action)
+            self.design_unit.actions.addElement(action)
 
         return action_pointer

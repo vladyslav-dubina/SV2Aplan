@@ -53,8 +53,8 @@ class ProtocolTranslator(BaseTranslator):
                 )
         else:
             protocol_name = "{0}".format(action_name.upper())
-            protocol: Protocol | None = self.module.out_of_block_elements.getElement(
-                protocol_name
+            protocol: Protocol | None = (
+                self.design_unit.out_of_block_elements.getElement(protocol_name)
             )
             if isinstance(protocol, Protocol):
                 protocol.addBodyElement(
@@ -84,4 +84,4 @@ class ProtocolTranslator(BaseTranslator):
                 if parametrs:
                     protocol.parametrs += parametrs
 
-                self.module.out_of_block_elements.addElement(protocol)
+                self.design_unit.out_of_block_elements.addElement(protocol)

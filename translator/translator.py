@@ -8,12 +8,12 @@ from AppModule.app.utils.counters import CounterTypes, Counters
 from AppModule.app.classes.declarations import DeclType, DeclTypeArray
 from AppModule.app.classes.if_stmt import IfStmt
 from AppModule.app.classes.loop_stmt import ForeverStmt, LoopStmt, WhileStmt
-from AppModule.app.classes.module_call import ModuleCall
+from AppModule.app.classes.design_unit_call import DesignUnitCall
 from AppModule.app.classes.node import NodeArray
 from AppModule.app.classes.parametrs import ParametrArray
 from AppModule.app.classes.protocols import BodyElement
 from AppModule.app.classes.structure import Structure, StructureArray
-from AppModule.app.classes.module import Module
+from AppModule.app.classes.design_unit import DesignUnit
 from AppModule.app.classes.element_types import ElementsTypes
 from AppModule.app.classes.tasks import TaskStmt
 
@@ -106,7 +106,7 @@ TRANSLATOR_NAMES = Literal[
     "interface_decl",
     "interface_call",
     "module_decl",
-    "module_call",
+    "design_unit_call",
     "package_decl",
     "genvar_decl",
     "struct_decl",
@@ -170,8 +170,8 @@ TRANSLATOR_NAMES = Literal[
 
 class Translator:
     counters = Counters()
-    module_call: ModuleCall | None = None
-    _module: Module | None = None
+    design_unit_call: DesignUnitCall | None = None
+    _design_unit: DesignUnit | None = None
     _structure_pointer_list: StructureArray = StructureArray()
     _cache = {}
     decl_type_array: DeclTypeArray | None = DeclTypeArray()
@@ -192,7 +192,7 @@ class Translator:
         "interface_decl": InterfaceDeclTranslator,
         "interface_call": InterfaceCallTranslator,
         "module_decl": ModuleDeclTranslator,
-        "module_call": ModuleCallTranslator,
+        "design_unit_call": ModuleCallTranslator,
         "package_decl": PackageDeclTranslator,
         "genvar_decl": GenvarDeclTranslator,
         "struct_decl": StructDeclTranslator,
@@ -471,7 +471,7 @@ class Translator:
         ...
 
     @overload
-    def getTranslator(self, key: Literal["module_call"]) -> ModuleCallTranslator:
+    def getTranslator(self, key: Literal["design_unit_call"]) -> ModuleCallTranslator:
         ...
 
     @overload
@@ -551,7 +551,7 @@ class Translator:
     def getProtocolParams(self):
         protocol_params = None
         if self.isInsideTheTask() == True:
-            task = self._module.tasks.getLastTask()
+            task = self._design_unit.tasks.getLastTask()
             if task is not None:
                 protocol_params = task.parametrs
         return protocol_params
@@ -561,7 +561,7 @@ class Translator:
         if struct:
             return struct.number
         else:
-            return self._module.number
+            return self._design_unit.number
 
     def removeLastStructPointer(self):
         if len(self._structure_pointer_list) > 0:
@@ -684,10 +684,10 @@ class Translator:
                 if index != -1:
                     res += " && "
             elif type(child) is SystemVerilogParser.IdentifierContext:
-                packages = self._module.packages_and_objects.getElementsIE(
+                packages = self._design_unit.packages_and_objects.getElementsIE(
                     include=ElementsTypes.PACKAGE_ELEMENT
                 )
-                res += self._module.findAndChangeNamesToAgentAttrCall(
+                res += self._design_unit.findAndChangeNamesToAgentAttrCall(
                     child.getText(), packages.getElements()
                 )
             else:

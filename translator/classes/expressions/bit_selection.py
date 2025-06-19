@@ -9,7 +9,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class BitSelectionTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -31,7 +30,6 @@ class BitSelectionTranslator(BaseTranslator):
             expression = ctx.constant_expression()
 
         for element in expression:
-
             bit = element.getText()
 
             index = self.last_node_array.addElement(
@@ -40,11 +38,11 @@ class BitSelectionTranslator(BaseTranslator):
             node = self.last_node_array.getElementByIndex(index)
             node.bit_selection = True
 
-            bit, decl = self.module.declarations.replaceDeclName(bit)
+            bit, decl = self.design_unit.declarations.replaceDeclName(bit)
 
             if isinstance(decl, Declaration):
                 node.identifier = bit
-                node.module_name = self.module.ident_uniq_name
+                node.design_unit_name = self.design_unit.ident_uniq_name
 
             if self.current_genvar_value is not None:
                 (genvar, value) = self.current_genvar_value

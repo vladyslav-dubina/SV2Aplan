@@ -17,7 +17,7 @@ def loop2AplanImpl(
 ):
     protocol_params = ""
     if self.inside_the_task == True:
-        task = self.module.tasks.getLastTask()
+        task = self.design_unit.tasks.getLastTask()
         if task is not None:
             protocol_params = "({0})".format(task.parametrs)
 

@@ -27,7 +27,7 @@ class CeilTranslator(BaseTranslator):
         decl = None
         node_type = ElementsTypes.NUMBER_ELEMENT
 
-        self.module.declarations.addElement(
+        self.design_unit.declarations.addElement(
             Declaration(
                 DeclTypes.INT,
                 "result_ceil",
@@ -41,9 +41,9 @@ class CeilTranslator(BaseTranslator):
         )
 
         if self.utils.isNumericString(input_var) is None:
-            decl = self.module.declarations.getElement(input_var)
+            decl = self.design_unit.declarations.getElement(input_var)
             if decl:
-                input_var = f"{self.module.ident_uniq_name}.{decl.identifier}"
+                input_var = f"{self.design_unit.ident_uniq_name}.{decl.identifier}"
             node_type = ElementsTypes.IDENTIFIER_ELEMENT
 
         action_ceil_rtwp = self.createAction(True, node_type)
@@ -51,7 +51,7 @@ class CeilTranslator(BaseTranslator):
 
         if destination_node_array:
             node = Node("result_ceil", (0, 0), ElementsTypes.IDENTIFIER_ELEMENT)
-            node.module_name = self.module.ident_uniq_name
+            node.design_unit_name = self.design_unit.ident_uniq_name
             destination_node_array.addElement(node.copy())
 
         protocol_params_input: ParametrArray = ParametrArray()
@@ -101,7 +101,7 @@ class CeilTranslator(BaseTranslator):
                 )
             )
 
-        self.module.structures.addElement(ceil_structure)
+        self.design_unit.structures.addElement(ceil_structure)
 
         if sv_structure:
             self._translator_ptr.translate(
@@ -130,7 +130,7 @@ class CeilTranslator(BaseTranslator):
         )
 
         action.description_start.append(
-            f"{self.module.identifier}#{self.module.ident_uniq_name}"
+            f"{self.design_unit.identifier}#{self.design_unit.ident_uniq_name}"
         )
 
         if return_the_wlole_part:
@@ -145,7 +145,7 @@ class CeilTranslator(BaseTranslator):
             (0, 0),
             ElementsTypes.IDENTIFIER_ELEMENT,
         )
-        node.module_name = self.module.identifier
+        node.design_unit_name = self.design_unit.identifier
         action.precondition.addElement(node.copy())
 
         if return_the_wlole_part:
@@ -173,7 +173,7 @@ class CeilTranslator(BaseTranslator):
         )
 
         node = Node("result_ceil", (0, 0), ElementsTypes.IDENTIFIER_ELEMENT)
-        node.module_name = self.module.ident_uniq_name
+        node.design_unit_name = self.design_unit.ident_uniq_name
         action.postcondition.addElement(node.copy())
         action.postcondition.addElement(
             Node("=", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
@@ -183,7 +183,7 @@ class CeilTranslator(BaseTranslator):
             (0, 0),
             node_type,
         )
-        node.module_name = self.module.ident_uniq_name
+        node.design_unit_name = self.design_unit.ident_uniq_name
         action.postcondition.addElement(node.copy())
         if return_the_wlole_part:
             action.postcondition.addElement(
@@ -197,10 +197,10 @@ class CeilTranslator(BaseTranslator):
             action_pointer,
             action_check_result,
             source_interval,
-        ) = self.module.actions.isUniqAction(action)
+        ) = self.design_unit.actions.isUniqAction(action)
 
         if action_check_result is None:
             action_pointer: Action = action
-            self.module.actions.addElement(action)
+            self.design_unit.actions.addElement(action)
 
         return action_pointer

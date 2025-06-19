@@ -29,9 +29,9 @@ class FloorTranslator(BaseTranslator):
         input_value_type = DeclTypes.INT
 
         if self.utils.isNumericString(input_var) is None:
-            decl = self.module.declarations.getElement(input_var)
+            decl = self.design_unit.declarations.getElement(input_var)
             if decl:
-                input_var = f"{self.module.ident_uniq_name}.{decl.identifier}"
+                input_var = f"{self.design_unit.ident_uniq_name}.{decl.identifier}"
                 input_value_type = decl.data_type
 
         # DECLARE VARS
@@ -60,7 +60,7 @@ class FloorTranslator(BaseTranslator):
                 (0, 0),
                 ElementsTypes.IDENTIFIER_ELEMENT,
             )
-            node.module_name = self.module.ident_uniq_name
+            node.design_unit_name = self.design_unit.ident_uniq_name
             destination_node_array.addElement(node.copy())
 
         # PARAMETRS
@@ -68,7 +68,7 @@ class FloorTranslator(BaseTranslator):
             "parametr_array",
             [
                 input_var,
-                self.module.ident_uniq_name + "." + result_floor.identifier,
+                self.design_unit.ident_uniq_name + "." + result_floor.identifier,
             ],
         )
 
@@ -171,7 +171,7 @@ class FloorTranslator(BaseTranslator):
         floor_structure.behavior.append(
             floor_fp_protocol,
         )
-        self.module.structures.addElement(floor_structure)
+        self.design_unit.structures.addElement(floor_structure)
 
         if sv_structure:
             beh_index = sv_structure.getLastBehaviorIndex()
@@ -203,7 +203,7 @@ class FloorTranslator(BaseTranslator):
         )
 
         action.description_start.append(
-            f"{self.module.identifier}#{self.module.ident_uniq_name}"
+            f"{self.design_unit.identifier}#{self.design_unit.ident_uniq_name}"
         )
 
         parametrs = ParametrArray()
@@ -426,10 +426,10 @@ class FloorTranslator(BaseTranslator):
             action_pointer,
             action_check_result,
             source_interval,
-        ) = self.module.actions.isUniqAction(action)
+        ) = self.design_unit.actions.isUniqAction(action)
 
         if action_check_result is None:
             action_pointer: Action = action
-            self.module.actions.addElement(action)
+            self.design_unit.actions.addElement(action)
 
         return action_pointer

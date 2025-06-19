@@ -32,9 +32,9 @@ class PowTranslator(BaseTranslator):
 
         input_var = inputs[0]
         if self.utils.isNumericString(inputs[0]) is None:
-            decl: Declaration = self.module.declarations.getElement(inputs[0])
+            decl: Declaration = self.design_unit.declarations.getElement(inputs[0])
             if decl:
-                input_var = f"{self.module.ident_uniq_name}.{decl.identifier}"
+                input_var = f"{self.design_unit.ident_uniq_name}.{decl.identifier}"
                 input_value_element_type = ElementsTypes.IDENTIFIER_ELEMENT
                 input_value_type = decl.data_type
 
@@ -63,7 +63,7 @@ class PowTranslator(BaseTranslator):
                 (0, 0),
                 ElementsTypes.IDENTIFIER_ELEMENT,
             )
-            node.module_name = self.module.ident_uniq_name
+            node.design_unit_name = self.design_unit.ident_uniq_name
             destination_node_array.addElement(node.copy())
 
         # PARAMETRS
@@ -72,7 +72,7 @@ class PowTranslator(BaseTranslator):
             [
                 input_var,
                 inputs[1],
-                self.module.ident_uniq_name + "." + result_pow.identifier,
+                self.design_unit.ident_uniq_name + "." + result_pow.identifier,
             ],
         )
 
@@ -143,7 +143,7 @@ class PowTranslator(BaseTranslator):
             )
             pow_structure.behavior.append(pow_main_protocol)
 
-        uniq, index = self.module.structures.addElement(pow_structure)
+        uniq, index = self.design_unit.structures.addElement(pow_structure)
 
         if sv_structure:
             beh_index = sv_structure.getLastBehaviorIndex()
@@ -202,7 +202,7 @@ class PowTranslator(BaseTranslator):
 
         action.description_action_name = action_name
         action.description_start.append(
-            f"{self.module.identifier}#{self.module.ident_uniq_name}"
+            f"{self.design_unit.identifier}#{self.design_unit.ident_uniq_name}"
         )
 
         if type == 0:
@@ -326,10 +326,10 @@ class PowTranslator(BaseTranslator):
             action_pointer,
             action_check_result,
             source_interval,
-        ) = self.module.actions.isUniqAction(action)
+        ) = self.design_unit.actions.isUniqAction(action)
 
         if action_check_result is None:
             action_pointer: Action = action
-            self.module.actions.addElement(action)
+            self.design_unit.actions.addElement(action)
 
         return (action_pointer, protocol)

@@ -11,7 +11,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class TaskBodyDeclTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -32,7 +31,7 @@ class TaskBodyDeclTranslator(BaseTranslator):
             self.counters.get(self.counters.types.STRUCT_COUNTER),
             task_Type,
         )
-        if self.module.element_type is ElementsTypes.CLASS_ELEMENT:
+        if self.design_unit.element_type is ElementsTypes.CLASS_ELEMENT:
             task.parametrs.addElement(
                 Parametr(
                     "object_pointer",
@@ -61,8 +60,8 @@ class TaskBodyDeclTranslator(BaseTranslator):
 
         task_structure.inside_the_task = self.inside_the_task
 
-        if self.module.input_parametrs is not None:
-            task.parametrs += self.module.input_parametrs
+        if self.design_unit.input_parametrs is not None:
+            task.parametrs += self.design_unit.input_parametrs
 
         task_structure.parametrs = task.parametrs
 
@@ -77,7 +76,7 @@ class TaskBodyDeclTranslator(BaseTranslator):
 
         task_structure.behavior.append(task_protocol)
 
-        self.module.tasks.addElement(task)
+        self.design_unit.tasks.addElement(task)
         task_structure.inside_the_task
         names_for_change = []
 
@@ -91,7 +90,7 @@ class TaskBodyDeclTranslator(BaseTranslator):
 
         self.counters.incriese(self.counters.types.STRUCT_COUNTER),
 
-        self.module.structures.addElement(task_structure)
+        self.design_unit.structures.addElement(task_structure)
 
     def _getBody(
         self,

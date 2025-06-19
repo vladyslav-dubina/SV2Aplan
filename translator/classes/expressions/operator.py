@@ -8,7 +8,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class OperatorTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     _unused_operators = "inputoutputbeginend[];intwirereg"
@@ -17,7 +16,6 @@ class OperatorTranslator(BaseTranslator):
         super().__init__(translator)
 
     def translate(self, ctx) -> None:
-
         if self.last_node_array is not None:
             operator = ctx.getText()
 
@@ -35,9 +33,9 @@ class OperatorTranslator(BaseTranslator):
                 Node(operator, ctx.getSourceInterval(), operator_type)
             )
             node = self.last_node_array.getElementByIndex(index)
-            decl = self.module.declarations.getElement(node.identifier)
+            decl = self.design_unit.declarations.getElement(node.identifier)
             if decl:
-                node.module_name = self.module.ident_uniq_name
+                node.design_unit_name = self.design_unit.ident_uniq_name
 
     def isNotUsedOperator(self, operator: str):
         if operator in self._unused_operators:

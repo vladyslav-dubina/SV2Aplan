@@ -74,9 +74,10 @@ class VariableDeclTranslator(BaseTranslator):
                 if typedef:
                     typedef.declarations.addElement(new_decl)
             else:
-                self.decl_unique, self.decl_index = self.module.declarations.addElement(
-                    new_decl
-                )
+                (
+                    self.decl_unique,
+                    self.decl_index,
+                ) = self.design_unit.declarations.addElement(new_decl)
 
         expression = ctx.expression()
 
@@ -106,7 +107,7 @@ class VariableDeclTranslator(BaseTranslator):
             self.reset()
             return
 
-        declaration = self.module.declarations.getElementByIndex(self.decl_index)
+        declaration = self.design_unit.declarations.getElementByIndex(self.decl_index)
 
         self.findStruct()
 

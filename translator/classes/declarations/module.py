@@ -1,12 +1,11 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from AppModule.app.classes.module import Module
+from AppModule.app.classes.design_unit import DesignUnit
 from translator.classes.base_translator import BaseTranslator
 
 
 class ModuleDeclTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -18,12 +17,12 @@ class ModuleDeclTranslator(BaseTranslator):
         elif ctx.module_nonansi_header() is not None:
             identifier = ctx.module_nonansi_header().module_identifier().getText()
         else:
-            raise (ValueError("Module type unhandled"))
+            raise (ValueError("DesignUnit type unhandled"))
 
         (identifier, uniq_name) = self._translator_ptr.getTranslator(
-            "module_call"
+            "design_unit_call"
         ).resolve(identifier)
-        index = self.modules.addElement(
-            Module(identifier, ctx.getSourceInterval(), uniq_name)
+        index = self.design_units.addElement(
+            DesignUnit(identifier, ctx.getSourceInterval(), uniq_name)
         )
-        self.module = self.modules.getElementByIndex(index)
+        self.design_unit = self.design_units.getElementByIndex(index)

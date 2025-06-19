@@ -73,7 +73,7 @@ class CaseItemExprTranslator(BaseTranslator):
         condition_txt = self.str_formater.valuesToAplanStandart(condition_txt)
 
         case_action.description_start.append(
-            f"{self.module.identifier}#{self.module.ident_uniq_name}"
+            f"{self.design_unit.identifier}#{self.design_unit.ident_uniq_name}"
         )
         case_action.description_action_name = "case"
         case_action.description_end.append(f"{condition_txt}")
@@ -86,9 +86,9 @@ class CaseItemExprTranslator(BaseTranslator):
             action_pointer,
             case_check_result,
             source_interval,
-        ) = self.module.actions.isUniqAction(case_action)
+        ) = self.design_unit.actions.isUniqAction(case_action)
         if case_check_result is None:
-            self.module.actions.addElement(case_action)
+            self.design_unit.actions.addElement(case_action)
         else:
             action_name = case_check_result
 

@@ -97,4 +97,4 @@ class AssignmentTranslator(BaseTranslator):
             struct_assign.addBodyElement(
                 BodyElement(action_name, action_pointer, ElementsTypes.ACTION_ELEMENT)
             )
-            self.module.out_of_block_elements.addElement(struct_assign)
+            self.design_unit.out_of_block_elements.addElement(struct_assign)

@@ -49,9 +49,9 @@ class SqrtTranslator(BaseTranslator):
         input_value_type = DeclTypes.INT
 
         if self.utils.isNumericString(input_var) is None:
-            decl: Declaration = self.module.declarations.getElement(input_var)
+            decl: Declaration = self.design_unit.declarations.getElement(input_var)
             if decl:
-                input_var = f"{self.module.ident_uniq_name}.{decl.identifier}"
+                input_var = f"{self.design_unit.ident_uniq_name}.{decl.identifier}"
                 input_value_element_type = ElementsTypes.IDENTIFIER_ELEMENT
                 input_value_type = decl.data_type
 
@@ -83,13 +83,16 @@ class SqrtTranslator(BaseTranslator):
                 (0, 0),
                 ElementsTypes.IDENTIFIER_ELEMENT,
             )
-            node.module_name = self.module.ident_uniq_name
+            node.design_unit_name = self.design_unit.ident_uniq_name
             destination_node_array.addElement(node.copy())
 
         # PARAMETRS
         protocol_params_input: ParametrArray = self._translator_ptr.translate(
             "parametr_array",
-            [input_var, self.module.ident_uniq_name + "." + result_sqrt.identifier],
+            [
+                input_var,
+                self.design_unit.ident_uniq_name + "." + result_sqrt.identifier,
+            ],
         )
 
         protocol_params: ParametrArray = self._translator_ptr.translate(
@@ -165,7 +168,7 @@ class SqrtTranslator(BaseTranslator):
 
         sqrt_structure.behavior.append(sqrt_main_protocol)
 
-        uniq, index = self.module.structures.addElement(sqrt_structure)
+        uniq, index = self.design_unit.structures.addElement(sqrt_structure)
 
         if sv_structure:
             beh_index = sv_structure.getLastBehaviorIndex()
@@ -189,7 +192,7 @@ class SqrtTranslator(BaseTranslator):
 
         action.description_action_name = "sqrt input value less than zero"
         action.description_start.append(
-            f"{self.module.identifier}#{self.module.ident_uniq_name}"
+            f"{self.design_unit.identifier}#{self.design_unit.ident_uniq_name}"
         )
         action.description_end.append(
             f"{protocol_params.getElementByIndex(0).identifier} < 0"
@@ -215,11 +218,11 @@ class SqrtTranslator(BaseTranslator):
             action_pointer,
             action_check_result,
             source_interval,
-        ) = self.module.actions.isUniqAction(action)
+        ) = self.design_unit.actions.isUniqAction(action)
 
         if action_check_result is None:
             action_pointer: Action = action
-            self.module.actions.addElement(action)
+            self.design_unit.actions.addElement(action)
 
         action = action.copy()
         parametrs = ParametrArray()
@@ -253,11 +256,11 @@ class SqrtTranslator(BaseTranslator):
             action_pointer_2,
             action_check_result,
             source_interval,
-        ) = self.module.actions.isUniqAction(action)
+        ) = self.design_unit.actions.isUniqAction(action)
 
         if action_check_result is None:
             action_pointer_2: Action = action
-            self.module.actions.addElement(action)
+            self.design_unit.actions.addElement(action)
 
         return (action_pointer, action_pointer_2)
 
@@ -301,7 +304,7 @@ class SqrtTranslator(BaseTranslator):
 
         action.description_action_name = action_name
         action.description_start.append(
-            f"{self.module.identifier}#{self.module.ident_uniq_name}"
+            f"{self.design_unit.identifier}#{self.design_unit.ident_uniq_name}"
         )
 
         if type == 0:
@@ -542,10 +545,10 @@ class SqrtTranslator(BaseTranslator):
             action_pointer,
             action_check_result,
             source_interval,
-        ) = self.module.actions.isUniqAction(action)
+        ) = self.design_unit.actions.isUniqAction(action)
 
         if action_check_result is None:
             action_pointer: Action = action
-            self.module.actions.addElement(action)
+            self.design_unit.actions.addElement(action)
 
         return (action_pointer, protocol)

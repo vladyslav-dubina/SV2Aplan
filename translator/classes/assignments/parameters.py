@@ -59,7 +59,7 @@ class ParametrsAssignmentTranslator(BaseTranslator):
                 expression_str = expression
             else:
                 value = numeric_string
-        parametr_index = self.module.value_parametrs.addElement(
+        parametr_index = self.design_unit.value_parametrs.addElement(
             ValueParametr(
                 identifier,
                 source_interval,
@@ -67,9 +67,13 @@ class ParametrsAssignmentTranslator(BaseTranslator):
                 expression_str,
             )
         )
-        self.module.value_parametrs.evaluateParametrExpressionByIndex(parametr_index)
-        if self.module_call is not None:
-            source_parametr = self.module_call.paramets.getElement(identifier)
+        self.design_unit.value_parametrs.evaluateParametrExpressionByIndex(
+            parametr_index
+        )
+        if self.design_unit_call is not None:
+            source_parametr = self.design_unit_call.paramets.getElement(identifier)
             if source_parametr is not None:
-                parametr = self.module.value_parametrs.getElementByIndex(parametr_index)
+                parametr = self.design_unit.value_parametrs.getElementByIndex(
+                    parametr_index
+                )
                 parametr.value = source_parametr.value

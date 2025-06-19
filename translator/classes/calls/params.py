@@ -6,18 +6,17 @@ from translator.classes.base_translator import BaseTranslator
 
 class ParametrsCallTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
     def translate(self, expression) -> str:
-        parametrs_array = self.module.value_parametrs.copy()
+        parametrs_array = self.design_unit.value_parametrs.copy()
 
-        packages = self.module.packages_and_objects.getElementsIE(
+        packages = self.design_unit.packages_and_objects.getElementsIE(
             include=ElementsTypes.PACKAGE_ELEMENT,
-            exclude_ident_uniq_name=self.module.ident_uniq_name,
+            exclude_ident_uniq_name=self.design_unit.ident_uniq_name,
         )
 
         for element in packages.getElements():

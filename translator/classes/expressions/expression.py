@@ -52,7 +52,7 @@ class ExpressionTranslator(BaseTranslator):
 
     def taskAssignIfPosible(self, ctx, destination_node_array: NodeArray):
         if isinstance(ctx, SystemVerilogParser.ExpressionContext):
-            task = self.module.tasks.getLastTask()
+            task = self.design_unit.tasks.getLastTask()
             if task is not None:
                 destination_node_array.addElement(
                     Node(task.identifier, (0, 0), ElementsTypes.IDENTIFIER_ELEMENT)
@@ -116,11 +116,11 @@ class ExpressionTranslator(BaseTranslator):
         )
         expression_with_replaced_names = (
             self.str_formater.notConcreteIndex2AplanStandart(
-                expression_with_replaced_names, self.module
+                expression_with_replaced_names, self.design_unit
             )
         )
 
-        parametrs_array = self.module.value_parametrs
+        parametrs_array = self.design_unit.value_parametrs
 
         expression_with_replaced_names = self.str_formater.replaceValueParametrsCalls(
             parametrs_array, expression_with_replaced_names
@@ -155,7 +155,7 @@ class ExpressionTranslator(BaseTranslator):
         # action = Action(action_name, source_interval)
 
         # action.description_start.append(
-        #     f"{self.module.identifier}#{self.module.ident_uniq_name}"
+        #     f"{self.design_unit.identifier}#{self.design_unit.ident_uniq_name}"
         # )
         # action.description_end.append(f"{node_str}")
         # action.description_action_name = name_part
@@ -180,9 +180,9 @@ class ExpressionTranslator(BaseTranslator):
         #         )
         #         node = action.postcondition.getElementByIndex(index)
 
-        #         decl = self.module.declarations.getElement(node.identifier)
+        #         decl = self.design_unit.declarations.getElement(node.identifier)
         #         if decl:
-        #             node.module_name = self.module.ident_uniq_name
+        #             node.design_unit_name = self.design_unit.ident_uniq_name
 
         # elif element_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT:
         #     if input_parametrs is not None:
@@ -219,7 +219,7 @@ class ExpressionTranslator(BaseTranslator):
 
         #         else:
         #             body_start = (
-        #                 f"{self.module.identifier}#{self.module.ident_uniq_name}"
+        #                 f"{self.design_unit.identifier}#{self.design_unit.ident_uniq_name}"
         #             )
 
         #         action.description_start.append(body_start)
@@ -261,9 +261,9 @@ class ExpressionTranslator(BaseTranslator):
         #             Node(element, (0, 0), node_element_type)
         #         )
         #         node = action.precondition.getElementByIndex(index)
-        #         decl = self.module.declarations.getElement(node.identifier)
+        #         decl = self.design_unit.declarations.getElement(node.identifier)
         #         if decl:
-        #             node.module_name = self.module.ident_uniq_name
+        #             node.design_unit_name = self.design_unit.ident_uniq_name
 
         #     action.postcondition.addElement(
         #         Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)
@@ -273,13 +273,13 @@ class ExpressionTranslator(BaseTranslator):
         #     action_pointer,
         #     action_check_result,
         #     source_interval,
-        # ) = self.module.actions.isUniqAction(action)
+        # ) = self.design_unit.actions.isUniqAction(action)
 
         # uniq = False
         # if action_check_result is None:
         #     uniq = True
-        #     index = self.module.actions.addElement(action)
-        #     action_pointer = self.module.actions.getElementByIndex(index)
+        #     index = self.design_unit.actions.addElement(action)
+        #     action_pointer = self.design_unit.actions.getElementByIndex(index)
         #     if self.last_struct is not None:
         #         self.last_struct.elements.addElement(action)
         # else:
@@ -340,7 +340,7 @@ class ExpressionTranslator(BaseTranslator):
             self.last_node_array = self._action.precondition
 
         self._action.description_start.append(
-            f"{self.module.identifier}#{self.module.ident_uniq_name}"
+            f"{self.design_unit.identifier}#{self.design_unit.ident_uniq_name}"
         )
 
         self._action.description_action_name = f"{self._name_part}"
@@ -367,7 +367,7 @@ class ExpressionTranslator(BaseTranslator):
 
         action_pointer: Action = None
         last_element = None
-        out_block_len = len(self.module.out_of_block_elements)
+        out_block_len = len(self.design_unit.out_of_block_elements)
 
         previus_action = False
 
@@ -399,7 +399,7 @@ class ExpressionTranslator(BaseTranslator):
                     )
             elif out_block_len > 0:
                 protocol: Protocol = (
-                    self.module.out_of_block_elements.getElementByIndex(
+                    self.design_unit.out_of_block_elements.getElementByIndex(
                         out_block_len - 1
                     )
                 )
@@ -422,14 +422,14 @@ class ExpressionTranslator(BaseTranslator):
                 action_pointer,
                 action_check_result,
                 source_interval,
-            ) = self.module.actions.isUniqAction(self._action)
+            ) = self.design_unit.actions.isUniqAction(self._action)
         params_for_finding: ParametrArray = ParametrArray()
         if self.inside_the_task == True:
-            task = self.module.tasks.getLastTask()
+            task = self.design_unit.tasks.getLastTask()
             params_for_finding += task.parametrs
 
-        if self.module.input_parametrs is not None:
-            params_for_finding += self.module.input_parametrs
+        if self.design_unit.input_parametrs is not None:
+            params_for_finding += self.design_unit.input_parametrs
 
         self._action.findParametrInBodyAndSetParametrs(params_for_finding)
 
@@ -437,8 +437,8 @@ class ExpressionTranslator(BaseTranslator):
         if not previus_action:
             if action_check_result is None:
                 uniq = True
-                index = self.module.actions.addElement(self._action)
-                action_pointer = self.module.actions.getElementByIndex(index)
+                index = self.design_unit.actions.addElement(self._action)
+                action_pointer = self.design_unit.actions.getElementByIndex(index)
                 if self.last_struct is not None:
                     self.last_struct.elements.addElement(self._action)
             else:
@@ -477,7 +477,7 @@ class ExpressionTranslator(BaseTranslator):
             action_name, source_interval, element_type=ElementsTypes.ASSIGN_ELEMENT
         )
         expressiont = "{0}.{1}.size = {2}".format(
-            self.module.ident_uniq_name, identifier, size
+            self.design_unit.ident_uniq_name, identifier, size
         )
 
         # PRECONDITION
@@ -485,14 +485,14 @@ class ExpressionTranslator(BaseTranslator):
 
         # DESCRIPTION
         action.description_start.append(
-            f"{self.module.identifier}#{self.module.ident_uniq_name}"
+            f"{self.design_unit.identifier}#{self.design_unit.ident_uniq_name}"
         )
         action.description_end.append(expressiont)
         action.description_action_name = name_part
 
         # POSTCONDITION
         node = Node(identifier, (0, 0), ElementsTypes.ARRAY_SIZE_ELEMENT)
-        node.module_name = self.module.ident_uniq_name
+        node.design_unit_name = self.design_unit.ident_uniq_name
         action.postcondition.addElement(node)
 
         action.postcondition.addElement(
@@ -504,8 +504,8 @@ class ExpressionTranslator(BaseTranslator):
         )
 
         # PROTOCOL
-        protocol_name = "ARRAY_INIT_{0}".format(self.module.ident_uniq_name_upper)
-        protocol = self.module.out_of_block_elements.getElement(protocol_name)
+        protocol_name = "ARRAY_INIT_{0}".format(self.design_unit.ident_uniq_name_upper)
+        protocol = self.design_unit.out_of_block_elements.getElement(protocol_name)
 
         previus_action = False
 
@@ -543,7 +543,7 @@ class ExpressionTranslator(BaseTranslator):
 
         else:
             protocol = Protocol(
-                "ARRAY_INIT_{0}".format(self.module.ident_uniq_name_upper),
+                "ARRAY_INIT_{0}".format(self.design_unit.ident_uniq_name_upper),
                 source_interval,
             )
 
@@ -554,8 +554,8 @@ class ExpressionTranslator(BaseTranslator):
                     ElementsTypes.ACTION_ELEMENT,
                 )
             )
-            self.module.out_of_block_elements.addElement(protocol)
+            self.design_unit.out_of_block_elements.addElement(protocol)
 
         if not previus_action:
-            self.module.actions.addElement(action)
+            self.design_unit.actions.addElement(action)
             self.counters.incriese(counter_type)

@@ -7,7 +7,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class AlwaysStructureTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -44,13 +43,13 @@ class AlwaysStructureTranslator(BaseTranslator):
             ctx.getSourceInterval(),
             self.counters.get(self.counters.types.STRUCT_COUNTER),
         )
-        if self.module.input_parametrs is not None:
-            always.parametrs += self.module.input_parametrs
+        if self.design_unit.input_parametrs is not None:
+            always.parametrs += self.design_unit.input_parametrs
         always.addProtocol(
             always_name,
             inside_the_task=self.inside_the_task,
         )
 
-        self.module.structures.addElement(always)
+        self.design_unit.structures.addElement(always)
         self.structure_pointer_list.addElement(always)
         self.counters.incriese(self.counters.types.STRUCT_COUNTER)

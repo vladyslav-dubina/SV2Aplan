@@ -29,12 +29,12 @@ class RepeatStructTranslator(BaseTranslator):
         expression = ctx.expression().getText()
         expression_source_interval = ctx.expression().getSourceInterval()
         expression = self.str_formater.replaceValueParametrsCalls(
-            self.module.value_parametrs, expression
+            self.design_unit.value_parametrs, expression
         )
 
         assing_expr = "{0} = {1}".format(identifier, 0)
 
-        uniq, decl_index = self.module.declarations.addElement(
+        uniq, decl_index = self.design_unit.declarations.addElement(
             Declaration(
                 DeclTypes.INT,
                 identifier,
@@ -62,7 +62,7 @@ class RepeatStructTranslator(BaseTranslator):
             sv_structure=self.last_struct,
         )
 
-        decl = self.module.declarations.getElementByIndex(decl_index)
+        decl = self.design_unit.declarations.getElementByIndex(decl_index)
 
         decl.action = action_pointer
 

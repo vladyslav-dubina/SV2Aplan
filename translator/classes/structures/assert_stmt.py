@@ -55,7 +55,7 @@ class AssertPropertyTranslator(BaseTranslator):
                 ElementsTypes.ACTION_ELEMENT,
             )
         )
-        self.module.out_of_block_elements.addElement(struct_assert)
+        self.design_unit.out_of_block_elements.addElement(struct_assert)
 
 
 class AssertInBlockTranslator(BaseTranslator):
@@ -93,7 +93,7 @@ class AssertInBlockTranslator(BaseTranslator):
 
         protocol_params = ""
         if self.inside_the_task == True:
-            task = self.module.tasks.getLastTask()
+            task = self.design_unit.tasks.getLastTask()
             if task is not None:
                 protocol_params = "({0})".format(task.parametrs)
         assert_b = "ASSERT_B_{0}_{1}{2}".format(

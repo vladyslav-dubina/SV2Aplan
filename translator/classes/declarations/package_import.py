@@ -26,7 +26,9 @@ class PackageImportDeclTranslator(BaseTranslator):
             package_identifier = element.package_identifier()
             package_identifier = package_identifier.getText()
             if package_identifier is not None:
-                package_program = self._program.modules.getElement(package_identifier)
+                package_program = self._program.design_units.getElement(
+                    package_identifier
+                )
                 if package_program is None:
                     previous_file_path = self._program.file_path
                     file_path = self.file_mngr.replace_filename(
@@ -40,7 +42,7 @@ class PackageImportDeclTranslator(BaseTranslator):
 
                     self._program.file_path = previous_file_path
 
-                package = self._program.modules.findModuleByUniqIdentifier(
+                package = self._program.design_units.findModuleByUniqIdentifier(
                     package_identifier
                 )
                 if package is not None:
@@ -51,26 +53,34 @@ class PackageImportDeclTranslator(BaseTranslator):
 
                         # Search for imported items
                         result = package.findElementByIdentifier(identifier)
-                        for module_element in result:
-                            if isinstance(module_element, Declaration):
-                                self.module.declarations.addElement(module_element)
-                            elif isinstance(module_element, Action):
-                                self.module.actions.addElement(module_element)
-                            elif isinstance(module_element, Structure):
-                                self.module.structures.addElement(module_element)
-                            elif isinstance(module_element, Task):
-                                self.module.tasks.addElement(module_element)
-                            elif isinstance(module_element, Protocol):
-                                self.module.out_of_block_elements.addElement(
-                                    module_element
+                        for design_unit_element in result:
+                            if isinstance(design_unit_element, Declaration):
+                                self.design_unit.declarations.addElement(
+                                    design_unit_element
                                 )
-                            elif isinstance(module_element, ValueParametr):
-                                self.module.value_parametrs.addElement(module_element)
-                            elif isinstance(module_element, Typedef):
-                                module_element.file_path = self._program.file_path
-                                self.module.typedefs.addElement(module_element)
+                            elif isinstance(design_unit_element, Action):
+                                self.design_unit.actions.addElement(design_unit_element)
+                            elif isinstance(design_unit_element, Structure):
+                                self.design_unit.structures.addElement(
+                                    design_unit_element
+                                )
+                            elif isinstance(design_unit_element, Task):
+                                self.design_unit.tasks.addElement(design_unit_element)
+                            elif isinstance(design_unit_element, Protocol):
+                                self.design_unit.out_of_block_elements.addElement(
+                                    design_unit_element
+                                )
+                            elif isinstance(design_unit_element, ValueParametr):
+                                self.design_unit.value_parametrs.addElement(
+                                    design_unit_element
+                                )
+                            elif isinstance(design_unit_element, Typedef):
+                                design_unit_element.file_path = self._program.file_path
+                                self.design_unit.typedefs.addElement(
+                                    design_unit_element
+                                )
 
-                        self._program.modules.removeElement(
+                        self._program.design_units.removeElement(
                             package
                         )  # remove after take all needed elements
                     else:
@@ -90,6 +100,8 @@ class PackageImportDeclTranslator(BaseTranslator):
                                     element_type=ElementsTypes.PROTOCOL_ELEMENT,
                                 )
                             )
-                            self.module.out_of_block_elements.addElement(struct_call)
+                            self.design_unit.out_of_block_elements.addElement(
+                                struct_call
+                            )
 
-                        self.module.packages_and_objects.addElement(package)
+                        self.design_unit.packages_and_objects.addElement(package)

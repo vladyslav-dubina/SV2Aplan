@@ -1,6 +1,6 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from AppModule.app.classes.module_call import ModuleCall
+from AppModule.app.classes.design_unit_call import DesignUnitCall
 from AppModule.app.classes.parametrs import Parametr
 from translator.classes.base_translator import BaseTranslator
 from translator.translation_mngr import TranslationManager
@@ -8,7 +8,6 @@ from translator.translation_mngr import TranslationManager
 
 class InterfaceCallTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -25,10 +24,10 @@ class InterfaceCallTranslator(BaseTranslator):
 
         object_name = ctx.port_identifier().identifier().getText()
 
-        module_call = ModuleCall(
+        design_unit_call = DesignUnitCall(
             destination_identifier,
             object_name,
-            self.module.identifier,
+            self.design_unit.identifier,
             destination_identifier,
             None,
             None,
@@ -42,11 +41,10 @@ class InterfaceCallTranslator(BaseTranslator):
             file_data = self._program.readFileData(file_path)
             translation_mngr = TranslationManager()
             translation_mngr.setup(file_data)
-            translation_mngr.translate(module_call)
+            translation_mngr.translate(design_unit_call)
         except Exception as e:
-
-            self._program.module_calls.addElement(module_call)
+            self._program.design_units_calls.addElement(design_unit_call)
 
         self._program.file_path = previous_file_path
 
-        self.module.input_parametrs.addElement(Parametr(object_name, "var"))
+        self.design_unit.input_parametrs.addElement(Parametr(object_name, "var"))

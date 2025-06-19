@@ -21,7 +21,7 @@ class DynamicArrayNewTranslator(BaseTranslator):
         size = size.replace("new[", "[")
         size_expression = size
         size = self.str_formater.replaceValueParametrsCalls(
-            self.module.value_parametrs, size
+            self.design_unit.value_parametrs, size
         )
         size = self.utils.extractDimentionSize(size)
         if size == None:
@@ -33,7 +33,7 @@ class DynamicArrayNewTranslator(BaseTranslator):
         elements = self.last_node_array.getElements()
         node_array_len = len(self.last_node_array)
         if node_array_len >= 2:
-            decl = self.module.declarations.getElement(
+            decl = self.design_unit.declarations.getElement(
                 elements[node_array_len - 2].identifier
             )
 
@@ -51,7 +51,7 @@ class DynamicArrayNewTranslator(BaseTranslator):
                     ctx.getSourceInterval(),
                     ElementsTypes.ARRAY_SIZE_ELEMENT,
                 )
-                node.module_name = self.module.ident_uniq_name
+                node.design_unit_name = self.design_unit.ident_uniq_name
                 self.last_node_array.addElement(node)
                 self.last_node_array.addElement(
                     Node(

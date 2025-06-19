@@ -13,9 +13,9 @@ from AppModule.app.classes.structure import Structure, StructureArray
 from AppModule.app.classes.tasks import TaskStmt
 from AppModule.app.classes.typedef import Typedef
 
-from AppModule.app.classes.module import Module, ModuleArray
+from AppModule.app.classes.design_unit import DesignUnit, DesignUnitArray
 from AppModule.app.program.program import Program
-from AppModule.app.classes.module_call import ModuleCall
+from AppModule.app.classes.design_unit_call import DesignUnitCall
 
 if typing.TYPE_CHECKING:
     from translator.translator import Translator
@@ -64,20 +64,20 @@ class BaseTranslator:
         return self._translator_ptr.extractSensetive(ctx)
 
     @property
-    def module_call(self) -> ModuleCall:
-        return self._translator_ptr.module_call
+    def design_unit_call(self) -> DesignUnitCall:
+        return self._translator_ptr.design_unit_call
 
     @property
-    def modules(self) -> ModuleArray:
-        return self._program.modules
+    def design_units(self) -> DesignUnitArray:
+        return self._program.design_units
 
     @property
-    def module(self) -> Module:
-        return self._translator_ptr._module
+    def design_unit(self) -> DesignUnit:
+        return self._translator_ptr._design_unit
 
-    @module.setter
-    def module(self, value: Module):
-        self._translator_ptr._module = value
+    @design_unit.setter
+    def design_unit(self, value: DesignUnit):
+        self._translator_ptr._design_unit = value
 
     @property
     def structure_pointer_list(self) -> StructureArray:
@@ -132,14 +132,14 @@ class BaseTranslator:
         self._translator_ptr._current_genvar_value = value
 
     def getLastTypedef(self) -> Typedef | None:
-        if self.module:
-            return self.module.typedefs.getLastElement()
+        if self.design_unit:
+            return self.design_unit.typedefs.getLastElement()
         else:
             return self._program.typedefs.getLastElement()
 
     def addTypedef(self, typedef: Typedef):
-        if self.module:
-            return self.module.typedefs.addElement(typedef)
+        if self.design_unit:
+            return self.design_unit.typedefs.addElement(typedef)
         else:
             return self._program.typedefs.addElement(typedef)
 
@@ -169,7 +169,7 @@ class BaseTranslator:
             dimension_size_expression = dimension
             # Заміна параметрів значень
             dimension = self.str_formater.replaceValueParametrsCalls(
-                self.module.value_parametrs, dimension
+                self.design_unit.value_parametrs, dimension
             )
             dimension_size = self.utils.extractDimentionSize(dimension)
             if (
@@ -183,7 +183,7 @@ class BaseTranslator:
             size_expression = vector_size_text
             # Заміна параметрів значень
             processed_vector_size = self.str_formater.replaceValueParametrsCalls(
-                self.module.value_parametrs, vector_size_text
+                self.design_unit.value_parametrs, vector_size_text
             )
             vector_size_tuple = self.utils.extractVectorSize(processed_vector_size)
 

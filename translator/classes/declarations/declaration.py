@@ -7,7 +7,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class DeclarationTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -31,8 +30,8 @@ class DeclarationTranslator(BaseTranslator):
             0,
             source_interval,
         )
-        uniq, index = self.module.declarations.addElement(decl)
+        uniq, index = self.design_unit.declarations.addElement(decl)
         if uniq:
             self.counters.incriese(counter_type)
 
-        return self.module.declarations.getElementByIndex(index)
+        return self.design_unit.declarations.getElementByIndex(index)

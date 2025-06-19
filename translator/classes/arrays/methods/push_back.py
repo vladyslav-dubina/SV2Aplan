@@ -25,7 +25,7 @@ class PushBackTranslator(BaseTranslator):
         arguments_list: SystemVerilogParser.List_of_argumentsContext,
         source_interval: Tuple[int, int],
     ):
-        decl = self.module.declarations.getElement(object_identifier)
+        decl = self.design_unit.declarations.getElement(object_identifier)
         if isinstance(decl, Declaration):
             (name_part, counter_type) = self._translator_ptr.getTranslator(
                 "expr"
@@ -47,7 +47,7 @@ class PushBackTranslator(BaseTranslator):
                 arguments_list.getText(),
             )
             action.description_start.append(
-                f"{self.module.identifier}#{self.module.ident_uniq_name}"
+                f"{self.design_unit.identifier}#{self.design_unit.ident_uniq_name}"
             )
             action.description_action_name = name_part
             action.description_end.append(description)
@@ -59,7 +59,7 @@ class PushBackTranslator(BaseTranslator):
             action.description_end.append(description)
 
             node = Node(object_identifier, (0, 0), ElementsTypes.ARRAY_ELEMENT)
-            node.module_name = self.module.ident_uniq_name
+            node.design_unit_name = self.design_unit.ident_uniq_name
             action.postcondition.addElement(node.copy())
             node.element_type = ElementsTypes.ARRAY_SIZE_ELEMENT
             node.bit_selection = True
@@ -78,7 +78,7 @@ class PushBackTranslator(BaseTranslator):
 
             # Increase size
             node = Node(object_identifier, (0, 0), ElementsTypes.ARRAY_SIZE_ELEMENT)
-            node.module_name = self.module.ident_uniq_name
+            node.design_unit_name = self.design_unit.ident_uniq_name
             action.postcondition.addElement(node.copy())
             action.postcondition.addElement(
                 Node("=", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
@@ -152,8 +152,8 @@ class PushBackTranslator(BaseTranslator):
                             ElementsTypes.ACTION_ELEMENT,
                         )
                     )
-                    self.module.out_of_block_elements.addElement(struct)
+                    self.design_unit.out_of_block_elements.addElement(struct)
 
             if not previus_action:
-                self.module.actions.addElement(action)
+                self.design_unit.actions.addElement(action)
                 self.counters.incriese(counter_type)

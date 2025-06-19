@@ -35,7 +35,7 @@ class ReturnTranslator(BaseTranslator):
             uniq_action,
         ) = self._translator_ptr.getTranslator("expr").exit()
 
-        task = self.module.tasks.getLastTask()
+        task = self.design_unit.tasks.getLastTask()
 
         return_var_name = f"return_{task.identifier}"
         task.parametrs.addElement(

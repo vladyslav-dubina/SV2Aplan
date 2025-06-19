@@ -23,7 +23,7 @@ class AnsiPortDeclTranslator(BaseTranslator):
             dimension = unpacked_dimention.getText()
             dimension_size_expression = dimension
             dimension = self.str_formater.replaceValueParametrsCalls(
-                self.module.value_parametrs, dimension
+                self.design_unit.value_parametrs, dimension
             )
             dimension_size = self.utils.extractDimentionSize(dimension)
 
@@ -87,7 +87,7 @@ class AnsiPortDeclTranslator(BaseTranslator):
             name_space_level=self.getLastNameSpaceLevel(),
         )
 
-        decl_unique, self.decl_index = self.module.declarations.addElement(port)
+        decl_unique, self.decl_index = self.design_unit.declarations.addElement(port)
 
         constant_expression = ctx.constant_expression()
         if constant_expression is None:
@@ -109,6 +109,8 @@ class AnsiPortDeclTranslator(BaseTranslator):
                 source_interval,
                 uniq_action,
             ) = self._translator_ptr.getTranslator("expr").exit()
-            declaration = self.module.declarations.getElementByIndex(self.decl_index)
+            declaration = self.design_unit.declarations.getElementByIndex(
+                self.decl_index
+            )
             declaration.expression = assign_name
             declaration.action = action_pointer

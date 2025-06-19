@@ -10,7 +10,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class SystemTaskCallTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -21,7 +20,7 @@ class SystemTaskCallTranslator(BaseTranslator):
         self,
         ctx: SystemVerilogParser.System_tf_callContext,
     ) -> None:
-        action = self.module.actions.isUniqActionBySourceInterval(
+        action = self.design_unit.actions.isUniqActionBySourceInterval(
             ctx.getSourceInterval()
         )
         action_name = ""
@@ -42,7 +41,7 @@ class SystemTaskCallTranslator(BaseTranslator):
         elif system_tf_identifier == "$finish" or system_tf_identifier == "$stop":
             action_name = system_tf_identifier.replace("$", "")
             description_start.append(
-                f"{self.module.identifier}#{self.module.ident_uniq_name}"
+                f"{self.design_unit.identifier}#{self.design_unit.ident_uniq_name}"
             )
             description_action_name = action_name
             name_part = action_name
@@ -61,7 +60,6 @@ class SystemTaskCallTranslator(BaseTranslator):
             self._translator_ptr.translate("sqrt", ctx)
             return
         elif system_tf_identifier == "$size":
-
             (
                 name_part,
                 element_type,
@@ -85,7 +83,7 @@ class SystemTaskCallTranslator(BaseTranslator):
 
             if self.last_node_array:
                 node = Node("return_size", (0, 0), ElementsTypes.IDENTIFIER_ELEMENT)
-                node.module_name = self.module.ident_uniq_name
+                node.design_unit_name = self.design_unit.ident_uniq_name
                 self.last_node_array.addElement(node.copy())
 
         elif system_tf_identifier == "&pow":
@@ -116,11 +114,11 @@ class SystemTaskCallTranslator(BaseTranslator):
             action_pointer,
             action_check_result,
             source_interval,
-        ) = self.module.actions.isUniqAction(action)
+        ) = self.design_unit.actions.isUniqAction(action)
 
         if action_check_result is None:
             action_pointer: Action = action
-            self.module.actions.addElement(action)
+            self.design_unit.actions.addElement(action)
 
         self._translator_ptr.translate(
             "protocol",

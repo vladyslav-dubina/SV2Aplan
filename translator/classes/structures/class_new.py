@@ -35,12 +35,12 @@ class ClassNewTranslator(BaseTranslator):
         )
 
         argument_list_with_replaced_names = (
-            self.module.findAndChangeNamesToAgentAttrCall(
+            self.design_unit.findAndChangeNamesToAgentAttrCall(
                 argument_list_with_replaced_names
             )
         )
 
-        object = self.module.packages_and_objects.findModuleByUniqIdentifier(
+        object = self.design_unit.packages_and_objects.findModuleByUniqIdentifier(
             object_identifier
         )
 

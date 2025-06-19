@@ -57,22 +57,22 @@ class TaskCallTranslator(BaseTranslator):
         )
 
         argument_list_with_replaced_names = (
-            self.module.findAndChangeNamesToAgentAttrCall(
+            self.design_unit.findAndChangeNamesToAgentAttrCall(
                 argument_list_with_replaced_names
             )
         )
 
         if object_identifier:
-            object = self.module.packages_and_objects.findModuleByUniqIdentifier(
+            object = self.design_unit.packages_and_objects.findModuleByUniqIdentifier(
                 object_identifier
             )
             task = object.tasks.getElement(task_identifier)
         else:
-            task = self.module.tasks.getElement(task_identifier)
+            task = self.design_unit.tasks.getElement(task_identifier)
             if task is None:
-                packages = self.module.packages_and_objects.getElementsIE(
+                packages = self.design_unit.packages_and_objects.getElementsIE(
                     include=ElementsTypes.PACKAGE_ELEMENT,
-                    exclude_ident_uniq_name=self.module.ident_uniq_name,
+                    exclude_ident_uniq_name=self.design_unit.ident_uniq_name,
                 )
                 for element in packages.getElements():
                     task = element.tasks.getElement(task_identifier)
@@ -134,7 +134,7 @@ class TaskCallTranslator(BaseTranslator):
                             )
                         )
                         node = self.last_node_array.getElementByIndex(node_index)
-                        node.module_name = self.module.ident_uniq_name
+                        node.design_unit_name = self.design_unit.ident_uniq_name
 
                 if function_result_var is not None:
                     new_decl = Declaration(
@@ -148,7 +148,7 @@ class TaskCallTranslator(BaseTranslator):
                         source_interval,
                     )
                     self.last_struct.elements.addElement(new_decl)
-                    decl_unique, decl_index = self.module.declarations.addElement(
+                    decl_unique, decl_index = self.design_unit.declarations.addElement(
                         new_decl
                     )
 
@@ -161,7 +161,7 @@ class TaskCallTranslator(BaseTranslator):
                     if len(arguments) > 0:
                         arguments += ", "
                     arguments += "{0}.{1}".format(
-                        self.module.ident_uniq_name, function_result_var
+                        self.design_unit.ident_uniq_name, function_result_var
                     )
 
                 task_call = "{0}".format(task.structure.identifier)

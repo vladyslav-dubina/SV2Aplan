@@ -9,7 +9,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class IdentifierTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -24,7 +23,7 @@ class IdentifierTranslator(BaseTranslator):
             if self.last_node_array.isAssign():
                 self.findStruct()
                 if self.inside_the_task:
-                    task = self.module.tasks.getLastTask()
+                    task = self.design_unit.tasks.getLastTask()
                     if identifier == task.identifier:
                         return_var_name = f"return_{task.identifier}"
                         identifier = return_var_name
@@ -44,14 +43,14 @@ class IdentifierTranslator(BaseTranslator):
             )
             node = self.last_node_array.getElementByIndex(index)
 
-            identifier, decl = self.module.declarations.replaceDeclName(identifier)
+            identifier, decl = self.design_unit.declarations.replaceDeclName(identifier)
 
             if isinstance(decl, Declaration):
                 node.identifier = identifier
-                if self.module.element_type == ElementsTypes.CLASS_ELEMENT:
-                    node.module_name = "object_pointer"
+                if self.design_unit.element_type == ElementsTypes.CLASS_ELEMENT:
+                    node.design_unit_name = "object_pointer"
                 else:
-                    node.module_name = self.module.ident_uniq_name
+                    node.design_unit_name = self.design_unit.ident_uniq_name
 
                 if decl.data_type == DeclTypes.ARRAY:
                     node.element_type = ElementsTypes.ARRAY_ELEMENT

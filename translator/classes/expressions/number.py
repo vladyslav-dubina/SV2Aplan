@@ -7,7 +7,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class NumberTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -30,8 +29,8 @@ class NumberTranslator(BaseTranslator):
             Node(value, ctx.getSourceInterval(), ElementsTypes.NUMBER_ELEMENT)
         )
         node = self.last_node_array.getElementByIndex(index)
-        decl = self.module.declarations.getElement(node.identifier)
+        decl = self.design_unit.declarations.getElement(node.identifier)
         if decl:
-            node.module_name = self.module.ident_uniq_name
+            node.design_unit_name = self.design_unit.ident_uniq_name
 
         node.identifier = self._translator_ptr.translate("param_call", node.identifier)

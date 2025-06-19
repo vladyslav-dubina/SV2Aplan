@@ -8,7 +8,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class NewDeclTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -23,7 +22,7 @@ class NewDeclTranslator(BaseTranslator):
             dimension = unpacked_dimention.getText()
             dimension_size_expression = dimension
             dimension = self.str_formater.replaceValueParametrsCalls(
-                self.module.value_parametrs, dimension
+                self.design_unit.value_parametrs, dimension
             )
             dimension_size = self.utils.extractDimentionSize(dimension)
 
@@ -32,7 +31,7 @@ class NewDeclTranslator(BaseTranslator):
         if data_type:
             size_expression = data_type.getText()
             data_type = self.str_formater.replaceValueParametrsCalls(
-                self.module.value_parametrs, data_type.getText()
+                self.design_unit.value_parametrs, data_type.getText()
             )
             vector_size = self.utils.extractVectorSize(data_type)
             if vector_size is not None:
@@ -49,7 +48,7 @@ class NewDeclTranslator(BaseTranslator):
             size_expression = data_type
 
         if data_type is not None:
-            types = self.module.typedefs.getElementsIE(
+            types = self.design_unit.typedefs.getElementsIE(
                 file_path=self._program.file_path
             ).getElements()
 
@@ -57,11 +56,11 @@ class NewDeclTranslator(BaseTranslator):
                 file_path=self._program.file_path
             ).getElements()
 
-            types += self._program.modules.getElementsIE(
+            types += self._program.design_units.getElementsIE(
                 include=ElementsTypes.CLASS_ELEMENT
             ).getElements()
 
-            packages = self.module.packages_and_objects.getElementsIE(
+            packages = self.design_unit.packages_and_objects.getElementsIE(
                 include=ElementsTypes.PACKAGE_ELEMENT
             )
             for package in packages.getElements():
@@ -79,14 +78,13 @@ class NewDeclTranslator(BaseTranslator):
             for elem in ctx.list_of_net_decl_assignments().net_decl_assignment():
                 identifier = elem.net_identifier().identifier().getText()
                 if data_check_type is DeclTypes.CLASS:
-
                     self._translator_ptr.translate(
                         "obj_decl", size_expression, identifier, ctx.getSourceInterval()
                     )
 
                 else:
                     assign_name = ""
-                    decl_unique, decl_index = self.module.declarations.addElement(
+                    decl_unique, decl_index = self.design_unit.declarations.addElement(
                         Declaration(
                             data_check_type,
                             identifier,
@@ -114,8 +112,10 @@ class NewDeclTranslator(BaseTranslator):
                                 elem.getText(),
                                 ElementsTypes.ASSIGN_ELEMENT,
                             )
-                            declaration = self.module.declarations.getElementByIndex(
-                                decl_index
+                            declaration = (
+                                self.design_unit.declarations.getElementByIndex(
+                                    decl_index
+                                )
                             )
                             declaration.expression = assign_name
                             declaration.action = action_pointer

@@ -26,7 +26,7 @@ class SizeTranslator(BaseTranslator):
     ):
         name_part = "size"
         element_type = ElementsTypes.ASSIGN_ELEMENT
-        self.module.declarations.addElement(
+        self.design_unit.declarations.addElement(
             Declaration(
                 DeclTypes.INT,
                 "return_size",
@@ -47,7 +47,7 @@ class SizeTranslator(BaseTranslator):
         )
 
         array = ctx.list_of_arguments().getText()
-        decl = self.module.declarations.getElement(array)
+        decl = self.design_unit.declarations.getElement(array)
         if decl is None:
             return
 
@@ -58,9 +58,9 @@ class SizeTranslator(BaseTranslator):
         )
 
         action_name = f"size_{array}"
-        node.module_name = self.module.ident_uniq_name
+        node.design_unit_name = self.design_unit.ident_uniq_name
         description_start.append(
-            f"{self.module.identifier}#{self.module.ident_uniq_name}"
+            f"{self.design_unit.identifier}#{self.design_unit.ident_uniq_name}"
         )
         description_end.append(f"result = {array}.size")
         description_action_name = name_part
