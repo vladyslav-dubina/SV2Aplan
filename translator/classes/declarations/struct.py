@@ -27,7 +27,7 @@ class StructUnionMemberContextTranlator(BaseTranslator):
         if not data_type:
             return
 
-        data_type_str = self.utilsdataTypeToStr(data_type)
+        data_type_str = self.utils.dataTypeToStr(data_type)
         if len(data_type_str) <= 0:
             return
 
