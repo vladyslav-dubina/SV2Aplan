@@ -106,7 +106,7 @@ TRANSLATOR_NAMES = Literal[
     "interface_decl",
     "interface_call",
     "module_decl",
-    "design_unit_call",
+    "module_call",
     "package_decl",
     "genvar_decl",
     "struct_decl",
@@ -192,7 +192,7 @@ class Translator:
         "interface_decl": InterfaceDeclTranslator,
         "interface_call": InterfaceCallTranslator,
         "module_decl": ModuleDeclTranslator,
-        "design_unit_call": ModuleCallTranslator,
+        "module_call": ModuleCallTranslator,
         "package_decl": PackageDeclTranslator,
         "genvar_decl": GenvarDeclTranslator,
         "struct_decl": StructDeclTranslator,
@@ -255,276 +255,6 @@ class Translator:
 
     def __init__(self):
         pass
-
-    @overload
-    def getTranslator(self, key: Literal["var_decl"]) -> VariableDeclTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["push_back"]) -> PushBackTranslator:
-        ...
-
-    @overload
-    def getTranslator(
-        self, key: Literal["system_task_call"]
-    ) -> SystemTaskCallTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["sqrt"]) -> SqrtTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["pow"]) -> PowTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["size"]) -> SizeTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["modf"]) -> ModfTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["array"]) -> ArrayTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["class_decl"]) -> ClassDeclTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["parametr_array"]) -> ParametrArrayTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["declaration"]) -> DeclarationTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["floor"]) -> FloorTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["ceil"]) -> CeilTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["protocol"]) -> ProtocolTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["identifyer"]) -> IdentifierTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["bit_select"]) -> BitSelectionTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["unpkt_dmntn"]) -> UnpackedDimentionTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["number"]) -> NumberTranslator:
-        ...
-
-    @overload
-    def getTranslator(
-        self, key: Literal["constant_range_select"]
-    ) -> ConstantRangeSelectionTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["param_call"]) -> ParametrsCallTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["return"]) -> ReturnTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["operator"]) -> OperatorTranslator:
-        ...
-
-    @overload
-    def getTranslator(
-        self, key: Literal["dynamic_array_new"]
-    ) -> DynamicArrayNewTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["class_new"]) -> ClassNewTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["method_call"]) -> MethodCallTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["task_call"]) -> TaskCallTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["task_body_decl"]) -> TaskBodyDeclTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["typedef"]) -> TypedefDeclTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["while"]) -> WhileStructTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["loop_iteration"]) -> LoopIterationTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["loop"]) -> LoopStructTranslator:
-        ...
-
-    @overload
-    def getTranslator(
-        self, key: Literal["forever_iteration"]
-    ) -> ForeverIterationTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["forever"]) -> ForeverStructTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["repeat"]) -> RepeatStructTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["interface_decl"]) -> InterfaceDeclTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["module_decl"]) -> ModuleDeclTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["package_decl"]) -> PackageDeclTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["genvar_decl"]) -> GenvarDeclTranslator:
-        ...
-
-    @overload
-    def getTranslator(
-        self, key: Literal["struct_union_member"]
-    ) -> StructUnionMemberContextTranlator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["struct_decl"]) -> StructDeclTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["data_decl"]) -> DataDeclTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["net_decl"]) -> NewDeclTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["obj_decl"]) -> ObjectDeclTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["ansi_port_decl"]) -> AnsiPortDeclTranslator:
-        ...
-
-    @overload
-    def getTranslator(
-        self, key: Literal["package_import_decl"]
-    ) -> PackageImportDeclTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["expr"]) -> ExpressionTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["interface_call"]) -> InterfaceCallTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["net_assign"]) -> NetAssignmentTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["assignment"]) -> AssignmentTranslator:
-        ...
-
-    @overload
-    def getTranslator(
-        self, key: Literal["params_assign"]
-    ) -> ParametrsAssignmentTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["design_unit_call"]) -> ModuleCallTranslator:
-        ...
-
-    @overload
-    def getTranslator(
-        self, key: Literal["generate_struct"]
-    ) -> GenerateStructTranslator:
-        ...
-
-    @overload
-    def getTranslator(
-        self, key: Literal["alaways_struct"]
-    ) -> AlwaysStructureTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["if_seq_block"]) -> IfSequenceBlockTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["if_stmt"]) -> IfStmtTranslator:
-        ...
-
-    @overload
-    def getTranslator(
-        self, key: Literal["if_cond_predicate"]
-    ) -> IfCondPredicateTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["case_stmt"]) -> CaseStmtTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["case_item"]) -> CaseItemTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["case_item_expr"]) -> CaseItemExprTranslator:
-        ...
-
-    @overload
-    def getTranslator(
-        self, key: Literal["assert_property"]
-    ) -> AssertPropertyTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["assert_block"]) -> AssertInBlockTranslator:
-        ...
-
-    @overload
-    def getTranslator(self, key: Literal["initial"]) -> InitialStructTranslator:
-        ...
 
     def getTranslator(self, key: TRANSLATOR_NAMES):
         cls = self._selectTranlator(key)
@@ -624,41 +354,35 @@ class Translator:
                 struct = CaseStmt(
                     name,
                     (0, 0),
-                    self.counters.get(counter_type),
                 )
 
             elif element_type == ElementsTypes.IF_STATEMENT_ELEMENT:
                 struct = IfStmt(
                     name,
                     (0, 0),
-                    self.counters.get(counter_type),
                 )
             elif element_type == ElementsTypes.FOREVER_ELEMENT:
                 struct = ForeverStmt(
                     name,
                     (0, 0),
-                    self.counters.get(counter_type),
                 )
 
             elif element_type == ElementsTypes.WHILE_ELEMENT:
                 struct = WhileStmt(
                     name,
                     (0, 0),
-                    self.counters.get(counter_type),
                 )
 
             elif element_type == ElementsTypes.LOOP_ELEMENT:
                 struct = LoopStmt(
                     name,
                     (0, 0),
-                    self.counters.get(counter_type),
                 )
             else:
                 struct = Structure(
                     name,
                     (0, 0),
                     element_type,
-                    self.counters.get(counter_type),
                 )
 
             struct.parametrs = tmp
@@ -667,7 +391,6 @@ class Translator:
 
             sv_structure.behavior.append(struct)
             self._structure_pointer_list.addElement(struct)
-            self.counters.incriese(counter_type),
 
     def extractSensetive(self, ctx):
         res = ""

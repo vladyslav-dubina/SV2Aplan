@@ -15,7 +15,7 @@ class InterfaceDeclTranslator(BaseTranslator):
     def translate(self, ctx: SystemVerilogParser.Interface_declarationContext) -> None:
         identifier = ctx.interface_ansi_header().interface_identifier().getText()
         (identifier, uniq_name) = self._translator_ptr.getTranslator(
-            "design_unit_call"
+            "module_call"
         ).resolve(identifier)
         index = self.design_units.addElement(
             DesignUnit(

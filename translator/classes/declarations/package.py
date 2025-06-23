@@ -16,7 +16,7 @@ class PackageDeclTranslator(BaseTranslator):
         for element in ctx.package_identifier():
             identifier = element.getText()
             (identifier, uniq_name) = self._translator_ptr.getTranslator(
-                "design_unit_call"
+                "module_call"
             ).resolve(identifier)
             index = self.design_units.addElement(
                 DesignUnit(

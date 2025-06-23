@@ -20,7 +20,7 @@ class ModuleDeclTranslator(BaseTranslator):
             raise (ValueError("DesignUnit type unhandled"))
 
         (identifier, uniq_name) = self._translator_ptr.getTranslator(
-            "design_unit_call"
+            "module_call"
         ).resolve(identifier)
         index = self.design_units.addElement(
             DesignUnit(identifier, ctx.getSourceInterval(), uniq_name)

@@ -21,7 +21,7 @@ class ClassDeclTranslator(BaseTranslator):
             identifier = element.identifier().getText()
 
             (identifier, uniq_name) = self._translator_ptr.getTranslator(
-                "design_unit_call"
+                "module_call"
             ).resolve(identifier)
             index = self._program.design_units.addElement(
                 DesignUnit(
