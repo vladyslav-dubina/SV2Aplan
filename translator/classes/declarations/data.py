@@ -14,12 +14,13 @@ class DataDeclTranslator(BaseTranslator):
         super().__init__(translator)
 
     def translate(self, ctx: SystemVerilogParser.Data_declarationContext) -> None:
-        if ctx.data_type_or_implicit() is None:
-            self._translator_ptr.translate("typedef", ctx)
-            return
         data_type_or_implicit: SystemVerilogParser.Data_type_or_implicitContext = (
             ctx.data_type_or_implicit()
         )
+        if not data_type_or_implicit:
+            self._translator_ptr.translate("typedef", ctx)
+            return
+
         data_type: SystemVerilogParser.Data_typeContext = (
             data_type_or_implicit.data_type()
         )
@@ -27,13 +28,16 @@ class DataDeclTranslator(BaseTranslator):
             return
 
         struct = None
-        if data_type.struct_union():
+        struct_union: SystemVerilogParser.Struct_unionContext = data_type.struct_union()
+        if struct_union:
             struct = self._translator_ptr.translate(
                 "struct_decl",
-                ctx,
+                struct_union,
             )
 
-        data_type_str = self.utils.dataTypeToStr(data_type)
+        data_type_str = self._translator_ptr.getTranslator("data_decl").dataTypeToStr(
+            data_type
+        )
         if len(data_type_str) <= 0:
             return
 

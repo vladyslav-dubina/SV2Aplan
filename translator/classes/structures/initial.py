@@ -20,7 +20,7 @@ class InitialStructTranslator(BaseTranslator):
         if self.design_unit.input_parametrs is not None:
             structure.parametrs += self.design_unit.input_parametrs
         structure.addProtocol(
-            initial_name,
+            structure.getName(False),
             inside_the_task=self.inside_the_task,
         )
 

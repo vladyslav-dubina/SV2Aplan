@@ -8,7 +8,6 @@ from translator.classes.base_translator import BaseTranslator
 
 class TypedefDeclTranslator(BaseTranslator):
     if typing.TYPE_CHECKING:
-
         from translator.translator import Translator
 
     def __init__(self, translator: "Translator"):
@@ -26,50 +25,45 @@ class TypedefDeclTranslator(BaseTranslator):
 
         if not (data_type.ENUM() or data_type.struct_union()):
             return
+        type_identifier = type_declaration.type_identifier(0)
 
-        for type_identifier in type_declaration.type_identifier():
-            enum_type_identifier = "{0}".format(type_identifier.getText())
+        if type_declaration.type_identifier(1):
+            raise TypeError("Unhandled identifiers count")
 
-            unique_identifier = "{0}_{1}".format(
-                enum_type_identifier,
-                self.counters.get(self.counters.types.STRUCT_COUNTER),
-            )
-            self.counters.incriese(self.counters.types.STRUCT_COUNTER)
-            decl_type = DeclTypes.ENUM_TYPE
+        enum_type_identifier = "{0}".format(type_identifier.getText())
+        unique_identifier = "{0}_{1}".format(
+            enum_type_identifier,
+            self.getLastNameSpaceLevel(),
+        )
 
-            if data_type.struct_union():
-                decl_type = DeclTypes.STRUCT_TYPE
+        decl_type = DeclTypes.ENUM_TYPE
+        if data_type.struct_union():
+            decl_type = DeclTypes.STRUCT_TYPE
 
-            typedef = Typedef(
-                enum_type_identifier,
-                unique_identifier,
-                type_identifier.getSourceInterval(),
-                self._program.file_path,
-                decl_type,
-            )
+        typedef = Typedef(
+            enum_type_identifier,
+            unique_identifier,
+            type_identifier.getSourceInterval(),
+            self._program.file_path,
+            decl_type,
+        )
 
-            if data_type.ENUM():
-                for index, enum_name_decl in enumerate(
-                    data_type.enum_name_declaration()
-                ):
-                    identifier = enum_name_decl.enum_identifier().getText()
-                    new_decl = Declaration(
-                        DeclTypes.ENUM,
-                        identifier,
-                        "",
-                        "",
-                        0,
-                        "",
-                        0,
-                        enum_name_decl.getSourceInterval(),
-                    )
-                    typedef.declarations.addElement(new_decl)
-            elif data_type.struct_union():
-                self._translator_ptr.getTranslator(
-                    "struct_decl"
-                ).structMembersToDeclarations(self, data_type, typedef)
+        if data_type.ENUM():
+            for index, enum_name_decl in enumerate(data_type.enum_name_declaration()):
+                identifier = enum_name_decl.enum_identifier().getText()
+                new_decl = Declaration(
+                    DeclTypes.ENUM,
+                    identifier,
+                    "",
+                    "",
+                    0,
+                    "",
+                    0,
+                    enum_name_decl.getSourceInterval(),
+                )
+                typedef.declarations.addElement(new_decl)
 
-            self.addTypedef(typedef)
+        self.addTypedef(typedef)
 
     def create(
         self,

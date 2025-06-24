@@ -37,7 +37,7 @@ class BaseTranslator:
     def translate(self, ctx) -> None:
         raise TypeError("Run base translator")
 
-    def exit(self) -> None:
+    def exit(self, ctx) -> None:
         raise TypeError("Run base exit")
 
     def findStruct(
@@ -114,6 +114,14 @@ class BaseTranslator:
     @last_operator.setter
     def last_operator(self, value: str | None):
         self._translator_ptr.last_operator = value
+
+    @property
+    def last_dot_operator(self) -> str | None:
+        return self._translator_ptr.last_dot_operator
+
+    @last_dot_operator.setter
+    def last_dot_operator(self, value: str | None):
+        self._translator_ptr.last_dot_operator = value
 
     def getLastNameSpaceLevel(self) -> bool:
         return self._translator_ptr.getLastNameSpaceLevel()

@@ -98,25 +98,23 @@ class PowTranslator(BaseTranslator):
 
         left_if = pow_main_protocol.body[0]
         pow_main_protocol.body[0] = BodyElement(
-            left_if.pointer_to_related.getNameWithParams(),
+            left_if.pointer_to_related.getName(),
             pow_cond_action,
             ElementsTypes.IF_CONDITION_LEFT,
         )
 
         pow_body_action, pow_body_protocol = self.createAction(2, protocol_params)
-        pow_main_protocol.body[0].identifier += (
-            "." + pow_body_action.getNameWithParams()
-        )
+        pow_main_protocol.body[0].identifier += "." + pow_body_action.getName()
 
         pow_inc_action, pow_inc_protocol = self.createAction(1, protocol_params)
-        pow_main_protocol.body[0].identifier += "." + pow_inc_action.getNameWithParams()
+        pow_main_protocol.body[0].identifier += "." + pow_inc_action.getName()
 
         pow_main_protocol.body[0].identifier += "." + pow_main_protocol.getName()
 
         parametrs = ParametrArray()
         pow_main_protocol.addBodyElement(
             BodyElement(
-                f"!{pow_cond_action.getNameWithParams()}",
+                f"!{pow_cond_action.getName()}",
                 pow_cond_action,
                 ElementsTypes.IF_CONDITION_RIGTH,
             )

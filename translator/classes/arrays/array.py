@@ -11,7 +11,6 @@ if typing.TYPE_CHECKING:
 
 
 class ArrayTranslator(BaseTranslator):
-
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
@@ -24,9 +23,8 @@ class ArrayTranslator(BaseTranslator):
         enum_type_identifier = "{0}".format(identifier)
         unique_identifier = "{0}_{1}".format(
             enum_type_identifier,
-            self.counters.get(self.counters.types.STRUCT_COUNTER),
+            self.getLastNameSpaceLevel(),
         )
-        self.counters.incriese(self.counters.types.STRUCT_COUNTER)
         typedef = Typedef(
             enum_type_identifier,
             unique_identifier,

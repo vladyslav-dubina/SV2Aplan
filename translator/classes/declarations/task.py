@@ -88,7 +88,7 @@ class TaskBodyDeclTranslator(BaseTranslator):
                 body_element, task_structure
             )
 
-        self.counters.incriese(self.counters.types.STRUCT_COUNTER),
+        self.counters.incriese(self.counters.types.STRUCT_COUNTER)
 
         self.design_unit.structures.addElement(task_structure)
 

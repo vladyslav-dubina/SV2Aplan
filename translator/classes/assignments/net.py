@@ -36,10 +36,8 @@ class NetAssignmentTranslator(BaseTranslator):
             if source_interval == ctx.getSourceInterval():
                 return
 
-            assign_b = "ASSIGN_B_{}".format(
-                self.counters.get(self.counters.types.STRUCT_COUNTER)
-            )
-            self.counters.incriese(self.counters.types.STRUCT_COUNTER)
+            assign_b = "{}_B".format(action_pointer.getName(to_upper=True))
+            self.counters.incriese(self.counters.types.ASSIGNMENT_COUNTER)
             struct_assign = Protocol(
                 assign_b,
                 ctx.getSourceInterval(),

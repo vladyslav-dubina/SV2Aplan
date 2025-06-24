@@ -340,7 +340,7 @@ class ExpressionTranslator(BaseTranslator):
             self.last_node_array = self._action.precondition
 
         self._action.description_start.append(
-            f"{self.design_unit.identifier}#{self.design_unit.ident_uniq_name}"
+            f"{self.design_unit.ident_uniq_name_upper}#{self.design_unit.ident_uniq_name}"
         )
 
         self._action.description_action_name = f"{self._name_part}"
@@ -354,6 +354,9 @@ class ExpressionTranslator(BaseTranslator):
 
         if not self.last_node_array:
             return
+        if self.last_dot_operator:
+            self.last_node_array.removeElementByIndex(len(self.last_node_array) - 1)
+            self.last_dot_operator = None
 
         self.last_node_array.addElement(
             Node(self.last_operator, (0, 0), ElementsTypes.OPERATOR_ELEMENT)

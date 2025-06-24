@@ -48,7 +48,12 @@ class AnsiPortDeclTranslator(BaseTranslator):
 
         if port_data_type_ctx is not None:
             if (
-                DeclTypes.checkType(self.utils.dataTypeToStr(port_data_type_ctx), [])
+                DeclTypes.checkType(
+                    self._translator_ptr.getTranslator("data_decl").dataTypeToStr(
+                        port_data_type_ctx
+                    ),
+                    [],
+                )
                 == DeclTypes.NONE
             ):
                 self._translator_ptr.translate("interface_call", ctx)

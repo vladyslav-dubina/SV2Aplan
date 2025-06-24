@@ -50,7 +50,6 @@ class AssignmentTranslator(BaseTranslator):
         ),
     ):
         self.findStruct()
-
         (
             action_pointer,
             action_name,
@@ -62,6 +61,8 @@ class AssignmentTranslator(BaseTranslator):
             return
 
         protocol_params = self.getProtocolParams()
+        assign_b = "{}_B".format(action_pointer.getName(to_upper=True))
+
         if self.last_struct:
             beh_index = self.last_struct.getLastBehaviorIndex()
 
@@ -73,7 +74,7 @@ class AssignmentTranslator(BaseTranslator):
                 )
             else:
                 b_index = self.last_struct.addProtocol(
-                    "B_{0}".format(action_pointer.getName()),
+                    assign_b,
                     inside_the_task=self.inside_the_task,
                     parametrs=protocol_params,
                 )
@@ -83,11 +84,6 @@ class AssignmentTranslator(BaseTranslator):
                     )
                 )
         else:
-            assign_b = "ASSIGN_B_{}".format(
-                self.counters.get(self.counters.types.STRUCT_COUNTER)
-            )
-            self.counters.incriese(self.counters.types.STRUCT_COUNTER)
-
             struct_assign: Protocol = Protocol(
                 assign_b,
                 ctx.getSourceInterval(),

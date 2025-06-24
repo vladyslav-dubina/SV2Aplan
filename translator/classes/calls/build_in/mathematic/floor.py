@@ -114,7 +114,7 @@ class FloorTranslator(BaseTranslator):
 
         floor_structure.behavior[0].addBodyElement(
             BodyElement(
-                action_floor_result.getNameWithParams(),
+                action_floor_result.getName(),
                 action_floor_result,
                 ElementsTypes.ACTION_ELEMENT,
             )
@@ -125,8 +125,8 @@ class FloorTranslator(BaseTranslator):
         floor_civ_protocol.addBodyElement(
             BodyElement(
                 identifier="{0}.{1}".format(
-                    action_floor_check.getNameWithParams(),
-                    action_floor_body_gtz.getNameWithParams(),
+                    action_floor_check.getName(),
+                    action_floor_body_gtz.getName(),
                 ),
                 pointer_to_related=action_floor_check,
                 element_type=ElementsTypes.IF_CONDITION_LEFT,
@@ -143,8 +143,8 @@ class FloorTranslator(BaseTranslator):
         floor_civ_protocol.addBodyElement(
             BodyElement(
                 identifier="!{0}.{1}.{2}".format(
-                    action_floor_check.getNameWithParams(),
-                    action_floor_body_ltz.getNameWithParams(),
+                    action_floor_check.getName(),
+                    action_floor_body_ltz.getName(),
                     floor_fp_protocol.getName(),
                 ),
                 pointer_to_related=action_floor_check,
@@ -154,7 +154,7 @@ class FloorTranslator(BaseTranslator):
 
         floor_fp_protocol.addBodyElement(
             BodyElement(
-                action_floor_check_fp.getNameWithParams(),
+                action_floor_check_fp.getName(),
                 pointer_to_related=action_floor_check_fp,
                 element_type=ElementsTypes.ACTION_ELEMENT,
             )
@@ -162,7 +162,7 @@ class FloorTranslator(BaseTranslator):
 
         floor_fp_protocol.addBodyElement(
             BodyElement(
-                action_floor_body_fp.getNameWithParams(),
+                action_floor_body_fp.getName(),
                 pointer_to_related=action_floor_check_fp,
                 element_type=ElementsTypes.ACTION_ELEMENT,
             )

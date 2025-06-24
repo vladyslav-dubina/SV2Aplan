@@ -121,8 +121,8 @@ class SqrtTranslator(BaseTranslator):
         sqrt_protocol.addBodyElement(
             BodyElement(
                 "{0}.{1}".format(
-                    sqrt_ltz_action.getNameWithParams(),
-                    sqrt_nan_action.getNameWithParams(),
+                    sqrt_ltz_action.getName(),
+                    sqrt_nan_action.getName(),
                 ),
                 sqrt_ltz_action,
                 ElementsTypes.IF_CONDITION_LEFT,
@@ -137,8 +137,8 @@ class SqrtTranslator(BaseTranslator):
         sqrt_protocol.addBodyElement(
             BodyElement(
                 "!{0}.{1}.{2}".format(
-                    sqrt_ltz_action.getNameWithParams(),
-                    sqrt_init_action.getNameWithParams(),
+                    sqrt_ltz_action.getName(),
+                    sqrt_init_action.getName(),
                     sqrt_main_protocol.getName(),
                 ),
                 sqrt_ltz_action,
@@ -148,23 +148,19 @@ class SqrtTranslator(BaseTranslator):
 
         sqrt_main_protocol.body[0].identifier = sqrt_main_protocol.body[
             0
-        ].pointer_to_related.getNameWithParams()
-        sqrt_main_protocol.body[0].identifier += (
-            "." + sqrt_body_action.getNameWithParams()
-        )
+        ].pointer_to_related.getName()
+        sqrt_main_protocol.body[0].identifier += "." + sqrt_body_action.getName()
         sqrt_main_protocol.body[0].identifier += "." + sqrt_main_protocol.getName()
         sqrt_main_protocol.body[0].parametrs = ParametrArray()
 
         sqrt_main_protocol.addBodyElement(
             BodyElement(
-                f"!{sqrt_cond_action.getNameWithParams()}",
+                f"!{sqrt_cond_action.getName()}",
                 sqrt_cond_action,
                 ElementsTypes.IF_CONDITION_RIGTH,
             )
         )
-        sqrt_main_protocol.body[1].identifier += (
-            "." + sqrt_result_action.getNameWithParams()
-        )
+        sqrt_main_protocol.body[1].identifier += "." + sqrt_result_action.getName()
 
         sqrt_structure.behavior.append(sqrt_main_protocol)
 

@@ -1,7 +1,7 @@
 from os import name
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
-from typing import Literal, Tuple, overload
+from typing import List, Literal, Tuple, overload
 
 from AppModule.app.classes.case_stmt import CaseStmt
 from AppModule.app.utils.counters import CounterTypes, Counters
@@ -58,6 +58,7 @@ from translator.classes.declarations.task import TaskBodyDeclTranslator
 from translator.classes.declarations.typedef import TypedefDeclTranslator
 from translator.classes.arrays.dynamic import DynamicArrayNewTranslator
 from translator.classes.assignments.variable import VariableDeclTranslator
+from translator.classes.expressions.variable_l_value import VariableLValueTranslator
 from translator.classes.expressions.bit_selection import BitSelectionTranslator
 from translator.classes.expressions.expression import ExpressionTranslator
 from translator.classes.assignments.parameters import (
@@ -165,6 +166,7 @@ TRANSLATOR_NAMES = Literal[
     "array",
     "push_back",
     "var_decl",
+    "var_l_val",
 ]
 
 
@@ -179,6 +181,7 @@ class Translator:
     _current_genvar_value: Tuple[str, int] | None = None
     last_element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT
     last_operator: str | None = None
+    last_dot_operator: str | None = None
 
     @property
     def current_genvar_value(self) -> bool:
@@ -251,6 +254,7 @@ class Translator:
         "array": ArrayTranslator,
         "push_back": PushBackTranslator,
         "var_decl": VariableDeclTranslator,
+        "var_l_val": VariableLValueTranslator,
     }
 
     def __init__(self):
@@ -270,6 +274,10 @@ class Translator:
     def translate(self, trnslt_name: TRANSLATOR_NAMES, *args, **kwargs):
         translator = self.getTranslator(trnslt_name)
         return translator.translate(*args, **kwargs)
+
+    def exit(self, trnslt_name: TRANSLATOR_NAMES, *args, **kwargs):
+        translator = self.getTranslator(trnslt_name)
+        return translator.exit(*args, **kwargs)
 
     def isInsideTheTask(self):
         structure: Structure | None = self._structure_pointer_list.getLastElement()
@@ -291,7 +299,11 @@ class Translator:
         if struct:
             return struct.number
         else:
-            return self._design_unit.number
+            if self._design_unit:
+                number = self._design_unit.number
+            else:
+                number = self.counters.get(self.counters.types.STRUCT_COUNTER)
+            return number
 
     def removeLastStructPointer(self):
         if len(self._structure_pointer_list) > 0:

@@ -2,7 +2,7 @@ import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from AppModule.app.classes.declarations import DeclType, DeclTypes, Declaration
 from AppModule.app.classes.element_types import ElementsTypes
-from AppModule.app.classes.protocols import BodyElement
+from AppModule.app.classes.protocols import BodyElement, Protocol
 from AppModule.app.classes.typedef import Typedef
 from translator.classes.base_translator import BaseTranslator
 
@@ -29,7 +29,6 @@ class VariableDeclTranslator(BaseTranslator):
         dimension_size = 0
         dimension_size_expression = ""
         decl_type = self.decl_type_array.getLastElement()
-
         if decl_type:
             (
                 size_expression,
@@ -93,9 +92,9 @@ class VariableDeclTranslator(BaseTranslator):
 
     def exit(self, ctx: SystemVerilogParser.Variable_decl_assignmentContext):
         expression = ctx.expression()
-
         if not expression:
             return
+
         (
             action_pointer,
             assign_name,
@@ -103,19 +102,20 @@ class VariableDeclTranslator(BaseTranslator):
             uniq_action,
         ) = self._translator_ptr.getTranslator("expr").exit()
 
-        if self.decl_index is None:
-            self.reset()
-            return
-
-        declaration = self.design_unit.declarations.getElementByIndex(self.decl_index)
+        declaration = None
+        if self.decl_index:
+            declaration = self.design_unit.declarations.getElementByIndex(
+                self.decl_index
+            )
 
         self.findStruct()
 
         if self.last_struct is not None:
-            self.last_struct.elements.addElement(declaration)
-            beh_index = self.last_struct.getLastBehaviorIndex()
+            if declaration:
+                self.last_struct.elements.addElement(declaration)
 
-            if beh_index is not None and assign_name is not None:
+            beh_index = self.last_struct.getLastBehaviorIndex()
+            if beh_index is not None and assign_name:
                 self.last_struct.behavior[beh_index].addBodyElement(
                     BodyElement(
                         assign_name,
@@ -123,9 +123,24 @@ class VariableDeclTranslator(BaseTranslator):
                         ElementsTypes.ACTION_ELEMENT,
                     )
                 )
+
         else:
             if self.decl_unique:
                 declaration.expression = assign_name
                 declaration.action = action_pointer
+            else:
+                assign_b = "{}_B".format(action_pointer.getName(to_upper=True))
+                struct_assign: Protocol = Protocol(
+                    assign_b,
+                    ctx.getSourceInterval(),
+                    ElementsTypes.ASSIGN_OUT_OF_BLOCK_ELEMENT,
+                )
+
+                struct_assign.addBodyElement(
+                    BodyElement(
+                        assign_name, action_pointer, ElementsTypes.ACTION_ELEMENT
+                    )
+                )
+                self.design_unit.out_of_block_elements.addElement(struct_assign)
 
         self.reset()

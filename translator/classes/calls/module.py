@@ -237,7 +237,7 @@ class ModuleCallTranslator(BaseTranslator):
 
     def resolve(self, identifier):
         local_design_unit_call: DesignUnitCall = None
-        uniq_name = identifier
+        uniq_name = f"{identifier}_{self.utils.generate_unique_short_id(identifier)}"
         if self.design_unit_call is not None:
             local_design_unit_call = self.design_unit_call
         else:

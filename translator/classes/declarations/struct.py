@@ -27,7 +27,10 @@ class StructUnionMemberContextTranlator(BaseTranslator):
         if not data_type:
             return
 
-        data_type_str = self.utils.dataTypeToStr(data_type)
+        data_type_str = self._translator_ptr.getTranslator("data_decl").dataTypeToStr(
+            data_type
+        )
+
         if len(data_type_str) <= 0:
             return
 
@@ -50,7 +53,7 @@ class StructUnionMemberContextTranlator(BaseTranslator):
         size_expression = ""
         packed_dimension = data_type.packed_dimension(0)
         vector_size = None
-        if packed_dimension is not None:
+        if packed_dimension and self.design_unit:
             vector_size = packed_dimension.getText()
             size_expression = vector_size
             vector_size = self.str_formater.replaceValueParametrsCalls(
@@ -88,8 +91,7 @@ class StructDeclTranslator(BaseTranslator):
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
-    def translate(self, ctx: SystemVerilogParser.Data_declarationContext) -> Typedef:
-        struct_decl = ctx.data_type_or_implicit().data_type()
+    def translate(self, ctx: SystemVerilogParser.Struct_unionContext) -> Typedef:
         unique_identifier = "{0}_{1}".format(
             "struct",
             self.getLastNameSpaceLevel(),
@@ -97,7 +99,7 @@ class StructDeclTranslator(BaseTranslator):
         typedef = Typedef(
             unique_identifier,
             unique_identifier,
-            struct_decl.getSourceInterval(),
+            ctx.getSourceInterval(),
             self._program.file_path,
             DeclTypes.STRUCT_TYPE,
         )

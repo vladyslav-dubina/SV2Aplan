@@ -1,3 +1,4 @@
+import antlr4
 from antlr4_verilog.systemverilog import (
     SystemVerilogParserListener,
     SystemVerilogParser,
@@ -5,6 +6,16 @@ from antlr4_verilog.systemverilog import (
 
 from AppModule.app.classes.design_unit_call import DesignUnitCall
 from listener.base import BaseListener
+
+
+def bodyPrint(ctx):
+    if not ctx:
+        return
+    if isinstance(ctx, antlr4.tree.Tree.TerminalNodeImpl):
+        return
+    for element in ctx.getChildren():
+        print(element.getText(), type(element))
+        bodyPrint(element)
 
 
 class SVToAplanListener(BaseListener, SystemVerilogParserListener):
@@ -94,6 +105,12 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def enterBit_select(self, ctx: SystemVerilogParser.Bit_selectContext):
         self.translator.translate("bit_select", ctx)
 
+    def enterVariable_lvalue(self, ctx: SystemVerilogParser.Variable_lvalueContext):
+        self.translator.translate("var_l_val", ctx)
+
+    def exitVariable_lvalue(self, ctx: SystemVerilogParser.Variable_lvalueContext):
+        self.translator.exit("var_l_val", ctx)
+
     def enterConstant_bit_select(
         self, ctx: SystemVerilogParser.Constant_bit_selectContext
     ):
@@ -124,9 +141,8 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def enterModule_declaration(
         self, ctx: SystemVerilogParser.Module_declarationContext
     ):
+        # self.counters.incriese(self.counters.types.STRUCT_COUNTER) ?
         self.translator.translate("module_decl", ctx)
-        self.counters.incriese(self.counters.types.STRUCT_COUNTER)  # ???
-        # body_run(ctx)
 
     def enterPackage_declaration(
         self, ctx: SystemVerilogParser.Package_declarationContext
@@ -145,9 +161,7 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
         self.translator.translate("data_decl", ctx)
 
     def exitData_declaration(self, ctx: SystemVerilogParser.Data_declarationContext):
-        self.translator.getTranslator("data_decl").exit(ctx)
-
-        # Enter a parse tree produced by SystemVerilogParser#struct_union_member.
+        self.translator.exit("data_decl", ctx)
 
     def enterStruct_union_member(
         self, ctx: SystemVerilogParser.Struct_union_memberContext
@@ -158,7 +172,7 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def exitStruct_union_member(
         self, ctx: SystemVerilogParser.Struct_union_memberContext
     ):
-        self.translator.getTranslator("struct_union_member").exit(ctx)
+        self.translator.exit("struct_union_member", ctx)
 
     # Enter a parse tree produced by SystemVerilogParser#variable_decl_assignment.
     def enterVariable_decl_assignment(
@@ -170,13 +184,13 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def exitVariable_decl_assignment(
         self, ctx: SystemVerilogParser.Variable_decl_assignmentContext
     ):
-        self.translator.getTranslator("var_decl").exit(ctx)
+        self.translator.exit("var_decl", ctx)
 
     def enterNet_declaration(self, ctx: SystemVerilogParser.Net_declarationContext):
         self.translator.translate("net_decl", ctx)
 
     def exitNet_declaration(self, ctx: SystemVerilogParser.Net_declarationContext):
-        self.translator.getTranslator("net_decl").exit(ctx)
+        self.translator.exit("net_decl", ctx)
 
     def enterAnsi_port_declaration(
         self, ctx: SystemVerilogParser.Ansi_port_declarationContext
@@ -186,7 +200,7 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def exitAnsi_port_declaration(
         self, ctx: SystemVerilogParser.Ansi_port_declarationContext
     ):
-        self.translator.getTranslator("ansi_port_decl").exit(ctx)
+        self.translator.exit("ansi_port_decl", ctx)
 
     def exitPackage_import_declaration(
         self, ctx: SystemVerilogParser.Package_import_declarationContext
@@ -219,7 +233,7 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
 
     def exitJump_statement(self, ctx: SystemVerilogParser.Jump_statementContext):
         if ctx.RETURN and ctx.expression():
-            self.translator.getTranslator("return").exit(ctx.expression())
+            self.translator.exit("return", ctx.expression())
 
     # =========================================================================================
     # CALLS
@@ -244,7 +258,7 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def exitModule_instantiation(
         self, ctx: SystemVerilogParser.Module_instantiationContext
     ):
-        self.translator.translate("design_unit", ctx)
+        self.translator.translate("module_call", ctx)
 
     # Enter a parse tree produced by SystemVerilogParser#method_call_body.
     def enterMethod_call_body(self, ctx: SystemVerilogParser.Method_call_bodyContext):
@@ -275,7 +289,7 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
         pass
 
     def exitNet_assignment(self, ctx: SystemVerilogParser.Net_assignmentContext):
-        self.translator.getTranslator("assignment").exit(ctx)
+        self.translator.exit("assignment", ctx)
         pass
 
     # <= in always
@@ -287,7 +301,7 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def exitNonblocking_assignment(
         self, ctx: SystemVerilogParser.Nonblocking_assignmentContext
     ):
-        self.translator.getTranslator("assignment").exit(ctx)
+        self.translator.exit("assignment", ctx)
         pass
 
     # = in always
@@ -299,7 +313,7 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def exitBlocking_assignment(
         self, ctx: SystemVerilogParser.Blocking_assignmentContext
     ):
-        self.translator.getTranslator("assignment").exit(ctx)
+        self.translator.exit("assignment", ctx)
 
     def enterVariable_assignment(
         self, ctx: SystemVerilogParser.Variable_assignmentContext
@@ -310,7 +324,7 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def exitVariable_assignment(
         self, ctx: SystemVerilogParser.Variable_assignmentContext
     ):
-        self.translator.getTranslator("assignment").exit(ctx)
+        self.translator.exit("assignment", ctx)
         pass
 
     def enterOperator_assignment(
@@ -322,7 +336,7 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def exitOperator_assignment(
         self, ctx: SystemVerilogParser.Operator_assignmentContext
     ):
-        #  self.translator.getTranslator("assignment").exit(ctx)
+        #  self.translator.exit("assignment", ctx)
         pass
 
     # =========================================================================================
@@ -410,7 +424,7 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
         self.translator.translate("assert_property", ctx)
 
     def exitAssert_property_statement(self, ctx):
-        self.translator.getTranslator("assert_property").exit(ctx)
+        self.translator.exit("assert_property", ctx)
 
     def enterSimple_immediate_assert_statement(
         self, ctx: SystemVerilogParser.Simple_immediate_assert_statementContext
@@ -420,7 +434,7 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def exitSimple_immediate_assert_statement(
         self, ctx: SystemVerilogParser.Simple_immediate_assert_statementContext
     ):
-        self.translator.getTranslator("assert_block").exit(ctx)
+        self.translator.exit("assert_block", ctx)
 
     # =========================================================================================
     # INITIAL

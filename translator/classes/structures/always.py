@@ -32,24 +32,18 @@ class AlwaysStructureTranslator(BaseTranslator):
         else:
             always_body = statement_item
 
-        always_name = (
-            always_keyword.upper()
-            + "_"
-            + str(self.counters.get(self.counters.types.STRUCT_COUNTER))
-        )
+        always_name = always_keyword.upper()
         always = Always(
-            always_keyword.upper(),
+            always_name,
             sensetive,
             ctx.getSourceInterval(),
-            self.counters.get(self.counters.types.STRUCT_COUNTER),
         )
         if self.design_unit.input_parametrs is not None:
             always.parametrs += self.design_unit.input_parametrs
         always.addProtocol(
-            always_name,
+            always.getName(False),
             inside_the_task=self.inside_the_task,
         )
 
         self.design_unit.structures.addElement(always)
         self.structure_pointer_list.addElement(always)
-        self.counters.incriese(self.counters.types.STRUCT_COUNTER)

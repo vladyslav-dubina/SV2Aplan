@@ -40,9 +40,9 @@ class AssertPropertyTranslator(BaseTranslator):
             return
 
         assert_b = "ASSERT_B_{}".format(
-            self.counters.get(self.counters.types.STRUCT_COUNTER)
+            self.counters.get(self.counters.types.ASSERT_COUNTER)
         )
-        self.counters.incriese(self.counters.types.STRUCT_COUNTER)
+        self.counters.incriese(self.counters.types.ASSERT_COUNTER)
         struct_assert = Protocol(
             assert_b,
             ctx.getSourceInterval(),
@@ -98,11 +98,11 @@ class AssertInBlockTranslator(BaseTranslator):
                 protocol_params = "({0})".format(task.parametrs)
         assert_b = "ASSERT_B_{0}_{1}{2}".format(
             self.last_struct.number,
-            self.counters.get(self.counters.types.STRUCT_COUNTER),
+            self.counters.get(self.counters.types.ASSERT_COUNTER),
             protocol_params,
         )
 
-        self.counters.incriese(self.counters.types.STRUCT_COUNTER)
+        self.counters.incriese(self.counters.types.ASSERT_COUNTER)
         beh_index = self.last_struct.addProtocol(
             assert_b,
             inside_the_task=self.inside_the_task,
