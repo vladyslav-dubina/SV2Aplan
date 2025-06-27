@@ -174,6 +174,16 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     ):
         self.translator.exit("struct_union_member", ctx)
 
+    def enterEnum_name_declaration(
+        self, ctx: SystemVerilogParser.Enum_name_declarationContext
+    ):
+        self.translator.translate("enum_name_decl", ctx)
+
+    def exitEnum_name_declaration(
+        self, ctx: SystemVerilogParser.Enum_name_declarationContext
+    ):
+        self.translator.exit("enum_name_decl", ctx)
+
     # Enter a parse tree produced by SystemVerilogParser#variable_decl_assignment.
     def enterVariable_decl_assignment(
         self, ctx: SystemVerilogParser.Variable_decl_assignmentContext

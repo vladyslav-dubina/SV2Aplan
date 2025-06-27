@@ -17,6 +17,7 @@ class ClassDeclTranslator(BaseTranslator):
         self,
         ctx: SystemVerilogParser.Class_declarationContext,
     ) -> None:
+
         for element in ctx.class_identifier():
             identifier = element.identifier().getText()
 

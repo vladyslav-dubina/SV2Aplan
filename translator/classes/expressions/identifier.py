@@ -55,7 +55,6 @@ class IdentifierTranslator(BaseTranslator):
             )
 
         identifier, decl = self.design_unit.declarations.replaceDeclName(identifier)
-
         if isinstance(decl, Declaration):
             node.identifier = identifier
             if self.design_unit.element_type == ElementsTypes.CLASS_ELEMENT:

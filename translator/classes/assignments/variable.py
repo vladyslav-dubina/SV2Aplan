@@ -24,6 +24,7 @@ class VariableDeclTranslator(BaseTranslator):
     def translate(
         self, ctx: SystemVerilogParser.Variable_decl_assignmentContext
     ) -> None:
+
         original_identifier = ctx.variable_identifier().identifier().getText()
 
         dimension_size = 0
@@ -125,7 +126,7 @@ class VariableDeclTranslator(BaseTranslator):
                 )
 
         else:
-            if self.decl_unique:
+            if self.decl_index is not None:
                 declaration.expression = assign_name
                 declaration.action = action_pointer
             else:

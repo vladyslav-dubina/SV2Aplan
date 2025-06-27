@@ -80,6 +80,14 @@ class BaseTranslator:
         self._translator_ptr._design_unit = value
 
     @property
+    def last_typedef(self) -> Typedef:
+        return self._translator_ptr.last_typedef
+
+    @last_typedef.setter
+    def last_typedef(self, value: Typedef):
+        self._translator_ptr.last_typedef = value
+
+    @property
     def structure_pointer_list(self) -> StructureArray:
         return self._translator_ptr._structure_pointer_list
 

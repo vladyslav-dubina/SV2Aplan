@@ -4,9 +4,12 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from AppModule.app.classes.declarations import DeclTypes, Declaration
 from AppModule.app.classes.typedef import Typedef
 from translator.classes.base_translator import BaseTranslator
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.protocols import BodyElement
 
 
 class TypedefDeclTranslator(BaseTranslator):
+    need_delete_struct = False
     if typing.TYPE_CHECKING:
         from translator.translator import Translator
 
@@ -48,22 +51,16 @@ class TypedefDeclTranslator(BaseTranslator):
             decl_type,
         )
 
-        if data_type.ENUM():
-            for index, enum_name_decl in enumerate(data_type.enum_name_declaration()):
-                identifier = enum_name_decl.enum_identifier().getText()
-                new_decl = Declaration(
-                    DeclTypes.ENUM,
-                    identifier,
-                    "",
-                    "",
-                    0,
-                    "",
-                    0,
-                    enum_name_decl.getSourceInterval(),
-                )
-                typedef.declarations.addElement(new_decl)
+        self.last_typedef = typedef
 
         self.addTypedef(typedef)
+
+    def exit(self, ctx: SystemVerilogParser.Data_declarationContext) -> None:
+        if self.need_delete_struct:
+            self.need_delete_struct = False
+            self._translator_ptr.removeLastStructPointer()
+
+        self.last_typedef = None
 
     def create(
         self,
@@ -98,3 +95,98 @@ class TypedefDeclTranslator(BaseTranslator):
             typedef.declarations.addElement(new_decl)
 
         self.addTypedef(typedef)
+
+
+class EnumNameDeclTranslator(BaseTranslator):
+    decl_index = None
+    decl_unique = None
+    if typing.TYPE_CHECKING:
+        from translator.translator import Translator
+
+    def __init__(self, translator: "Translator"):
+        super().__init__(translator)
+
+    def reset(self):
+        self.decl_index = None
+        self.decl_unique = None
+
+    def translate(self, ctx: SystemVerilogParser.Enum_name_declarationContext) -> None:
+
+        typedef = self.getLastTypedef()
+        if typedef:
+            identifier = ctx.enum_identifier().getText()
+            new_decl = Declaration(
+                data_type=DeclTypes.ENUM,
+                identifier=identifier,
+                source_interval=ctx.getSourceInterval(),
+            )
+
+            (
+                self.decl_unique,
+                self.decl_index,
+            ) = typedef.declarations.addElement(new_decl)
+
+            expression = ctx.constant_expression()
+            if not expression:
+                return
+
+            self.last_element_type = ElementsTypes.ASSIGN_ELEMENT
+            self.last_operator = "="
+            self._translator_ptr.translate(
+                "expr",
+                ctx,
+            )
+
+    def exit(self, ctx: SystemVerilogParser.Enum_name_declarationContext) -> None:
+        expression = ctx.constant_expression()
+
+        if not expression:
+            return
+
+        (
+            action_pointer,
+            assign_name,
+            source_interval,
+            uniq_action,
+        ) = self._translator_ptr.getTranslator("expr").exit()
+
+        declaration = None
+        if self.decl_index is not None:
+            typedef = self.design_unit.typedefs.getLastElement()
+            declaration = typedef.declarations.getElementByIndex(self.decl_index)
+
+        self.findStruct()
+        if self.last_struct is not None:
+            if declaration:
+                self.last_struct.elements.addElement(declaration)
+
+            beh_index = self.last_struct.getLastBehaviorIndex()
+            if beh_index is not None and assign_name:
+                self.last_struct.behavior[beh_index].addBodyElement(
+                    BodyElement(
+                        assign_name,
+                        action_pointer,
+                        ElementsTypes.ACTION_ELEMENT,
+                    )
+                )
+
+        else:
+            if self.decl_unique:
+                declaration.expression = assign_name
+                declaration.action = action_pointer
+            else:
+                assign_b = "{}_B".format(action_pointer.getName(to_upper=True))
+                struct_assign: Protocol = Protocol(
+                    assign_b,
+                    ctx.getSourceInterval(),
+                    ElementsTypes.ASSIGN_OUT_OF_BLOCK_ELEMENT,
+                )
+
+                struct_assign.addBodyElement(
+                    BodyElement(
+                        assign_name, action_pointer, ElementsTypes.ACTION_ELEMENT
+                    )
+                )
+                self.design_unit.out_of_block_elements.addElement(struct_assign)
+
+        self.reset()

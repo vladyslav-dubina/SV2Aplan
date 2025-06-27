@@ -93,6 +93,13 @@ class DataDeclTranslator(BaseTranslator):
             self.decl_type_array.removeLastElement()
             self.need_delete_type = False
 
+        data_type_or_implicit: SystemVerilogParser.Data_type_or_implicitContext = (
+            ctx.data_type_or_implicit()
+        )
+        if not data_type_or_implicit:
+            self._translator_ptr.exit("typedef", ctx)
+            return
+
     def dataTypeToStr(
         self,
         ctx,

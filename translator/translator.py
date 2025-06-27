@@ -4,6 +4,7 @@ from antlr4.tree import Tree
 from typing import List, Literal, Tuple, overload
 
 from AppModule.app.classes.case_stmt import CaseStmt
+from AppModule.app.classes.typedef import Typedef
 from AppModule.app.utils.counters import CounterTypes, Counters
 from AppModule.app.classes.declarations import DeclType, DeclTypeArray
 from AppModule.app.classes.if_stmt import IfStmt
@@ -55,7 +56,10 @@ from translator.classes.declarations.struct import (
     StructUnionMemberContextTranlator,
 )
 from translator.classes.declarations.task import TaskBodyDeclTranslator
-from translator.classes.declarations.typedef import TypedefDeclTranslator
+from translator.classes.declarations.typedef import (
+    EnumNameDeclTranslator,
+    TypedefDeclTranslator,
+)
 from translator.classes.arrays.dynamic import DynamicArrayNewTranslator
 from translator.classes.assignments.variable import VariableDeclTranslator
 from translator.classes.expressions.variable_l_value import VariableLValueTranslator
@@ -167,6 +171,7 @@ TRANSLATOR_NAMES = Literal[
     "push_back",
     "var_decl",
     "var_l_val",
+    "enum_name_decl",
 ]
 
 
@@ -182,6 +187,7 @@ class Translator:
     last_element_type: ElementsTypes = ElementsTypes.NONE_ELEMENT
     last_operator: str | None = None
     last_dot_operator: str | None = None
+    last_typedef: Typedef | None = None
 
     @property
     def current_genvar_value(self) -> bool:
@@ -255,6 +261,7 @@ class Translator:
         "push_back": PushBackTranslator,
         "var_decl": VariableDeclTranslator,
         "var_l_val": VariableLValueTranslator,
+        "enum_name_decl": EnumNameDeclTranslator,
     }
 
     def __init__(self):
@@ -318,19 +325,74 @@ class Translator:
         element_type: ElementsTypes,
         sensetive: str | None = None,
     ):
-        counter_type: CounterTypes = self.counters.types.STRUCT_COUNTER
         sv_structure: Structure | None = self._structure_pointer_list.getLastElement()
-
+        out_of_block: bool = True
+        protocol_params = self.getProtocolParams()
+        tmp: ParametrArray = ParametrArray()
+        inside_the_task = False
         if sv_structure:
-            protocol_params = self.getProtocolParams()
+            out_of_block = False
+            if isinstance(sv_structure, TaskStmt):
+                inside_the_task = True
+
+            if (inside_the_task) is False:
+                if sv_structure.parametrs is not None:
+                    tmp += sv_structure.parametrs
+                if protocol_params is not None:
+                    tmp += protocol_params
+            else:
+                tmp = protocol_params
+
+        if element_type == ElementsTypes.CASE_STATEMENT_ELEMENT:
+            struct = CaseStmt(
+                name,
+                (0, 0),
+            )
+
+        elif element_type == ElementsTypes.IF_STATEMENT_ELEMENT:
+            struct = IfStmt(
+                name,
+                (0, 0),
+            )
+        elif element_type == ElementsTypes.FOREVER_ELEMENT:
+            struct = ForeverStmt(
+                name,
+                (0, 0),
+            )
+
+        elif element_type == ElementsTypes.WHILE_ELEMENT:
+            struct = WhileStmt(
+                name,
+                (0, 0),
+            )
+
+        elif element_type == ElementsTypes.LOOP_ELEMENT:
+            struct = LoopStmt(
+                name,
+                (0, 0),
+            )
+        else:
+            struct = Structure(
+                name,
+                (0, 0),
+                element_type,
+            )
+
+        struct.parametrs = tmp
+        struct.inside_the_task = inside_the_task
+        struct.addInitProtocol()
+        if out_of_block:
+            beh_index = struct.getLastBehaviorIndex()
+            self._design_unit.out_of_block_elements.addElement(struct.behavior[0])
+            self._structure_pointer_list.addElement(struct)
+        elif sv_structure:
             beh_index = sv_structure.getLastBehaviorIndex()
             if beh_index is not None:
                 if element_type == ElementsTypes.FOREVER_ELEMENT:
                     sv_structure.behavior[beh_index].addBodyElement(
                         BodyElement(
-                            identifier="Sensetive({0}_{1}, {2})".format(
-                                name,
-                                self.counters.get(counter_type),
+                            identifier="Sensetive({0}, {2})".format(
+                                struct.getName(False),
                                 sensetive,
                             ),
                             element_type=ElementsTypes.PROTOCOL_ELEMENT,
@@ -340,66 +402,13 @@ class Translator:
                 else:
                     sv_structure.behavior[beh_index].addBodyElement(
                         BodyElement(
-                            identifier="{0}_{1}".format(
-                                name,
-                                self.counters.get(counter_type),
+                            identifier="{0}".format(
+                                struct.getName(False),
                             ),
                             element_type=ElementsTypes.PROTOCOL_ELEMENT,
                             parametrs=protocol_params,
                         )
                     )
-
-            tmp: ParametrArray = ParametrArray()
-            if isinstance(sv_structure, TaskStmt):
-                inside_the_task = True
-            else:
-                inside_the_task = False
-            if (inside_the_task) is False:
-                if sv_structure.parametrs is not None:
-                    tmp += sv_structure.parametrs
-                if protocol_params is not None:
-                    tmp += protocol_params
-            else:
-                tmp = protocol_params
-
-            if element_type == ElementsTypes.CASE_STATEMENT_ELEMENT:
-                struct = CaseStmt(
-                    name,
-                    (0, 0),
-                )
-
-            elif element_type == ElementsTypes.IF_STATEMENT_ELEMENT:
-                struct = IfStmt(
-                    name,
-                    (0, 0),
-                )
-            elif element_type == ElementsTypes.FOREVER_ELEMENT:
-                struct = ForeverStmt(
-                    name,
-                    (0, 0),
-                )
-
-            elif element_type == ElementsTypes.WHILE_ELEMENT:
-                struct = WhileStmt(
-                    name,
-                    (0, 0),
-                )
-
-            elif element_type == ElementsTypes.LOOP_ELEMENT:
-                struct = LoopStmt(
-                    name,
-                    (0, 0),
-                )
-            else:
-                struct = Structure(
-                    name,
-                    (0, 0),
-                    element_type,
-                )
-
-            struct.parametrs = tmp
-            struct.inside_the_task = inside_the_task
-            struct.addInitProtocol()
 
             sv_structure.behavior.append(struct)
             self._structure_pointer_list.addElement(struct)

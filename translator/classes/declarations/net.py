@@ -2,6 +2,7 @@ import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from AppModule.app.classes.declarations import DeclTypes, Declaration
 from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.protocols import BodyElement
 from AppModule.app.classes.typedef import Typedef
 from translator.classes.base_translator import BaseTranslator
 
@@ -69,6 +70,7 @@ class NewDeclTranslator(BaseTranslator):
             data_check_type = DeclTypes.checkType(data_type, types)
 
             # change type names for unique type names for structs
+
             if data_check_type == DeclTypes.ENUM or data_check_type == DeclTypes.STRUCT:
                 for element in types:
                     if isinstance(element, Typedef):
@@ -97,6 +99,32 @@ class NewDeclTranslator(BaseTranslator):
                             name_space_level=self.getLastNameSpaceLevel(),
                         )
                     )
+
+                    if data_check_type == DeclTypes.ENUM:
+                        for element in self.design_unit.typedefs.getElements():
+              
+                            if element.unique_identifier == size_expression:
+                                self.createStatement(
+                                    size_expression.upper(),
+                                    ElementsTypes.NONE_ELEMENT,
+                                    None,
+                                )
+                                self.findStruct()
+                             
+                                beh_index = self.last_struct.getLastBehaviorIndex()
+                                
+                                
+                                for enum_elem in element.declarations.getElements():
+                                        if beh_index is not None and enum_elem.expression:
+                                            self.last_struct.behavior[
+                                                beh_index
+                                            ].addBodyElement(
+                                                BodyElement(
+                                                    enum_elem.expression,
+                                                    enum_elem.action,
+                                                    ElementsTypes.ACTION_ELEMENT,
+                                                )
+                                            )
 
                     if elem.expression():
                         expression = elem.expression().getText()
