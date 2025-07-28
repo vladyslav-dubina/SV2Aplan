@@ -2,6 +2,7 @@ import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from AppModule.app.classes.element_types import ElementsTypes
 from AppModule.app.classes.protocols import BodyElement, Protocol
+from AppModule.app.classes.structure import Structure
 from translator.classes.base_translator import BaseTranslator
 
 
@@ -67,22 +68,30 @@ class AssignmentTranslator(BaseTranslator):
             beh_index = self.last_struct.getLastBehaviorIndex()
 
             if beh_index is not None:
-                self.last_struct.behavior[beh_index].addBodyElement(
+                protocol: typing.Union[Protocol, Structure] = self.last_struct.behavior[
+                    beh_index
+                ]
+                protocol.addBodyElement(
                     BodyElement(
                         action_name, action_pointer, ElementsTypes.ACTION_ELEMENT
                     )
                 )
+
             else:
                 b_index = self.last_struct.addProtocol(
                     assign_b,
                     inside_the_task=self.inside_the_task,
                     parametrs=protocol_params,
                 )
-                self.last_struct.behavior[b_index].addBodyElement(
+                protocol: typing.Union[Protocol, Structure] = self.last_struct.behavior[
+                    b_index
+                ]
+                protocol.addBodyElement(
                     BodyElement(
                         action_name, action_pointer, ElementsTypes.ACTION_ELEMENT
                     )
                 )
+
         else:
             struct_assign: Protocol = Protocol(
                 assign_b,

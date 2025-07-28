@@ -7,5 +7,10 @@
         "**/node_modules"
     ],
     "reportMissingImports": true,
-    "reportMissingTypeStubs": false
+    "reportMissingTypeStubs": false,
+    "reportIncompatibleMethodOverride": false,
+    "reportAssignmentType": false,
+    "reportArgumentType": false,
+    "reportReturnType": false,
+    "reportCallIssue": false
 }

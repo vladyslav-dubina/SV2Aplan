@@ -8,6 +8,11 @@ from AppModule.app.classes.node import Node, NodeArray
 from AppModule.app.classes.parametrs import ParametrArray
 from AppModule.app.classes.protocols import BodyElement, Protocol
 from AppModule.app.classes.structure import Structure
+from AppModule.app.translator.expressions.expression import (
+    copyToAssociatedAction,
+    findAssociatedAction,
+    getNamePartAndCounter,
+)
 from AppModule.app.utils.counters import CounterTypes
 from translator.classes.base_translator import BaseTranslator
 
@@ -22,34 +27,6 @@ class ExpressionTranslator(BaseTranslator):
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
 
-    def getNamePartAndCounter(
-        self, element_type: ElementsTypes
-    ) -> Tuple[str, CounterTypes]:
-        name_part = ""
-        counter_type = CounterTypes.NONE_COUNTER
-
-        if element_type == ElementsTypes.ASSERT_ELEMENT:
-            name_part = "assert"
-            counter_type = CounterTypes.ASSERT_COUNTER
-        elif element_type == ElementsTypes.CONDITION_ELEMENT:
-            name_part = "cond"
-            counter_type = CounterTypes.CONDITION_COUNTER
-        elif (
-            element_type == ElementsTypes.ASSIGN_ELEMENT
-            or element_type == ElementsTypes.ASSIGN_FOR_CALL_ELEMENT
-            or element_type == ElementsTypes.ASSIGN_SENSETIVE_ELEMENT
-        ):
-            name_part = "assign"
-            counter_type = CounterTypes.ASSIGNMENT_COUNTER
-        elif element_type == ElementsTypes.ASSIGN_ARRAY_FOR_CALL_ELEMENT:
-            name_part = "assign_array"
-            counter_type = CounterTypes.ASSIGNMENT_COUNTER
-        elif element_type == ElementsTypes.REPEAT_ELEMENT:
-            name_part = "repeat_iteration"
-            counter_type = CounterTypes.REPEAT_COUNTER
-
-        return (name_part, counter_type)
-
     def taskAssignIfPosible(self, ctx, destination_node_array: NodeArray):
         if isinstance(ctx, SystemVerilogParser.ExpressionContext):
             task = self.design_unit.tasks.getLastTask()
@@ -60,53 +37,6 @@ class ExpressionTranslator(BaseTranslator):
                 destination_node_array.addElement(
                     Node("=", (0, 0), ElementsTypes.OPERATOR_ELEMENT)
                 )
-
-    def findAssociatedAction(
-        self,
-        protocol: Protocol | None,
-        element_type: ElementsTypes,
-        name_part: str,
-        action: Action,
-        previus_action: bool,
-        action_name: str,
-    ):
-        last_element = None
-        if protocol and len(protocol.body) > 0:
-            last_element = protocol.body.getElementByIndex(len(protocol.body) - 1)
-            if (
-                last_element.element_type == ElementsTypes.ACTION_ELEMENT
-                and last_element.pointer_to_related
-                and last_element.pointer_to_related.element_type == element_type
-                and last_element.pointer_to_related.description_action_name == name_part
-            ):
-                previus_action = True
-                action_name = action.identifier
-            else:
-                last_element = None
-
-        return (last_element, previus_action, action_name)
-
-    def copyToAssociatedAction(self, last_element: Action, action: Action) -> Action:
-        if last_element:
-            previous_action: Action = last_element.pointer_to_related
-            previous_action.description_end += action.description_end
-            previous_action.description_start += action.description_start
-
-            if previous_action.precondition.elements[0].identifier != "1":
-                previous_action.precondition.addElement(
-                    Node(";", (0, 0), ElementsTypes.SEMICOLON_ELEMENT)
-                )
-                previous_action.precondition += action.precondition
-
-            if previous_action.postcondition.elements[0].identifier != "1":
-                previous_action.postcondition.addElement(
-                    Node(";", (0, 0), ElementsTypes.SEMICOLON_ELEMENT)
-                )
-                previous_action.postcondition += action.postcondition
-
-            action = previous_action
-
-        return action
 
     def prepareExpressionString(self, expression: str):
         expression = self.str_formater.valuesToAplanStandart(expression)
@@ -299,7 +229,7 @@ class ExpressionTranslator(BaseTranslator):
         self.findStruct()
 
         previus_action = False
-        (self._name_part, self._counter_type) = self.getNamePartAndCounter(
+        (self._name_part, self._counter_type) = getNamePartAndCounter(
             self.last_element_type
         )
 
@@ -373,7 +303,8 @@ class ExpressionTranslator(BaseTranslator):
         out_block_len = len(self.design_unit.out_of_block_elements)
 
         previus_action = False
-
+        action_check_result = None
+        source_interval = (0, 0)
         if not remove_association:
             if self.last_struct is not None:
                 beh_index = self.last_struct.getLastBehaviorIndex()
@@ -392,12 +323,11 @@ class ExpressionTranslator(BaseTranslator):
                         last_element,
                         previus_action,
                         self._action_name,
-                    ) = self.findAssociatedAction(
+                    ) = findAssociatedAction(
                         protocol,
                         self.last_element_type,
                         self._name_part,
                         self._action,
-                        previus_action,
                         self._action_name,
                     )
             elif out_block_len > 0:
@@ -410,16 +340,15 @@ class ExpressionTranslator(BaseTranslator):
                     last_element,
                     previus_action,
                     self._action_name,
-                ) = self.findAssociatedAction(
+                ) = findAssociatedAction(
                     protocol,
                     self.last_element_type,
                     self._name_part,
                     self._action,
-                    previus_action,
                     self._action_name,
                 )
 
-        self._action = self.copyToAssociatedAction(last_element, self._action)
+        self._action = copyToAssociatedAction(last_element, self._action)
         if not previus_action:
             (
                 action_pointer,
@@ -472,9 +401,7 @@ class ExpressionTranslator(BaseTranslator):
         return (action_pointer, self._action_name, source_interval, uniq)
 
     def createSizeExpression(self, identifier, size, source_interval: Tuple[int, int]):
-        (name_part, counter_type) = self.getNamePartAndCounter(
-            ElementsTypes.ASSIGN_ELEMENT
-        )
+        (name_part, counter_type) = getNamePartAndCounter(ElementsTypes.ASSIGN_ELEMENT)
         action_name = "{0}_{1}".format(name_part, self.counters.get(counter_type))
         action = Action(
             action_name, source_interval, element_type=ElementsTypes.ASSIGN_ELEMENT
@@ -515,12 +442,11 @@ class ExpressionTranslator(BaseTranslator):
         if isinstance(protocol, Protocol):
             action_pointer: Action = action
 
-            last_element, previus_action, action_name = self.findAssociatedAction(
+            last_element, previus_action, action_name = findAssociatedAction(
                 protocol,
                 ElementsTypes.ASSIGN_ELEMENT,
                 name_part,
                 action_pointer,
-                previus_action,
                 action_name,
             )
             if last_element:
