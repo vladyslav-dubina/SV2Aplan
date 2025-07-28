@@ -110,7 +110,7 @@ class IfCondPredicateTranslator(BaseTranslator):
         )
 
         if_action.postcondition.addElement(
-            Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)
+            Node("1", (0, 0), ElementsTypes.NUMBER_ELEMENT)
         )
 
         (

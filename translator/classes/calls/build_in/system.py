@@ -45,7 +45,7 @@ class SystemTaskCallTranslator(BaseTranslator):
             )
             description_action_name = action_name
             name_part = action_name
-            precondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
+            precondition.addElement(Node("1", (0, 0), ElementsTypes.NUMBER_ELEMENT))
             body = f"goal {action_name}"
         elif system_tf_identifier == "$ceil":
             self._translator_ptr.translate("ceil", ctx)

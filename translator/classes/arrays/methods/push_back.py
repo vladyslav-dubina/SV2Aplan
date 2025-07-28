@@ -38,7 +38,7 @@ class PushBackTranslator(BaseTranslator):
             )
 
             action.precondition.addElement(
-                Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)
+                Node("1", (0, 0), ElementsTypes.NUMBER_ELEMENT)
             )
             description = "{0}.{1}[{0}.{1}.size] = {3}".format(
                 object_identifier,

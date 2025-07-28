@@ -32,10 +32,12 @@ class BitSelectionTranslator(BaseTranslator):
         for element in expression:
             bit = element.getText()
 
-            index = self.last_node_array.addElement(
+            self._translator_ptr.getTranslator("expr").removeLastDote()
+
+            self.last_node_array.addElement(
                 Node(bit, ctx.getSourceInterval(), ElementsTypes.NUMBER_ELEMENT)
             )
-            node = self.last_node_array.getElementByIndex(index)
+            node: Node = self.last_node_array.getLastElement()
             node.bit_selection = True
 
             bit, decl = self.design_unit.declarations.replaceDeclName(bit)

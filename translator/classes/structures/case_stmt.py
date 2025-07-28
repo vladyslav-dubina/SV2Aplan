@@ -79,7 +79,7 @@ class CaseItemExprTranslator(BaseTranslator):
         case_action.description_end.append(f"{condition_txt}")
 
         case_action.postcondition.addElement(
-            Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT)
+            Node("1", (0, 0), ElementsTypes.NUMBER_ELEMENT)
         )
 
         (

@@ -278,15 +278,21 @@ class ExpressionTranslator(BaseTranslator):
         self._action.description_end.append(f"{expression}")
         return
 
+    def removeLastDote(self):
+        if not self.last_node_array:
+            return
+        if self.last_dot_operator:
+            self.last_node_array.removeElementByIndex(len(self.last_node_array) - 1)
+            self.last_dot_operator = None
+
     def insertOperator(self):
         if not self.last_operator:
             return
 
         if not self.last_node_array:
             return
-        if self.last_dot_operator:
-            self.last_node_array.removeElementByIndex(len(self.last_node_array) - 1)
-            self.last_dot_operator = None
+
+        self.removeLastDote()
 
         self.last_node_array.addElement(
             Node(self.last_operator, (0, 0), ElementsTypes.OPERATOR_ELEMENT)
@@ -411,7 +417,7 @@ class ExpressionTranslator(BaseTranslator):
         )
 
         # PRECONDITION
-        action.precondition.addElement(Node(1, (0, 0), ElementsTypes.NUMBER_ELEMENT))
+        action.precondition.addElement(Node("1", (0, 0), ElementsTypes.NUMBER_ELEMENT))
 
         # DESCRIPTION
         action.description_start.append(
