@@ -1,0 +1,6 @@
+[submodule "AppModule"]
+	path = AppModule
+	url = https://github.com/AplanTranslators/AppModule
+[submodule "SystemVerilogExamples"]
+	path = SystemVerilogExamples
+	url = https://github.com/AplanTranslators/SystemVerilogExamples.git

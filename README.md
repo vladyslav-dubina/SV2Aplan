@@ -1,6 +1,6 @@
 # Translator from the System verilog language to the AVM algebraic model
 
-## Version 1.5
+## Version 1.6.1 Unstable
 
 ## Instalation
 <details><summary>Click to expand</summary>
@@ -32,11 +32,11 @@
 
 - An example of using the tool without specifying the resulting path (the standard path will be used, that is, the "results" folder, if it does not exist, it will be created)
   
-      python scripts/sv2aplan_tool.py example.sv 
+      python -m scripts.run_tool example.sv 
 
 - An example of using the tool from the resulting path (if the path does not exist, it will be created)
 
-      python scripts/sv2aplan_tool.py example.sv my_result_path
+      python -m scripts.run_tool example.sv -rpath my_result_path
       
 </details>
 

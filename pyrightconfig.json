@@ -1,0 +1,16 @@
+{
+    "exclude": [
+        "**/__pycache__",
+        "**/.venv",
+        "**/venv",
+        "**/env",
+        "**/node_modules"
+    ],
+    "reportMissingImports": true,
+    "reportMissingTypeStubs": false,
+    "reportIncompatibleMethodOverride": false,
+    "reportAssignmentType": false,
+    "reportArgumentType": false,
+    "reportReturnType": false,
+    "reportCallIssue": false
+}

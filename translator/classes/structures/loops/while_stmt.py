@@ -1,0 +1,31 @@
+import typing
+from antlr4_verilog.systemverilog import SystemVerilogParser
+from AppModule.app.classes.element_types import ElementsTypes
+from AppModule.app.classes.loop_stmt import WhileStmt
+from antlr4_verilog.systemverilog import SystemVerilogParser
+from translator.classes.base_translator import BaseTranslator
+
+
+class WhileStructTranslator(BaseTranslator):
+    if typing.TYPE_CHECKING:
+
+        from translator.translator import Translator
+
+    def __init__(self, translator: "Translator"):
+        super().__init__(translator)
+
+    def translate(
+        self,
+        ctx: SystemVerilogParser.Loop_statementContext,
+    ) -> None:
+
+        self.createStatement("WHILE_LOOP", ElementsTypes.WHILE_ELEMENT)
+        self.findStruct()
+        if not isinstance(self.last_struct, WhileStmt):
+            return
+
+        self._translator_ptr.getTranslator("loop").createBeh(
+            self.last_struct, ctx.expression()
+        )
+
+        self._translator_ptr.body2Aplan(ctx.statement_or_null(), self.last_struct)

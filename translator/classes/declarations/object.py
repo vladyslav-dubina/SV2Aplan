@@ -1,0 +1,33 @@
+from typing import Tuple
+import typing
+from antlr4_verilog.systemverilog import SystemVerilogParser
+from AppModule.app.classes.design_unit import DesignUnit
+from AppModule.app.classes.element_types import ElementsTypes
+from translator.classes.base_translator import BaseTranslator
+
+
+class ObjectDeclTranslator(BaseTranslator):
+    if typing.TYPE_CHECKING:
+        from translator.translator import Translator
+
+    def __init__(self, translator: "Translator"):
+        super().__init__(translator)
+
+    def translate(
+        self,
+        class_name: str,
+        identifier: str,
+        source_interval: Tuple[int, int],
+    ) -> None:
+        class_design_unit: DesignUnit = self.design_units.getElement(class_name.upper())
+        class_design_unit = class_design_unit.copyPart()
+        index = self.design_units.addElement(class_design_unit)
+        object = self.design_units.getElementByIndex(index)
+        object.element_type = ElementsTypes.OBJECT_ELEMENT
+        object.identifier = class_name.upper()
+        object.identifier_upper = object.identifier
+        object.ident_uniq_name = identifier
+        object.ident_uniq_name_upper = object.ident_uniq_name.upper()
+        object.source_interval = source_interval
+        self.design_unit.packages_and_objects.addElement(object)
+        self.counters.incriese(self.counters.types.OBJECT_COUNTER)

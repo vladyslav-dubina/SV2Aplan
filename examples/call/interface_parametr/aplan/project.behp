@@ -1,3 +1,0 @@
-B_INTERFACE_PARAMETR(intf) = {INTERFACE_PARAMETR_INITITAL(intf) || ALWAYS_1(intf)},
-ALWAYS_1(intf) = assign_1(intf),
-INTERFACE_PARAMETR_INITITAL(intf) = assign_2(intf),

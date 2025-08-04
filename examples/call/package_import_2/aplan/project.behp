@@ -1,3 +1,0 @@
-B_MAIN = {MAIN_INITITAL},
-ADD(a, b, return_add) = assign_2(a, b, return_add),
-MAIN_INITITAL = ADD(5, 7, main.add_call_result_1);(assign_4)
