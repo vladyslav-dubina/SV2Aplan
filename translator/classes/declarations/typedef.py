@@ -126,67 +126,83 @@ class EnumNameDeclTranslator(BaseTranslator):
                 self.decl_index,
             ) = typedef.declarations.addElement(new_decl)
 
-            expression = ctx.constant_expression()
-            if not expression:
-                return
-
-            self.last_element_type = ElementsTypes.ASSIGN_ELEMENT
-            self.last_operator = "="
-            self._translator_ptr.translate(
-                "expr",
-                ctx,
+            expression: SystemVerilogParser.Constant_expressionContext = (
+                ctx.constant_expression()
             )
 
+            if not expression:
+                return
+            eval_expression = ""
+            for element in expression.getChildren():
+                element_type = type(element)
+
+                text = element.getText()
+                if isinstance(
+                    element, SystemVerilogParser.Constant_primaryContext
+                ) or isinstance(
+                    element, SystemVerilogParser.Constant_expressionContext
+                ):
+                    if not self.utils.isNumericString(text):
+                        constant: Declaration = typedef.declarations.getElement(text)
+                        text = constant.expression
+
+                eval_expression += text
+
+            if len(eval_expression) > 0:
+                result = eval(eval_expression)
+                new_decl.expression = str(result)
+
     def exit(self, ctx: SystemVerilogParser.Enum_name_declarationContext) -> None:
-        expression = ctx.constant_expression()
+        # expression = ctx.constant_expression()
 
-        if not expression:
-            return
+        # if not expression:
+        #     return
 
-        (
-            action_pointer,
-            assign_name,
-            source_interval,
-            uniq_action,
-        ) = self._translator_ptr.getTranslator("expr").exit()
+        # (
+        #     action_pointer,
+        #     assign_name,
+        #     source_interval,
+        #     uniq_action,
+        # ) = self._translator_ptr.getTranslator("expr").exit()
 
-        declaration = None
-        if self.decl_index is not None:
-            typedef = self.design_unit.typedefs.getLastElement()
-            declaration = typedef.declarations.getElementByIndex(self.decl_index)
+        # declaration = None
+        # if self.decl_index is not None:
+        #     typedef = self.design_unit.typedefs.getLastElement()
+        #     declaration = typedef.declarations.getElementByIndex(self.decl_index)
 
-        self.findStruct()
-        if self.last_struct is not None:
-            if declaration:
-                self.last_struct.elements.addElement(declaration)
+        # self.findStruct()
+        # if self.last_struct is not None:
+        #     if declaration:
+        #         self.last_struct.elements.addElement(declaration)
 
-            beh_index = self.last_struct.getLastBehaviorIndex()
-            if beh_index is not None and assign_name:
-                self.last_struct.behavior[beh_index].addBodyElement(
-                    BodyElement(
-                        assign_name,
-                        action_pointer,
-                        ElementsTypes.ACTION_ELEMENT,
-                    )
-                )
+        #     beh_index = self.last_struct.getLastBehaviorIndex()
+        #     if beh_index is not None and assign_name:
+        #         self.last_struct.behavior[beh_index].addBodyElement(
+        #             BodyElement(
+        #                 assign_name,
+        #                 action_pointer,
+        #                 ElementsTypes.ACTION_ELEMENT,
+        #             )
+        #         )
 
-        else:
-            if self.decl_unique:
-                declaration.expression = assign_name
-                declaration.action = action_pointer
-            else:
-                assign_b = "{}_B".format(action_pointer.getName(to_upper=True))
-                struct_assign: Protocol = Protocol(
-                    assign_b,
-                    ctx.getSourceInterval(),
-                    ElementsTypes.ASSIGN_OUT_OF_BLOCK_ELEMENT,
-                )
+        # else:
+        #     if self.decl_unique:
+        #         declaration.expression = assign_name
+        #         declaration.action = action_pointer
+        #     else:
+        #         assign_b = "{}_B".format(action_pointer.getName(to_upper=True))
+        #         struct_assign: Protocol = Protocol(
+        #             assign_b,
+        #             ctx.getSourceInterval(),
+        #             ElementsTypes.ASSIGN_OUT_OF_BLOCK_ELEMENT,
+        #         )
 
-                struct_assign.addBodyElement(
-                    BodyElement(
-                        assign_name, action_pointer, ElementsTypes.ACTION_ELEMENT
-                    )
-                )
-                self.design_unit.out_of_block_elements.addElement(struct_assign)
+        #         struct_assign.addBodyElement(
+        #             BodyElement(
+        #                 assign_name, action_pointer, ElementsTypes.ACTION_ELEMENT
+        #             )
+        #         )
+        #         self.design_unit.out_of_block_elements.addElement(struct_assign)
 
-        self.reset()
+        # self.reset()
+        pass

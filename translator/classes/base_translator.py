@@ -6,7 +6,12 @@ from AppModule.app.utils.logger import Logger
 from AppModule.app.utils.string_formater import StringFormater
 from AppModule.app.utils.unsorted import UnsortedUnils
 
-from AppModule.app.classes.declarations import DeclType, DeclTypeArray
+from AppModule.app.classes.declarations import (
+    DeclType,
+    DeclTypeArray,
+    DeclTypes,
+    Declaration,
+)
 from AppModule.app.classes.element_types import ElementsTypes
 from AppModule.app.classes.node import NodeArray
 from AppModule.app.classes.structure import Structure, StructureArray
@@ -152,6 +157,12 @@ class BaseTranslator:
             return self.design_unit.typedefs.getLastElement()
         else:
             return self._program.typedefs.getLastElement()
+
+    def findEnumConst(self, identifier) -> str | None:
+        for typedef in self.design_unit.typedefs.getElementsIE().getElements():
+            decl: Declaration = typedef.declarations.getElement(identifier)
+            if decl:
+                return decl.expression
 
     def addTypedef(self, typedef: Typedef):
         if self.design_unit:
