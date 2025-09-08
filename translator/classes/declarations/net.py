@@ -100,9 +100,12 @@ class NewDeclTranslator(BaseTranslator):
                         )
                     )
 
+                    if not elem.expression():
+                        return
+
                     if data_check_type == DeclTypes.ENUM:
                         for element in self.design_unit.typedefs.getElements():
-              
+
                             if element.unique_identifier == size_expression:
                                 self.createStatement(
                                     size_expression.upper(),
@@ -110,43 +113,39 @@ class NewDeclTranslator(BaseTranslator):
                                     None,
                                 )
                                 self.findStruct()
-                             
-                                beh_index = self.last_struct.getLastBehaviorIndex()
-                                
-                                
-                                for enum_elem in element.declarations.getElements():
-                                        if beh_index is not None and enum_elem.expression:
-                                            self.last_struct.behavior[
-                                                beh_index
-                                            ].addBodyElement(
-                                                BodyElement(
-                                                    enum_elem.expression,
-                                                    enum_elem.action,
-                                                    ElementsTypes.ACTION_ELEMENT,
-                                                )
-                                            )
 
-                    if elem.expression():
-                        expression = elem.expression().getText()
-                        if expression:
-                            raise Exception("Unhandled")
-                            (
-                                action_pointer,
-                                assign_name,
-                                source_interval,
-                                uniq_action,
-                            ) = self._translator_ptr.translate(
-                                "expr",
-                                elem.getText(),
-                                ElementsTypes.ASSIGN_ELEMENT,
-                            )
-                            declaration = (
-                                self.design_unit.declarations.getElementByIndex(
-                                    decl_index
-                                )
-                            )
-                            declaration.expression = assign_name
-                            declaration.action = action_pointer
+                                beh_index = self.last_struct.getLastBehaviorIndex()
+
+                                for enum_elem in element.declarations.getElements():
+                                    if beh_index is not None and enum_elem.expression:
+                                        self.last_struct.behavior[
+                                            beh_index
+                                        ].addBodyElement(
+                                            BodyElement(
+                                                enum_elem.expression,
+                                                enum_elem.action,
+                                                ElementsTypes.ACTION_ELEMENT,
+                                            )
+                                        )
+
+                    expression = elem.expression().getText()
+                    if expression:
+                        raise Exception("Unhandled")
+                        (
+                            action_pointer,
+                            assign_name,
+                            source_interval,
+                            uniq_action,
+                        ) = self._translator_ptr.translate(
+                            "expr",
+                            elem.getText(),
+                            ElementsTypes.ASSIGN_ELEMENT,
+                        )
+                        declaration = self.design_unit.declarations.getElementByIndex(
+                            decl_index
+                        )
+                        declaration.expression = assign_name
+                        declaration.action = action_pointer
 
     def exit(self, ctx: SystemVerilogParser.Net_declarationContext) -> None:
         pass

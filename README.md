@@ -12,8 +12,8 @@
 
 3. For developmers:
 
-      - Ubuntu/Mac OS: ```chod +x scripts/setup_hooks.sh```
-      - ```./scripts/setup_hooks.sh```
+      - Ubuntu/Mac OS: ```chod +x bootstrap.sh```
+      - ```./bootstrap.sh```
 
 </details>
 
