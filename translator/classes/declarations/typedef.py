@@ -143,8 +143,9 @@ class EnumNameDeclTranslator(BaseTranslator):
                     element, SystemVerilogParser.Constant_expressionContext
                 ):
                     if not self.utils.isNumericString(text):
-                        constant: Declaration = typedef.declarations.getElement(text)
-                        text = constant.expression
+                        tokens = self.str_formater.tokenizeExpression(text)
+                        tokens = typedef.replaceTokensWithExpressions(tokens)
+                        text = "".join(tokens)
 
                 eval_expression += text
 
