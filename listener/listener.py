@@ -21,6 +21,7 @@ def bodyPrint(ctx):
 class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     def __init__(self, design_unit_call: DesignUnitCall | None = None):
         BaseListener().__init__(design_unit_call)
+        self.translator.getTranslator("module_decl")
 
     # =========================================================================================
     # OPERATORS

@@ -10,6 +10,8 @@ class ModuleDeclTranslator(BaseTranslator):
 
     def __init__(self, translator: "Translator"):
         super().__init__(translator)
+        index = self.design_units.addElement(DesignUnit())
+        self.design_unit = self.design_units.getElementByIndex(index)
 
     def translate(self, ctx: SystemVerilogParser.Module_declarationContext) -> None:
         if ctx.module_ansi_header() is not None:
@@ -22,7 +24,5 @@ class ModuleDeclTranslator(BaseTranslator):
         (identifier, uniq_name) = self._translator_ptr.getTranslator(
             "module_call"
         ).resolve(identifier)
-        index = self.design_units.addElement(
-            DesignUnit(identifier, ctx.getSourceInterval(), uniq_name)
-        )
-        self.design_unit = self.design_units.getElementByIndex(index)
+        self.design_unit.setIdentifier(identifier, uniq_name)
+        self.design_unit.setSourceInterval(ctx.getSourceInterval())

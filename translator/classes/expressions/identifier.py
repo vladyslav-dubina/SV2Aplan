@@ -54,15 +54,19 @@ class IdentifierTranslator(BaseTranslator):
                 )
             )
 
-        identifier, decl = self.design_unit.declarations.replaceDeclName(identifier)
-        if isinstance(decl, Declaration):
-            node.identifier = identifier
-            if self.design_unit.element_type == ElementsTypes.CLASS_ELEMENT:
-                node.design_unit_name = "object_pointer"
-            else:
-                node.design_unit_name = self.design_unit.ident_uniq_name
+        const_value = self.findEnumConst(identifier)
+        if const_value:
+            node.identifier = const_value
+        else:
+            identifier, decl = self.design_unit.declarations.replaceDeclName(identifier)
+            if isinstance(decl, Declaration):
+                node.identifier = identifier
+                if self.design_unit.element_type == ElementsTypes.CLASS_ELEMENT:
+                    node.design_unit_name = "object_pointer"
+                else:
+                    node.design_unit_name = self.design_unit.ident_uniq_name
 
-            if decl.data_type == DeclTypes.ARRAY:
-                node.element_type = ElementsTypes.ARRAY_ELEMENT
+                if decl.data_type == DeclTypes.ARRAY:
+                    node.element_type = ElementsTypes.ARRAY_ELEMENT
 
         node.identifier = self._translator_ptr.translate("param_call", node.identifier)

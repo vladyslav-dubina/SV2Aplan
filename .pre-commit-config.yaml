@@ -1,0 +1,12 @@
+---
+repos:
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: "v4.8.3" # Replace with latest tag
+    hooks:
+      - id: commitizen
+      - id: commitizen-branch
+        stages: [pre-push]
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
