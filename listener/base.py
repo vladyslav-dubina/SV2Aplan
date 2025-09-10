@@ -20,5 +20,4 @@ class BaseListener:
 
     def __init__(self, design_unit_call: DesignUnitCall | None = None):
         self.translator.design_unit_call = design_unit_call
-        logger_manager = LoggerManager()
-        self.logger = logger_manager.getLogger(self.__class__.__qualname__)
+        self.logger = LoggerManager().getLogger(self.__class__.__qualname__)

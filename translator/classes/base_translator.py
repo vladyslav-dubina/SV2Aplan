@@ -37,8 +37,7 @@ class BaseTranslator:
         self._program = Program()
         self.inside_the_task = False
         self.last_struct: Structure | None = None
-        logger_manager = LoggerManager()
-        self.logger: Logger = logger_manager.getLogger(self.__class__.__qualname__)
+        self.logger: Logger = LoggerManager().getLogger(self.__class__.__qualname__)
 
     def translate(self, ctx) -> None:
         raise TypeError("Run base translator")
