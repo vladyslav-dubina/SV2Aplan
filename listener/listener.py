@@ -27,6 +27,10 @@ class SVToAplanListener(BaseListener, SystemVerilogParserListener):
     # OPERATORS
     # =========================================================================================
 
+    # Enter a parse tree produced by SystemVerilogParser#concatenation.
+    def enterConcatenation(self, ctx: SystemVerilogParser.ConcatenationContext):
+        print(ctx.getText())
+
     # Enter a parse tree produced by SystemVerilogParser#polarity_operator.
     def enterPolarity_operator(self, ctx: SystemVerilogParser.Polarity_operatorContext):
         self.translator.translate("operator", ctx)
