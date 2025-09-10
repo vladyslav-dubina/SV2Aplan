@@ -4,7 +4,7 @@ from antlr4_verilog.systemverilog import (
     SystemVerilogParser,
 )
 
-from AppModule.app.classes.design_unit_call import DesignUnitCall
+from Core.src.classes.design_unit_call import DesignUnitCall
 from listener.base import BaseListener
 
 

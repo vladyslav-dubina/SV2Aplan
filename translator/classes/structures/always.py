@@ -1,7 +1,7 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 
-from AppModule.app.classes.always import Always
+from Core.src.classes.always import Always
 from translator.classes.base_translator import BaseTranslator
 
 

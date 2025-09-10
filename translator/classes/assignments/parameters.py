@@ -1,7 +1,7 @@
 from typing import Tuple
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from AppModule.app.classes.value_parametrs import ValueParametr
+from Core.src.classes.value_parametrs import ValueParametr
 from translator.classes.base_translator import BaseTranslator
 
 

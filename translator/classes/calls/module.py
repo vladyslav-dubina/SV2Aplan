@@ -1,14 +1,14 @@
 from typing import List, Tuple
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from AppModule.app.classes.action_precondition import ActionPreconditionArray
-from AppModule.app.classes.declarations import AplanDeclType
-from AppModule.app.classes.element_types import ElementsTypes
-from AppModule.app.classes.design_unit_call import DesignUnitCall
-from AppModule.app.classes.node import Node, NodeArray
-from AppModule.app.classes.parametrs import Parametr, ParametrArray
-from AppModule.app.classes.protocols import BodyElement, Protocol
-from AppModule.app.program.program import Program
+from Core.src.classes.action_precondition import ActionPreconditionArray
+from Core.src.classes.declarations import AplanDeclType
+from Core.src.classes.element_types import ElementsTypes
+from Core.src.classes.design_unit_call import DesignUnitCall
+from Core.src.classes.node import Node, NodeArray
+from Core.src.classes.parametrs import Parametr, ParametrArray
+from Core.src.classes.protocols import BodyElement, Protocol
+from Core.src.program.program import Program
 from translator.classes.base_translator import BaseTranslator
 from translator.translation_mngr import TranslationManager
 

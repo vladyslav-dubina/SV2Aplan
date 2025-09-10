@@ -2,9 +2,9 @@ from antlr4 import FileStream
 from antlr4_verilog import InputStream, CommonTokenStream, ParseTreeWalker
 
 from antlr4_verilog.systemverilog import SystemVerilogLexer, SystemVerilogParser
-from AppModule.app.translator.base_translator_mngr import BaseTranslationManager
-from AppModule.app.program.program import Program
-from AppModule.app.classes.design_unit_call import DesignUnitCall
+from Core.src.translator.base_translator_mngr import BaseTranslationManager
+from Core.src.program.program import Program
+from Core.src.classes.design_unit_call import DesignUnitCall
 
 
 class TranslationManager(BaseTranslationManager):

@@ -1,4 +1,4 @@
-from AppModule.app.tools.tool import BaseTool
+from Core.src.tools.tool import BaseTool
 import argparse
 
 import traceback

@@ -1,13 +1,13 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from AppModule.app.classes.actions import Action
-from AppModule.app.classes.declarations import Declaration
-from AppModule.app.classes.element_types import ElementsTypes
-from AppModule.app.classes.protocols import BodyElement, Protocol
-from AppModule.app.classes.structure import Structure
-from AppModule.app.classes.tasks import Task
-from AppModule.app.classes.typedef import Typedef
-from AppModule.app.classes.value_parametrs import ValueParametr
+from Core.src.classes.actions import Action
+from Core.src.classes.declarations import Declaration
+from Core.src.classes.element_types import ElementsTypes
+from Core.src.classes.protocols import BodyElement, Protocol
+from Core.src.classes.structure import Structure
+from Core.src.classes.tasks import Task
+from Core.src.classes.typedef import Typedef
+from Core.src.classes.value_parametrs import ValueParametr
 from translator.classes.base_translator import BaseTranslator
 from translator.translation_mngr import TranslationManager
 

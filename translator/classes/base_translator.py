@@ -1,26 +1,26 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from AppModule.app.utils.counters import Counters
-from AppModule.app.utils.file_manager import FilesMngr
-from AppModule.app.utils.logger import Logger
-from AppModule.app.utils.string_formater import StringFormater
-from AppModule.app.utils.unsorted import UnsortedUnils
+from Core.src.utils.counters import Counters
+from Core.src.utils.file_manager import FilesMngr
+from Core.src.logger.logger import Logger, LoggerManager
+from Core.src.utils.string_formater import StringFormater
+from Core.src.utils.unsorted import UnsortedUnils
 
-from AppModule.app.classes.declarations import (
+from Core.src.classes.declarations import (
     DeclType,
     DeclTypeArray,
     DeclTypes,
     Declaration,
 )
-from AppModule.app.classes.element_types import ElementsTypes
-from AppModule.app.classes.node import NodeArray
-from AppModule.app.classes.structure import Structure, StructureArray
-from AppModule.app.classes.tasks import TaskStmt
-from AppModule.app.classes.typedef import Typedef
+from Core.src.classes.element_types import ElementsTypes
+from Core.src.classes.node import NodeArray
+from Core.src.classes.structure import Structure, StructureArray
+from Core.src.classes.tasks import TaskStmt
+from Core.src.classes.typedef import Typedef
 
-from AppModule.app.classes.design_unit import DesignUnit, DesignUnitArray
-from AppModule.app.program.program import Program
-from AppModule.app.classes.design_unit_call import DesignUnitCall
+from Core.src.classes.design_unit import DesignUnit, DesignUnitArray
+from Core.src.program.program import Program
+from Core.src.classes.design_unit_call import DesignUnitCall
 
 if typing.TYPE_CHECKING:
     from translator.translator import Translator
@@ -31,13 +31,14 @@ class BaseTranslator:
     str_formater = StringFormater()
     utils = UnsortedUnils()
     file_mngr = FilesMngr()
-    logger = Logger()
 
     def __init__(self, translator: "Translator"):
         self._translator_ptr = translator
         self._program = Program()
         self.inside_the_task = False
         self.last_struct: Structure | None = None
+        logger_manager = LoggerManager()
+        self.logger: Logger = logger_manager.getLogger(self.__class__.__qualname__)
 
     def translate(self, ctx) -> None:
         raise TypeError("Run base translator")

@@ -2,10 +2,10 @@ from typing import List
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 
-from AppModule.app.classes.element_types import ElementsTypes
-from AppModule.app.classes.parametrs import Parametr
-from AppModule.app.classes.protocols import Protocol
-from AppModule.app.classes.tasks import Task, TaskStmt
+from Core.src.classes.element_types import ElementsTypes
+from Core.src.classes.parametrs import Parametr
+from Core.src.classes.protocols import Protocol
+from Core.src.classes.tasks import Task, TaskStmt
 from translator.classes.base_translator import BaseTranslator
 
 

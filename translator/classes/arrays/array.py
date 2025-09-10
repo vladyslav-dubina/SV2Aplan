@@ -1,8 +1,8 @@
 from typing import Tuple
 import typing
 
-from AppModule.app.classes.declarations import DeclTypes, Declaration
-from AppModule.app.classes.typedef import Typedef
+from Core.src.classes.declarations import DeclTypes, Declaration
+from Core.src.classes.typedef import Typedef
 from translator.classes.base_translator import BaseTranslator
 
 

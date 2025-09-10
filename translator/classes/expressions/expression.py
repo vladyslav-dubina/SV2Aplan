@@ -1,19 +1,19 @@
 from typing import List, Tuple
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from AppModule.app.classes.action_precondition import ActionPreconditionArray
-from AppModule.app.classes.actions import Action
-from AppModule.app.classes.element_types import ElementsTypes
-from AppModule.app.classes.node import Node, NodeArray
-from AppModule.app.classes.parametrs import ParametrArray
-from AppModule.app.classes.protocols import BodyElement, Protocol
-from AppModule.app.classes.structure import Structure
-from AppModule.app.translator.expressions.expression import (
+from Core.src.classes.action_precondition import ActionPreconditionArray
+from Core.src.classes.actions import Action
+from Core.src.classes.element_types import ElementsTypes
+from Core.src.classes.node import Node, NodeArray
+from Core.src.classes.parametrs import ParametrArray
+from Core.src.classes.protocols import BodyElement, Protocol
+from Core.src.classes.structure import Structure
+from Core.src.translator.expressions.expression import (
     copyToAssociatedAction,
     findAssociatedAction,
     getNamePartAndCounter,
 )
-from AppModule.app.utils.counters import CounterTypes
+from Core.src.utils.counters import CounterTypes
 from translator.classes.base_translator import BaseTranslator
 
 

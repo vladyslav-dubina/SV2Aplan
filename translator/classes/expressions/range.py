@@ -1,7 +1,7 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from AppModule.app.classes.element_types import ElementsTypes
-from AppModule.app.classes.node import Node, RangeTypes
+from Core.src.classes.element_types import ElementsTypes
+from Core.src.classes.node import Node, RangeTypes
 from translator.classes.base_translator import BaseTranslator
 
 
@@ -19,9 +19,9 @@ class ConstantRangeSelectionTranslator(BaseTranslator):
         if not self.last_node_array:
             return
 
-        expressions: typing.List[
-            SystemVerilogParser.Constant_expressionContext
-        ] = ctx.constant_expression()
+        expressions: typing.List[SystemVerilogParser.Constant_expressionContext] = (
+            ctx.constant_expression()
+        )
         expressions_len = len(ctx.constant_expression())
         for index, element in enumerate(expressions):
             if index != 0:

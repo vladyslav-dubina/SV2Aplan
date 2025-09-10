@@ -3,20 +3,20 @@ from antlr4_verilog.systemverilog import SystemVerilogParser
 from antlr4.tree import Tree
 from typing import List, Literal, Tuple, overload
 
-from AppModule.app.classes.case_stmt import CaseStmt
-from AppModule.app.classes.typedef import Typedef
-from AppModule.app.utils.counters import CounterTypes, Counters
-from AppModule.app.classes.declarations import DeclType, DeclTypeArray
-from AppModule.app.classes.if_stmt import IfStmt
-from AppModule.app.classes.loop_stmt import ForeverStmt, LoopStmt, WhileStmt
-from AppModule.app.classes.design_unit_call import DesignUnitCall
-from AppModule.app.classes.node import NodeArray
-from AppModule.app.classes.parametrs import ParametrArray
-from AppModule.app.classes.protocols import BodyElement
-from AppModule.app.classes.structure import Structure, StructureArray
-from AppModule.app.classes.design_unit import DesignUnit
-from AppModule.app.classes.element_types import ElementsTypes
-from AppModule.app.classes.tasks import TaskStmt
+from Core.src.classes.case_stmt import CaseStmt
+from Core.src.classes.typedef import Typedef
+from Core.src.utils.counters import CounterTypes, Counters
+from Core.src.classes.declarations import DeclType, DeclTypeArray
+from Core.src.classes.if_stmt import IfStmt
+from Core.src.classes.loop_stmt import ForeverStmt, LoopStmt, WhileStmt
+from Core.src.classes.design_unit_call import DesignUnitCall
+from Core.src.classes.node import NodeArray
+from Core.src.classes.parametrs import ParametrArray
+from Core.src.classes.protocols import BodyElement
+from Core.src.classes.structure import Structure, StructureArray
+from Core.src.classes.design_unit import DesignUnit
+from Core.src.classes.element_types import ElementsTypes
+from Core.src.classes.tasks import TaskStmt
 
 from translator.classes.arrays.array import ArrayTranslator
 from translator.classes.arrays.methods.push_back import PushBackTranslator

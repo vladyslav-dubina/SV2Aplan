@@ -1,6 +1,6 @@
 from typing import List
 import typing
-from AppModule.app.classes.parametrs import Parametr, ParametrArray
+from Core.src.classes.parametrs import Parametr, ParametrArray
 from translator.classes.base_translator import BaseTranslator
 
 

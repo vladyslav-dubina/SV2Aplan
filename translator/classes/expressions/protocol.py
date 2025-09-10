@@ -1,9 +1,9 @@
 import typing
-from AppModule.app.classes.actions import Action
-from AppModule.app.classes.element_types import ElementsTypes
-from AppModule.app.classes.parametrs import ParametrArray
-from AppModule.app.classes.protocols import BodyElement, Protocol
-from AppModule.app.classes.structure import Structure
+from Core.src.classes.actions import Action
+from Core.src.classes.element_types import ElementsTypes
+from Core.src.classes.parametrs import ParametrArray
+from Core.src.classes.protocols import BodyElement, Protocol
+from Core.src.classes.structure import Structure
 from translator.classes.base_translator import BaseTranslator
 
 

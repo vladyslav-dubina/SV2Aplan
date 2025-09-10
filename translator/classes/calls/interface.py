@@ -1,7 +1,7 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from AppModule.app.classes.design_unit_call import DesignUnitCall
-from AppModule.app.classes.parametrs import Parametr
+from Core.src.classes.design_unit_call import DesignUnitCall
+from Core.src.classes.parametrs import Parametr
 from translator.classes.base_translator import BaseTranslator
 from translator.translation_mngr import TranslationManager
 

@@ -1,12 +1,12 @@
 from typing import Tuple
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from AppModule.app.classes.actions import Action
-from AppModule.app.classes.declarations import Declaration
-from AppModule.app.classes.element_types import ElementsTypes
-from AppModule.app.classes.node import Node
-from AppModule.app.classes.protocols import BodyElement, Protocol
-from AppModule.app.classes.structure import Structure
+from Core.src.classes.actions import Action
+from Core.src.classes.declarations import Declaration
+from Core.src.classes.element_types import ElementsTypes
+from Core.src.classes.node import Node
+from Core.src.classes.protocols import BodyElement, Protocol
+from Core.src.classes.structure import Structure
 from translator.classes.base_translator import BaseTranslator
 
 

@@ -1,6 +1,6 @@
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
-from AppModule.app.classes.design_unit import DesignUnit
+from Core.src.classes.design_unit import DesignUnit
 from translator.classes.base_translator import BaseTranslator
 
 

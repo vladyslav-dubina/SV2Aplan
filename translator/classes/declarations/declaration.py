@@ -1,7 +1,7 @@
 from typing import Tuple
 import typing
-from AppModule.app.classes.declarations import DeclTypes, Declaration
-from AppModule.app.utils.counters import CounterTypes
+from Core.src.classes.declarations import DeclTypes, Declaration
+from Core.src.utils.counters import CounterTypes
 from translator.classes.base_translator import BaseTranslator
 
 
