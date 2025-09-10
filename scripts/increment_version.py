@@ -3,8 +3,8 @@ import sys
 
 
 def increment_version(file_path):
-    # Template for string "## Version X.YY"
-    version_pattern = r"(##\s*Version\s+)(\d+)\.(\d+)"
+    # Template for string "## Version X.YY.ZZ"
+    version_pattern = r"(##\s*Version\s+)(\d+)\.(\d+)\.(\d+)"
 
     with open(file_path, "r", encoding="utf-8") as file:
         content = file.read()
@@ -12,14 +12,17 @@ def increment_version(file_path):
     def increase_version(match):
         major = int(match.group(2))  # Major version
         minor = int(match.group(3))  # Minor version
-
-        minor += 1
+        sub = int(match.group(4))  # Sub Minor version
+        sub += 1
+        if sub >= 100:
+            minor += 1
+            sub = 0
 
         if minor >= 100:
             major += 1
             minor = 0
 
-        return f"{match.group(1)}{major}.{minor}"
+        return f"{match.group(1)}{major}.{minor}.{sub}"
 
     updated_content, count = re.subn(version_pattern, increase_version, content)
 
