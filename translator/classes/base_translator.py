@@ -2,7 +2,7 @@ import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from Core.src.utils.counters import Counters
 from Core.src.utils.file_manager import FilesMngr
-from Core.src.logger.logger import Logger, LoggerManager
+from Core.src.logger.logger import Logger
 from Core.src.utils.string_formater import StringFormater
 from Core.src.utils.unsorted import UnsortedUnils
 
@@ -37,7 +37,7 @@ class BaseTranslator:
         self._program = Program()
         self.inside_the_task = False
         self.last_struct: Structure | None = None
-        self.logger: Logger = LoggerManager().getLogger(self.__class__.__qualname__)
+        self.logger: Logger = Logger(self.__class__.__qualname__)
 
     def translate(self, ctx) -> None:
         raise TypeError("Run base translator")

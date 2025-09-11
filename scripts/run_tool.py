@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 
 from tool.tool import Sv2AplanTool
 
@@ -7,7 +8,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="This program is a translator from the system verilog language to the AVM algebraic model.\nAuthors:  \n1. Vlad Dubina (https://github.com/vladyslav-dubina)"
     )
-    parser.add_argument("path_to_sv", help="Path to system verilog(.sv) file")
+    parser.add_argument("fpath", help="Path to system verilog(.sv) file")
     parser.add_argument(
         "-rpath",
         metavar="",
@@ -18,4 +19,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     tool = Sv2AplanTool()
 
-    tool.start(args.path_to_sv, args.rpath)
+    file_path = Path(args.fpath) if args.fpath else None
+    result_path = Path(args.rpath) if args.rpath else None
+
+    tool.start(file_path, result_path)

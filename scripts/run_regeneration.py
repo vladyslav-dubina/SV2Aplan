@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 
 from tool.tool import Sv2AplanTool
 
@@ -25,4 +26,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     tool = Sv2AplanTool()
 
-    tool.regeneration_start(args.e_path, args.path)
+    file_path = Path(args.e_path) if args.e_path else None
+    result_path = Path(args.rpath) if args.rpath else None
+
+    tool.regeneration_start(Path(args.e_path), Path(args.rpath))

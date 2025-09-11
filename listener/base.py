@@ -2,7 +2,7 @@ from Core.src.classes.design_unit import DesignUnit
 from Core.src.classes.design_unit_call import DesignUnitCall
 
 from Core.src.utils.counters import Counters
-from Core.src.logger.logger import Logger, LoggerManager
+from Core.src.logger.logger import Logger
 from translator.translator import Translator
 
 
@@ -20,4 +20,4 @@ class BaseListener:
 
     def __init__(self, design_unit_call: DesignUnitCall | None = None):
         self.translator.design_unit_call = design_unit_call
-        self.logger = LoggerManager().getLogger(self.__class__.__qualname__)
+        self.logger: Logger = Logger(self.__class__.__qualname__)

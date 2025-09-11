@@ -8,10 +8,8 @@ from Core.src.classes.design_unit_call import DesignUnitCall
 
 
 class TranslationManager(BaseTranslationManager):
-    program = Program()
 
     def setup(self, file_name):
-        self.program.file_path = file_name
         self.logger.delimetr(color="blue", text=f"Read file {file_name}")
         self.logger.info("Set up translator environment \n", color="bold_yellow")
         lexer = SystemVerilogLexer(FileStream(file_name))
@@ -19,6 +17,8 @@ class TranslationManager(BaseTranslationManager):
         parser = SystemVerilogParser(stream)
         self.tree = parser.source_text()
         self.walker = ParseTreeWalker()
+        self.program = Program()
+        self.program.file_path = file_name
 
     def translate(self, design_unit_call: DesignUnitCall | None = None):
         from listener.listener import SVToAplanListener
