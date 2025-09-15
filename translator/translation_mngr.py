@@ -1,3 +1,4 @@
+from pathlib import Path
 from antlr4 import FileStream
 from antlr4_verilog import InputStream, CommonTokenStream, ParseTreeWalker
 
@@ -8,17 +9,16 @@ from Core.src.classes.design_unit_call import DesignUnitCall
 
 
 class TranslationManager(BaseTranslationManager):
-
-    def setup(self, file_name):
-        self.logger.delimetr(color="blue", text=f"Read file {file_name}")
+    def setup(self, file_path: Path):
+        self.logger.delimetr(color="blue", text=f"Read file {file_path}")
         self.logger.info("Set up translator environment \n", color="bold_yellow")
-        lexer = SystemVerilogLexer(FileStream(file_name))
+        lexer = SystemVerilogLexer(FileStream(file_path))
         stream = CommonTokenStream(lexer)
         parser = SystemVerilogParser(stream)
         self.tree = parser.source_text()
         self.walker = ParseTreeWalker()
         self.program = Program()
-        self.program.file_path = file_name
+        self.program.file_path = file_path
 
     def translate(self, design_unit_call: DesignUnitCall | None = None):
         from listener.listener import SVToAplanListener

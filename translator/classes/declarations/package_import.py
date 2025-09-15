@@ -31,7 +31,7 @@ class PackageImportDeclTranslator(BaseTranslator):
                 )
                 if package_program is None:
                     previous_file_path = self._program.file_path
-                    file_path = self.file_mngr.replace_filename(
+                    file_path = self.file_mngr.replaceFilename(
                         self._program.file_path, f"{package_identifier}.sv"
                     )
                     translation_mngr = TranslationManager()

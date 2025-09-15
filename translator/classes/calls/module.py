@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import List, Tuple
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
@@ -49,9 +50,10 @@ class ModuleCallTranslator(BaseTranslator):
         )
         call_design_unit_name = object_name
 
+        previous_file_path: Path = None
         try:
-            previous_file_path = self._program.file_path
-            file_path = self.file_mngr.replace_filename(
+            previous_file_path: Path = self._program.file_path
+            file_path: Path = self.file_mngr.replaceFilename(
                 self._program.file_path, f"{destination_identifier}.sv"
             )
             translation_mngr = TranslationManager()

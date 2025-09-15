@@ -1,3 +1,4 @@
+from pathlib import Path
 import typing
 from antlr4_verilog.systemverilog import SystemVerilogParser
 from Core.src.classes.design_unit_call import DesignUnitCall
@@ -33,9 +34,10 @@ class InterfaceCallTranslator(BaseTranslator):
             None,
         )
 
+        previous_file_path: Path = None
         try:
-            previous_file_path = self._program.file_path
-            file_path = self.file_mngrreplace_filename(
+            previous_file_path: Path = self._program.file_path
+            file_path = self.file_mngr.replaceFilename(
                 self._program.file_path, f"{destination_identifier}.sv"
             )
             translation_mngr = TranslationManager()
